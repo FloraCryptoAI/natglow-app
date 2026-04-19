@@ -57,14 +57,14 @@ export default function Dashboard() {
         .hover\\:bg-emerald-800:hover { background-color: #E03594 !important; }
         .text-emerald-700 { color: #FB45A9 !important; }
         .text-emerald-600 { color: #FFB3DD !important; }
-        .text-emerald-200 { color: #B6EDD9 !important; }
+        .text-emerald-200 { color: #ffffff !important; }
         .border-emerald-600 { border-color: #FFB3DD !important; }
         .border-emerald-300 { border-color: #FFB3DD !important; }
         .border-emerald-100 { border-color: #FFE4F2 !important; }
         .bg-emerald-50 { background-color: #FFF5FA !important; }
         .bg-emerald-100 { background-color: #FFE4F2 !important; }
         .from-emerald-700 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-900 { --tw-gradient-to: #1A5A43 !important; }
+        .to-emerald-900 { --tw-gradient-to: #FFB3DD !important; }
         .hover\\:bg-emerald-50\\/50:hover { background-color: rgba(239, 251, 246, 0.5) !important; }
         .border-t-emerald-600 { border-top-color: #FFB3DD !important; }
       `}</style>

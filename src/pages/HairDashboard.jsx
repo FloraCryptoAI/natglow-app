@@ -40,7 +40,7 @@ const HABITS_TO_AVOID = [
 ];
 
 const TAG_LABELS = {
-  ultra:        { label: 'Ultra eficaz', color: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
+  ultra:        { label: 'Ultra eficaz', color: 'bg-green-100 text-green-800 border border-green-200' },
   eficiente:    { label: 'Eficaz',       color: 'bg-blue-100 text-blue-700 border border-blue-200' },
   complementar: { label: 'Complementar', color: 'bg-amber-100 text-amber-700 border border-amber-200' },
 };
@@ -131,15 +131,15 @@ export default function HairDashboard() {
         </div>
       </div>
 
-      <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+      <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
         <div className="flex items-center gap-2 mb-3">
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
+          <CheckCircle className="w-5 h-5 text-green-600" />
           <h3 className="font-semibold text-stone-800">Hábitos para Adotar</h3>
         </div>
         <ul className="space-y-2">
           {DAILY_HABITS.map((habit, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-stone-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 mt-2 flex-shrink-0" />
               {habit}
             </li>
           ))}
