@@ -128,8 +128,8 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col" style={{ fontFamily: 'system-ui, sans-serif' }}>
       <style>{`
-        .btn-primary { background: #FB45A9; color: #fff; border-radius: 9999px; font-weight: 700; transition: all .2s; }
-        .btn-primary:hover { background: #E03594; box-shadow: 0 8px 24px rgba(251,69,169,.35); transform: scale(1.02); }
+        .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color: #fff; border-radius: 9999px; font-weight: 700; transition: all .2s; }
+        .btn-primary:hover { opacity: .9; box-shadow: 0 8px 24px rgba(251,69,169,.35); transform: scale(1.02); }
         .btn-white { background: #fff; color: #E03594; border-radius: 9999px; font-weight: 700; transition: all .2s; }
         .btn-white:hover { box-shadow: 0 8px 24px rgba(0,0,0,.15); transform: scale(1.02); }
         .card-option { border: 2px solid #e7e5e4; border-radius: 16px; cursor: pointer; transition: all .2s; }
@@ -138,6 +138,17 @@ export default function Landing() {
         .card-img-option { border: 2px solid #e7e5e4; border-radius: 16px; cursor: pointer; overflow: hidden; transition: all .2s; }
         .card-img-option:hover { border-color: #FB45A9; }
         .card-img-option.selected { border-color: #FB45A9; box-shadow: 0 0 0 3px rgba(251,69,169,.25); }
+        .bg-emerald-500 { background-color: #FB45A9 !important; }
+        .text-emerald-500 { color: #FB45A9 !important; }
+        .text-emerald-600 { color: #FB45A9 !important; }
+        .text-emerald-800 { color: #E03594 !important; }
+        .text-emerald-100 { color: #FFF5FA !important; }
+        .bg-emerald-50  { background-color: #FFF5FA !important; }
+        .bg-emerald-100 { background-color: #FFE4F2 !important; }
+        .border-emerald-100 { border-color: #FFE4F2 !important; }
+        .border-emerald-200 { border-color: #FFE4F2 !important; }
+        .border-emerald-500 { border-color: #FB45A9 !important; }
+        .focus\\:border-emerald-400:focus { border-color: #FB45A9 !important; }
       `}</style>
 
       {/* ── HEADER ── */}
@@ -503,12 +514,12 @@ export default function Landing() {
           {step === STEPS.PAYWALL && (
             <motion.div key="paywall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex flex-col">
               {/* Header */}
-              <div className="bg-gradient-to-b from-emerald-700 to-emerald-900 px-4 pt-12 pb-10 text-center text-white">
+              <div className="px-4 pt-12 pb-10 text-center text-white" style={{ background: 'linear-gradient(to bottom, #FB45A9, #E03594)' }}>
                 <div className="inline-flex items-center gap-2 bg-white/15 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
                   <Sparkles className="w-3.5 h-3.5" /> Plano pronto!
                 </div>
                 <h1 className="text-3xl font-extrabold leading-tight mb-3">Seu plano está pronto</h1>
-                <p className="text-emerald-100 text-sm max-w-xs mx-auto">
+                <p className="text-pink-100 text-sm max-w-xs mx-auto">
                   Criamos um plano personalizado com base nas suas respostas.
                 </p>
               </div>
