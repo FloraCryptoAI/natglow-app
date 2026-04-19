@@ -25,7 +25,7 @@ export default function HairProgress() {
   }));
 
   const phaseColors = {
-    1: { gradient: 'from-emerald-600 to-emerald-700', text: 'text-emerald-200', bar: '#FB45A9' },
+    1: { gradient: 'from-brand to-brand-light',       text: 'text-white/80',   bar: '#FB45A9' },
     2: { gradient: 'from-blue-600 to-blue-700',       text: 'text-blue-200',    bar: '#3B82F6' },
     3: { gradient: 'from-violet-600 to-violet-700',   text: 'text-violet-200',  bar: '#7C3AED' },
     4: { gradient: 'from-amber-500 to-amber-600',     text: 'text-amber-200',   bar: '#F59E0B' },

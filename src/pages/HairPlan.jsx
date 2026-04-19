@@ -62,7 +62,7 @@ const WEEKLY_PLANS = {
 };
 
 const PHASE_COLORS = {
-  1: 'from-emerald-600 to-emerald-800',
+  1: 'from-brand to-brand-light',
   2: 'from-blue-600 to-blue-800',
   3: 'from-violet-600 to-violet-800',
   4: 'from-amber-500 to-amber-700',
@@ -123,7 +123,7 @@ function WeekCard({ weekData, phaseRecipes, phaseNum, completed, onToggle, onSel
                         onClick={() => onSelectRecipe(recipe)}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 hover:border-brand-light hover:bg-brand-bg transition-all text-left"
                       >
-                        <div className="w-9 h-9 rounded-full bg-white border border-stone-200 flex items-center justify-center text-lg flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-lg flex-shrink-0">
                           {item.emoji}
                         </div>
                         <div className="flex-1 min-w-0">
