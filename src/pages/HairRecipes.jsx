@@ -54,7 +54,7 @@ export default function HairRecipes() {
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-r from-amber-50 to-brand-bg border-b border-stone-100 px-5 pt-5 pb-4">
+        <div className="bg-gradient-to-r from-brand-bg to-white border-b border-stone-100 px-5 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
             <h2 className="text-base font-bold text-stone-900">Comece por essas</h2>
