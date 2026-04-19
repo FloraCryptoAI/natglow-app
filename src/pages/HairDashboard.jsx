@@ -67,13 +67,13 @@ export default function HairDashboard() {
         .bg-emerald-900 { background-color: #1A5A43 !important; }
         .text-emerald-700 { color: #FB45A9 !important; }
         .text-emerald-600 { color: #E03594 !important; }
-        .text-emerald-200 { color: #B6EDD9 !important; }
+        .text-emerald-200 { color: #ffffff !important; }
         .border-emerald-300 { border-color: #FFB3DD !important; }
         .border-emerald-100 { border-color: #FFE4F2 !important; }
         .bg-emerald-50 { background-color: #FFF5FA !important; }
         .bg-emerald-100 { background-color: #FFE4F2 !important; }
         .from-emerald-700 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-900 { --tw-gradient-to: #1A5A43 !important; }
+        .to-emerald-900 { --tw-gradient-to: #FFB3DD !important; }
       `}</style>
 
       <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-3xl p-6 text-white">
