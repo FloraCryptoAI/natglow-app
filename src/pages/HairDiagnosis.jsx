@@ -55,21 +55,6 @@ export default function HairDiagnosis() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white flex flex-col">
-      <style>{`
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .bg-emerald-800 { background-color: #E03594 !important; }
-        .bg-emerald-900 { background-color: #1A5A43 !important; }
-        .hover\\:bg-emerald-50:hover { background-color: #FFF5FA !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-600 { color: #E03594 !important; }
-        .text-emerald-200 { color: #B6EDD9 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .bg-emerald-100 { background-color: #FFE4F2 !important; }
-        .from-emerald-700 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-900 { --tw-gradient-to: #1A5A43 !important; }
-        .border-emerald-200 { border-color: #B6EDD9 !important; }
-        .border-emerald-100 { border-color: #FFE4F2 !important; }
-      `}</style>
 
       <header className="bg-white/80 backdrop-blur-lg border-b border-stone-200/60">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center">
@@ -95,7 +80,7 @@ export default function HairDiagnosis() {
                 exit={{ opacity: 0, y: -20 }}
                 className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 p-10 text-center"
               >
-                <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 rounded-full bg-brand-pale flex items-center justify-center mx-auto mb-6">
                   <div className="w-8 h-8 border-t-emerald-600 border-emerald-200 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid' }} />
                 </div>
                 <h2 className="text-xl font-bold text-stone-900 mb-2">Analisando suas respostas…</h2>
@@ -108,9 +93,9 @@ export default function HairDiagnosis() {
                       animate={{ opacity: completedSteps.includes(i) ? 1 : 0.3, x: 0 }}
                       className="flex items-center gap-3"
                     >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${completedSteps.includes(i) ? 'bg-emerald-100' : 'bg-stone-100'}`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${completedSteps.includes(i) ? 'bg-brand-pale' : 'bg-stone-100'}`}>
                         {completedSteps.includes(i) ? (
-                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                          <CheckCircle className="w-5 h-5 text-brand" />
                         ) : (
                           <div className="w-2 h-2 rounded-full bg-stone-300" />
                         )}
@@ -130,10 +115,10 @@ export default function HairDiagnosis() {
                 transition={{ duration: 0.4 }}
                 className="space-y-4"
               >
-                <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-3xl p-7 text-white text-center">
-                  <p className="text-emerald-200 text-xs font-semibold uppercase tracking-widest mb-2">Plano Pronto</p>
+                <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-7 text-white text-center">
+                  <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">Plano Pronto</p>
                   <h1 className="text-2xl font-bold leading-tight mb-1">Seu plano de recuperação está pronto</h1>
-                  <p className="text-emerald-200 text-sm">Identificamos o que pode estar prejudicando seu cabelo</p>
+                  <p className="text-white/80 text-sm">Identificamos o que pode estar prejudicando seu cabelo</p>
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
@@ -141,7 +126,7 @@ export default function HairDiagnosis() {
                   <div className="space-y-2">
                     {FIXED_ISSUES.map((issue, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                         <span className="text-stone-700 text-sm font-medium capitalize">{issue}</span>
                       </div>
                     ))}
@@ -176,8 +161,8 @@ export default function HairDiagnosis() {
                       { icon: BarChart3, label: 'Progresso e conquistas ao longo da jornada' },
                     ].map(({ icon: Icon, label }, i) => (
                       <div key={i} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-4 h-4 text-emerald-700" />
+                        <div className="w-8 h-8 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-4 h-4 text-brand" />
                         </div>
                         <span className="text-stone-700 text-sm">{label}</span>
                       </div>
@@ -202,7 +187,7 @@ export default function HairDiagnosis() {
                   <div className="space-y-2">
                     {PREVIEW_PLAN.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 bg-stone-50 rounded-xl px-3 py-2.5">
-                        <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-brand-pale text-brand text-xs font-bold flex items-center justify-center flex-shrink-0">
                           {item.day}
                         </div>
                         <span className="text-stone-700 text-sm">{item.task}</span>
@@ -212,21 +197,21 @@ export default function HairDiagnosis() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-3xl p-7 text-center text-white shadow-xl">
+                <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-7 text-center text-white shadow-xl">
                   <h3 className="text-lg font-bold mb-2 leading-snug">Comece sua recuperação hoje</h3>
-                  <p className="text-emerald-200 text-sm mb-6 leading-relaxed">
+                  <p className="text-white/80 text-sm mb-6 leading-relaxed">
                     Plano de 21 dias com receitas naturais, rotina completa e acompanhamento de progresso.
                   </p>
                   <Button
                     onClick={() => navigate('/HairDashboard')}
-                    className="w-full bg-white text-emerald-800 hover:bg-emerald-50 rounded-full py-5 text-base font-bold shadow-lg transition-all"
+                    className="w-full bg-white text-brand hover:bg-brand-bg rounded-full py-5 text-base font-bold shadow-lg transition-all"
                   >
                     <div className="flex items-center gap-2 justify-center">
                       Acessar meu plano agora
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </Button>
-                  <p className="text-emerald-300 text-xs mt-3">Gratuito · Começa hoje</p>
+                  <p className="text-white/60 text-xs mt-3">Gratuito · Começa hoje</p>
                 </div>
               </motion.div>
             )}

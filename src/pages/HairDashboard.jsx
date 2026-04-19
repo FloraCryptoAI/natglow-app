@@ -61,46 +61,31 @@ export default function HairDashboard() {
 
   return (
     <div className="space-y-6 pb-8">
-      <style>{`
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .bg-emerald-800 { background-color: #E03594 !important; }
-        .bg-emerald-900 { background-color: #1A5A43 !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-600 { color: #E03594 !important; }
-        .text-emerald-200 { color: #ffffff !important; }
-        .border-emerald-300 { border-color: #FFB3DD !important; }
-        .border-emerald-100 { border-color: #FFE4F2 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .bg-emerald-100 { background-color: #FFE4F2 !important; }
-        .from-emerald-700 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-900 { --tw-gradient-to: #FFB3DD !important; }
-      `}</style>
-
-      <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-3xl p-6 text-white">
-        <p className="text-emerald-200 text-sm font-medium">Seu Plano de Recuperação</p>
+      <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-6 text-white">
+        <p className="text-white/80 text-sm font-medium">Seu Plano de Recuperação</p>
         <h1 className="text-2xl font-bold mt-1">Rotina Capilar ✨</h1>
-        <p className="text-emerald-200 text-sm mt-2 leading-relaxed">
+        <p className="text-white/80 text-sm mt-2 leading-relaxed">
           Plano estruturado para restaurar a saúde dos fios, controlar o frizz e prevenir a quebra com ingredientes naturais.
         </p>
         <div className="grid grid-cols-2 gap-4 mt-5">
           <div className="bg-white/10 rounded-xl p-3 text-center">
-            <p className="text-emerald-200 text-xs">Foco atual</p>
+            <p className="text-white/80 text-xs">Foco atual</p>
             <p className="font-semibold mt-1 text-sm">Recuperação e hidratação</p>
           </div>
           <div className="bg-white/10 rounded-xl p-3 text-center">
-            <p className="text-emerald-200 text-xs">Duração do Plano</p>
+            <p className="text-white/80 text-xs">Duração do Plano</p>
             <p className="font-semibold mt-1 text-sm">21 dias</p>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-r from-amber-50 to-emerald-50 border-b border-stone-100 px-5 pt-5 pb-4">
+        <div className="bg-gradient-to-r from-amber-50 to-brand-bg border-b border-stone-100 px-5 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
             <h2 className="text-lg font-bold text-stone-900">Método Essencial</h2>
           </div>
-          <p className="text-xs font-semibold text-emerald-700 mb-1">Comece por aqui</p>
+          <p className="text-xs font-semibold text-brand mb-1">Comece por aqui</p>
           <p className="text-sm text-stone-500 leading-relaxed">
             Para melhores resultados, foque nessas 3 receitas. Elas são a base da recuperação capilar.
           </p>
@@ -114,7 +99,7 @@ export default function HairDashboard() {
                 onClick={() => setSelectedRecipe(recipe)}
                 className="w-full flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-all text-left"
               >
-                <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
+                <div className="w-11 h-11 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-xl flex-shrink-0">
                   {disp.emoji || '🌿'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -164,13 +149,13 @@ export default function HairDashboard() {
       <HairSpecialRecipe recipe={SPECIAL_RECIPE} />
 
       <div className="grid grid-cols-2 gap-3">
-        <Link to="/HairPlan" className="bg-white rounded-2xl p-5 border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all">
-          <Calendar className="w-6 h-6 text-emerald-600 mb-2" />
+        <Link to="/HairPlan" className="bg-white rounded-2xl p-5 border border-stone-200 hover:border-brand-light hover:bg-brand-bg transition-all">
+          <Calendar className="w-6 h-6 text-brand mb-2" />
           <p className="font-medium text-stone-800 text-sm">Plano Capilar</p>
           <p className="text-xs text-stone-400 mt-1">Guia semanal</p>
         </Link>
-        <Link to="/HairRecipes" className="bg-white rounded-2xl p-5 border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all">
-          <Sparkles className="w-6 h-6 text-emerald-600 mb-2" />
+        <Link to="/HairRecipes" className="bg-white rounded-2xl p-5 border border-stone-200 hover:border-brand-light hover:bg-brand-bg transition-all">
+          <Sparkles className="w-6 h-6 text-brand mb-2" />
           <p className="font-medium text-stone-800 text-sm">Receitas</p>
           <p className="text-xs text-stone-400 mt-1">Tratamentos naturais</p>
         </Link>

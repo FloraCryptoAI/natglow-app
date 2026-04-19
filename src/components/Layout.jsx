@@ -22,23 +22,6 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <style>{`
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .bg-emerald-800 { background-color: #E03594 !important; }
-        .bg-emerald-600 { background-color: #FFB3DD !important; }
-        .hover\\:bg-emerald-700:hover { background-color: #FB45A9 !important; }
-        .hover\\:bg-emerald-800:hover { background-color: #E03594 !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-600 { color: #FFB3DD !important; }
-        .text-emerald-800 { color: #E03594 !important; }
-        .border-emerald-600 { border-color: #FFB3DD !important; }
-        .border-emerald-300 { border-color: #FFB3DD !important; }
-        .ring-emerald-100 { --tw-ring-color: #FFE4F2 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .bg-emerald-100 { background-color: #FFE4F2 !important; }
-        .border-emerald-500 { border-color: #FB45A9 !important; }
-      `}</style>
-
       {/* Top header — always visible */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-stone-200/60">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -59,7 +42,7 @@ export default function Layout() {
                 to={item.path}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   location.pathname === item.path
-                    ? 'bg-emerald-50 text-emerald-700'
+                    ? 'bg-brand-bg text-brand'
                     : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100'
                 }`}
               >
@@ -93,15 +76,15 @@ export default function Layout() {
                 key={item.path}
                 to={item.path}
                 className={`relative flex flex-col items-center justify-center gap-0.5 transition-colors ${
-                  active ? 'text-emerald-700' : 'text-stone-400'
+                  active ? 'text-brand' : 'text-stone-400'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${active ? 'text-emerald-700' : 'text-stone-400'}`} />
-                <span className={`text-xs font-medium leading-tight ${active ? 'text-emerald-700' : 'text-stone-400'}`}>
+                <item.icon className={`w-5 h-5 ${active ? 'text-brand' : 'text-stone-400'}`} />
+                <span className={`text-xs font-medium leading-tight ${active ? 'text-brand' : 'text-stone-400'}`}>
                   {item.label}
                 </span>
                 {active && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-emerald-700 rounded-full" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-brand rounded-full" />
                 )}
               </Link>
             );

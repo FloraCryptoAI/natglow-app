@@ -201,7 +201,7 @@ export default function SkinAge() {
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-stone-200 border-t-emerald-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-stone-200 border-t-brand rounded-full animate-spin" />
       </div>
     );
   }
@@ -219,19 +219,7 @@ export default function SkinAge() {
   const ageDiff = skinAge - realAge;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-emerald-50/30 flex items-center justify-center p-4">
-      <style>{`
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .bg-emerald-800 { background-color: #E03594 !important; }
-        .bg-emerald-900 { background-color: #1A5A43 !important; }
-        .hover\\:bg-emerald-800:hover { background-color: #E03594 !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-600 { color: #FFB3DD !important; }
-        .text-emerald-200 { color: #B6EDD9 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .from-emerald-700 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-900 { --tw-gradient-to: #1A5A43 !important; }
-      `}</style>
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-brand-bg/30 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -239,11 +227,11 @@ export default function SkinAge() {
         className="w-full max-w-md"
       >
         <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden">
-          <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 text-center text-white">
+          <div className="bg-gradient-to-br from-brand to-brand-light p-8 text-center text-white">
             <div className="w-24 h-24 rounded-3xl bg-white/20 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-12 h-12 text-white" />
             </div>
-            <p className="text-emerald-200 text-sm font-medium mb-2">Resultado da Análise</p>
+            <p className="text-white/80 text-sm font-medium mb-2">Resultado da Análise</p>
             <h1 className="text-3xl font-bold">Idade da Sua Pele</h1>
           </div>
 
@@ -277,12 +265,12 @@ export default function SkinAge() {
               )}
             </p>
 
-            <div className="bg-emerald-50 rounded-2xl p-4 mb-6">
-              <div className="flex items-center gap-2 text-emerald-700 font-medium text-sm mb-2">
+            <div className="bg-brand-bg rounded-2xl p-4 mb-6">
+              <div className="flex items-center gap-2 text-brand font-medium text-sm mb-2">
                 <TrendingDown className="w-4 h-4" />
                 <span>Potencial de melhora com rotina natural</span>
               </div>
-              <p className="text-emerald-600 text-sm">
+              <p className="text-stone-600 text-sm">
                 Seguindo uma rotina consistente por 30 dias, sua pele pode apresentar melhorias visíveis em hidratação, textura e luminosidade.
               </p>
             </div>
@@ -290,7 +278,7 @@ export default function SkinAge() {
             <Button
               onClick={handleGenerateRoutine}
               disabled={generating}
-              className="w-full bg-emerald-700 hover:bg-emerald-800 rounded-full py-6 text-base font-semibold"
+              className="w-full bg-brand hover:bg-brand-dark rounded-full py-6 text-base font-semibold"
             >
               {generating ? (
                 <div className="flex items-center gap-2">

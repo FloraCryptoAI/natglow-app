@@ -66,21 +66,6 @@ export default function Plan30Days() {
 
   return (
     <div className="space-y-6 pb-8">
-      <style>{`
-        .bg-emerald-600 { background-color: #FFB3DD !important; }
-        .text-emerald-600 { color: #FFB3DD !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .bg-emerald-100 { background-color: #FFE4F2 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .border-emerald-300 { border-color: #FFB3DD !important; }
-        .border-emerald-200 { border-color: #B6EDD9 !important; }
-        .border-emerald-500 { border-color: #FB45A9 !important; }
-        .ring-emerald-100 { --tw-ring-color: #FFE4F2 !important; }
-        .text-emerald-500 { color: #FB45A9 !important; }
-        .bg-emerald-500 { background-color: #FB45A9 !important; }
-        .from-emerald-500 { --tw-gradient-from: #FB45A9 !important; }
-        .to-emerald-600 { --tw-gradient-to: #FFB3DD !important; }
-      `}</style>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-2xl p-4 border border-stone-200 text-center">
@@ -94,7 +79,7 @@ export default function Plan30Days() {
           <p className="text-xs text-stone-400">Sequência</p>
         </div>
         <div className="bg-white rounded-2xl p-4 border border-stone-200 text-center">
-          <Sparkles className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
+          <Sparkles className="w-5 h-5 text-brand mx-auto mb-1" />
           <p className="text-2xl font-bold text-stone-900">{Math.round((completedDays / 30) * 100)}%</p>
           <p className="text-xs text-stone-400">Progresso</p>
         </div>
@@ -107,7 +92,7 @@ export default function Plan30Days() {
         </div>
         <div className="w-full bg-stone-100 rounded-full h-3">
           <div
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-brand to-brand-light h-3 rounded-full transition-all duration-500"
             style={{ width: `${(completedDays / 30) * 100}%` }}
           />
         </div>
@@ -128,15 +113,15 @@ export default function Plan30Days() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(day.day * 0.02, 0.4) }}
               className={`bg-white rounded-2xl p-5 border transition-all ${
-                isToday ? 'border-emerald-300 ring-2 ring-emerald-100' :
-                allDone ? 'border-emerald-200 bg-emerald-50/30' : 'border-stone-200'
+                isToday ? 'border-brand-light ring-2 ring-brand-pale' :
+                allDone ? 'border-green-200 bg-green-50/30' : 'border-stone-200'
               }`}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                    allDone ? 'bg-emerald-100 text-emerald-700' :
-                    isToday ? 'bg-emerald-600 text-white' : 'bg-stone-100 text-stone-500'
+                    allDone ? 'bg-green-100 text-green-700' :
+                    isToday ? 'bg-brand text-white' : 'bg-stone-100 text-stone-500'
                   }`}>
                     {allDone ? <Check className="w-5 h-5" /> : day.day}
                   </div>
@@ -144,7 +129,7 @@ export default function Plan30Days() {
                     <p className="font-semibold text-stone-800">Dia {day.day}</p>
                     <p className="text-xs text-stone-400">
                       {format(dayDate, "d 'de' MMMM", { locale: ptBR })}
-                      {isToday && <span className="ml-1 text-emerald-600 font-medium">• Hoje</span>}
+                      {isToday && <span className="ml-1 text-brand font-medium">• Hoje</span>}
                     </p>
                   </div>
                 </div>
@@ -187,15 +172,15 @@ export default function Plan30Days() {
                   <button
                     onClick={() => updateProgress.mutate({ dayNumber: day.day, field: 'weekly_task_completed', value: !progress.weekly_task_completed })}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
-                      progress.weekly_task_completed ? 'bg-emerald-50' : 'bg-stone-50 text-stone-700'
+                      progress.weekly_task_completed ? 'bg-green-50' : 'bg-stone-50 text-stone-700'
                     }`}
                   >
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                      progress.weekly_task_completed ? 'border-emerald-500 bg-emerald-500' : 'border-stone-300'
+                      progress.weekly_task_completed ? 'border-green-500 bg-green-500' : 'border-stone-300'
                     }`}>
                       {progress.weekly_task_completed && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
-                    <Sparkles className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <Sparkles className="w-4 h-4 text-green-500 flex-shrink-0" />
                     <span className={`text-sm ${progress.weekly_task_completed ? 'line-through text-stone-400' : ''}`}>{day.special_task}</span>
                   </button>
                 )}

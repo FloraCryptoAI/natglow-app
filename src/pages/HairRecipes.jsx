@@ -47,15 +47,6 @@ export default function HairRecipes() {
 
   return (
     <div className="space-y-6 pb-8">
-      <style>{`
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-800 { color: #E03594 !important; }
-        .border-emerald-500 { border-color: #FB45A9 !important; }
-        .border-emerald-300 { border-color: #FFB3DD !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .border-emerald-200 { border-color: #B6EDD9 !important; }
-        .border-emerald-100 { border-color: #FFE4F2 !important; }
-      `}</style>
 
       <div>
         <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Receitas Naturais</h1>
@@ -63,7 +54,7 @@ export default function HairRecipes() {
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-r from-amber-50 to-emerald-50 border-b border-stone-100 px-5 pt-5 pb-4">
+        <div className="bg-gradient-to-r from-amber-50 to-brand-bg border-b border-stone-100 px-5 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
             <h2 className="text-base font-bold text-stone-900">Comece por essas</h2>
@@ -82,7 +73,7 @@ export default function HairRecipes() {
                 onClick={() => setSelectedRecipe(recipe)}
                 className="w-full flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-all text-left"
               >
-                <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl flex-shrink-0">
+                <div className="w-11 h-11 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-xl flex-shrink-0">
                   {disp.emoji || '🌿'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -112,13 +103,13 @@ export default function HairRecipes() {
                 onClick={() => toggleIngredient(ing.name)}
                 className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left w-full ${
                   active
-                    ? 'border-emerald-500 bg-emerald-50'
+                    ? 'border-brand bg-brand-bg'
                     : 'border-stone-200 bg-white hover:border-stone-300'
                 }`}
               >
                 <span className="text-xl flex-shrink-0">{ing.emoji}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm font-medium leading-tight truncate ${active ? 'text-emerald-800' : 'text-stone-700'}`}>
+                  <p className={`text-sm font-medium leading-tight truncate ${active ? 'text-brand-dark' : 'text-stone-700'}`}>
                     {ing.name.split(' ')[0]}
                   </p>
                   <div className="mt-1">
@@ -132,7 +123,7 @@ export default function HairRecipes() {
         {selectedIngredients.length > 0 && (
           <button
             onClick={() => setSelectedIngredients([])}
-            className="mt-2 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+            className="mt-2 text-xs text-stone-400 hover:text-stone-600 transition-colors mt-2"
           >
             Limpar filtros
           </button>
@@ -146,7 +137,7 @@ export default function HairRecipes() {
         {filteredRecipes.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 border border-stone-200 text-center">
             <p className="text-stone-400 text-sm">Nenhuma receita com esses ingredientes combinados.</p>
-            <button onClick={() => setSelectedIngredients([])} className="mt-2 text-emerald-700 text-sm font-medium">
+            <button onClick={() => setSelectedIngredients([])} className="mt-2 text-brand text-sm font-medium">
               Ver todas as receitas
             </button>
           </div>
@@ -159,7 +150,7 @@ export default function HairRecipes() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => setSelectedRecipe(recipe)}
-                className="bg-white rounded-2xl p-5 border border-stone-200 text-left hover:border-emerald-300 hover:shadow-sm transition-all"
+                className="bg-white rounded-2xl p-5 border border-stone-200 text-left hover:border-brand-light hover:shadow-sm transition-all"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-xs text-stone-400 font-medium uppercase tracking-wider">{recipe.category}</p>

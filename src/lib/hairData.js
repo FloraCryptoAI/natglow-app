@@ -3,7 +3,7 @@
 // ============================================================
 
 export const TAG_LABELS = {
-  ultra: { label: 'Ultra eficaz', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+  ultra: { label: 'Ultra eficaz', color: 'bg-green-100 text-green-800 border-green-200' },
   eficiente: { label: 'Eficaz', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   complementar: { label: 'Complementar', color: 'bg-amber-100 text-amber-700 border-amber-200' },
 };

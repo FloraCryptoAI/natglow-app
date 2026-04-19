@@ -54,16 +54,6 @@ export default function Progress() {
 
   return (
     <div className="space-y-6 pb-8">
-      <style>{`
-        .bg-emerald-600 { background-color: #FFB3DD !important; }
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-200 { color: #B6EDD9 !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-        .text-emerald-500 { color: #FB45A9 !important; }
-        .from-emerald-600 { --tw-gradient-from: #FFB3DD !important; }
-        .to-emerald-700 { --tw-gradient-to: #FB45A9 !important; }
-      `}</style>
 
       <div>
         <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Seu Progresso</h1>
@@ -71,10 +61,10 @@ export default function Progress() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-5 text-white">
-          <Trophy className="w-6 h-6 text-emerald-200 mb-2" />
+        <div className="bg-gradient-to-br from-brand-light to-brand rounded-2xl p-5 text-white">
+          <Trophy className="w-6 h-6 text-white mb-2" />
           <p className="text-3xl font-bold">{completedDays}</p>
-          <p className="text-emerald-200 text-sm">Dias Completos</p>
+          <p className="text-white/80 text-sm">Dias Completos</p>
         </div>
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-5 text-white">
           <Flame className="w-6 h-6 text-orange-200 mb-2" />
@@ -116,10 +106,10 @@ export default function Progress() {
             { label: '14 dias completos', done: completedDays >= 14, icon: '⭐' },
             { label: '30 dias — Jornada completa!', done: completedDays >= 30, icon: '🏆' },
           ].map((a, i) => (
-            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${a.done ? 'bg-emerald-50' : 'bg-stone-50'}`}>
+            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${a.done ? 'bg-green-50' : 'bg-stone-50'}`}>
               <span className="text-xl">{a.icon}</span>
-              <span className={`text-sm font-medium ${a.done ? 'text-emerald-700' : 'text-stone-400'}`}>{a.label}</span>
-              {a.done && <CheckCircle2 className="w-5 h-5 text-emerald-500 ml-auto" />}
+              <span className={`text-sm font-medium ${a.done ? 'text-green-700' : 'text-stone-400'}`}>{a.label}</span>
+              {a.done && <CheckCircle2 className="w-5 h-5 text-green-500 ml-auto" />}
             </div>
           ))}
         </div>

@@ -199,17 +199,6 @@ export default function Recipes() {
 
   return (
     <div className="space-y-6 pb-8">
-      <style>{`
-        .bg-emerald-700 { background-color: #FB45A9 !important; }
-        .bg-emerald-800 { background-color: #E03594 !important; }
-        .hover\\:bg-emerald-800:hover { background-color: #E03594 !important; }
-        .text-emerald-600 { color: #FFB3DD !important; }
-        .text-emerald-700 { color: #FB45A9 !important; }
-        .text-emerald-800 { color: #E03594 !important; }
-        .border-emerald-500 { border-color: #FB45A9 !important; }
-        .border-emerald-300 { border-color: #FFB3DD !important; }
-        .bg-emerald-50 { background-color: #FFF5FA !important; }
-      `}</style>
 
       <div>
         <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Receitas Naturais</h1>
@@ -237,14 +226,14 @@ export default function Recipes() {
               onClick={() => toggleIngredient(ing.name)}
               className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left ${
                 selectedIngredients.includes(ing.name)
-                  ? 'border-emerald-500 bg-emerald-50'
+                  ? 'border-brand bg-brand-bg'
                   : 'border-stone-200 bg-white hover:border-stone-300'
               }`}
             >
               <span className="text-lg">{ing.emoji}</span>
               <div>
                 <p className={`text-sm font-medium ${
-                  selectedIngredients.includes(ing.name) ? 'text-emerald-800' : 'text-stone-700'
+                  selectedIngredients.includes(ing.name) ? 'text-brand-dark' : 'text-stone-700'
                 }`}>
                   {ing.name}
                 </p>
@@ -257,7 +246,7 @@ export default function Recipes() {
 
       <button
         onClick={findRecipes}
-        className="w-full bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl p-4 font-semibold transition-all flex items-center justify-center gap-2"
+        className="w-full bg-brand hover:bg-brand-dark text-white rounded-2xl p-4 font-semibold transition-all flex items-center justify-center gap-2"
       >
         <Sparkles className="w-5 h-5" />
         {selectedIngredients.length > 0
@@ -278,11 +267,11 @@ export default function Recipes() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setSelectedRecipe(recipe)}
-                className="bg-white rounded-2xl p-5 border border-stone-200 text-left hover:border-emerald-300 hover:shadow-sm transition-all"
+                className="bg-white rounded-2xl p-5 border border-stone-200 text-left hover:border-brand-light hover:shadow-sm transition-all"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-1">
+                    <p className="text-xs text-brand font-medium uppercase tracking-wider mb-1">
                       {recipe.category}
                     </p>
                     <h3 className="font-semibold text-stone-800 mb-2">{recipe.name}</h3>

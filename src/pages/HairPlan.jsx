@@ -69,7 +69,7 @@ const PHASE_COLORS = {
 };
 
 const TAG_LABELS = {
-  ultra:        { label: 'Ultra eficaz', color: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
+  ultra:        { label: 'Ultra eficaz', color: 'bg-green-100 text-green-800 border border-green-200' },
   eficiente:    { label: 'Eficaz',       color: 'bg-blue-100 text-blue-700 border border-blue-200' },
   complementar: { label: 'Complementar', color: 'bg-amber-100 text-amber-700 border border-amber-200' },
 };
@@ -85,7 +85,7 @@ function WeekCard({ weekData, phaseRecipes, phaseNum, completed, onToggle, onSel
   const gradient = PHASE_COLORS[phaseNum];
 
   return (
-    <div className={`rounded-2xl border-2 overflow-hidden transition-all ${completed ? 'border-emerald-300 bg-emerald-50/30' : 'border-stone-200 bg-white'}`}>
+    <div className={`rounded-2xl border-2 overflow-hidden transition-all ${completed ? 'border-green-300 bg-green-50/30' : 'border-stone-200 bg-white'}`}>
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center gap-3 px-5 py-4 hover:bg-stone-50/50 transition-all text-left"
@@ -121,7 +121,7 @@ function WeekCard({ weekData, phaseRecipes, phaseNum, completed, onToggle, onSel
                       <button
                         key={item.id}
                         onClick={() => onSelectRecipe(recipe)}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 hover:border-emerald-300 hover:bg-emerald-50 transition-all text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 hover:border-brand-light hover:bg-brand-bg transition-all text-left"
                       >
                         <div className="w-9 h-9 rounded-full bg-white border border-stone-200 flex items-center justify-center text-lg flex-shrink-0">
                           {item.emoji}
@@ -153,7 +153,7 @@ function WeekCard({ weekData, phaseRecipes, phaseNum, completed, onToggle, onSel
               <button
                 onClick={() => { onToggle(); setOpen(false); }}
                 className={`w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-                  completed ? 'bg-stone-100 text-stone-500' : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                  completed ? 'bg-stone-100 text-stone-500' : 'bg-brand text-white hover:bg-brand-dark'
                 }`}
               >
                 {completed ? <><Check className="w-4 h-4" /> Semana concluída</> : <>Marcar semana como concluída</>}
