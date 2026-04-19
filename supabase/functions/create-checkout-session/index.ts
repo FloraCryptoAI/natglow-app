@@ -9,6 +9,7 @@ const CORS = {
 }
 
 async function getUser(authHeader: string) {
+  if (!authHeader) return null
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { Authorization: authHeader, apikey: SUPABASE_ANON_KEY },
   })
@@ -41,39 +42,39 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
   try {
-    const authHeader = req.headers.get('Authorization') ?? ''
-    const user = await getUser(authHeader)
-    if (!user?.id) {
-      return new Response(JSON.stringify({ error: 'Não autorizado' }), {
-        status: 401, headers: { ...CORS, 'Content-Type': 'application/json' },
-      })
-    }
-
     const { priceId, successUrl, cancelUrl } = await req.json()
 
-    let customerId = await getCustomerId(user.id)
+    // Auth é opcional — guest checkout não precisa de sessão
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const user = await getUser(authHeader)
 
-    if (!customerId) {
-      const customer = await stripePost('/customers', {
-        email: user.email,
-        'metadata[supabase_uid]': user.id,
-      })
-      if (customer.error) throw new Error(customer.error.message)
-      customerId = customer.id
-    }
-
-    const session = await stripePost('/checkout/sessions', {
-      customer: customerId,
+    const sessionParams: Record<string, string> = {
       mode: 'subscription',
       'payment_method_types[0]': 'card',
       'line_items[0][price]': priceId,
       'line_items[0][quantity]': '1',
       success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl,
-      'metadata[supabase_uid]': user.id,
-      'subscription_data[metadata][supabase_uid]': user.id,
-    })
+    }
 
+    if (user?.id) {
+      // Usuária logada: reutiliza ou cria customer Stripe para evitar duplicatas
+      let customerId = await getCustomerId(user.id)
+      if (!customerId) {
+        const customer = await stripePost('/customers', {
+          email: user.email,
+          'metadata[supabase_uid]': user.id,
+        })
+        if (customer.error) throw new Error(customer.error.message)
+        customerId = customer.id
+      }
+      sessionParams.customer = customerId
+      sessionParams['metadata[supabase_uid]'] = user.id
+      sessionParams['subscription_data[metadata][supabase_uid]'] = user.id
+    }
+    // Sem usuário logado: Stripe coleta o email durante o checkout
+
+    const session = await stripePost('/checkout/sessions', sessionParams)
     if (session.error) throw new Error(session.error.message)
 
     return new Response(JSON.stringify({ url: session.url }), {

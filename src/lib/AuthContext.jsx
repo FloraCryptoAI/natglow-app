@@ -59,6 +59,14 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  const signInWithOtp = async (email) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + '/HairDashboard' },
+    })
+    if (error) throw error
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -75,6 +83,7 @@ export function AuthProvider({ children }) {
       isSubscribed,
       fetchSubscription,
       signInWithGoogle,
+      signInWithOtp,
       signOut,
     }}>
       {children}

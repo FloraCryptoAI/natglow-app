@@ -6,6 +6,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
+import Results from './pages/Results';
+import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
 import Admin from './pages/Admin';
@@ -72,6 +74,8 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/Landing" replace />} />
       <Route path="/Landing" element={<Landing />} />
+      <Route path="/Results" element={<Results />} />
+      <Route path="/Login" element={<Login />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}
       <Route path="/Upgrade" element={

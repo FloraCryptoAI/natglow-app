@@ -2,6 +2,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://natglow.app'
 
 async function verifySignature(payload: string, sigHeader: string): Promise<boolean> {
   const timestamp = sigHeader.split(',').find(p => p.startsWith('t='))?.slice(2)
@@ -24,14 +25,14 @@ async function stripeGet(path: string) {
   return res.json()
 }
 
-async function dbUpsert(table: string, data: Record<string, unknown>, onConflict: string) {
+async function dbUpsert(table: string, data: Record<string, unknown>) {
   await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
       apikey: SUPABASE_SERVICE_KEY,
       'Content-Type': 'application/json',
-      Prefer: `resolution=merge-duplicates`,
+      Prefer: 'resolution=merge-duplicates',
     },
     body: JSON.stringify(data),
   })
@@ -46,6 +47,48 @@ async function dbUpdate(table: string, data: Record<string, unknown>, filter: st
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+  })
+}
+
+// Busca user_id existente pelo email na tabela subscriptions
+async function getUserIdByEmail(email: string): Promise<string | null> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/subscriptions?email=eq.${encodeURIComponent(email)}&select=user_id&limit=1`,
+    { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } }
+  )
+  const rows = await res.json()
+  return rows[0]?.user_id ?? null
+}
+
+// Cria usuário Supabase via admin API
+async function adminCreateUser(email: string): Promise<string | null> {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      apikey: SUPABASE_SERVICE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, email_confirm: true }),
+  })
+  const data = await res.json()
+  return data?.id ?? null
+}
+
+// Envia magic link por email via admin API
+async function adminSendMagicLink(email: string): Promise<void> {
+  await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      apikey: SUPABASE_SERVICE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: 'magiclink',
+      email,
+      options: { redirect_to: `${SITE_URL}/HairDashboard` },
+    }),
   })
 }
 
@@ -70,16 +113,37 @@ Deno.serve(async (req) => {
       case 'checkout.session.completed': {
         const session = event.data.object
         if (session.mode !== 'subscription') break
+
+        const email = session.customer_details?.email ?? ''
         const sub = await stripeGet(`/subscriptions/${session.subscription}`)
-        await dbUpsert('subscriptions', {
-          user_id: session.metadata?.supabase_uid,
-          email: session.customer_details?.email ?? '',
-          stripe_customer_id: session.customer,
-          stripe_subscription_id: sub.id,
-          status: sub.status ?? 'active',
-          price_id: sub.items?.data?.[0]?.price?.id ?? null,
-          current_period_end: toISO(sub.current_period_end),
-        }, 'user_id')
+
+        // Resolve user_id: usa metadata se usuária estava logada, senão busca/cria
+        let userId: string | null = session.metadata?.supabase_uid ?? null
+
+        if (!userId && email) {
+          // Busca pelo email em assinaturas existentes
+          userId = await getUserIdByEmail(email)
+
+          if (!userId) {
+            // Cria nova conta Supabase para a compradora
+            userId = await adminCreateUser(email)
+          }
+        }
+
+        if (userId) {
+          await dbUpsert('subscriptions', {
+            user_id: userId,
+            email,
+            stripe_customer_id: session.customer,
+            stripe_subscription_id: sub.id,
+            status: sub.status ?? 'active',
+            price_id: sub.items?.data?.[0]?.price?.id ?? null,
+            current_period_end: toISO(sub.current_period_end),
+          })
+
+          // Envia magic link para a compradora acessar o app
+          if (email) await adminSendMagicLink(email)
+        }
         break
       }
       case 'customer.subscription.updated': {

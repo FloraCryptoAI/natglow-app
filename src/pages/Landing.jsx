@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Check, ChevronRight, Sparkles, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Check } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 
 // ── constants ──────────────────────────────────────────────────────────────
@@ -23,11 +23,9 @@ const STEPS = {
   Q5: 5,
   NAME: 6,
   LOADING: 7,
-  DIAGNOSIS: 8,
-  PAYWALL: 9,
 };
 
-const TOTAL_QUIZ_STEPS = 5; // Q1–Q5
+const TOTAL_QUIZ_STEPS = 5;
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -56,7 +54,7 @@ function ProgressBar({ current, total }) {
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { user, signInWithGoogle } = useAuth();
+  const { user, isSubscribed } = useAuth();
   const [step, setStep] = useState(STEPS.HOOK);
   const [answers, setAnswers] = useState({
     problems: [],
@@ -68,18 +66,14 @@ export default function Landing() {
   });
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Se já está logado e veio do redirect OAuth, vai direto para o dashboard
+  // Usuária já logada e assinante → redireciona para o app
   useEffect(() => {
-    if (user && step === STEPS.HOOK) {
-      const pendingStep = sessionStorage.getItem('glow_pending_step');
-      if (pendingStep === 'dashboard') {
-        sessionStorage.removeItem('glow_pending_step');
-        navigate('/HairDashboard');
-      }
+    if (user && isSubscribed && step === STEPS.HOOK) {
+      navigate('/HairDashboard');
     }
-  }, [user, step, navigate]);
+  }, [user, isSubscribed, step, navigate]);
 
-  // loading animation
+  // Loading animation → navega para /Results com as respostas
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
     setLoadingProgress(0);
@@ -91,17 +85,13 @@ export default function Landing() {
     const timers = items.map(({ pct, delay }) =>
       setTimeout(() => setLoadingProgress(pct), delay)
     );
-    const done = setTimeout(() => setStep(STEPS.DIAGNOSIS), 2800);
+    const done = setTimeout(() => {
+      navigate('/Results', { state: { answers } });
+    }, 2800);
     return () => { timers.forEach(clearTimeout); clearTimeout(done); };
-  }, [step]);
+  }, [step]);  // eslint-disable-line react-hooks/exhaustive-deps
 
-  const goNext = (nextStep) => {
-    setStep(nextStep);
-  };
-
-  const handleStart = () => {
-    setStep(STEPS.Q1);
-  };
+  const goNext = (nextStep) => setStep(nextStep);
 
   const handleProblemToggle = (val) => {
     setAnswers(prev => ({
@@ -112,17 +102,6 @@ export default function Landing() {
     }));
   };
 
-  const handleUnlock = async () => {
-    if (!user) {
-      // Marca intenção para ir ao dashboard após login
-      sessionStorage.setItem('glow_pending_step', 'dashboard');
-      await signInWithGoogle('/Landing');
-      return;
-    }
-    navigate('/HairDashboard');
-  };
-
-  // quiz progress (Q1=1, Q2=2 … Q5=5)
   const quizProgress = step >= STEPS.Q1 && step <= STEPS.Q5 ? step : 0;
 
   return (
@@ -130,8 +109,7 @@ export default function Landing() {
       <style>{`
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color: #fff; border-radius: 9999px; font-weight: 700; transition: all .2s; }
         .btn-primary:hover { opacity: .9; box-shadow: 0 8px 24px rgba(251,69,169,.35); transform: scale(1.02); }
-        .btn-white { background: #fff; color: #E03594; border-radius: 9999px; font-weight: 700; transition: all .2s; }
-        .btn-white:hover { box-shadow: 0 8px 24px rgba(0,0,0,.15); transform: scale(1.02); }
+        .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
         .card-option { border: 2px solid #e7e5e4; border-radius: 16px; cursor: pointer; transition: all .2s; }
         .card-option:hover { border-color: #FB45A9; background: #FFF5FA; }
         .card-option.selected { border-color: #FB45A9; background: #FFF5FA; }
@@ -141,51 +119,28 @@ export default function Landing() {
         .bg-emerald-500 { background-color: #FB45A9 !important; }
         .text-emerald-500 { color: #FB45A9 !important; }
         .text-emerald-600 { color: #FB45A9 !important; }
-        .text-emerald-800 { color: #E03594 !important; }
-        .text-emerald-100 { color: #FFF5FA !important; }
-        .bg-emerald-50  { background-color: #FFF5FA !important; }
-        .bg-emerald-100 { background-color: #FFE4F2 !important; }
-        .border-emerald-100 { border-color: #FFE4F2 !important; }
-        .border-emerald-200 { border-color: #FFE4F2 !important; }
-        .border-emerald-500 { border-color: #FB45A9 !important; }
         .focus\\:border-emerald-400:focus { border-color: #FB45A9 !important; }
       `}</style>
 
       {/* ── HEADER ── */}
-      {step !== STEPS.PAYWALL && (
-        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-stone-200/60">
-          <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img
-                src="/logo.png"
-                alt="NatGlow"
-                className="w-9 h-9 rounded-xl"
-              />
-              <span className="font-bold text-stone-800 text-sm">NatGlow</span>
-            </div>
-            {quizProgress > 0 ? (
-              <span className="text-xs text-stone-400 font-medium">{quizProgress}/{TOTAL_QUIZ_STEPS}</span>
-            ) : user ? (
-              <button
-                onClick={() => navigate('/HairDashboard')}
-                className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium"
-              >
-                Ir para minha conta →
-              </button>
-            ) : (
-              <button
-                onClick={async () => {
-                  sessionStorage.setItem('glow_pending_step', 'dashboard');
-                  await signInWithGoogle('/Landing');
-                }}
-                className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium"
-              >
-                Entrar
-              </button>
-            )}
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-stone-200/60">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="NatGlow" className="w-9 h-9 rounded-xl" />
+            <span className="font-bold text-stone-800 text-sm">NatGlow</span>
           </div>
-        </header>
-      )}
+          {quizProgress > 0 ? (
+            <span className="text-xs text-stone-400 font-medium">{quizProgress}/{TOTAL_QUIZ_STEPS}</span>
+          ) : (
+            <Link
+              to="/Login"
+              className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium"
+            >
+              Já tenho conta →
+            </Link>
+          )}
+        </div>
+      </header>
 
       {/* ── CONTENT ── */}
       <div className="flex-1 flex flex-col">
@@ -215,7 +170,7 @@ export default function Landing() {
                   Em menos de 60 segundos, vamos identificar o que pode estar prejudicando seu cabelo e mostrar o que realmente funciona.
                 </p>
                 <button
-                  onClick={handleStart}
+                  onClick={() => setStep(STEPS.Q1)}
                   className="btn-primary w-full py-5 text-lg flex items-center justify-center gap-2"
                 >
                   Começar diagnóstico
@@ -226,7 +181,7 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q1 — hair problems (multi-select with images) ═══ */}
+          {/* ═══ Q1 — hair problems ═══ */}
           {step === STEPS.Q1 && (
             <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
               <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
@@ -257,7 +212,7 @@ export default function Landing() {
               <button
                 disabled={answers.problems.length === 0}
                 onClick={() => goNext(STEPS.Q2)}
-                className="btn-primary py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn-primary py-4 text-base"
               >
                 Continuar →
               </button>
@@ -274,9 +229,9 @@ export default function Landing() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily',    label: 'Todos os dias', emoji: '🚿' },
-                  { value: '3_4',      label: '3 a 4 vezes por semana', emoji: '📅' },
-                  { value: '1_2',      label: '1 a 2 vezes por semana', emoji: '🌿' },
+                  { value: 'daily', label: 'Todos os dias', emoji: '🚿' },
+                  { value: '3_4',   label: '3 a 4 vezes por semana', emoji: '📅' },
+                  { value: '1_2',   label: '1 a 2 vezes por semana', emoji: '🌿' },
                 ].map(opt => (
                   <div
                     key={opt.value}
@@ -292,7 +247,7 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q3 — water temp (with image) ═══ */}
+          {/* ═══ Q3 — water temp ═══ */}
           {step === STEPS.Q3 && (
             <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
               <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
@@ -340,9 +295,9 @@ export default function Landing() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily',  label: 'Todos os dias',              emoji: '🔌' },
-                  { value: 'few',    label: 'Algumas vezes por semana',   emoji: '📆' },
-                  { value: 'rarely', label: 'Raramente',                  emoji: '🌬️' },
+                  { value: 'daily',  label: 'Todos os dias',            emoji: '🔌' },
+                  { value: 'few',    label: 'Algumas vezes por semana', emoji: '📆' },
+                  { value: 'rarely', label: 'Raramente',                emoji: '🌬️' },
                 ].map(opt => (
                   <div
                     key={opt.value}
@@ -368,9 +323,9 @@ export default function Landing() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'regularly', label: 'Sim, regularmente',  emoji: '✅', desc: 'Faço hidratação toda semana' },
-                  { value: 'sometimes', label: 'Às vezes',           emoji: '🔄', desc: 'Quando lembro ou tenho tempo' },
-                  { value: 'never',     label: 'Quase nunca',        emoji: '❌', desc: 'Não tenho esse hábito' },
+                  { value: 'regularly', label: 'Sim, regularmente', emoji: '✅', desc: 'Faço hidratação toda semana' },
+                  { value: 'sometimes', label: 'Às vezes',          emoji: '🔄', desc: 'Quando lembro ou tenho tempo' },
+                  { value: 'never',     label: 'Quase nunca',       emoji: '❌', desc: 'Não tenho esse hábito' },
                 ].map(opt => (
                   <div
                     key={opt.value}
@@ -407,7 +362,7 @@ export default function Landing() {
               <button
                 disabled={!answers.name.trim()}
                 onClick={() => setStep(STEPS.LOADING)}
-                className="btn-primary py-5 text-lg flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn-primary py-5 text-lg flex items-center justify-center gap-2"
               >
                 Ver meu diagnóstico
                 <ArrowRight className="w-5 h-5" />
@@ -443,137 +398,6 @@ export default function Landing() {
                   animate={{ width: `${loadingProgress}%` }}
                   transition={{ duration: 0.5 }}
                 />
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ DIAGNOSIS ═══ */}
-          {step === STEPS.DIAGNOSIS && (
-            <motion.div key="diag" {...slide} className="max-w-lg mx-auto w-full px-4 py-8 flex flex-col gap-6">
-              <div className="text-center">
-                <div className="text-4xl mb-2">📋</div>
-                <h2 className="text-2xl font-extrabold text-stone-900">Seu diagnóstico capilar</h2>
-                {answers.name && <p className="text-emerald-600 font-medium mt-1">Olá, {answers.name}!</p>}
-              </div>
-
-              {/* Signs */}
-              <div className="bg-red-50 border border-red-100 rounded-2xl p-5">
-                <p className="font-bold text-stone-800 mb-3">Seu cabelo apresenta sinais de:</p>
-                <ul className="space-y-2">
-                  {['Ressecamento avançado', 'Dano térmico', 'Perda da proteção natural'].map((s, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-stone-700">
-                      <span className="text-red-400 font-bold">•</span> {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Why */}
-              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5">
-                <p className="font-bold text-stone-800 mb-3">Isso geralmente acontece quando:</p>
-                <ul className="space-y-2">
-                  {[
-                    'O cabelo é exposto à água quente com frequência',
-                    'Há uso constante de calor',
-                    'A hidratação não é feita da forma correta',
-                  ].map((s, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-stone-700">
-                      <span className="text-amber-500 font-bold">→</span> {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Hope */}
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
-                <p className="font-bold text-emerald-800 text-lg">🌱 A boa notícia é que isso não é definitivo.</p>
-                <p className="text-sm text-stone-600 leading-relaxed">
-                  Seu cabelo pode recuperar muito mais rápido do que você imagina quando você corrige os erros e troca produtos químicos por receitas caseiras que realmente funcionam.
-                </p>
-              </div>
-
-              {/* Myth busting */}
-              <div className="bg-stone-900 rounded-2xl p-5 space-y-2">
-                <p className="font-bold text-white">💡 O problema não é falta de produto.</p>
-                <p className="text-sm text-stone-400 leading-relaxed">
-                  Na maioria dos casos, o cabelo piora justamente pelo excesso de química e pelo uso errado no dia a dia.
-                </p>
-              </div>
-
-              <button
-                onClick={() => setStep(STEPS.PAYWALL)}
-                className="btn-primary py-5 text-lg flex items-center justify-center gap-2"
-              >
-                Ver meu plano personalizado
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </motion.div>
-          )}
-
-          {/* ═══ PAYWALL ═══ */}
-          {step === STEPS.PAYWALL && (
-            <motion.div key="paywall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex flex-col">
-              {/* Header */}
-              <div className="px-4 pt-12 pb-10 text-center text-white" style={{ background: 'linear-gradient(to bottom, #FB45A9, #E03594)' }}>
-                <div className="inline-flex items-center gap-2 bg-white/15 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
-                  <Sparkles className="w-3.5 h-3.5" /> Plano pronto!
-                </div>
-                <h1 className="text-3xl font-extrabold leading-tight mb-3">Seu plano está pronto</h1>
-                <p className="text-pink-100 text-sm max-w-xs mx-auto">
-                  Criamos um plano personalizado com base nas suas respostas.
-                </p>
-              </div>
-
-              <div className="max-w-lg mx-auto w-full px-4 -mt-4 flex flex-col gap-5 pb-16">
-                {/* Includes */}
-                <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6">
-                  <p className="font-bold text-stone-800 mb-4">Seu plano inclui:</p>
-                  <ul className="space-y-3">
-                    {[
-                      { icon: '📋', text: 'Rotina completa personalizada' },
-                      { icon: '📅', text: 'Plano de 21 dias passo a passo' },
-                      { icon: '🌿', text: 'Receitas naturais mais eficazes para seu tipo' },
-                      { icon: '✅', text: 'Checklist diário de acompanhamento' },
-                      { icon: '📈', text: 'Acompanhamento da evolução' },
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <span className="text-xl">{item.icon}</span>
-                        <span className="text-stone-700 font-medium">{item.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Reassurance */}
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { icon: '🚫', text: 'Sem produtos caros' },
-                    { icon: '🌱', text: 'Sem químicas agressivas' },
-                    { icon: '✔️', text: 'Apenas o que funciona' },
-                  ].map((item, i) => (
-                    <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
-                      <div className="text-xl mb-1">{item.icon}</div>
-                      <p className="text-xs font-semibold text-emerald-800">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA */}
-                <div className="bg-white border-2 border-emerald-500 rounded-2xl p-6 text-center shadow-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Lock className="w-4 h-4 text-stone-400" />
-                    <p className="text-sm text-stone-500 font-medium">Conteúdo personalizado</p>
-                  </div>
-                  <p className="text-stone-800 font-bold text-lg mb-4">Acesse seu plano completo agora</p>
-                  <button
-                    onClick={handleUnlock}
-                    className="btn-primary w-full py-5 text-lg flex items-center justify-center gap-2"
-                  >
-                    Começar agora
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                  <p className="text-xs text-stone-400 mt-3">Gratuito · Sem cartão · Começa hoje</p>
-                </div>
               </div>
             </motion.div>
           )}
