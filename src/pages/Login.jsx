@@ -6,18 +6,18 @@ import { supabase } from '@/api/supabaseClient';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, isSubscribed, signInWithGoogle } = useAuth();
+  const { user, isSubscribed, subscriptionLoading, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState(null);
 
-  // Já está logada → redireciona
+  // Já está logada → aguarda subscription carregar antes de redirecionar
   useEffect(() => {
-    if (user) {
+    if (user && !subscriptionLoading) {
       navigate(isSubscribed ? '/HairDashboard' : '/Upgrade', { replace: true });
     }
-  }, [user, isSubscribed, navigate]);
+  }, [user, isSubscribed, subscriptionLoading, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
