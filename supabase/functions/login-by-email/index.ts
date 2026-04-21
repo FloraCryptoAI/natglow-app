@@ -18,9 +18,9 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Verifica se o email tem assinatura ativa
+    // Verifica se o email tem alguma assinatura (qualquer status)
     const subRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/subscriptions?email=eq.${encodeURIComponent(email)}&status=eq.active&limit=1`,
+      `${SUPABASE_URL}/rest/v1/subscriptions?email=ilike.${encodeURIComponent(email)}&limit=1`,
       { headers: { Authorization: `Bearer ${SERVICE_KEY}`, apikey: SERVICE_KEY } }
     )
     const rows = await subRes.json()
