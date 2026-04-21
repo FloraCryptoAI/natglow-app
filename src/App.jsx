@@ -39,7 +39,7 @@ const ProtectedRoute = ({ children }) => {
   const { user, loading, isSubscribed } = useAuth();
 
   if (loading) return <Spinner />;
-  if (!user) return <Navigate to="/Landing" replace />;
+  if (!user) return <Navigate to="/Login" replace />;
   if (!isSubscribed) return <Navigate to="/Upgrade" replace />;
 
   return children;
@@ -50,7 +50,7 @@ const AuthRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <Spinner />;
-  if (!user) return <Navigate to="/Landing" replace />;
+  if (!user) return <Navigate to="/Login" replace />;
 
   return children;
 };
@@ -60,7 +60,7 @@ const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <Spinner />;
-  if (!user || user.email !== ADMIN_EMAIL) return <Navigate to="/Landing" replace />;
+  if (!user || user.email !== ADMIN_EMAIL) return <Navigate to="/Login" replace />;
 
   return children;
 };
@@ -72,7 +72,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/Landing" replace />} />
+      <Route path="/" element={<Navigate to="/Login" replace />} />
       <Route path="/Landing" element={<Landing />} />
       <Route path="/Results" element={<Results />} />
       <Route path="/Login" element={<Login />} />

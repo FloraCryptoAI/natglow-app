@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Loader2, Mail, CheckCircle } from 'lucide-react';
+import { ArrowRight, Loader2, Mail } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import { supabase } from '@/api/supabaseClient';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, isSubscribed, signInWithGoogle, signInWithOtp } = useAuth();
+  const { user, isSubscribed, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [loadingOtp, setLoadingOtp] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,18 +19,20 @@ export default function Login() {
     }
   }, [user, isSubscribed, navigate]);
 
-  const handleOtp = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
-    setLoadingOtp(true);
+    setLoading(true);
     setError(null);
     try {
-      await signInWithOtp(email.trim());
-      setOtpSent(true);
-    } catch (err) {
-      setError('Não foi possível enviar o link. Verifique o email e tente novamente.');
-    } finally {
-      setLoadingOtp(false);
+      const { data, error: fnErr } = await supabase.functions.invoke('login-by-email', {
+        body: { email: email.trim().toLowerCase() },
+      });
+      if (fnErr || !data?.url) throw new Error('not_found');
+      window.location.href = data.url;
+    } catch {
+      setError('Email não encontrado. Verifique se usou o mesmo email da compra.');
+      setLoading(false);
     }
   };
 
@@ -69,39 +71,17 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm">
 
-          {otpSent ? (
-            /* ── Email enviado ── */
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center flex flex-col gap-4">
-              <CheckCircle className="w-14 h-14 mx-auto" style={{ color: '#FB45A9' }} />
-              <h1 className="text-2xl font-extrabold text-stone-900">Verifique seu email</h1>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Enviamos um link de acesso para<br />
-                <strong className="text-stone-700">{email}</strong>
-              </p>
-              <p className="text-xs text-stone-400">
-                Não encontrou? Verifique a pasta de spam ou{' '}
-                <button
-                  onClick={() => setOtpSent(false)}
-                  className="underline text-stone-600 hover:text-stone-800"
-                >
-                  tente novamente
-                </button>.
-              </p>
-            </div>
-          ) : (
-            /* ── Form de login ── */
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 flex flex-col gap-5">
+              <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 flex flex-col gap-5">
               <div className="text-center">
                 <h1 className="text-2xl font-extrabold text-stone-900 mb-1">Acessar minha conta</h1>
-                <p className="text-stone-500 text-sm">Receba um link de acesso direto no seu email</p>
+                <p className="text-stone-500 text-sm">Digite o email usado na compra</p>
               </div>
 
               {error && (
                 <p className="text-red-600 text-sm bg-red-50 rounded-xl px-4 py-2 text-center">{error}</p>
               )}
 
-              {/* Email magic link */}
-              <form onSubmit={handleOtp} className="flex flex-col gap-3">
+              <form onSubmit={handleLogin} className="flex flex-col gap-3">
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                   <input
@@ -115,12 +95,12 @@ export default function Login() {
                 </div>
                 <button
                   type="submit"
-                  disabled={loadingOtp || !email.trim()}
+                  disabled={loading || !email.trim()}
                   className="btn-primary py-4 text-base flex items-center justify-center gap-2"
                 >
-                  {loadingOtp
-                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</>
-                    : <>Enviar link de acesso <ArrowRight className="w-4 h-4" /></>}
+                  {loading
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Entrando...</>
+                    : <>Entrar no meu plano <ArrowRight className="w-4 h-4" /></>}
                 </button>
               </form>
 
@@ -157,7 +137,6 @@ export default function Login() {
                 </Link>
               </p>
             </div>
-          )}
         </div>
       </div>
     </div>

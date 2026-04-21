@@ -4,12 +4,6 @@ import { CheckCircle, Loader2, Mail, ArrowRight } from 'lucide-react';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
-function maskEmail(email) {
-  if (!email) return '';
-  const [local, domain] = email.split('@');
-  if (!domain) return email;
-  return `${local[0]}***@${domain}`;
-}
 
 export default function SubscriptionSuccess() {
   const navigate = useNavigate();
@@ -128,35 +122,22 @@ export default function SubscriptionSuccess() {
             {/* Email mascarado */}
             <div className="bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 flex items-center gap-3">
               <Mail className="w-5 h-5 flex-shrink-0" style={{ color: '#FB45A9' }} />
-              <p className="font-semibold text-stone-800 text-sm truncate">{maskEmail(email)}</p>
+              <p className="font-semibold text-stone-800 text-sm truncate">{email}</p>
             </div>
 
             <p className="text-stone-500 text-sm text-center leading-relaxed">
-              Abra seu email e clique no link para entrar no app e começar sua rotina capilar.
+              Use esse email para acessar o app agora.
             </p>
 
-            {/* Botão reenviar */}
-            {resendDone ? (
-              <p className="text-center text-sm font-medium bg-emerald-50 text-emerald-700 rounded-xl py-3">
-                ✓ Link reenviado! Verifique sua caixa.
-              </p>
-            ) : (
-              <button
-                onClick={handleResend}
-                disabled={resendLoading}
-                className="btn-primary py-4 text-sm flex items-center justify-center gap-2"
-              >
-                {resendLoading
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</>
-                  : <>Reenviar link de acesso <ArrowRight className="w-4 h-4" /></>}
-              </button>
-            )}
+            <Link
+              to="/Login"
+              className="btn-primary py-4 text-sm flex items-center justify-center gap-2"
+            >
+              Acessar meu plano <ArrowRight className="w-4 h-4" />
+            </Link>
 
             <p className="text-center text-xs text-stone-400">
-              Não encontrou?{' '}
-              <Link to="/Login" className="underline text-stone-600 hover:text-stone-800">
-                Tente outro método de acesso
-              </Link>
+              Clique em "Acessar meu plano", digite esse email e entre instantaneamente.
             </p>
           </div>
         )}
