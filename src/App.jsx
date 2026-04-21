@@ -36,9 +36,9 @@ function Spinner() {
 
 // Rota que exige login E assinatura ativa
 const ProtectedRoute = ({ children }) => {
-  const { user, loading, isSubscribed } = useAuth();
+  const { user, loading, subscriptionLoading, isSubscribed } = useAuth();
 
-  if (loading) return <Spinner />;
+  if (loading || subscriptionLoading) return <Spinner />;
   if (!user) return <Navigate to="/Login" replace />;
   if (!isSubscribed) return <Navigate to="/Upgrade" replace />;
 
