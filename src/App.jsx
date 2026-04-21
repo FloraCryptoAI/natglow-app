@@ -82,10 +82,8 @@ const AppRoutes = () => {
         <AuthRoute><Upgrade /></AuthRoute>
       } />
 
-      {/* Confirmação pós-pagamento */}
-      <Route path="/success" element={
-        <AuthRoute><SubscriptionSuccess /></AuthRoute>
-      } />
+      {/* Confirmação pós-pagamento — pública (usuário ainda não está logado) */}
+      <Route path="/success" element={<SubscriptionSuccess />} />
 
       {/* Painel de admin */}
       <Route path="/admin" element={
