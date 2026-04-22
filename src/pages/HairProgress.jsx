@@ -3,17 +3,11 @@ import { Link } from 'react-router-dom';
 import { Trophy, CheckCircle2, Sparkles } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { HAIR_PHASES } from '../lib/hairData';
-
-function loadPlanState() {
-  try {
-    const saved = localStorage.getItem('hairPlanState');
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return { phase: 1, completedWeeks: [] };
-}
+import { useHairPlan } from '@/hooks/useHairPlan';
 
 export default function HairProgress() {
-  const { phase: currentPhaseNumber, completedWeeks } = loadPlanState();
+  const { planState: { phase: currentPhaseNumber, completedWeeks }, loading } = useHairPlan();
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-4 border-stone-200 border-t-brand rounded-full animate-spin" /></div>;
   const currentPhase = HAIR_PHASES[currentPhaseNumber - 1];
 
   const totalWeeksCompleted = (currentPhaseNumber - 1) * 3 + completedWeeks.length;

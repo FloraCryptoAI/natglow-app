@@ -3,17 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check, RotateCcw, ArrowRight } from 'lucide-react';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
 import { HAIR_RECIPES, HAIR_PHASES } from '../lib/hairData';
-
-function loadPlanState() {
-  try {
-    const saved = localStorage.getItem('hairPlanState');
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return { phase: 1, completedWeeks: [] };
-}
-function savePlanState(state) {
-  localStorage.setItem('hairPlanState', JSON.stringify(state));
-}
+import { useHairPlan } from '@/hooks/useHairPlan';
 
 const PHASE_RECIPES = {
   1: [
@@ -167,7 +157,7 @@ function WeekCard({ weekData, phaseRecipes, phaseNum, completed, onToggle, onSel
 }
 
 export default function HairPlan() {
-  const [planState, setPlanState] = useState(() => loadPlanState());
+  const { planState, updatePlanState, loading } = useHairPlan();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showReset, setShowReset] = useState(false);
 
@@ -187,17 +177,15 @@ export default function HairPlan() {
       newCompleted = [];
     }
 
-    const newState = { phase: newPhase, completedWeeks: newCompleted };
-    setPlanState(newState);
-    savePlanState(newState);
+    updatePlanState({ phase: newPhase, completedWeeks: newCompleted });
   };
 
   const resetPlan = () => {
-    const newState = { phase: 1, completedWeeks: [] };
-    setPlanState(newState);
-    savePlanState(newState);
+    updatePlanState({ phase: 1, completedWeeks: [] });
     setShowReset(false);
   };
+
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-4 border-stone-200 border-t-brand rounded-full animate-spin" /></div>;
 
   if (selectedRecipe) {
     return <HairRecipeDetail recipe={selectedRecipe} onBack={() => setSelectedRecipe(null)} />;
