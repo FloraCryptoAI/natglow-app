@@ -78,7 +78,15 @@ export default function Login() {
               </div>
 
               {error && (
-                <p className="text-red-600 text-sm bg-red-50 rounded-xl px-4 py-2 text-center">{error}</p>
+                <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex flex-col gap-2 text-center">
+                  <p className="text-red-600 text-sm">{error}</p>
+                  <p className="text-stone-500 text-xs">
+                    Ainda não tem um plano?{' '}
+                    <Link to="/Landing" className="underline text-stone-700 font-medium hover:text-stone-900">
+                      Clique aqui para fazer o diagnóstico grátis →
+                    </Link>
+                  </p>
+                </div>
               )}
 
               <form onSubmit={handleLogin} className="flex flex-col gap-3">
