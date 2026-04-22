@@ -13,6 +13,16 @@ function toLS(state) {
   localStorage.setItem(LS_KEY, JSON.stringify(state))
 }
 
+async function saveToSupabase(userId, state) {
+  const { error } = await supabase.from('hair_plan_state').upsert({
+    user_id: userId,
+    phase: state.phase,
+    completed_weeks: state.completedWeeks,
+    updated_at: new Date().toISOString(),
+  })
+  if (error) console.error('[useHairPlan] save error:', error)
+}
+
 export function useHairPlan() {
   const { user } = useAuth()
   const [planState, setPlanState] = useState(fromLS)
@@ -21,26 +31,23 @@ export function useHairPlan() {
   useEffect(() => {
     if (!user) { setLoading(false); return }
 
+    setLoading(true)
     supabase
       .from('hair_plan_state')
       .select('phase, completed_weeks')
       .eq('user_id', user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error('[useHairPlan] fetch error:', error)
         if (data) {
           const state = { phase: data.phase, completedWeeks: data.completed_weeks ?? [] }
           setPlanState(state)
           toLS(state)
         } else {
-          // Migração: sobe localStorage para o Supabase se tiver progresso
+          // Migração: se localStorage tem progresso, sobe para o Supabase
           const local = fromLS()
           if (local.phase > 1 || local.completedWeeks.length > 0) {
-            supabase.from('hair_plan_state').upsert({
-              user_id: user.id,
-              phase: local.phase,
-              completed_weeks: local.completedWeeks,
-              updated_at: new Date().toISOString(),
-            })
+            saveToSupabase(user.id, local)
           }
         }
       })
@@ -50,15 +57,7 @@ export function useHairPlan() {
   const updatePlanState = useCallback((newState) => {
     setPlanState(newState)
     toLS(newState)
-
-    if (user) {
-      supabase.from('hair_plan_state').upsert({
-        user_id: user.id,
-        phase: newState.phase,
-        completed_weeks: newState.completedWeeks,
-        updated_at: new Date().toISOString(),
-      })
-    }
+    if (user) saveToSupabase(user.id, newState)
   }, [user])
 
   return { planState, updatePlanState, loading }
