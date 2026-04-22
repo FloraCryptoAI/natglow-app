@@ -4,44 +4,34 @@ import { ArrowRight, Check } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 
-// ── constants ──────────────────────────────────────────────────────────────
-
 const HAIR_PROBLEMS = [
-  { value: 'dry',      label: 'Seco ou ressecado',         img: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=300&q=70' },
-  { value: 'frizz',   label: 'Com frizz',                  img: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&q=70' },
-  { value: 'breakage',label: 'Quebradiço',                  img: 'https://images.unsplash.com/photo-1617897903246-719242758050?w=300&q=70' },
-  { value: 'loss',    label: 'Caindo mais que o normal',   img: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=300&q=70' },
-  { value: 'growth',  label: 'Não cresce',                 img: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=300&q=70' },
+  { label: 'Cabelo ressecado',          img: '/images/quiz/dry-hair.jpg' },
+  { label: 'Frizz excessivo',           img: '/images/quiz/frizz.jpg' },
+  { label: 'Queda de cabelo',           img: '/images/quiz/hair-loss.jpg' },
+  { label: 'Pontas duplas / quebradas', img: '/images/quiz/split-ends.jpg' },
+  { label: 'Oleosidade excessiva',      img: '/images/quiz/oily-hair.jpg' },
+  { label: 'Falta de volume',           img: '/images/quiz/no-volume.jpg' },
+  { label: 'Cabelo sem brilho',         img: '/images/quiz/no-shine.jpg' },
+  { label: 'Dificuldade para crescer',  img: '/images/quiz/slow-growth.jpg' },
 ];
 
-const STEPS = {
-  HOOK: 0,
-  Q1: 1,
-  Q2: 2,
-  Q3: 3,
-  Q4: 4,
-  Q5: 5,
-  NAME: 6,
-  LOADING: 7,
-};
-
+const STEPS = { ANCHOR: 0, Q1: 1, Q2: 2, Q3: 3, Q4: 4, NAME: 5, LOADING: 6 };
 const TOTAL_QUIZ_STEPS = 5;
-
-// ── helpers ────────────────────────────────────────────────────────────────
 
 const slide = {
   initial: { opacity: 0, x: 40 },
   animate: { opacity: 1, x: 0 },
   exit:    { opacity: 0, x: -40 },
-  transition: { duration: 0.35 },
+  transition: { duration: 0.3 },
 };
 
 function ProgressBar({ current, total }) {
   const pct = Math.round((current / total) * 100);
   return (
-    <div className="w-full bg-stone-200 rounded-full h-2 mb-6">
+    <div className="w-full bg-stone-200 rounded-full h-1.5">
       <motion.div
-        className="h-2 rounded-full bg-emerald-500"
+        className="h-1.5 rounded-full"
+        style={{ background: 'linear-gradient(90deg, #FB45A9, #E03594)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4 }}
@@ -50,295 +40,257 @@ function ProgressBar({ current, total }) {
   );
 }
 
-// ── main component ─────────────────────────────────────────────────────────
+function QuizOption({ value, label, desc, emoji, selected, onClick }) {
+  return (
+    <div
+      className={`card-option px-4 py-3.5 flex items-center gap-4 ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      <span className="text-2xl leading-none flex-shrink-0">{emoji}</span>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-stone-700 text-sm">{label}</p>
+        {desc && <p className="text-xs text-stone-400 mt-0.5">{desc}</p>}
+      </div>
+      {selected && <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#FB45A9' }} />}
+    </div>
+  );
+}
 
 export default function Landing() {
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
-  const [step, setStep] = useState(STEPS.HOOK);
-  const [answers, setAnswers] = useState({
-    problems: [],
-    washFreq: '',
-    waterTemp: '',
-    heatTools: '',
-    hydration: '',
-    name: '',
-  });
+  const [step, setStep] = useState(STEPS.ANCHOR);
+  const [answers, setAnswers] = useState({ washFreq: '', waterTemp: '', heatTools: '', hydration: '', name: '' });
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Usuária já logada e assinante → redireciona para o app
+  // Restore from sessionStorage on mount
   useEffect(() => {
-    if (user && isSubscribed && step === STEPS.HOOK) {
-      navigate('/HairDashboard');
-    }
-  }, [user, isSubscribed, step, navigate]);
+    try {
+      const saved = sessionStorage.getItem('glow_quiz_state');
+      if (saved) {
+        const { step: s, answers: a } = JSON.parse(saved);
+        if (s < STEPS.LOADING) { setStep(s); setAnswers(a); }
+      }
+    } catch {}
+  }, []);
 
-  // Loading animation → navega para /Results com as respostas
+  // Persist state to sessionStorage
+  useEffect(() => {
+    if (step < STEPS.LOADING) {
+      sessionStorage.setItem('glow_quiz_state', JSON.stringify({ step, answers }));
+    }
+  }, [step, answers]);
+
+  // Subscribed users go straight to the app
+  useEffect(() => {
+    if (user && isSubscribed) navigate('/HairDashboard');
+  }, [user, isSubscribed, navigate]);
+
+  // Loading animation → navigate to Results
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
     setLoadingProgress(0);
-    const items = [
-      { pct: 30, delay: 600 },
-      { pct: 65, delay: 1300 },
-      { pct: 100, delay: 2100 },
+    const timers = [
+      setTimeout(() => setLoadingProgress(30), 600),
+      setTimeout(() => setLoadingProgress(65), 1300),
+      setTimeout(() => setLoadingProgress(100), 2100),
     ];
-    const timers = items.map(({ pct, delay }) =>
-      setTimeout(() => setLoadingProgress(pct), delay)
-    );
     const done = setTimeout(() => {
+      sessionStorage.removeItem('glow_quiz_state');
+      sessionStorage.removeItem('glow_results_timer_end');
       navigate('/Results', { state: { answers } });
     }, 2800);
     return () => { timers.forEach(clearTimeout); clearTimeout(done); };
-  }, [step]);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const goNext = (nextStep) => setStep(nextStep);
-
-  const handleProblemToggle = (val) => {
-    setAnswers(prev => ({
-      ...prev,
-      problems: prev.problems.includes(val)
-        ? prev.problems.filter(v => v !== val)
-        : [...prev.problems, val],
-    }));
-  };
-
-  const quizProgress = step >= STEPS.Q1 && step <= STEPS.Q5 ? step : 0;
+  const showStepCounter = step >= STEPS.Q1 && step <= STEPS.NAME;
+  const ans = (field, value) => setAnswers(a => ({ ...a, [field]: value }));
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col" style={{ fontFamily: 'system-ui, sans-serif' }}>
       <style>{`
-        .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color: #fff; border-radius: 9999px; font-weight: 700; transition: all .2s; }
-        .btn-primary:hover { opacity: .9; box-shadow: 0 8px 24px rgba(251,69,169,.35); transform: scale(1.02); }
-        .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
-        .card-option { border: 2px solid #e7e5e4; border-radius: 16px; cursor: pointer; transition: all .2s; }
-        .card-option:hover { border-color: #FB45A9; background: #FFF5FA; }
-        .card-option.selected { border-color: #FB45A9; background: #FFF5FA; }
-        .card-img-option { border: 2px solid #e7e5e4; border-radius: 16px; cursor: pointer; overflow: hidden; transition: all .2s; }
-        .card-img-option:hover { border-color: #FB45A9; }
-        .card-img-option.selected { border-color: #FB45A9; box-shadow: 0 0 0 3px rgba(251,69,169,.25); }
-        .bg-emerald-500 { background-color: #FB45A9 !important; }
-        .text-emerald-500 { color: #FB45A9 !important; }
-        .text-emerald-600 { color: #FB45A9 !important; }
-        .focus\\:border-emerald-400:focus { border-color: #FB45A9 !important; }
+        .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
+        .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
+        .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+        .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
+        .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
+        .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
       `}</style>
 
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-stone-200/60">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="NatGlow" className="w-9 h-9 rounded-xl" />
             <span className="font-bold text-stone-800 text-sm">NatGlow</span>
           </div>
-          {quizProgress > 0 ? (
-            <span className="text-xs text-stone-400 font-medium">{quizProgress}/{TOTAL_QUIZ_STEPS}</span>
+          {showStepCounter ? (
+            <span className="text-xs text-stone-400 font-medium">{step}/{TOTAL_QUIZ_STEPS}</span>
           ) : (
-            <Link
-              to="/Login"
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium"
-            >
+            <Link to="/Login" className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium">
               Já tenho conta →
             </Link>
           )}
         </div>
       </header>
 
-      {/* ── CONTENT ── */}
+      {/* CONTENT */}
       <div className="flex-1 flex flex-col">
         <AnimatePresence mode="wait">
 
-          {/* ═══ HOOK ═══ */}
-          {step === STEPS.HOOK && (
-            <motion.div key="hook" {...slide} className="flex flex-col">
-              <div className="w-full max-w-lg mx-auto">
-                <img
-                  src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&q=80"
-                  alt="Cabelo com frizz e ressecado"
-                  className="w-full object-cover"
-                  style={{ maxHeight: 340, objectPosition: 'top' }}
-                />
-              </div>
-              <div className="max-w-lg mx-auto px-5 py-8 flex flex-col gap-6">
-                <div className="inline-flex self-start items-center gap-2 bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-100">
-                  ⚠️ Atenção
-                </div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900 leading-tight">
-                  Você pode estar destruindo seu cabelo sem perceber
+          {/* ═══ ANCHOR ═══ */}
+          {step === STEPS.ANCHOR && (
+            <motion.div key="anchor" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-6 flex flex-col gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
+                  Você sofre de algum destes problemas capilares?
                 </h1>
-                <p className="text-stone-500 leading-relaxed">
-                  A maioria das pessoas com cabelo seco, com frizz ou caindo não tem falta de produto.<br /><br />
-                  O problema é que está cuidando do jeito errado todos os dias.<br /><br />
-                  Em menos de 60 segundos, vamos identificar o que pode estar prejudicando seu cabelo e mostrar o que realmente funciona.
+                <p className="text-sm text-stone-500 leading-relaxed">
+                  Você não está sozinha — milhares de mulheres enfrentam exatamente isso todos os dias.
                 </p>
-                <button
-                  onClick={() => setStep(STEPS.Q1)}
-                  className="btn-primary w-full py-5 text-lg flex items-center justify-center gap-2"
-                >
-                  Começar diagnóstico
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <p className="text-center text-xs text-stone-400">100% gratuito · Leva menos de 60 segundos</p>
               </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {HAIR_PROBLEMS.map((opt, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-stone-100 px-3 py-2.5 shadow-sm">
+                    <div
+                      className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
+                      style={{ background: '#FFE4F2' }}
+                    >
+                      <img
+                        src={opt.img}
+                        alt={opt.label}
+                        className="w-full h-full object-cover"
+                        onError={e => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                    <span className="text-xs font-semibold text-stone-700 leading-snug">{opt.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setStep(STEPS.Q1)}
+                className="btn-primary w-full py-4 text-sm flex items-center justify-center gap-2"
+              >
+                Sim, enfrento pelo menos um desses problemas
+                <ArrowRight className="w-4 h-4 flex-shrink-0" />
+              </button>
+              <p className="text-center text-xs text-stone-400 -mt-2">100% gratuito · Leva menos de 60 segundos</p>
             </motion.div>
           )}
 
-          {/* ═══ Q1 — hair problems ═══ */}
+          {/* ═══ Q1 — frequência de lavagem ═══ */}
           {step === STEPS.Q1 && (
-            <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
+            <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
               <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
               <div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-1">Como seu cabelo está hoje?</h2>
-                <p className="text-xs font-semibold text-emerald-600 mb-1">Você pode escolher mais de uma opção</p>
-                <p className="text-sm text-stone-500">Seja sincera. Esses são sinais de que algo está errado na forma como você está cuidando do seu cabelo.</p>
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
+                  Esse detalhe faz mais diferença do que você imagina...
+                </p>
+                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+                  Com que frequência você lava o cabelo?
+                </h2>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {HAIR_PROBLEMS.map(opt => (
-                  <div
+              <div className="flex flex-col gap-3">
+                {[
+                  { value: 'daily', label: 'Todos os dias',           emoji: '🚿', desc: 'Quase todo dia, faz parte da rotina' },
+                  { value: '3_4',   label: '3 a 4 vezes por semana',  emoji: '📅', desc: 'Na maioria dos dias da semana' },
+                  { value: '1_2',   label: '1 a 2 vezes por semana',  emoji: '🌿', desc: 'Só quando realmente precisa' },
+                ].map(opt => (
+                  <QuizOption
                     key={opt.value}
-                    className={`card-img-option ${answers.problems.includes(opt.value) ? 'selected' : ''}`}
-                    onClick={() => handleProblemToggle(opt.value)}
-                  >
-                    <div className="relative">
-                      <img src={opt.img} alt={opt.label} className="w-full h-28 object-cover" />
-                      {answers.problems.includes(opt.value) && (
-                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <Check className="w-3.5 h-3.5 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-xs font-semibold text-stone-700 px-3 py-2 text-center">{opt.label}</p>
-                  </div>
+                    {...opt}
+                    selected={answers.washFreq === opt.value}
+                    onClick={() => { ans('washFreq', opt.value); setStep(STEPS.Q2); }}
+                  />
                 ))}
               </div>
-              <button
-                disabled={answers.problems.length === 0}
-                onClick={() => goNext(STEPS.Q2)}
-                className="btn-primary py-4 text-base"
-              >
-                Continuar →
-              </button>
             </motion.div>
           )}
 
-          {/* ═══ Q2 — wash frequency ═══ */}
+          {/* ═══ Q2 — temperatura da água ═══ */}
           {step === STEPS.Q2 && (
-            <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
+            <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
               <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
               <div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">Com que frequência você lava o cabelo?</h2>
-                <p className="text-sm text-stone-500">Muita gente acredita que está cuidando bem do cabelo, mas aqui começa um dos erros mais comuns que acabam destruindo a saúde dos fios aos poucos.</p>
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
+                  Pouquíssimas pessoas sabem o impacto disso...
+                </p>
+                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+                  A água do seu banho é geralmente:
+                </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily', label: 'Todos os dias', emoji: '🚿' },
-                  { value: '3_4',   label: '3 a 4 vezes por semana', emoji: '📅' },
-                  { value: '1_2',   label: '1 a 2 vezes por semana', emoji: '🌿' },
+                  { value: 'hot',  label: 'Bem quente', emoji: '🔥', desc: 'Bem quente, como eu gosto' },
+                  { value: 'warm', label: 'Morna',       emoji: '💧', desc: 'Temperatura agradável, não extrema' },
+                  { value: 'cold', label: 'Fria',        emoji: '❄️', desc: 'Fria ou finalizo sempre fria' },
                 ].map(opt => (
-                  <div
+                  <QuizOption
                     key={opt.value}
-                    className={`card-option px-5 py-4 flex items-center gap-4 ${answers.washFreq === opt.value ? 'selected' : ''}`}
-                    onClick={() => { setAnswers(a => ({ ...a, washFreq: opt.value })); goNext(STEPS.Q3); }}
-                  >
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <span className="font-semibold text-stone-700">{opt.label}</span>
-                    {answers.washFreq === opt.value && <Check className="w-5 h-5 text-emerald-500 ml-auto" />}
-                  </div>
+                    {...opt}
+                    selected={answers.waterTemp === opt.value}
+                    onClick={() => { ans('waterTemp', opt.value); setStep(STEPS.Q3); }}
+                  />
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* ═══ Q3 — water temp ═══ */}
+          {/* ═══ Q3 — calor ═══ */}
           {step === STEPS.Q3 && (
-            <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
+            <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
               <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
               <div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">A temperatura da água costuma ser:</h2>
-                <p className="text-sm text-stone-500">Esse é um dos fatores que mais causam ressecamento, frizz e perda de brilho, mesmo em pessoas que usam bons produtos.</p>
-              </div>
-              <div className="rounded-2xl overflow-hidden shadow-sm">
-                <img
-                  src="https://images.unsplash.com/photo-1585341090996-c1fd7e08c685?w=600&q=70"
-                  alt="Banho quente"
-                  className="w-full h-40 object-cover"
-                />
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
+                  Isso pode estar sabotando todo o seu cuidado...
+                </p>
+                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+                  Você usa secador ou chapinha com frequência?
+                </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'hot',  label: 'Quente', emoji: '🔥', desc: 'Bem quente, como eu gosto' },
-                  { value: 'warm', label: 'Morna',  emoji: '💧', desc: 'Temperatura agradável' },
-                  { value: 'cold', label: 'Fria',   emoji: '❄️', desc: 'Fria ou finalizo fria' },
+                  { value: 'daily',  label: 'Todos os dias',             emoji: '🔌', desc: 'Faz parte da minha rotina diária' },
+                  { value: 'few',    label: 'Algumas vezes por semana',  emoji: '📆', desc: 'Na maioria das vezes que lavo' },
+                  { value: 'rarely', label: 'Raramente',                 emoji: '🌬️', desc: 'Só em ocasiões especiais' },
                 ].map(opt => (
-                  <div
+                  <QuizOption
                     key={opt.value}
-                    className={`card-option px-5 py-4 flex items-center gap-4 ${answers.waterTemp === opt.value ? 'selected' : ''}`}
-                    onClick={() => { setAnswers(a => ({ ...a, waterTemp: opt.value })); goNext(STEPS.Q4); }}
-                  >
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <div>
-                      <p className="font-semibold text-stone-700">{opt.label}</p>
-                      <p className="text-xs text-stone-400">{opt.desc}</p>
-                    </div>
-                    {answers.waterTemp === opt.value && <Check className="w-5 h-5 text-emerald-500 ml-auto" />}
-                  </div>
+                    {...opt}
+                    selected={answers.heatTools === opt.value}
+                    onClick={() => { ans('heatTools', opt.value); setStep(STEPS.Q4); }}
+                  />
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* ═══ Q4 — heat tools ═══ */}
+          {/* ═══ Q4 — hidratação ═══ */}
           {step === STEPS.Q4 && (
-            <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
+            <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
               <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
               <div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">Você usa secador ou chapinha?</h2>
-                <p className="text-sm text-stone-500">O uso frequente de calor pode enfraquecer o fio, aumentar a quebra e deixar o cabelo com aparência sem vida, mesmo que você tente hidratar.</p>
-              </div>
-              <div className="flex flex-col gap-3">
-                {[
-                  { value: 'daily',  label: 'Todos os dias',            emoji: '🔌' },
-                  { value: 'few',    label: 'Algumas vezes por semana', emoji: '📆' },
-                  { value: 'rarely', label: 'Raramente',                emoji: '🌬️' },
-                ].map(opt => (
-                  <div
-                    key={opt.value}
-                    className={`card-option px-5 py-4 flex items-center gap-4 ${answers.heatTools === opt.value ? 'selected' : ''}`}
-                    onClick={() => { setAnswers(a => ({ ...a, heatTools: opt.value })); goNext(STEPS.Q5); }}
-                  >
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <span className="font-semibold text-stone-700">{opt.label}</span>
-                    {answers.heatTools === opt.value && <Check className="w-5 h-5 text-emerald-500 ml-auto" />}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ Q5 — hydration ═══ */}
-          {step === STEPS.Q5 && (
-            <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col gap-5">
-              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
-              <div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">Você faz hidratação ou tratamento no cabelo?</h2>
-                <p className="text-sm text-stone-500">Aqui está outro ponto importante. Muitas pessoas até tentam cuidar, mas fazem isso da forma errada ou com produtos que não ajudam de verdade.</p>
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
+                  A forma como você hidrata importa tanto quanto o produto...
+                </p>
+                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+                  Você costuma fazer hidratação no cabelo?
+                </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
                   { value: 'regularly', label: 'Sim, regularmente', emoji: '✅', desc: 'Faço hidratação toda semana' },
                   { value: 'sometimes', label: 'Às vezes',          emoji: '🔄', desc: 'Quando lembro ou tenho tempo' },
-                  { value: 'never',     label: 'Quase nunca',       emoji: '❌', desc: 'Não tenho esse hábito' },
+                  { value: 'never',     label: 'Quase nunca',       emoji: '❌', desc: 'Não tenho esse hábito ainda' },
                 ].map(opt => (
-                  <div
+                  <QuizOption
                     key={opt.value}
-                    className={`card-option px-5 py-4 flex items-center gap-4 ${answers.hydration === opt.value ? 'selected' : ''}`}
-                    onClick={() => { setAnswers(a => ({ ...a, hydration: opt.value })); goNext(STEPS.NAME); }}
-                  >
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <div>
-                      <p className="font-semibold text-stone-700">{opt.label}</p>
-                      <p className="text-xs text-stone-400">{opt.desc}</p>
-                    </div>
-                    {answers.hydration === opt.value && <Check className="w-5 h-5 text-emerald-500 ml-auto" />}
-                  </div>
+                    {...opt}
+                    selected={answers.hydration === opt.value}
+                    onClick={() => { ans('hydration', opt.value); setStep(STEPS.NAME); }}
+                  />
                 ))}
               </div>
             </motion.div>
@@ -346,25 +298,32 @@ export default function Landing() {
 
           {/* ═══ NAME ═══ */}
           {step === STEPS.NAME && (
-            <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 py-10 flex flex-col gap-6">
-              <div className="text-center">
+            <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
+              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
+              <div className="text-center pt-6">
                 <div className="text-5xl mb-4">🌿</div>
-                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">Como podemos te chamar?</h2>
-                <p className="text-sm text-stone-500">Queremos personalizar seu diagnóstico para você.<br />Leva só alguns segundos.</p>
+                <h2 className="text-xl font-extrabold text-stone-900 mb-2">
+                  Quase lá! Como posso te chamar?
+                </h2>
+                <p className="text-sm text-stone-500">
+                  Seu plano será personalizado especialmente para você.
+                </p>
               </div>
               <input
                 type="text"
                 placeholder="Seu primeiro nome"
                 value={answers.name}
-                onChange={e => setAnswers(a => ({ ...a, name: e.target.value }))}
-                className="w-full border-2 border-stone-200 rounded-2xl px-5 py-4 text-lg text-stone-800 outline-none focus:border-emerald-400 transition-colors"
+                onChange={e => ans('name', e.target.value)}
+                className="w-full border-2 border-stone-200 rounded-2xl px-5 py-4 text-lg text-stone-800 outline-none transition-colors"
+                onFocus={e => { e.target.style.borderColor = '#FB45A9'; }}
+                onBlur={e => { if (!answers.name.trim()) e.target.style.borderColor = '#e7e5e4'; }}
               />
               <button
                 disabled={!answers.name.trim()}
                 onClick={() => setStep(STEPS.LOADING)}
-                className="btn-primary py-5 text-lg flex items-center justify-center gap-2"
+                className="btn-primary py-4 text-base flex items-center justify-center gap-2"
               >
-                Ver meu diagnóstico
+                Ver meu diagnóstico personalizado
                 <ArrowRight className="w-5 h-5" />
               </button>
             </motion.div>
@@ -372,7 +331,12 @@ export default function Landing() {
 
           {/* ═══ LOADING ═══ */}
           {step === STEPS.LOADING && (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-lg mx-auto w-full px-4 py-16 flex flex-col items-center gap-8">
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="max-w-lg mx-auto w-full px-4 py-16 flex flex-col items-center gap-8"
+            >
               <div className="text-center">
                 <div className="text-4xl mb-4">🔬</div>
                 <h2 className="text-2xl font-extrabold text-stone-900">Analisando suas respostas…</h2>
@@ -381,20 +345,26 @@ export default function Landing() {
               <div className="w-full space-y-4">
                 {[
                   { label: 'Identificando hábitos que prejudicam seu cabelo', threshold: 30 },
-                  { label: 'Avaliando saúde do fio', threshold: 65 },
-                  { label: 'Cruzando padrões e montando diagnóstico', threshold: 100 },
+                  { label: 'Avaliando a saúde dos seus fios',                 threshold: 65 },
+                  { label: 'Montando seu diagnóstico personalizado',           threshold: 100 },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 ${loadingProgress >= item.threshold ? 'bg-emerald-500' : 'bg-stone-200'}`}>
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
+                      style={{ background: loadingProgress >= item.threshold ? '#FB45A9' : '#e7e5e4' }}
+                    >
                       {loadingProgress >= item.threshold && <Check className="w-3 h-3 text-white" />}
                     </div>
-                    <p className={`text-sm transition-colors duration-500 ${loadingProgress >= item.threshold ? 'text-stone-800 font-medium' : 'text-stone-400'}`}>{item.label}</p>
+                    <p className={`text-sm transition-colors duration-500 ${loadingProgress >= item.threshold ? 'text-stone-800 font-medium' : 'text-stone-400'}`}>
+                      {item.label}
+                    </p>
                   </div>
                 ))}
               </div>
               <div className="w-full bg-stone-200 rounded-full h-2">
                 <motion.div
-                  className="h-2 rounded-full bg-emerald-500"
+                  className="h-2 rounded-full"
+                  style={{ background: 'linear-gradient(90deg, #FB45A9, #E03594)' }}
                   animate={{ width: `${loadingProgress}%` }}
                   transition={{ duration: 0.5 }}
                 />
