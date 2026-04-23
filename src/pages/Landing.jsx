@@ -112,6 +112,8 @@ export default function Landing() {
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
         .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+        @keyframes pulse-pink { 0%,100% { box-shadow:0 0 0 0 rgba(251,69,169,.45); } 60% { box-shadow:0 0 0 10px rgba(251,69,169,0); } }
+        .btn-pulse { animation: pulse-pink 2s ease-in-out infinite; }
         .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
         .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
         .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
@@ -142,12 +144,10 @@ export default function Landing() {
           {step === STEPS.ANCHOR && (
             <motion.div key="anchor" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-6 flex flex-col gap-4">
               <div>
-                <h1 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
+                <h1 className="text-2xl font-extrabold text-stone-900 leading-snug mb-1">
                   Você sofre de algum destes problemas capilares?
                 </h1>
-                <p className="text-sm text-stone-500 leading-relaxed">
-                  Você não está sozinha — milhares de mulheres enfrentam exatamente isso todos os dias.
-                </p>
+                <p className="text-sm text-stone-500">Por favor, seja sincera</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -169,11 +169,15 @@ export default function Landing() {
                 ))}
               </div>
 
+              <p className="text-sm text-stone-500 text-center leading-relaxed">
+                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
+              </p>
+
               <button
                 onClick={() => setStep(STEPS.Q1)}
-                className="btn-primary w-full py-4 text-sm flex items-center justify-center gap-2"
+                className="btn-primary btn-pulse w-full py-5 text-sm flex items-center justify-center gap-2"
               >
-                Sim, enfrento pelo menos um desses problemas
+                Sim, tenho pelo menos 1 deles
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
               <p className="text-center text-xs text-stone-400 -mt-2">100% gratuito · Leva menos de 60 segundos</p>
@@ -321,7 +325,7 @@ export default function Landing() {
               <button
                 disabled={!answers.name.trim()}
                 onClick={() => setStep(STEPS.LOADING)}
-                className="btn-primary py-4 text-base flex items-center justify-center gap-2"
+                className="btn-primary py-5 text-base flex items-center justify-center gap-2"
               >
                 Ver meu diagnóstico personalizado
                 <ArrowRight className="w-5 h-5" />
