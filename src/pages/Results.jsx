@@ -376,22 +376,20 @@ export default function Results() {
             {RECIPES_TEASE.map((r, i) => (
               <div key={i} className="rounded-xl overflow-hidden border border-stone-100">
                 <div className="p-4">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black text-white"
-                        style={{ background: '#FB45A9' }}
-                      >
-                        {i + 1}
-                      </div>
-                      <p className="font-extrabold text-stone-800 text-base leading-snug">{r.benefit}</p>
-                    </div>
-                    <span
-                      className="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
-                      style={{ background: '#F5F5F4', color: '#78716C' }}
+                  <span
+                    className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-3"
+                    style={{ background: '#F5F5F4', color: '#78716C' }}
+                  >
+                    {r.tag}
+                  </span>
+                  <div className="flex items-start gap-2.5 mb-3">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black text-white mt-0.5"
+                      style={{ background: '#FB45A9' }}
                     >
-                      {r.tag}
-                    </span>
+                      {i + 1}
+                    </div>
+                    <p className="font-extrabold text-stone-800 text-base leading-snug">{r.benefit}</p>
                   </div>
                   <p className="text-sm text-stone-500 leading-relaxed mb-3 pl-9">{r.description}</p>
                   <div className="flex items-center gap-2 text-xs font-semibold pl-9" style={{ color: '#16A34A' }}>
