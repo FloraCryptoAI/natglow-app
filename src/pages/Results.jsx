@@ -18,22 +18,28 @@ const BENEFITS = [
 
 const RECIPES_TEASE = [
   {
-    emoji: '😍',
+    num: '01',
+    emoji: '✨',
     tag: 'Resultado na 1ª aplicação',
-    benefit: 'Cabelo macio, brilhoso e sem frizz — do nada',
-    description: 'Só 2 ingredientes de cozinha que você provavelmente já tem em casa. Fecha as cutículas, devolve o brilho e elimina o frizz em minutos. Simples demais pra acreditar.',
+    benefit: 'Cabelo macio, brilhoso e sem frizz — na hora',
+    description: 'Você vai olhar no espelho e não acreditar. Uma receita simples que fecha as cutículas, devolve o brilho e elimina o frizz em menos de 20 minutos.',
+    result: 'Cabelo transformado em 20 min',
   },
   {
-    emoji: '😴',
+    num: '02',
+    emoji: '🌙',
     tag: 'Age enquanto você dorme',
-    benefit: 'Acorda com o cabelo transformado — sem esforço',
-    description: 'Aplica antes de dormir, enxágua de manhã. Estimula o crescimento, reduz a queda e nutre profundamente. A indústria cosmética odeia que isso custe menos de R$5.',
+    benefit: 'Acorda com o cabelo que você sempre quis',
+    description: 'Aplica antes de dormir e deixa agir a noite toda. Quando acorda, o cabelo está mais forte, com menos queda e crescendo de verdade.',
+    result: 'Resultado visível em 1 semana',
   },
   {
-    emoji: '😮',
-    tag: 'Dura até 5 dias',
-    benefit: 'Frizz zero com o que tem na sua cozinha',
-    description: '4 ingredientes simples que a maioria das pessoas tem em casa. Controla o frizz por dias inteiros — e custa menos de R$2 por aplicação.',
+    num: '03',
+    emoji: '💨',
+    tag: 'Dura até 5 dias inteiros',
+    benefit: 'Frizz zero — sem produto caro, sem segredo',
+    description: 'Uma mistura caseira que controla o frizz por dias inteiros. Qualquer dia de chuva, qualquer umidade — seu cabelo fica no lugar.',
+    result: 'Frizz controlado por até 5 dias',
   },
 ];
 
@@ -360,24 +366,27 @@ export default function Results() {
 
         {/* ── Tease das 3 receitas campeãs ── */}
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <div className="p-5 pb-3">
+          <div className="p-5 pb-4">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" style={{ background: '#FFE4F2', color: '#E03594' }}>
-              🤫 Segredo que a indústria não quer que você saiba
+              ✨ Exclusivo para assinantes
             </div>
             <h3 className="text-stone-900 text-xl font-extrabold leading-snug mb-2">
-              Seu plano inclui 3 receitas caseiras campeãs
+              As 3 receitas que nossas usuárias mais amam
             </h3>
             <p className="text-sm text-stone-500 leading-relaxed">
-              Resultado visível já na <strong className="text-stone-700">1ª aplicação</strong> — com ingredientes simples que custam centavos e que a indústria cosmética prefere que você nunca descubra.
+              Caseiras, simples e com resultado já na <strong className="text-stone-700">1ª aplicação</strong>. Os ingredientes custam centavos e você provavelmente já tem em casa.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 px-4 pb-4">
             {RECIPES_TEASE.map((r, i) => (
-              <div key={i} className="border border-stone-100 rounded-xl overflow-hidden">
+              <div key={i} className="rounded-xl overflow-hidden border border-stone-100">
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-4xl leading-none flex-shrink-0">{r.emoji}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-stone-300">{r.num}</span>
+                      <span className="text-3xl leading-none">{r.emoji}</span>
+                    </div>
                     <span
                       className="text-xs font-bold px-2.5 py-1 rounded-full"
                       style={{ background: '#FFE4F2', color: '#E03594' }}
@@ -386,28 +395,28 @@ export default function Results() {
                     </span>
                   </div>
                   <p className="font-extrabold text-stone-800 text-base mb-1.5 leading-snug">{r.benefit}</p>
-                  <p className="text-sm text-stone-500 leading-relaxed">{r.description}</p>
-                </div>
-                <div className="px-4 py-2.5 flex items-center gap-2 bg-stone-50 border-t border-stone-100">
-                  <Lock className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
-                  <div className="flex gap-1.5 flex-1">
-                    {['███████', '█████', '████████'].map((b, j) => (
-                      <span key={j} className="text-xs font-bold select-none text-stone-300">{b}</span>
-                    ))}
+                  <p className="text-sm text-stone-500 leading-relaxed mb-3">{r.description}</p>
+                  <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: '#16A34A' }}>
+                    <span>→</span>
+                    <span>{r.result}</span>
                   </div>
-                  <span className="text-xs font-semibold whitespace-nowrap" style={{ color: '#E03594' }}>🔒 Ingredientes ocultos</span>
+                </div>
+                <div className="px-4 py-2.5 flex items-center justify-between bg-stone-50 border-t border-stone-100">
+                  <div className="flex items-center gap-1.5 text-stone-400 text-xs">
+                    <Lock className="w-3 h-3 flex-shrink-0" />
+                    <span>Ingredientes revelados no plano</span>
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: '#E03594' }}>🔒 Exclusivo</span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mx-4 mb-4 rounded-xl p-3 text-center" style={{ background: '#FFE4F2', border: '1px solid #FFB3DD' }}>
+          <div className="mx-4 mb-5 rounded-xl py-3 px-4 flex items-center justify-between" style={{ background: '#FFE4F2' }}>
             <p className="text-sm font-bold" style={{ color: '#E03594' }}>
-              👆 Desbloqueie as 3 receitas completas com seu plano
+              Quero acessar as 3 receitas
             </p>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Ingredientes, modo de preparo e frequência de uso
-            </p>
+            <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#E03594' }} />
           </div>
         </div>
 
