@@ -18,22 +18,22 @@ const BENEFITS = [
 
 const RECIPES_TEASE = [
   {
-    emoji: '🌿',
+    emoji: '😍',
     tag: 'Resultado na 1ª aplicação',
-    benefit: 'Hidratação que transforma na hora',
-    description: 'Fios macios como seda, cheios de brilho e sem frizz — visível logo após enxaguar.',
+    benefit: 'Cabelo macio, brilhoso e sem frizz — do nada',
+    description: 'Só 2 ingredientes de cozinha que você provavelmente já tem em casa. Fecha as cutículas, devolve o brilho e elimina o frizz em minutos. Simples demais pra acreditar.',
   },
   {
-    emoji: '🥥',
+    emoji: '😴',
     tag: 'Age enquanto você dorme',
-    benefit: 'Tônico noturno de crescimento',
-    description: 'Acorda com o cabelo mais forte, menos queda e crescimento visivelmente acelerado.',
+    benefit: 'Acorda com o cabelo transformado — sem esforço',
+    description: 'Aplica antes de dormir, enxágua de manhã. Estimula o crescimento, reduz a queda e nutre profundamente. A indústria cosmética odeia que isso custe menos de R$5.',
   },
   {
-    emoji: '🍋',
-    tag: 'Dura dias inteiros',
-    benefit: 'Selante natural anti-frizz',
-    description: 'Controla o frizz por 3 a 5 dias com uma mistura simples de ingredientes da sua cozinha.',
+    emoji: '😮',
+    tag: 'Dura até 5 dias',
+    benefit: 'Frizz zero com o que tem na sua cozinha',
+    description: '4 ingredientes simples que a maioria das pessoas tem em casa. Controla o frizz por dias inteiros — e custa menos de R$2 por aplicação.',
   },
 ];
 
@@ -354,48 +354,67 @@ export default function Results() {
         >
           <p className="font-bold text-emerald-800">🌱 A boa notícia? Isso tem solução — e mais rápida do que você imagina.</p>
           <p className="text-sm text-stone-600 leading-relaxed">
-            Seu cabelo pode se recuperar muito mais rápido quando você troca os produtos químicos por receitas naturais caseiras que realmente funcionam.
+            Seu cabelo pode se recuperar muito mais rápido quando você troca os produtos químicos por receitas naturais caseiras que realmente resolvem o seu problema.
           </p>
         </motion.div>
 
         {/* ── Tease das 3 receitas campeãs ── */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-lg">✨</span>
-            <p className="font-bold text-stone-900">Seu plano inclui 3 receitas campeãs</p>
+        <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: 'linear-gradient(160deg, #1a0510, #2e0d1e)' }}>
+          <div className="p-5 pb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" style={{ background: 'rgba(251,69,169,0.2)', color: '#FFB3DD' }}>
+              🤫 Segredo que a indústria não quer que você saiba
+            </div>
+            <h3 className="text-white text-xl font-extrabold leading-snug mb-2">
+              Seu plano inclui 3 receitas caseiras campeãs
+            </h3>
+            <p className="text-sm leading-relaxed" style={{ color: '#FFB3DD' }}>
+              Resultado visível já na <strong className="text-white">1ª aplicação</strong> — com ingredientes simples que custam centavos e que a indústria cosmética prefere que você nunca descubra.
+            </p>
           </div>
-          <p className="text-xs text-stone-500 mb-4">
-            Resultado comprovado já na 1ª aplicação — as mesmas receitas que transformaram o cabelo de mais de 3.200 mulheres brasileiras
-          </p>
-          <div className="flex flex-col gap-3">
+
+          <div className="flex flex-col gap-3 px-4 pb-5">
             {RECIPES_TEASE.map((r, i) => (
-              <div key={i} className="border border-stone-100 rounded-xl overflow-hidden">
-                <div className="flex items-start gap-3 p-4">
-                  <span className="text-2xl leading-none flex-shrink-0">{r.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: '#FFE4F2', color: '#E03594' }}
-                      >
-                        {r.tag}
-                      </span>
-                    </div>
-                    <p className="font-semibold text-stone-800 text-sm mb-0.5">{r.benefit}</p>
-                    <p className="text-xs text-stone-500 leading-relaxed">{r.description}</p>
+              <div
+                key={i}
+                className="rounded-xl overflow-hidden"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+              >
+                <div className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-4xl leading-none flex-shrink-0">{r.emoji}</span>
+                    <span
+                      className="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style={{ background: '#FB45A9', color: '#fff' }}
+                    >
+                      {r.tag}
+                    </span>
                   </div>
+                  <p className="font-extrabold text-white text-base mb-1.5 leading-snug">{r.benefit}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: '#FFB3DD' }}>{r.description}</p>
                 </div>
-                <div className="border-t border-stone-100 bg-stone-50 px-4 py-2 flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
+                <div
+                  className="px-4 py-2.5 flex items-center gap-2"
+                  style={{ background: 'rgba(0,0,0,0.3)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FB45A9' }} />
                   <div className="flex gap-1.5 flex-1">
-                    {['████████', '██████', '█████████'].map((b, j) => (
-                      <span key={j} className="text-stone-300 text-xs font-bold select-none">{b}</span>
+                    {['███████', '█████', '████████'].map((b, j) => (
+                      <span key={j} className="text-xs font-bold select-none" style={{ color: 'rgba(251,69,169,0.35)' }}>{b}</span>
                     ))}
                   </div>
-                  <span className="text-xs text-stone-400 font-medium whitespace-nowrap">Ingredientes ocultos</span>
+                  <span className="text-xs font-semibold whitespace-nowrap" style={{ color: '#FB45A9' }}>🔒 Ingredientes ocultos</span>
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mx-4 mb-5 rounded-xl p-3 text-center" style={{ background: 'rgba(251,69,169,0.15)', border: '1px solid rgba(251,69,169,0.3)' }}>
+            <p className="text-sm font-bold text-white">
+              👆 Desbloqueie as 3 receitas completas com seu plano
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: '#FFB3DD' }}>
+              Ingredientes, modo de preparo e frequência de uso
+            </p>
           </div>
         </div>
 
