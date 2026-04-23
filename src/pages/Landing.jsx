@@ -43,15 +43,15 @@ function ProgressBar({ current, total }) {
 function QuizOption({ value, label, desc, emoji, selected, onClick }) {
   return (
     <div
-      className={`card-option px-4 py-3.5 flex items-center gap-4 ${selected ? 'selected' : ''}`}
+      className={`card-option px-4 py-4 flex items-center gap-4 ${selected ? 'selected' : ''}`}
       onClick={onClick}
     >
-      <span className="text-2xl leading-none flex-shrink-0">{emoji}</span>
+      <span className="text-3xl leading-none flex-shrink-0">{emoji}</span>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-stone-700 text-sm">{label}</p>
-        {desc && <p className="text-xs text-stone-400 mt-0.5">{desc}</p>}
+        <p className="font-semibold text-stone-700 text-base">{label}</p>
+        {desc && <p className="text-sm text-stone-400 mt-0.5">{desc}</p>}
       </div>
-      {selected && <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#FB45A9' }} />}
+      {selected && <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#FB45A9' }} />}
     </div>
   );
 }
@@ -112,8 +112,8 @@ export default function Landing() {
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
         .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
-        @keyframes pulse-pink { 0%,100% { box-shadow:0 0 0 0 rgba(251,69,169,.45); } 60% { box-shadow:0 0 0 10px rgba(251,69,169,0); } }
-        .btn-pulse { animation: pulse-pink 2s ease-in-out infinite; }
+        @keyframes pulse-scale { 0%,100% { transform:scale(1); } 50% { transform:scale(1.04); } }
+        .btn-pulse { animation: pulse-scale 1.8s ease-in-out infinite; }
         .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
         .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
         .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
@@ -175,7 +175,7 @@ export default function Landing() {
 
               <button
                 onClick={() => setStep(STEPS.Q1)}
-                className="btn-primary btn-pulse w-full py-5 text-sm flex items-center justify-center gap-2"
+                className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
                 Sim, tenho pelo menos 1 deles
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
@@ -186,13 +186,10 @@ export default function Landing() {
 
           {/* ═══ Q1 — frequência de lavagem ═══ */}
           {step === STEPS.Q1 && (
-            <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
+            <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
-                  Esse detalhe faz mais diferença do que você imagina...
-                </p>
-                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Com que frequência você lava o cabelo?
                 </h2>
               </div>
@@ -215,13 +212,10 @@ export default function Landing() {
 
           {/* ═══ Q2 — temperatura da água ═══ */}
           {step === STEPS.Q2 && (
-            <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
+            <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
-                  Pouquíssimas pessoas sabem o impacto disso...
-                </p>
-                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   A água do seu banho é geralmente:
                 </h2>
               </div>
@@ -244,13 +238,10 @@ export default function Landing() {
 
           {/* ═══ Q3 — calor ═══ */}
           {step === STEPS.Q3 && (
-            <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
+            <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
-                  Isso pode estar sabotando todo o seu cuidado...
-                </p>
-                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Você usa secador ou chapinha com frequência?
                 </h2>
               </div>
@@ -273,13 +264,10 @@ export default function Landing() {
 
           {/* ═══ Q4 — hidratação ═══ */}
           {step === STEPS.Q4 && (
-            <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-4">
+            <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#FB45A9' }}>
-                  A forma como você hidrata importa tanto quanto o produto...
-                </p>
-                <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Você costuma fazer hidratação no cabelo?
                 </h2>
               </div>
@@ -306,10 +294,10 @@ export default function Landing() {
               <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center pt-6">
                 <div className="text-5xl mb-4">🌿</div>
-                <h2 className="text-xl font-extrabold text-stone-900 mb-2">
+                <h2 className="text-2xl font-extrabold text-stone-900 mb-2">
                   Quase lá! Como posso te chamar?
                 </h2>
-                <p className="text-sm text-stone-500">
+                <p className="text-base text-stone-500">
                   Seu plano será personalizado especialmente para você.
                 </p>
               </div>
@@ -325,7 +313,7 @@ export default function Landing() {
               <button
                 disabled={!answers.name.trim()}
                 onClick={() => setStep(STEPS.LOADING)}
-                className="btn-primary py-5 text-base flex items-center justify-center gap-2"
+                className="btn-primary py-6 text-base flex items-center justify-center gap-2"
               >
                 Ver meu diagnóstico personalizado
                 <ArrowRight className="w-5 h-5" />
