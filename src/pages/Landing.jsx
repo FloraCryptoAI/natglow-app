@@ -143,11 +143,11 @@ export default function Landing() {
           {/* ═══ ANCHOR ═══ */}
           {step === STEPS.ANCHOR && (
             <motion.div key="anchor" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-6 flex flex-col gap-4">
-              <div>
+              <div className="text-center">
                 <h1 className="text-2xl font-extrabold text-stone-900 leading-snug mb-1">
                   Você sofre de algum destes problemas capilares?
                 </h1>
-                <p className="text-sm text-stone-500">Por favor, seja sincera</p>
+                <p className="text-base text-stone-500">Por favor, seja sincera</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -164,7 +164,7 @@ export default function Landing() {
                         onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-stone-700 leading-snug">{opt.label}</span>
+                    <span className="text-sm font-semibold text-stone-700 leading-snug">{opt.label}</span>
                   </div>
                 ))}
               </div>
