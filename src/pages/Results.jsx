@@ -359,60 +359,53 @@ export default function Results() {
         </motion.div>
 
         {/* ── Tease das 3 receitas campeãs ── */}
-        <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: 'linear-gradient(160deg, #1a0510, #2e0d1e)' }}>
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
           <div className="p-5 pb-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" style={{ background: 'rgba(251,69,169,0.2)', color: '#FFB3DD' }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" style={{ background: '#FFE4F2', color: '#E03594' }}>
               🤫 Segredo que a indústria não quer que você saiba
             </div>
-            <h3 className="text-white text-xl font-extrabold leading-snug mb-2">
+            <h3 className="text-stone-900 text-xl font-extrabold leading-snug mb-2">
               Seu plano inclui 3 receitas caseiras campeãs
             </h3>
-            <p className="text-sm leading-relaxed" style={{ color: '#FFB3DD' }}>
-              Resultado visível já na <strong className="text-white">1ª aplicação</strong> — com ingredientes simples que custam centavos e que a indústria cosmética prefere que você nunca descubra.
+            <p className="text-sm text-stone-500 leading-relaxed">
+              Resultado visível já na <strong className="text-stone-700">1ª aplicação</strong> — com ingredientes simples que custam centavos e que a indústria cosmética prefere que você nunca descubra.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 px-4 pb-5">
+          <div className="flex flex-col gap-3 px-4 pb-4">
             {RECIPES_TEASE.map((r, i) => (
-              <div
-                key={i}
-                className="rounded-xl overflow-hidden"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
-              >
+              <div key={i} className="border border-stone-100 rounded-xl overflow-hidden">
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-4xl leading-none flex-shrink-0">{r.emoji}</span>
                     <span
                       className="text-xs font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: '#FB45A9', color: '#fff' }}
+                      style={{ background: '#FFE4F2', color: '#E03594' }}
                     >
                       {r.tag}
                     </span>
                   </div>
-                  <p className="font-extrabold text-white text-base mb-1.5 leading-snug">{r.benefit}</p>
-                  <p className="text-sm leading-relaxed" style={{ color: '#FFB3DD' }}>{r.description}</p>
+                  <p className="font-extrabold text-stone-800 text-base mb-1.5 leading-snug">{r.benefit}</p>
+                  <p className="text-sm text-stone-500 leading-relaxed">{r.description}</p>
                 </div>
-                <div
-                  className="px-4 py-2.5 flex items-center gap-2"
-                  style={{ background: 'rgba(0,0,0,0.3)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
-                >
-                  <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FB45A9' }} />
+                <div className="px-4 py-2.5 flex items-center gap-2 bg-stone-50 border-t border-stone-100">
+                  <Lock className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
                   <div className="flex gap-1.5 flex-1">
                     {['███████', '█████', '████████'].map((b, j) => (
-                      <span key={j} className="text-xs font-bold select-none" style={{ color: 'rgba(251,69,169,0.35)' }}>{b}</span>
+                      <span key={j} className="text-xs font-bold select-none text-stone-300">{b}</span>
                     ))}
                   </div>
-                  <span className="text-xs font-semibold whitespace-nowrap" style={{ color: '#FB45A9' }}>🔒 Ingredientes ocultos</span>
+                  <span className="text-xs font-semibold whitespace-nowrap" style={{ color: '#E03594' }}>🔒 Ingredientes ocultos</span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mx-4 mb-5 rounded-xl p-3 text-center" style={{ background: 'rgba(251,69,169,0.15)', border: '1px solid rgba(251,69,169,0.3)' }}>
-            <p className="text-sm font-bold text-white">
+          <div className="mx-4 mb-4 rounded-xl p-3 text-center" style={{ background: '#FFE4F2', border: '1px solid #FFB3DD' }}>
+            <p className="text-sm font-bold" style={{ color: '#E03594' }}>
               👆 Desbloqueie as 3 receitas completas com seu plano
             </p>
-            <p className="text-xs mt-0.5" style={{ color: '#FFB3DD' }}>
+            <p className="text-xs text-stone-500 mt-0.5">
               Ingredientes, modo de preparo e frequência de uso
             </p>
           </div>
