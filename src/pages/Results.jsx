@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Shield, Star, Loader2, ChevronDown, ChevronUp, Clock, Lock } from 'lucide-react';
+import {
+  ArrowRight, Shield, Star, Loader2, ChevronDown, ChevronUp,
+  Clock, Lock, Check, Sparkles, Users,
+} from 'lucide-react';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
-// ── constants ──────────────────────────────────────────────────────────────
+// ── design tokens ──────────────────────────────────────────────────────────
+const P   = '#FB45A9';
+const PD  = '#E03594';
+const PL  = '#FFF5FA';
+const PL2 = '#FFE4F2';
+const DARK = '#0f0f0f';
+const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)';
+const ease = [0.22, 1, 0.36, 1];
+
+// ── static data ────────────────────────────────────────────────────────────
 
 const BENEFITS = [
-  { icon: '🌿', text: 'As 3 receitas campeãs com resultado na 1ª aplicação' },
+  { icon: '🌿', text: 'As 3 receitas campeãs com resultado já na primeira aplicação' },
   { icon: '📋', text: 'Rotina capilar personalizada de 21 dias' },
-  { icon: '📅', text: 'Plano progressivo de 4 fases (84+ dias)' },
+  { icon: '📅', text: 'Plano progressivo de 4 fases com 84 dias de tratamento completo' },
   { icon: '🍯', text: 'Biblioteca completa com 25 receitas naturais caseiras' },
   { icon: '📈', text: 'Acompanhamento de progresso e conquistas' },
   { icon: '📱', text: 'Acesso em qualquer dispositivo, a qualquer hora' },
@@ -18,65 +30,95 @@ const BENEFITS = [
 
 const RECIPES_TEASE = [
   {
+    emoji: '🌿',
     tag: 'Resultado na 1ª aplicação',
-    benefit: 'Cabelo macio, brilhoso e sem frizz. Na hora.',
-    description: 'Você vai olhar no espelho e não acreditar. Uma receita simples que fecha as cutículas, devolve o brilho e elimina o frizz em menos de 20 minutos.',
-    result: 'Cabelo transformado em 20 min',
+    tagColor: '#16A34A',
+    tagBg: '#F0FDF4',
+    title: 'A receita da maciez instantânea',
+    subtitle: 'O que você vai sentir logo na primeira aplicação:',
+    benefits: [
+      'Frizz eliminado em menos de 20 minutos',
+      'Brilho intenso visível na hora',
+      'Maciez profunda que dura dias inteiros',
+      'Cutículas fechadas e cabelo liso',
+    ],
   },
   {
+    emoji: '🌙',
     tag: 'Age enquanto você dorme',
-    benefit: 'Acorda com o cabelo que você sempre quis',
-    description: 'Aplica antes de dormir e deixa agir a noite toda. Quando acorda, o cabelo está mais forte, com menos queda e crescendo de verdade.',
-    result: 'Resultado visível em 1 semana',
+    tagColor: '#7C3AED',
+    tagBg: '#F5F3FF',
+    title: 'A receita do cabelo forte',
+    subtitle: 'O que acontece enquanto você dorme:',
+    benefits: [
+      'Nutrição profunda agindo a noite toda',
+      'Fortalece cada fio do interior para fora',
+      'Reduz a quebra de forma visível',
+      'Acorde com cabelo sedoso e com vida',
+    ],
   },
   {
-    tag: 'Dura até 5 dias inteiros',
-    benefit: 'Frizz zero. Sem produto caro, sem segredo.',
-    description: 'Uma mistura caseira que controla o frizz por dias inteiros. Qualquer dia de chuva, qualquer umidade. Seu cabelo fica no lugar.',
-    result: 'Frizz controlado por até 5 dias',
+    emoji: '✨',
+    tag: 'Efeito dura até 5 dias',
+    tagColor: '#B45309',
+    tagBg: '#FFFBEB',
+    title: 'A receita antifrizz definitiva',
+    subtitle: 'Por que essa receita é diferente de tudo:',
+    benefits: [
+      'Controla o frizz por até 5 dias seguidos',
+      'Funciona em qualquer clima, até em dia de chuva',
+      'Brilho intenso e selamento duradouro',
+      'Leveza e maciez ao mesmo tempo',
+    ],
   },
 ];
 
 const TESTIMONIALS = [
   {
-    name: 'Ana Paula R.',
-    text: 'Em 3 semanas meu cabelo parou de quebrar completamente. Eu não acreditava que ia funcionar tão rápido!',
+    name: 'Ana Clara M.',
+    location: 'São Paulo, SP',
+    text: 'Gente, eu não acreditei quando vi o resultado. Minha filha veio me perguntar o que eu tinha feito no cabelo. Na primeira semana o frizz já tinha diminuído muito, e em 30 dias o cabelo estava completamente diferente. As receitas são simples, baratas e funcionam de verdade!',
     stars: 5,
-    result: 'Quebra -70%',
-    photo: '/images/testimonials/ana-paula.jpg',
+    result: 'Frizz eliminado em 7 dias',
+    photo: '/images/testimonials/testimonial-1.jpg',
+    beforeAfter: '/images/testimonials/before-after-1.jpg',
   },
   {
-    name: 'Camila S.',
-    text: 'As receitas têm ingredientes que eu já tinha em casa. O resultado foi incrível já na primeira vez que usei.',
+    name: 'Fernanda S.',
+    location: 'Belo Horizonte, MG',
+    text: 'Eu estava perdendo muito cabelo e já tinha desistido. Tentei a NatGlow sem muita expectativa e foi a melhor decisão que tomei. Em 3 semanas a queda reduziu absurdamente. Meu cabelo voltou a crescer cheio e saudável. Chorei de emoção quando vi a diferença.',
     stars: 5,
-    result: '100% natural',
-    photo: '/images/testimonials/camila.jpg',
+    result: 'Queda reduzida em 3 semanas',
+    photo: '/images/testimonials/testimonial-2.jpg',
+    beforeAfter: '/images/testimonials/before-after-2.jpg',
   },
   {
-    name: 'Júlia M.',
-    text: 'O frizz sumiu nos primeiros 15 dias. Olhei no espelho e não acreditei. Meu cabelo nunca esteve assim.',
+    name: 'Juliana R.',
+    location: 'Rio de Janeiro, RJ',
+    text: 'Passei anos gastando fortunas em salão e o resultado era sempre temporário. Com a NatGlow, vi em uma semana mais resultado do que em meses de tratamento caro. Meu cabelo está com volume, brilho e maciez que eu não via há anos. Com ingredientes que já tinha em casa!',
     stars: 5,
-    result: 'Frizz -80%',
-    photo: '/images/testimonials/julia.jpg',
+    result: 'Cabelo transformado em 30 dias',
+    photo: '/images/testimonials/testimonial-3.jpg',
+    beforeAfter: '/images/testimonials/before-after-3.jpg',
   },
 ];
 
-const FAQ = [
+const FAQ_ITEMS = [
   {
     q: 'E se eu não gostar?',
-    a: 'Cancele quando quiser, direto pelo portal do cliente. Sem perguntas, sem burocracia, sem taxas. Você tem total controle.',
+    a: 'Cancele quando quiser, direto pelo portal do cliente. Sem perguntas, sem burocracia, sem taxas. Você tem total controle da sua assinatura. Um clique e está feito.',
   },
   {
     q: 'Os ingredientes das receitas são caros?',
-    a: 'Não! As receitas usam coisas simples como mel, babosa, óleo de coco e limão, ingredientes que você provavelmente já tem em casa agora mesmo.',
+    a: 'Não! As receitas usam ingredientes simples como mel, babosa, óleo de coco e outros que você provavelmente já tem em casa agora mesmo. O custo médio de cada receita é menos de R$2,00.',
   },
   {
     q: 'Quanto tempo até ver resultado?',
-    a: 'Muitas usuárias notam diferença já na 1ª aplicação das receitas. Para resultados de transformação completa, a maioria vê em 2 a 3 semanas de rotina.',
+    a: 'Muitas mulheres notam diferença já na primeira aplicação das receitas. Para resultados de transformação completa, a maioria vê em 2 a 3 semanas seguindo a rotina.',
   },
   {
     q: 'Funciona para qualquer tipo de cabelo?',
-    a: 'Sim! Seu plano foi montado com base nas respostas do seu diagnóstico, então as receitas e a rotina são específicas para o seu tipo de fio e problema.',
+    a: 'Sim! Seu plano foi montado com base nas respostas do seu diagnóstico, então as receitas e a rotina são específicas para o seu tipo de fio e o seu problema principal.',
   },
 ];
 
@@ -106,36 +148,180 @@ function getDiagnosis(answers) {
     signs.push('Rotina parcialmente correta, mas com gaps que limitam os resultados');
     causes.push('Pequenos ajustes na rotina podem destravar um resultado muito maior');
   }
-
   if (signs.length === 0) {
     signs.push('Ressecamento e opacidade dos fios', 'Falta de nutrição profunda', 'Rotina capilar desbalanceada');
   }
   if (causes.length === 0) {
     causes.push('Hábitos diários que prejudicam os fios sem você perceber', 'Técnicas inadequadas para o seu tipo de fio');
   }
-
   return { signs: signs.slice(0, 4), causes: causes.slice(0, 3) };
+}
+
+function fmt(s) {
+  const m = Math.floor(s / 60).toString().padStart(2, '0');
+  const sec = (s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+// ── sub-components ─────────────────────────────────────────────────────────
+
+function FadeIn({ children, delay = 0, className = '' }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-56px' }}
+      transition={{ duration: 0.65, ease, delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ border: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}
+    >
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left"
+        className="w-full flex items-center justify-between px-6 py-5 text-left"
       >
-        <span className="font-semibold text-stone-800 text-sm pr-2">{q}</span>
+        <span className="font-bold text-stone-800 text-sm pr-4 leading-snug">{q}</span>
         {open
-          ? <ChevronUp className="w-4 h-4 text-stone-400 flex-shrink-0" />
-          : <ChevronDown className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+          ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: P }} />
+          : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: P }} />}
       </button>
-      {open && <p className="px-5 pb-4 text-sm text-stone-500 leading-relaxed">{a}</p>}
+      {open && (
+        <p className="px-6 pb-5 text-sm text-stone-500 leading-relaxed">{a}</p>
+      )}
     </div>
   );
 }
 
-function PricingCard({ onCheckout, loading, error, name }) {
+function RecipeCard({ recipe }) {
+  return (
+    <div
+      className="rounded-2xl overflow-hidden bg-white"
+      style={{ border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <span
+            className="text-xs font-bold px-3 py-1.5 rounded-full"
+            style={{ background: recipe.tagBg, color: recipe.tagColor }}
+          >
+            {recipe.tag}
+          </span>
+          <span className="text-2xl">{recipe.emoji}</span>
+        </div>
+
+        <h3 className="text-lg font-extrabold text-stone-900 mb-1 leading-snug">
+          {recipe.title}
+        </h3>
+        <p className="text-xs text-stone-400 mb-4">{recipe.subtitle}</p>
+
+        <ul className="space-y-2.5 mb-6">
+          {recipe.benefits.map((b, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm text-stone-700">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ background: PL2 }}
+              >
+                <Check className="w-3 h-3" style={{ color: PD }} />
+              </div>
+              {b}
+            </li>
+          ))}
+        </ul>
+
+        <div
+          className="rounded-xl p-4"
+          style={{ background: PL, border: `1px solid ${PL2}` }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Lock className="w-3.5 h-3.5" style={{ color: P }} />
+            <span className="text-xs font-bold" style={{ color: PD }}>Como preparar</span>
+          </div>
+          <div
+            className="text-sm font-medium text-stone-500 select-none mb-1"
+            style={{ filter: 'blur(5px)', userSelect: 'none' }}
+          >
+            Ingrediente secreto A + Ingrediente secreto B
+          </div>
+          <p className="text-xs text-stone-400">Receita revelada após a assinatura</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialCard({ t }) {
+  return (
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+    >
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div
+            className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
+            style={{ background: PL2 }}
+          >
+            <img
+              src={t.photo}
+              alt={t.name}
+              className="w-full h-full object-cover"
+              onError={e => { e.currentTarget.style.display = 'none'; }}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-white text-sm">{t.name}</p>
+            <p className="text-xs text-stone-400">{t.location}</p>
+            <div className="flex mt-1">
+              {Array.from({ length: t.stars }).map((_, s) => (
+                <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+          </div>
+          <span
+            className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+            style={{ background: 'rgba(251,69,169,0.15)', color: P }}
+          >
+            {t.result}
+          </span>
+        </div>
+
+        <p className="text-stone-300 text-sm leading-relaxed italic mb-4">
+          "{t.text}"
+        </p>
+
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <p className="text-xs text-stone-500 text-center py-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            Antes e depois
+          </p>
+          <img
+            src={t.beforeAfter}
+            alt={`Antes e depois — ${t.name}`}
+            className="w-full object-cover"
+            style={{ maxHeight: '200px' }}
+            onError={e => {
+              e.currentTarget.parentElement.style.display = 'none';
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PricingCard({ onCheckout, loading, error, compact = false }) {
   const [timeLeft, setTimeLeft] = useState(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (stored) {
@@ -151,55 +337,72 @@ function PricingCard({ onCheckout, loading, error, name }) {
     return () => clearInterval(t);
   }, [timeLeft]);
 
-  const fmt = (s) => {
-    const m = Math.floor(s / 60).toString().padStart(2, '0');
-    const sec = (s % 60).toString().padStart(2, '0');
-    return `${m}:${sec}`;
-  };
-
   return (
-    <div className="rounded-2xl border-2 shadow-lg overflow-hidden" style={{ borderColor: '#FB45A9' }}>
-      <div className="text-white text-center py-2.5 text-xs font-bold" style={{ background: 'linear-gradient(135deg, #FB45A9, #E03594)' }}>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ border: `2px solid ${P}`, boxShadow: `0 8px 40px rgba(251,69,169,0.2)` }}
+    >
+      <div className="text-white text-center py-3 text-sm font-extrabold tracking-wide" style={{ background: GRAD }}>
         🔥 Promoção Especial de Lançamento
       </div>
-      <div className="bg-white p-6">
+
+      <div className="bg-white p-6 sm:p-8">
         {timeLeft > 0 && (
           <div
-            className="flex items-center justify-center gap-2 rounded-xl px-4 py-2 mb-4 text-sm font-semibold"
-            style={{ background: '#FFF5FA', color: '#E03594' }}
+            className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 mb-6 text-sm font-bold"
+            style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
           >
             <Clock className="w-4 h-4 flex-shrink-0" />
-            Oferta expira em <span className="font-extrabold ml-1">{fmt(timeLeft)}</span>
+            <span>Esta oferta expira em</span>
+            <span className="font-extrabold text-base tabular-nums">{fmt(timeLeft)}</span>
           </div>
         )}
 
-        <div className="text-center mb-5">
-          <p className="text-sm text-stone-400 line-through mb-1">R$ 47,99/mês</p>
-          <div className="flex items-baseline justify-center gap-1">
-            <span className="text-sm font-bold text-stone-600">R$</span>
-            <span className="text-5xl font-extrabold" style={{ color: '#E03594' }}>6,99</span>
-            <span className="text-stone-400 text-base">/mês</span>
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <p className="text-stone-400 line-through text-lg">$47.99/mês</p>
+            <span
+              className="text-xs font-bold px-2.5 py-1 rounded-full"
+              style={{ background: '#FEF2F2', color: '#DC2626' }}
+            >
+              Você economiza $41/mês
+            </span>
           </div>
-          <p className="text-xs text-stone-400 mt-1">Cancele quando quiser · Sem fidelidade</p>
+          <div className="flex items-baseline justify-center gap-1 mb-1">
+            <span className="text-2xl font-bold" style={{ color: PD }}>$</span>
+            <span className="text-6xl font-extrabold leading-none" style={{ color: PD }}>6.99</span>
+            <span className="text-stone-400 text-lg">/mês</span>
+          </div>
+          <p className="text-xs text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
         </div>
 
-        <ul className="space-y-2 mb-5">
-          {BENEFITS.map((b, i) => (
-            <li key={i} className="flex items-center gap-2 text-sm text-stone-700">
-              <span className="text-base leading-none flex-shrink-0">{b.icon}</span>
-              {b.text}
-            </li>
-          ))}
-        </ul>
+        {!compact && (
+          <ul className="space-y-3 mb-6">
+            {BENEFITS.map((b, i) => (
+              <li key={i} className="flex items-center gap-3 text-sm text-stone-700">
+                <span className="text-lg leading-none flex-shrink-0">{b.icon}</span>
+                {b.text}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {error && (
-          <p className="text-red-500 text-sm mb-4 bg-red-50 rounded-xl px-4 py-2 text-center">{error}</p>
+          <p className="text-red-500 text-sm mb-4 bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
         )}
 
         <button
           onClick={onCheckout}
           disabled={loading}
-          className="btn-primary w-full py-5 text-base flex items-center justify-center gap-2"
+          className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full transition-all"
+          style={{
+            background: GRAD,
+            boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
+            opacity: loading ? 0.75 : 1,
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = '0.9'; }}
+          onMouseLeave={e => { if (!loading) e.currentTarget.style.opacity = '1'; }}
         >
           {loading
             ? <><Loader2 className="w-5 h-5 animate-spin" /> Aguarde...</>
@@ -208,7 +411,7 @@ function PricingCard({ onCheckout, loading, error, name }) {
 
         <div className="flex items-center justify-center gap-2 mt-4 text-xs text-stone-400">
           <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-          Pagamento seguro via Stripe · Cancele quando quiser. Sem taxas ocultas.
+          Pagamento seguro via Stripe. Cancele quando quiser. Sem taxas ocultas.
         </div>
       </div>
     </div>
@@ -224,21 +427,17 @@ export default function Results() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Initialise the 15-min timer once per quiz session
   useEffect(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (!stored) {
-      const end = Date.now() + 15 * 60 * 1000;
-      sessionStorage.setItem('glow_results_timer_end', end.toString());
+      sessionStorage.setItem('glow_results_timer_end', (Date.now() + 15 * 60 * 1000).toString());
     }
   }, []);
 
-  // No state (direct URL access) → back to quiz
   useEffect(() => {
     if (!state?.answers) navigate('/Landing', { replace: true });
   }, [state, navigate]);
 
-  // Subscribed user → straight to app
   useEffect(() => {
     if (user && isSubscribed) navigate('/HairDashboard', { replace: true });
   }, [user, isSubscribed, navigate]);
@@ -278,235 +477,303 @@ export default function Results() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <style>{`
-        .btn-primary { background:linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
-        .btn-primary:hover:not(:disabled) { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
-        .btn-primary:disabled { opacity:.7; cursor:not-allowed; }
-      `}</style>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-stone-200/60">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+      {/* ── HEADER ── */}
+      <header
+        className="sticky top-0 z-50"
+        style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}
+      >
+        <div className="max-w-xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="NatGlow" className="w-9 h-9 rounded-xl" />
-            <span className="font-bold text-stone-800 text-sm">NatGlow</span>
+            <img src="/logo.png" alt="NatGlow" className="w-8 h-8 rounded-xl" />
+            <span className="font-extrabold text-stone-800 text-sm tracking-tight">NatGlow</span>
           </div>
-          <Link to="/Login" className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium">
+          <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600 transition-colors">
             Já tenho conta →
           </Link>
         </div>
       </header>
 
-      {/* HERO */}
-      <div className="px-4 pt-10 pb-12 text-center text-white" style={{ background: 'linear-gradient(to bottom, #FB45A9, #E03594)' }}>
-        <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
-          🌿 Diagnóstico pronto
-        </div>
-        <h1 className="text-2xl font-extrabold leading-tight mb-2">
-          {name ? `${name}, seu diagnóstico está pronto!` : 'Seu diagnóstico está pronto!'}
-        </h1>
-        <p className="text-pink-100 text-sm">
-          Encontramos o que está impedindo seu cabelo de ser lindo
-        </p>
-      </div>
-
-      <div className="max-w-lg mx-auto px-4 -mt-4 pb-16 flex flex-col gap-5">
-
-        {/* ── Diagnosis cards ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border border-red-100 rounded-2xl p-5"
-        >
-          <p className="font-bold text-stone-800 mb-3">🚨 Seu cabelo está pedindo socorro:</p>
-          <ul className="space-y-2">
-            {signs.map((s, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-stone-700">
-                <span className="text-red-400 font-bold mt-0.5 flex-shrink-0">•</span> {s}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="bg-amber-50 border border-amber-100 rounded-2xl p-5"
-        >
-          <p className="font-bold text-stone-800 mb-3">⚠️ E isso acontece porque:</p>
-          <ul className="space-y-2">
-            {causes.map((c, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-stone-700">
-                <span className="text-amber-500 font-bold mt-0.5 flex-shrink-0">→</span> {c}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl p-5 space-y-2"
-          style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
-        >
-          <p className="font-bold text-emerald-800">🌱 A boa notícia? Isso tem solução, e mais rápida do que você imagina.</p>
-          <p className="text-sm text-stone-600 leading-relaxed">
-            Seu cabelo pode se recuperar muito mais rápido quando você troca os produtos químicos por receitas naturais caseiras que realmente resolvem o seu problema.
-          </p>
-        </motion.div>
-
-        {/* ── Tease das 3 receitas campeãs ── */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <div className="p-5 pb-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" style={{ background: '#FFE4F2', color: '#E03594' }}>
-              ✨ Exclusivo para assinantes
+      {/* ── HERO ── */}
+      <section style={{ background: GRAD }}>
+        <div className="max-w-xl mx-auto px-6 pt-12 pb-14 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease }}
+          >
+            <div
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-5"
+              style={{ background: 'rgba(255,255,255,0.22)', color: '#fff' }}
+            >
+              🌿 Diagnóstico concluído
             </div>
-            <h3 className="text-stone-900 text-xl font-extrabold leading-snug mb-2">
-              As 3 receitas que nossas usuárias mais amam
-            </h3>
-            <p className="text-sm text-stone-500 leading-relaxed">
-              Caseiras, simples e com resultado já na <strong className="text-stone-700">1ª aplicação</strong>. Os ingredientes custam centavos e você provavelmente já tem em casa.
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-3">
+              {name
+                ? <>{name}, seu diagnóstico<br />está pronto 🌿</>
+                : <>Seu diagnóstico<br />está pronto 🌿</>}
+            </h1>
+            <p className="text-pink-100 text-base leading-relaxed max-w-sm mx-auto">
+              Encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
             </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── DIAGNOSIS ── */}
+      <section className="bg-white">
+        <div className="max-w-xl mx-auto px-6 py-10 flex flex-col gap-4">
+          <FadeIn>
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}
+            >
+              <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
+                <span className="text-xl">🚨</span> Seu cabelo está pedindo socorro:
+              </p>
+              <ul className="space-y-3">
+                {signs.map((s, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-stone-700 leading-snug">
+                    <span className="text-red-400 font-extrabold mt-0.5 flex-shrink-0 text-base">✕</span>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.06}>
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}
+            >
+              <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
+                <span className="text-xl">⚠️</span> E isso acontece porque:
+              </p>
+              <ul className="space-y-3">
+                {causes.map((c, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-stone-700 leading-snug">
+                    <span className="text-amber-500 font-extrabold mt-0.5 flex-shrink-0">→</span>
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.12}>
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
+            >
+              <p className="font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
+                <span className="text-xl">🌱</span> A boa notícia? Isso tem solução.
+              </p>
+              <p className="text-sm text-stone-600 leading-relaxed">
+                Seu cabelo pode se recuperar muito mais rápido do que você imagina. Tudo que você precisa são as receitas certas, com ingredientes que você já tem em casa e resultados que aparecem na primeira aplicação.
+              </p>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── RECIPE TEASE ── */}
+      <section style={{ background: PL }}>
+        <div className="max-w-xl mx-auto px-6 py-14">
+          <FadeIn>
+            <div className="text-center mb-10">
+              <div
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold mb-4"
+                style={{ background: PL2, color: PD }}
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Exclusivo para assinantes
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-snug mb-3">
+                As 3 receitas que estão transformando o cabelo de milhares de mulheres brasileiras
+              </h2>
+              <p className="text-stone-500 text-sm leading-relaxed max-w-sm mx-auto">
+                Resultados reais já na primeira aplicação. Com ingredientes que você provavelmente já tem em casa.
+              </p>
+            </div>
+          </FadeIn>
+
+          <div className="flex flex-col gap-5">
+            {RECIPES_TEASE.map((recipe, i) => (
+              <FadeIn key={i} delay={i * 0.08}>
+                <RecipeCard recipe={recipe} />
+              </FadeIn>
+            ))}
           </div>
 
-          <div className="flex flex-col gap-3 px-4 pb-4">
-            {RECIPES_TEASE.map((r, i) => (
-              <div key={i} className="rounded-xl overflow-hidden border border-stone-100">
-                <div className="p-4">
-                  <span
-                    className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-3"
-                    style={{ background: '#F5F5F4', color: '#78716C' }}
-                  >
-                    {r.tag}
-                  </span>
-                  <div className="flex items-start gap-2.5 mb-3">
+          <FadeIn delay={0.2}>
+            <div
+              className="mt-6 rounded-2xl p-5 flex items-center justify-between cursor-pointer"
+              style={{ background: PL2, border: `1px solid ${P}20` }}
+              onClick={handleCheckout}
+            >
+              <p className="font-bold text-sm" style={{ color: PD }}>
+                🔒 Desbloqueie as 3 receitas agora
+              </p>
+              <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: PD }} />
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── SOCIAL PROOF (dark) ── */}
+      <section style={{ background: DARK }}>
+        <div className="max-w-xl mx-auto px-6 py-14">
+          <FadeIn>
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="flex -space-x-2">
+                  {['👩','🙋','💁','👩‍🦱'].map((e, i) => (
                     <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black text-white mt-0.5"
-                      style={{ background: '#FB45A9' }}
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-stone-800 flex items-center justify-center text-sm"
+                      style={{ background: PL2 }}
                     >
-                      {i + 1}
+                      {e}
                     </div>
-                    <p className="font-extrabold text-stone-800 text-base leading-snug">{r.benefit}</p>
-                  </div>
-                  <p className="text-sm text-stone-500 leading-relaxed mb-3 pl-9">{r.description}</p>
-                  <div className="flex items-center gap-2 text-xs font-semibold pl-9" style={{ color: '#16A34A' }}>
-                    <span>→</span>
-                    <span>{r.result}</span>
-                  </div>
+                  ))}
                 </div>
-                <div className="px-4 py-2.5 flex items-center justify-between bg-stone-50 border-t border-stone-100">
-                  <div className="flex items-center gap-1.5 text-stone-400 text-xs">
-                    <Lock className="w-3 h-3 flex-shrink-0" />
-                    <span>Ingredientes revelados no plano</span>
-                  </div>
-                  <span className="text-xs font-bold" style={{ color: '#E03594' }}>🔒 Exclusivo</span>
+                <div className="flex ml-1">
+                  {[1,2,3,4,5].map(i => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
               </div>
+              <p className="text-2xl sm:text-3xl font-extrabold text-white leading-snug mb-2">
+                3.200+ mulheres brasileiras já transformaram o cabelo
+              </p>
+              <p className="text-stone-400 text-sm">4,9 de 5 estrelas em avaliações verificadas</p>
+            </div>
+          </FadeIn>
+
+          <div className="flex flex-col gap-5">
+            {TESTIMONIALS.map((t, i) => (
+              <FadeIn key={i} delay={i * 0.08}>
+                <TestimonialCard t={t} />
+              </FadeIn>
             ))}
           </div>
-
-          <div className="mx-4 mb-5 rounded-xl py-3 px-4 flex items-center justify-between" style={{ background: '#FFE4F2' }}>
-            <p className="text-sm font-bold" style={{ color: '#E03594' }}>
-              Quero acessar as 3 receitas
-            </p>
-            <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#E03594' }} />
-          </div>
         </div>
+      </section>
 
-        {/* ── Social proof ── */}
-        <div className="flex flex-col items-center gap-2 py-1">
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {['👩','🙋','💁','👩‍🦱'].map((e, i) => (
-                <div key={i} className="w-7 h-7 rounded-full bg-pink-100 border-2 border-white flex items-center justify-center text-xs leading-none">{e}</div>
+      {/* ── PRICING ── */}
+      <section className="bg-white">
+        <div className="max-w-xl mx-auto px-6 py-14 flex flex-col gap-6">
+          <FadeIn>
+            <div className="text-center mb-4">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
+                Oferta exclusiva
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-snug mb-3">
+                Seu plano personalizado está esperando por você
+              </h2>
+              <p className="text-stone-500 text-sm">
+                Acesse hoje e comece a transformação ainda nesta semana.
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.06}>
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} />
+          </FadeIn>
+
+          <FadeIn delay={0.1}>
+            <div
+              className="rounded-2xl p-5 flex items-start gap-4"
+              style={{ background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)' }}
+            >
+              <span className="text-3xl leading-none flex-shrink-0">🛡️</span>
+              <div>
+                <p className="font-bold text-stone-800 mb-1">Cancele quando quiser</p>
+                <p className="text-sm text-stone-500 leading-relaxed">
+                  Sem perguntas, sem burocracia. Você tem total controle da sua assinatura a qualquer momento, pelo portal do cliente, em segundos. Nenhuma taxa de cancelamento.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── REASSURANCE ── */}
+      <section style={{ background: PL }}>
+        <div className="max-w-xl mx-auto px-6 py-12">
+          <FadeIn>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: '🚫', text: 'Sem produtos caros' },
+                { icon: '🌱', text: 'Sem químicas agressivas' },
+                { icon: '✔️', text: 'Apenas o que funciona' },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl p-4 text-center"
+                  style={{ background: '#fff', border: `1px solid ${PL2}`, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}
+                >
+                  <div className="text-2xl mb-2">{item.icon}</div>
+                  <p className="text-xs font-bold leading-snug" style={{ color: PD }}>{item.text}</p>
+                </div>
               ))}
             </div>
-            <p className="text-sm text-stone-600">
-              <strong className="text-stone-800">3.200+</strong> mulheres brasileiras já transformaram o cabelo
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
-            <span className="text-xs text-stone-500 ml-1">4,9 de 5 estrelas</span>
-          </div>
+          </FadeIn>
         </div>
+      </section>
 
-        {/* ── Main pricing CTA ── */}
-        <PricingCard onCheckout={handleCheckout} loading={loading} error={error} name={name} />
-
-        {/* ── Guarantee ── */}
-        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 flex items-start gap-4">
-          <div className="text-3xl leading-none">🛡️</div>
-          <div>
-            <p className="font-bold text-stone-800 mb-1">Cancele quando quiser</p>
-            <p className="text-sm text-stone-500">Sem perguntas, sem burocracia. Você tem total controle da sua assinatura a qualquer momento, pelo portal do cliente, em segundos.</p>
-          </div>
-        </div>
-
-        {/* ── Testimonials ── */}
-        <p className="font-bold text-stone-800 text-center mt-2">O que dizem nossas usuárias</p>
-        <div className="flex flex-col gap-3">
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="bg-white rounded-xl border border-stone-100 p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: '#FFE4F2' }}>
-                  <img
-                    src={t.photo}
-                    alt={t.name}
-                    className="w-full h-full object-cover"
-                    onError={e => { e.currentTarget.style.display = 'none'; }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-stone-800 text-sm">{t.name}</p>
-                  <div className="flex mt-0.5">
-                    {Array.from({ length: t.stars }).map((_, s) => (
-                      <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                </div>
-                <span
-                  className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: '#F0FDF4', color: '#16A34A' }}
-                >
-                  {t.result}
-                </span>
-              </div>
-              <p className="text-stone-600 text-sm italic leading-relaxed">"{t.text}"</p>
+      {/* ── FAQ ── */}
+      <section className="bg-white">
+        <div className="max-w-xl mx-auto px-6 py-14">
+          <FadeIn>
+            <div className="text-center mb-8">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
+                Dúvidas frequentes
+              </p>
+              <h2 className="text-2xl font-extrabold text-stone-900">
+                Tudo que você precisa saber
+              </h2>
             </div>
-          ))}
+          </FadeIn>
+          <div className="flex flex-col gap-3">
+            {FAQ_ITEMS.map((item, i) => (
+              <FadeIn key={i} delay={i * 0.05}>
+                <FaqItem q={item.q} a={item.a} />
+              </FadeIn>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* ── Reassurance grid ── */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: '🚫', text: 'Sem produtos caros' },
-            { icon: '🌱', text: 'Sem químicas agressivas' },
-            { icon: '✔️', text: 'Apenas o que funciona' },
-          ].map((item, i) => (
-            <div key={i} className="rounded-xl p-3 text-center" style={{ background: '#FFF5FA', border: '1px solid #FFB3DD' }}>
-              <div className="text-xl mb-1">{item.icon}</div>
-              <p className="text-xs font-semibold" style={{ color: '#E03594' }}>{item.text}</p>
+      {/* ── SECOND CTA ── */}
+      <section style={{ background: GRAD }}>
+        <div className="max-w-xl mx-auto px-6 py-14">
+          <FadeIn>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug mb-3">
+                Seu cabelo pode ser diferente a partir de hoje
+              </h2>
+              <p className="text-pink-100 text-sm">
+                Milhares de mulheres já estão com o cabelo transformado. Você é a próxima.
+              </p>
             </div>
-          ))}
+          </FadeIn>
+          <FadeIn delay={0.08}>
+            <PricingCard
+              onCheckout={handleCheckout}
+              loading={loading}
+              error={error}
+              compact
+            />
+          </FadeIn>
         </div>
+      </section>
 
-        {/* ── FAQ ── */}
-        <p className="font-bold text-stone-800 text-center mt-2">Perguntas frequentes</p>
-        <div className="flex flex-col gap-3">
-          {FAQ.map((item, i) => (
-            <FaqItem key={i} q={item.q} a={item.a} />
-          ))}
-        </div>
-
-        {/* ── Second CTA ── */}
-        <PricingCard onCheckout={handleCheckout} loading={loading} error={error} name={name} />
-
-        <p className="text-center text-xs text-stone-400 pb-4">
-          Ao assinar você concorda com os termos de uso. Cobrança recorrente mensal. Cancele a qualquer momento pelo portal do cliente.
+      {/* ── FINE PRINT ── */}
+      <div className="bg-stone-50 py-6 px-6 text-center">
+        <p className="text-xs text-stone-400 max-w-sm mx-auto leading-relaxed">
+          Ao assinar você concorda com os termos de uso. Cobrança recorrente mensal em dólares americanos. Cancele a qualquer momento pelo portal do cliente sem nenhuma taxa.
         </p>
       </div>
     </div>
