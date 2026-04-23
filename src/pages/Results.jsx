@@ -18,27 +18,21 @@ const BENEFITS = [
 
 const RECIPES_TEASE = [
   {
-    num: '01',
-    emoji: '✨',
     tag: 'Resultado na 1ª aplicação',
-    benefit: 'Cabelo macio, brilhoso e sem frizz — na hora',
+    benefit: 'Cabelo macio, brilhoso e sem frizz. Na hora.',
     description: 'Você vai olhar no espelho e não acreditar. Uma receita simples que fecha as cutículas, devolve o brilho e elimina o frizz em menos de 20 minutos.',
     result: 'Cabelo transformado em 20 min',
   },
   {
-    num: '02',
-    emoji: '🌙',
     tag: 'Age enquanto você dorme',
     benefit: 'Acorda com o cabelo que você sempre quis',
     description: 'Aplica antes de dormir e deixa agir a noite toda. Quando acorda, o cabelo está mais forte, com menos queda e crescendo de verdade.',
     result: 'Resultado visível em 1 semana',
   },
   {
-    num: '03',
-    emoji: '💨',
     tag: 'Dura até 5 dias inteiros',
-    benefit: 'Frizz zero — sem produto caro, sem segredo',
-    description: 'Uma mistura caseira que controla o frizz por dias inteiros. Qualquer dia de chuva, qualquer umidade — seu cabelo fica no lugar.',
+    benefit: 'Frizz zero. Sem produto caro, sem segredo.',
+    description: 'Uma mistura caseira que controla o frizz por dias inteiros. Qualquer dia de chuva, qualquer umidade. Seu cabelo fica no lugar.',
     result: 'Frizz controlado por até 5 dias',
   },
 ];
@@ -60,7 +54,7 @@ const TESTIMONIALS = [
   },
   {
     name: 'Júlia M.',
-    text: 'O frizz sumiu nos primeiros 15 dias. Olhei no espelho e não acreditei — meu cabelo nunca esteve assim.',
+    text: 'O frizz sumiu nos primeiros 15 dias. Olhei no espelho e não acreditei. Meu cabelo nunca esteve assim.',
     stars: 5,
     result: 'Frizz -80%',
     photo: '/images/testimonials/julia.jpg',
@@ -74,7 +68,7 @@ const FAQ = [
   },
   {
     q: 'Os ingredientes das receitas são caros?',
-    a: 'Não! As receitas usam coisas simples como mel, babosa, óleo de coco e limão — ingredientes que você provavelmente já tem em casa agora mesmo.',
+    a: 'Não! As receitas usam coisas simples como mel, babosa, óleo de coco e limão, ingredientes que você provavelmente já tem em casa agora mesmo.',
   },
   {
     q: 'Quanto tempo até ver resultado?',
@@ -358,7 +352,7 @@ export default function Results() {
           className="rounded-2xl p-5 space-y-2"
           style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
         >
-          <p className="font-bold text-emerald-800">🌱 A boa notícia? Isso tem solução — e mais rápida do que você imagina.</p>
+          <p className="font-bold text-emerald-800">🌱 A boa notícia? Isso tem solução, e mais rápida do que você imagina.</p>
           <p className="text-sm text-stone-600 leading-relaxed">
             Seu cabelo pode se recuperar muito mais rápido quando você troca os produtos químicos por receitas naturais caseiras que realmente resolvem o seu problema.
           </p>
@@ -382,21 +376,25 @@ export default function Results() {
             {RECIPES_TEASE.map((r, i) => (
               <div key={i} className="rounded-xl overflow-hidden border border-stone-100">
                 <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-stone-300">{r.num}</span>
-                      <span className="text-3xl leading-none">{r.emoji}</span>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black text-white"
+                        style={{ background: '#FB45A9' }}
+                      >
+                        {i + 1}
+                      </div>
+                      <p className="font-extrabold text-stone-800 text-base leading-snug">{r.benefit}</p>
                     </div>
                     <span
-                      className="text-xs font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: '#FFE4F2', color: '#E03594' }}
+                      className="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
+                      style={{ background: '#F5F5F4', color: '#78716C' }}
                     >
                       {r.tag}
                     </span>
                   </div>
-                  <p className="font-extrabold text-stone-800 text-base mb-1.5 leading-snug">{r.benefit}</p>
-                  <p className="text-sm text-stone-500 leading-relaxed mb-3">{r.description}</p>
-                  <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: '#16A34A' }}>
+                  <p className="text-sm text-stone-500 leading-relaxed mb-3 pl-9">{r.description}</p>
+                  <div className="flex items-center gap-2 text-xs font-semibold pl-9" style={{ color: '#16A34A' }}>
                     <span>→</span>
                     <span>{r.result}</span>
                   </div>
@@ -446,7 +444,7 @@ export default function Results() {
           <div className="text-3xl leading-none">🛡️</div>
           <div>
             <p className="font-bold text-stone-800 mb-1">Cancele quando quiser</p>
-            <p className="text-sm text-stone-500">Sem perguntas, sem burocracia. Você tem total controle da sua assinatura a qualquer momento — pelo portal do cliente, em segundos.</p>
+            <p className="text-sm text-stone-500">Sem perguntas, sem burocracia. Você tem total controle da sua assinatura a qualquer momento, pelo portal do cliente, em segundos.</p>
           </div>
         </div>
 
