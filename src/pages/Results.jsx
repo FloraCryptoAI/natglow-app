@@ -497,17 +497,8 @@ export default function Results() {
       </section>
 
       {/* ── RECIPE TEASE ── */}
-      <section
-        className="relative overflow-hidden"
-        style={{ background: '#fff' }}
-      >
-        {/* pink glow bottom-right — same as LP hero */}
-        <div
-          className="pointer-events-none absolute bottom-0 right-0 w-96 h-96"
-          style={{ background: 'radial-gradient(ellipse at 100% 100%, rgba(251,69,169,0.13) 0%, transparent 65%)' }}
-        />
-
-        <div className="max-w-xl mx-auto px-6 py-14 relative z-10">
+      <section style={{ background: PL }}>
+        <div className="max-w-xl mx-auto px-6 py-14">
           <FadeIn>
             <div className="text-center mb-10">
               <div
