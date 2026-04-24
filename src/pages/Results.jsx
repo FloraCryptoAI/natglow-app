@@ -531,7 +531,7 @@ export default function Results() {
               >
                 <Sparkles className="w-3.5 h-3.5" /> Exclusivo para assinantes
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
+              <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
                 <span className="text-stone-900">As 3 receitas que transformaram o cabelo e a </span>
                 <span style={{ color: P }}>autoestima de milhares de mulheres</span>
               </h2>
@@ -574,7 +574,7 @@ export default function Results() {
                   <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-2">
+              <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-2">
                 3.200+ pessoas já <span style={{ color: P }}>transformaram o cabelo</span>
               </h2>
               <p className="text-stone-400 text-sm">4,9 de 5 estrelas em avaliações verificadas</p>
@@ -619,7 +619,7 @@ export default function Results() {
               >
                 🌸 Oferta exclusiva
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
+              <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
                 Seu plano personalizado <span style={{ color: P }}>começa hoje</span>
               </h2>
               <p className="text-stone-500 text-sm">
@@ -681,7 +681,7 @@ export default function Results() {
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
                 Dúvidas frequentes
               </p>
-              <h2 className="text-2xl font-extrabold text-stone-900">
+              <h2 className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight">
                 Tudo que você precisa saber
               </h2>
             </div>
