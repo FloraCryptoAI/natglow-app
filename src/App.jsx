@@ -7,6 +7,9 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Results from './pages/Results';
+import QuizV2 from './pages/QuizV2';
+import QuizResultsV2 from './pages/QuizResultsV2';
+import QuizSalesV2 from './pages/QuizSalesV2';
 import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
@@ -75,6 +78,9 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/Login" replace />} />
       <Route path="/Landing" element={<Landing />} />
       <Route path="/Results" element={<Results />} />
+      <Route path="/quiz" element={<QuizV2 />} />
+      <Route path="/quiz-results" element={<QuizResultsV2 />} />
+      <Route path="/quiz-sales" element={<QuizSalesV2 />} />
       <Route path="/Login" element={<Login />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}
