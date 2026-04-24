@@ -7,8 +7,8 @@ import { useAuth } from '@/lib/AuthContext';
 // Pasta: public/images/quiz-v2/
 // Tamanho das imagens da anchor e tipo de cabelo: 400 x 267 px (landscape 3:2)
 const HAIR_PROBLEMS_V2 = [
-  { label: 'Ressecado / com frizz',     img: '/images/quiz-v2/ressecado-frizz.jpg' },
-  { label: 'Quebra / pontas duplas',    img: '/images/quiz-v2/quebra-pontas.jpg' },
+  { label: 'Ressecado / frizz',         img: '/images/quiz-v2/ressecado-frizz.jpg' },
+  { label: 'Pontas duplas',             img: '/images/quiz-v2/quebra-pontas.jpg' },
   { label: 'Queda / Não cresce',         img: '/images/quiz-v2/queda-crescimento.jpg' },
   { label: 'Oleoso',                    img: '/images/quiz-v2/oleoso.jpg' },
   { label: 'Sem volume',                img: '/images/quiz-v2/sem-volume.jpg' },
@@ -162,10 +162,6 @@ export default function QuizV2() {
                 ))}
               </div>
 
-              <p className="text-sm text-stone-500 text-center leading-relaxed">
-                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
-              </p>
-
               <button
                 onClick={() => setStep(STEPS.AGE)}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
@@ -173,7 +169,10 @@ export default function QuizV2() {
                 Sim, tenho pelo menos 1 deles
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
-              <p className="text-center text-xs text-stone-400 -mt-2">100% gratuito · Leva menos de 60 segundos</p>
+
+              <p className="text-sm text-stone-500 text-center leading-relaxed -mt-1">
+                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
+              </p>
             </motion.div>
           )}
 
