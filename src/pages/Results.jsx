@@ -403,8 +403,8 @@ export default function Results() {
       >
         <div className="max-w-xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="NatGlow" className="w-8 h-8 rounded-xl" />
-            <span className="font-extrabold text-stone-800 text-sm tracking-tight">NatGlow</span>
+            <img src="/logo.png" alt="NatGlow" className="w-9 h-9 rounded-xl" />
+            <span className="font-bold text-stone-800 text-sm">NatGlow</span>
           </div>
           <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600 transition-colors">
             Já tenho conta →
