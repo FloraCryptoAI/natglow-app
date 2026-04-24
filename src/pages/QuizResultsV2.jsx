@@ -153,14 +153,6 @@ export default function QuizResultsV2() {
             </div>
           </FadeIn>
 
-          <div className="flex justify-center pt-2">
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ArrowDown className="w-6 h-6" style={{ color: P }} />
-            </motion.div>
-          </div>
         </div>
       </section>
 
