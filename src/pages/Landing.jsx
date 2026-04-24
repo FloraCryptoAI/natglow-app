@@ -15,8 +15,8 @@ const HAIR_PROBLEMS = [
   { label: 'Dificuldade para crescer',  img: '/images/quiz/slow-growth.jpg' },
 ];
 
-const STEPS = { ANCHOR: 0, Q1: 1, Q2: 2, Q3: 3, Q4: 4, NAME: 5, LOADING: 6 };
-const TOTAL_QUIZ_STEPS = 5;
+const STEPS = { ANCHOR: 0, Q1: 1, Q2: 2, Q3: 3, Q4: 4, Q5: 5, NAME: 6, LOADING: 7 };
+const TOTAL_QUIZ_STEPS = 6;
 
 const slide = {
   initial: { opacity: 0, x: 40 },
@@ -60,7 +60,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
   const [step, setStep] = useState(STEPS.ANCHOR);
-  const [answers, setAnswers] = useState({ washFreq: '', waterTemp: '', heatTools: '', hydration: '', name: '' });
+  const [answers, setAnswers] = useState({ washFreq: '', waterTemp: '', heatTools: '', hydration: '', chemProducts: '', name: '' });
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Restore from sessionStorage on mount
@@ -281,7 +281,37 @@ export default function Landing() {
                     key={opt.value}
                     {...opt}
                     selected={answers.hydration === opt.value}
-                    onClick={() => { ans('hydration', opt.value); setStep(STEPS.NAME); }}
+                    onClick={() => { ans('hydration', opt.value); setStep(STEPS.Q5); }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ Q5 — produtos químicos ═══ */}
+          {step === STEPS.Q5 && (
+            <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
+              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
+              <div className="text-center">
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#FB45A9' }}>
+                  Esse detalhe muda tudo no diagnóstico
+                </p>
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                  Você usa produtos químicos no cabelo?
+                </h2>
+                <p className="text-sm text-stone-400 mt-2">Cremes, máscaras, botox, progressiva, etc...</p>
+              </div>
+              <div className="flex flex-col gap-3">
+                {[
+                  { value: 'yes_heavy', label: 'Sim, químicas fortes',   emoji: '⚗️', desc: 'Progressiva, botox, relaxamento, tintura' },
+                  { value: 'yes_mild',  label: 'Sim, cremes e máscaras', emoji: '🧴', desc: 'Produtos de tratamento convencionais' },
+                  { value: 'no',        label: 'Não uso',                emoji: '🌿', desc: 'Meu cabelo é natural, sem químicos' },
+                ].map(opt => (
+                  <QuizOption
+                    key={opt.value}
+                    {...opt}
+                    selected={answers.chemProducts === opt.value}
+                    onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.NAME); }}
                   />
                 ))}
               </div>
@@ -291,7 +321,7 @@ export default function Landing() {
           {/* ═══ NAME ═══ */}
           {step === STEPS.NAME && (
             <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center pt-6">
                 <div className="text-5xl mb-4">🌿</div>
                 <h2 className="text-2xl font-extrabold text-stone-900 mb-2">

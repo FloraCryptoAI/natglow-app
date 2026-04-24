@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Shield, Star, Loader2, ChevronDown, ChevronUp,
-  Clock, Lock, Check, Sparkles, Users,
+  Clock, Lock, Check, Sparkles,
 } from 'lucide-react';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
 // ── design tokens ──────────────────────────────────────────────────────────
-const P   = '#FB45A9';
-const PD  = '#E03594';
-const PL  = '#FFF5FA';
-const PL2 = '#FFE4F2';
-const DARK = '#0f0f0f';
+const P    = '#FB45A9';
+const PD   = '#E03594';
+const PL   = '#FFF5FA';
+const PL2  = '#FFE4F2';
 const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)';
 const ease = [0.22, 1, 0.36, 1];
 
@@ -74,33 +73,9 @@ const RECIPES_TEASE = [
 ];
 
 const TESTIMONIALS = [
-  {
-    name: 'Ana Clara M.',
-    location: 'São Paulo, SP',
-    text: 'Gente, eu não acreditei quando vi o resultado. Minha filha veio me perguntar o que eu tinha feito no cabelo. Na primeira semana o frizz já tinha diminuído muito, e em 30 dias o cabelo estava completamente diferente. As receitas são simples, baratas e funcionam de verdade!',
-    stars: 5,
-    result: 'Frizz eliminado em 7 dias',
-    photo: '/images/testimonials/testimonial-1.jpg',
-    beforeAfter: '/images/testimonials/before-after-1.jpg',
-  },
-  {
-    name: 'Fernanda S.',
-    location: 'Belo Horizonte, MG',
-    text: 'Eu estava perdendo muito cabelo e já tinha desistido. Tentei a NatGlow sem muita expectativa e foi a melhor decisão que tomei. Em 3 semanas a queda reduziu absurdamente. Meu cabelo voltou a crescer cheio e saudável. Chorei de emoção quando vi a diferença.',
-    stars: 5,
-    result: 'Queda reduzida em 3 semanas',
-    photo: '/images/testimonials/testimonial-2.jpg',
-    beforeAfter: '/images/testimonials/before-after-2.jpg',
-  },
-  {
-    name: 'Juliana R.',
-    location: 'Rio de Janeiro, RJ',
-    text: 'Passei anos gastando fortunas em salão e o resultado era sempre temporário. Com a NatGlow, vi em uma semana mais resultado do que em meses de tratamento caro. Meu cabelo está com volume, brilho e maciez que eu não via há anos. Com ingredientes que já tinha em casa!',
-    stars: 5,
-    result: 'Cabelo transformado em 30 dias',
-    photo: '/images/testimonials/testimonial-3.jpg',
-    beforeAfter: '/images/testimonials/before-after-3.jpg',
-  },
+  { screenshot: '/images/testimonials/screenshot-1.jpg' },
+  { screenshot: '/images/testimonials/screenshot-2.jpg' },
+  { screenshot: '/images/testimonials/screenshot-3.jpg' },
 ];
 
 const FAQ_ITEMS = [
@@ -114,7 +89,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Quanto tempo até ver resultado?',
-    a: 'Muitas mulheres notam diferença já na primeira aplicação das receitas. Para resultados de transformação completa, a maioria vê em 2 a 3 semanas seguindo a rotina.',
+    a: 'Muitas pessoas notam diferença já na primeira aplicação das receitas. Para resultados de transformação completa, a maioria vê em 2 a 3 semanas seguindo a rotina.',
   },
   {
     q: 'Funciona para qualquer tipo de cabelo?',
@@ -128,6 +103,14 @@ function getDiagnosis(answers) {
   const signs = [];
   const causes = [];
 
+  if (answers.chemProducts === 'yes_heavy') {
+    signs.push('Estrutura do fio fragilizada por sobrecarga química');
+    causes.push('Produtos químicos fortes rompem as proteínas do fio com o uso contínuo');
+  }
+  if (answers.chemProducts === 'yes_mild') {
+    signs.push('Dependência de produtos para resultados temporários');
+    causes.push('Cremes convencionais mascaram o problema sem tratar a causa raiz');
+  }
   if (answers.waterTemp === 'hot') {
     signs.push('Ressecamento e perda de brilho nos fios');
     causes.push('Água quente abre as cutículas e resseca profundamente cada fio');
@@ -144,16 +127,11 @@ function getDiagnosis(answers) {
     signs.push('Remoção excessiva dos óleos naturais protetores');
     causes.push('Lavagem diária elimina a barreira natural que protege e hidrata os fios');
   }
-  if (answers.waterTemp === 'warm' && answers.heatTools === 'rarely' && answers.hydration === 'regularly') {
-    signs.push('Rotina parcialmente correta, mas com gaps que limitam os resultados');
-    causes.push('Pequenos ajustes na rotina podem destravar um resultado muito maior');
-  }
   if (signs.length === 0) {
-    signs.push('Ressecamento e opacidade dos fios', 'Falta de nutrição profunda', 'Rotina capilar desbalanceada');
+    signs.push('Rotina parcialmente correta, mas com lacunas ocultas');
+    causes.push('Pequenos ajustes nas técnicas podem destravar um resultado muito maior');
   }
-  if (causes.length === 0) {
-    causes.push('Hábitos diários que prejudicam os fios sem você perceber', 'Técnicas inadequadas para o seu tipo de fio');
-  }
+
   return { signs: signs.slice(0, 4), causes: causes.slice(0, 3) };
 }
 
@@ -195,9 +173,7 @@ function FaqItem({ q, a }) {
           ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: P }} />
           : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: P }} />}
       </button>
-      {open && (
-        <p className="px-6 pb-5 text-sm text-stone-500 leading-relaxed">{a}</p>
-      )}
+      {open && <p className="px-6 pb-5 text-sm text-stone-500 leading-relaxed">{a}</p>}
     </div>
   );
 }
@@ -238,16 +214,13 @@ function RecipeCard({ recipe }) {
           ))}
         </ul>
 
-        <div
-          className="rounded-xl p-4"
-          style={{ background: PL, border: `1px solid ${PL2}` }}
-        >
+        <div className="rounded-xl p-4" style={{ background: PL, border: `1px solid ${PL2}` }}>
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-3.5 h-3.5" style={{ color: P }} />
             <span className="text-xs font-bold" style={{ color: PD }}>Como preparar</span>
           </div>
           <div
-            className="text-sm font-medium text-stone-500 select-none mb-1"
+            className="text-sm font-medium text-stone-500 mb-1"
             style={{ filter: 'blur(5px)', userSelect: 'none' }}
           >
             Ingrediente secreto A + Ingrediente secreto B
@@ -259,69 +232,7 @@ function RecipeCard({ recipe }) {
   );
 }
 
-function TestimonialCard({ t }) {
-  return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-    >
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
-            style={{ background: PL2 }}
-          >
-            <img
-              src={t.photo}
-              alt={t.name}
-              className="w-full h-full object-cover"
-              onError={e => { e.currentTarget.style.display = 'none'; }}
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-white text-sm">{t.name}</p>
-            <p className="text-xs text-stone-400">{t.location}</p>
-            <div className="flex mt-1">
-              {Array.from({ length: t.stars }).map((_, s) => (
-                <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-          </div>
-          <span
-            className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
-            style={{ background: 'rgba(251,69,169,0.15)', color: P }}
-          >
-            {t.result}
-          </span>
-        </div>
-
-        <p className="text-stone-300 text-sm leading-relaxed italic mb-4">
-          "{t.text}"
-        </p>
-
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
-        >
-          <p className="text-xs text-stone-500 text-center py-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
-            Antes e depois
-          </p>
-          <img
-            src={t.beforeAfter}
-            alt={`Antes e depois — ${t.name}`}
-            className="w-full object-cover"
-            style={{ maxHeight: '200px' }}
-            onError={e => {
-              e.currentTarget.parentElement.style.display = 'none';
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PricingCard({ onCheckout, loading, error, compact = false }) {
+function PricingCard({ onCheckout, loading, error }) {
   const [timeLeft, setTimeLeft] = useState(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (stored) {
@@ -340,9 +251,12 @@ function PricingCard({ onCheckout, loading, error, compact = false }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ border: `2px solid ${P}`, boxShadow: `0 8px 40px rgba(251,69,169,0.2)` }}
+      style={{ border: `2px solid ${P}`, boxShadow: '0 8px 40px rgba(251,69,169,0.2)' }}
     >
-      <div className="text-white text-center py-3 text-sm font-extrabold tracking-wide" style={{ background: GRAD }}>
+      <div
+        className="text-white text-center py-3 text-sm font-extrabold tracking-wide"
+        style={{ background: GRAD }}
+      >
         🔥 Promoção Especial de Lançamento
       </div>
 
@@ -376,16 +290,14 @@ function PricingCard({ onCheckout, loading, error, compact = false }) {
           <p className="text-xs text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
         </div>
 
-        {!compact && (
-          <ul className="space-y-3 mb-6">
-            {BENEFITS.map((b, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm text-stone-700">
-                <span className="text-lg leading-none flex-shrink-0">{b.icon}</span>
-                {b.text}
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul className="space-y-3 mb-6">
+          {BENEFITS.map((b, i) => (
+            <li key={i} className="flex items-center gap-3 text-sm text-stone-700">
+              <span className="text-lg leading-none flex-shrink-0">{b.icon}</span>
+              {b.text}
+            </li>
+          ))}
+        </ul>
 
         {error && (
           <p className="text-red-500 text-sm mb-4 bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
@@ -426,6 +338,7 @@ export default function Results() {
   const { user, isSubscribed } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const pricingRef = useRef(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
@@ -447,6 +360,10 @@ export default function Results() {
   const { answers } = state;
   const { signs, causes } = getDiagnosis(answers);
   const name = answers.name?.trim();
+
+  const scrollToPricing = () => {
+    pricingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -525,10 +442,7 @@ export default function Results() {
       <section className="bg-white">
         <div className="max-w-xl mx-auto px-6 py-10 flex flex-col gap-4">
           <FadeIn>
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}
-            >
+            <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
               <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
                 <span className="text-xl">🚨</span> Seu cabelo está pedindo socorro:
               </p>
@@ -544,10 +458,7 @@ export default function Results() {
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}
-            >
+            <div className="rounded-2xl p-6" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
               <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
                 <span className="text-xl">⚠️</span> E isso acontece porque:
               </p>
@@ -563,24 +474,40 @@ export default function Results() {
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
-            >
+            <div className="rounded-2xl p-6" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
               <p className="font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
                 <span className="text-xl">🌱</span> A boa notícia? Isso tem solução.
               </p>
               <p className="text-sm text-stone-600 leading-relaxed">
-                Seu cabelo pode se recuperar muito mais rápido do que você imagina. Tudo que você precisa são as receitas certas, com ingredientes que você já tem em casa e resultados que aparecem na primeira aplicação.
+                Seu cabelo pode se recuperar muito mais rápido do que você imagina. Tudo que você precisa são as receitas certas, com ingredientes que você já tem em casa, com resultados que aparecem na primeira aplicação.
               </p>
             </div>
           </FadeIn>
+
+          {/* bouncing arrow directing to the next section */}
+          <div className="flex justify-center pt-2">
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <ChevronDown className="w-7 h-7" style={{ color: '#16A34A' }} />
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ── RECIPE TEASE ── */}
-      <section style={{ background: PL }}>
-        <div className="max-w-xl mx-auto px-6 py-14">
+      <section
+        className="relative overflow-hidden"
+        style={{ background: '#fff' }}
+      >
+        {/* pink glow bottom-right — same as LP hero */}
+        <div
+          className="pointer-events-none absolute bottom-0 right-0 w-96 h-96"
+          style={{ background: 'radial-gradient(ellipse at 100% 100%, rgba(251,69,169,0.13) 0%, transparent 65%)' }}
+        />
+
+        <div className="max-w-xl mx-auto px-6 py-14 relative z-10">
           <FadeIn>
             <div className="text-center mb-10">
               <div
@@ -589,8 +516,10 @@ export default function Results() {
               >
                 <Sparkles className="w-3.5 h-3.5" /> Exclusivo para assinantes
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-snug mb-3">
-                As 3 receitas que estão transformando o cabelo de milhares de mulheres brasileiras
+              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
+                <span className="text-stone-900">As 3 receitas que estão </span>
+                <span style={{ color: P }}>transformando o cabelo</span>
+                <span className="text-stone-900"> de quem experimentou</span>
               </h2>
               <p className="text-stone-500 text-sm leading-relaxed max-w-sm mx-auto">
                 Resultados reais já na primeira aplicação. Com ingredientes que você provavelmente já tem em casa.
@@ -607,46 +536,34 @@ export default function Results() {
           </div>
 
           <FadeIn delay={0.2}>
-            <div
-              className="mt-6 rounded-2xl p-5 flex items-center justify-between cursor-pointer"
-              style={{ background: PL2, border: `1px solid ${P}20` }}
-              onClick={handleCheckout}
+            <button
+              onClick={scrollToPricing}
+              className="mt-6 w-full rounded-2xl p-5 flex items-center justify-between"
+              style={{ background: PL2, border: `1px solid ${P}30` }}
             >
               <p className="font-bold text-sm" style={{ color: PD }}>
                 🔒 Desbloqueie as 3 receitas agora
               </p>
               <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: PD }} />
-            </div>
+            </button>
           </FadeIn>
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF (dark) ── */}
-      <section style={{ background: DARK }}>
+      {/* ── SOCIAL PROOF ── */}
+      <section style={{ background: '#F8F8F8' }}>
         <div className="max-w-xl mx-auto px-6 py-14">
           <FadeIn>
             <div className="text-center mb-10">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="flex -space-x-2">
-                  {['👩','🙋','💁','👩‍🦱'].map((e, i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full border-2 border-stone-800 flex items-center justify-center text-sm"
-                      style={{ background: PL2 }}
-                    >
-                      {e}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex ml-1">
-                  {[1,2,3,4,5].map(i => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
+              <div className="flex items-center justify-center gap-1.5 mb-3">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                ))}
               </div>
-              <p className="text-2xl sm:text-3xl font-extrabold text-white leading-snug mb-2">
-                3.200+ mulheres brasileiras já transformaram o cabelo
-              </p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-2">
+                <span className="text-stone-900">3.200+ pessoas já </span>
+                <span style={{ color: P }}>transformaram o cabelo</span>
+              </h2>
               <p className="text-stone-400 text-sm">4,9 de 5 estrelas em avaliações verificadas</p>
             </div>
           </FadeIn>
@@ -654,7 +571,24 @@ export default function Results() {
           <div className="flex flex-col gap-5">
             {TESTIMONIALS.map((t, i) => (
               <FadeIn key={i} delay={i * 0.08}>
-                <TestimonialCard t={t} />
+                <div
+                  className="rounded-2xl overflow-hidden"
+                  style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
+                >
+                  <div
+                    className="flex items-center gap-2 px-4 py-2.5"
+                    style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
+                  >
+                    <span className="text-xs font-semibold text-stone-400">📸 Post verificado</span>
+                  </div>
+                  <img
+                    src={t.screenshot}
+                    alt={`Depoimento ${i + 1}`}
+                    className="w-full"
+                    style={{ display: 'block' }}
+                    onError={e => { e.currentTarget.parentElement.style.display = 'none'; }}
+                  />
+                </div>
               </FadeIn>
             ))}
           </div>
@@ -662,18 +596,19 @@ export default function Results() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="bg-white">
+      <section className="bg-white" ref={pricingRef}>
         <div className="max-w-xl mx-auto px-6 py-14 flex flex-col gap-6">
           <FadeIn>
             <div className="text-center mb-4">
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
                 Oferta exclusiva
               </p>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-snug mb-3">
-                Seu plano personalizado está esperando por você
+              <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
+                <span className="text-stone-900">Seu plano personalizado </span>
+                <span style={{ color: P }}>começa hoje</span>
               </h2>
               <p className="text-stone-500 text-sm">
-                Acesse hoje e comece a transformação ainda nesta semana.
+                Acesse agora e comece a transformação ainda esta semana.
               </p>
             </div>
           </FadeIn>
@@ -743,30 +678,6 @@ export default function Results() {
               </FadeIn>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── SECOND CTA ── */}
-      <section style={{ background: GRAD }}>
-        <div className="max-w-xl mx-auto px-6 py-14">
-          <FadeIn>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug mb-3">
-                Seu cabelo pode ser diferente a partir de hoje
-              </h2>
-              <p className="text-pink-100 text-sm">
-                Milhares de mulheres já estão com o cabelo transformado. Você é a próxima.
-              </p>
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.08}>
-            <PricingCard
-              onCheckout={handleCheckout}
-              loading={loading}
-              error={error}
-              compact
-            />
-          </FadeIn>
         </div>
       </section>
 
