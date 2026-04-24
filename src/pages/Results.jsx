@@ -410,7 +410,7 @@ export default function Results() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative pt-14 pb-0 overflow-hidden bg-white">
+      <section className="relative pt-14 pb-6 overflow-hidden bg-white">
         <div
           className="absolute pointer-events-none"
           style={{
