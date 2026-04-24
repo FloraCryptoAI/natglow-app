@@ -251,7 +251,7 @@ function PricingCard({ onCheckout, loading, error }) {
   return (
     <div
       className="rounded-2xl overflow-hidden bg-white"
-      style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 40px rgba(251,69,169,0.12)' }}
+      style={{ border: `1.5px solid ${PL2}`, boxShadow: '0 12px 48px rgba(251,69,169,0.18)' }}
     >
       {/* promo badge */}
       <div className="px-7 pt-7 pb-5">
@@ -622,7 +622,7 @@ export default function Results() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="bg-white" ref={pricingRef}>
+      <section ref={pricingRef} style={{ background: PL }}>
         <div className="max-w-xl mx-auto px-6 py-14 flex flex-col gap-6">
           <FadeIn>
             <div className="text-center mb-4">
