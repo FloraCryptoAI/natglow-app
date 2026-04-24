@@ -464,7 +464,7 @@ export default function Results() {
 
       {/* ── DIAGNOSIS ── */}
       <section className="bg-white">
-        <div className="max-w-xl mx-auto px-6 pt-8 pb-10 flex flex-col gap-4">
+        <div className="max-w-xl mx-auto px-6 pt-12 pb-10 flex flex-col gap-4">
           <FadeIn>
             <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
