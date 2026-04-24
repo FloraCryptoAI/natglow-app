@@ -83,9 +83,10 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Login" replace />} />
-      <Route path="/Landing" element={<Landing />} />
+      <Route path="/quiz" element={<Landing />} />
+      <Route path="/Landing" element={<Navigate to="/quiz" replace />} />
       <Route path="/Results" element={<Results />} />
-      <Route path="/quiz" element={<QuizV2 />} />
+      <Route path="/quiz2" element={<QuizV2 />} />
       <Route path="/quiz-results" element={<QuizResultsV2 />} />
       <Route path="/quiz-sales" element={<QuizSalesV2 />} />
       <Route path="/Login" element={<Login />} />
