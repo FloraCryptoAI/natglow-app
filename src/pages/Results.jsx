@@ -410,7 +410,7 @@ export default function Results() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative pt-14 pb-16 overflow-hidden bg-white">
+      <section className="relative pt-14 pb-0 overflow-hidden bg-white">
         <div
           className="absolute pointer-events-none"
           style={{
@@ -464,16 +464,16 @@ export default function Results() {
 
       {/* ── DIAGNOSIS ── */}
       <section className="bg-white">
-        <div className="max-w-xl mx-auto px-6 py-10 flex flex-col gap-4">
+        <div className="max-w-xl mx-auto px-6 pt-8 pb-10 flex flex-col gap-4">
           <FadeIn>
             <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
-              <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                <span className="text-xl">🚨</span> Seu cabelo está pedindo socorro:
+              <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
+                <span className="text-2xl">🚨</span> Seu cabelo está pedindo socorro:
               </p>
               <ul className="space-y-3">
                 {signs.map((s, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-stone-700 leading-snug">
-                    <span className="text-red-400 font-extrabold mt-0.5 flex-shrink-0 text-base">✕</span>
+                  <li key={i} className="flex items-start gap-3 text-base text-stone-700 leading-snug">
+                    <span className="text-red-400 font-extrabold mt-0.5 flex-shrink-0">✕</span>
                     {s}
                   </li>
                 ))}
@@ -483,12 +483,12 @@ export default function Results() {
 
           <FadeIn delay={0.06}>
             <div className="rounded-2xl p-6" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-              <p className="font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                <span className="text-xl">⚠️</span> E isso acontece porque:
+              <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
+                <span className="text-2xl">⚠️</span> E isso acontece porque:
               </p>
               <ul className="space-y-3">
                 {causes.map((c, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-stone-700 leading-snug">
+                  <li key={i} className="flex items-start gap-3 text-base text-stone-700 leading-snug">
                     <span className="text-amber-500 font-extrabold mt-0.5 flex-shrink-0">→</span>
                     {c}
                   </li>
@@ -499,10 +499,10 @@ export default function Results() {
 
           <FadeIn delay={0.12}>
             <div className="rounded-2xl p-6" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-              <p className="font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
-                <span className="text-xl">🌱</span> A boa notícia? Isso tem solução.
+              <p className="text-lg font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
+                <span className="text-2xl">🌱</span> A boa notícia? Isso tem solução.
               </p>
-              <p className="text-sm text-stone-600 leading-relaxed">
+              <p className="text-base text-stone-600 leading-relaxed">
                 Seu cabelo pode se recuperar muito mais rápido do que você imagina. Tudo que você precisa são as receitas certas, com ingredientes que você já tem em casa, com resultados que aparecem na primeira aplicação.
               </p>
             </div>
