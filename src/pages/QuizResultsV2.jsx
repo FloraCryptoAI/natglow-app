@@ -100,7 +100,7 @@ export default function QuizResultsV2() {
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ── HERO ── */}
-      <section className="relative pt-14 pb-6 overflow-hidden bg-white">
+      <section className="relative pt-10 pb-4 overflow-hidden bg-white">
         <div
           className="absolute pointer-events-none"
           style={{
@@ -121,26 +121,6 @@ export default function QuizResultsV2() {
           >
             🌿 Diagnóstico concluído
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.07, ease }}
-            className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
-          >
-            {name
-              ? <>{name}, seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>
-              : <>Seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.13, ease }}
-            className="text-base text-stone-500 leading-relaxed mb-8"
-          >
-            Analisamos seus hábitos e encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
-          </motion.p>
 
           <motion.div
             animate={{ y: [0, 10, 0] }}
