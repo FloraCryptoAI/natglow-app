@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, ArrowDown, Shield, Star, Loader2, ChevronDown, ChevronUp,
   Clock, Lock, Check, Sparkles,
@@ -308,6 +308,14 @@ export default function QuizSalesV2() {
   const { user, isSubscribed } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCurrentTestimonial(i => (i + 1) % TESTIMONIALS.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
 
   // Salva answers em sessionStorage para recuperar após cancel do Stripe
   const answers = state?.answers ?? (() => {
@@ -510,30 +518,52 @@ export default function QuizSalesV2() {
             </div>
           </FadeIn>
 
-          <div className="flex flex-col gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <FadeIn key={i} delay={i * 0.08}>
-                <div
-                  className="rounded-2xl overflow-hidden"
-                  style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
-                >
-                  <div
-                    className="flex items-center gap-2 px-4 py-2.5"
-                    style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
-                  >
-                    <span className="text-xs font-semibold text-stone-400">📸 Post verificado</span>
-                  </div>
-                  <img
-                    src={t.screenshot}
-                    alt={`Depoimento ${i + 1}`}
-                    className="w-full"
-                    style={{ display: 'block' }}
-                    onError={e => { e.currentTarget.parentElement.style.display = 'none'; }}
+          <FadeIn>
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
+            >
+              <div
+                className="flex items-center gap-2 px-4 py-2.5"
+                style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
+              >
+                <span className="text-xs font-semibold text-stone-400">📸 Post verificado</span>
+              </div>
+              <div className="relative overflow-hidden bg-white">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={currentTestimonial}
+                    src={TESTIMONIALS[currentTestimonial].screenshot}
+                    alt={`Depoimento ${currentTestimonial + 1}`}
+                    className="w-full block"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ duration: 0.35 }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
                   />
+                </AnimatePresence>
+              </div>
+              <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}
+              >
+                <div className="flex gap-2">
+                  {TESTIMONIALS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentTestimonial(i)}
+                      className="w-2 h-2 rounded-full transition-all duration-300"
+                      style={{ background: i === currentTestimonial ? P : '#e7e5e4' }}
+                    />
+                  ))}
                 </div>
-              </FadeIn>
-            ))}
-          </div>
+                <span className="text-xs text-stone-400 tabular-nums">
+                  {currentTestimonial + 1}/{TESTIMONIALS.length}
+                </span>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
