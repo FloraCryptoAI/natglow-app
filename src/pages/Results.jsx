@@ -421,7 +421,7 @@ export default function Results() {
             opacity: 0.8,
           }}
         />
-        <div className="max-w-xl mx-auto px-6 relative">
+        <div className="max-w-xl mx-auto px-6 relative text-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -438,11 +438,9 @@ export default function Results() {
             transition={{ duration: 0.65, delay: 0.07, ease }}
             className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
           >
-            {name ? (
-              <>{name}, seu cabelo<br />merece uma rotina que<br /><span style={{ color: P }}>realmente funciona.</span></>
-            ) : (
-              <>Seu cabelo merece<br />uma rotina que<br /><span style={{ color: P }}>realmente funciona.</span></>
-            )}
+            {name
+              ? <>{name}, seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>
+              : <>Seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>}
           </motion.h1>
 
           <motion.p
@@ -453,24 +451,6 @@ export default function Results() {
           >
             Analisamos seus hábitos e encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="flex items-center gap-8 mt-10"
-          >
-            {[
-              { num: '3.200+',  label: 'já transformaram o cabelo' },
-              { num: '100%',    label: 'ingredientes naturais' },
-              { num: '21 dias', label: 'para ver resultados reais' },
-            ].map((s, i) => (
-              <div key={i}>
-                <p className="text-xl font-extrabold" style={{ color: i === 0 ? P : '#1c1c1c' }}>{s.num}</p>
-                <p className="text-xs text-stone-400 mt-0.5 leading-tight">{s.label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
@@ -587,8 +567,7 @@ export default function Results() {
                 ))}
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-2">
-                <span className="text-stone-900">3.200+ pessoas já </span>
-                <span style={{ color: P }}>transformaram o cabelo</span>
+                3.200+ pessoas já <span style={{ color: P }}>transformaram o cabelo</span>
               </h2>
               <p className="text-stone-400 text-sm">4,9 de 5 estrelas em avaliações verificadas</p>
             </div>
@@ -633,8 +612,7 @@ export default function Results() {
                 🌸 Oferta exclusiva
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
-                <span className="text-stone-900">Seu plano personalizado </span>
-                <span style={{ color: P }}>começa hoje</span>
+                Seu plano personalizado <span style={{ color: P }}>começa hoje</span>
               </h2>
               <p className="text-stone-500 text-sm">
                 Acesse agora e comece a transformação ainda esta semana.
