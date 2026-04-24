@@ -99,7 +99,8 @@ export default function QuizV2() {
   }, [user, isSubscribed, navigate]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [step]);
 
   useEffect(() => {

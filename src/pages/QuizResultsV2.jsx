@@ -250,9 +250,6 @@ export default function QuizResultsV2() {
                 </span>
               </motion.button>
 
-              <p className="text-sm text-stone-500 text-center leading-relaxed max-w-xs">
-                Já preparamos um plano feito especialmente para você, para que você também possa atingir estes resultados.
-              </p>
             </div>
           </FadeIn>
         </div>

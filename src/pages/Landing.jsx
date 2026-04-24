@@ -110,7 +110,8 @@ export default function Landing() {
   }, [user, isSubscribed, navigate]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [step]);
 
   // Carrossel antes/depois
@@ -433,9 +434,10 @@ export default function Landing() {
             <motion.div
               key="before-after"
               {...slide}
-              className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-6"
+              className="w-full flex-1"
               style={{ background: PL, minHeight: '100vh' }}
             >
+              <div className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-6">
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
                   Você quer resultados como estes?
@@ -492,24 +494,19 @@ export default function Landing() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-3">
-                <motion.button
-                  onClick={() => setStep(STEPS.NAME)}
-                  animate={{ scale: [1, 1.04, 1] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
-                  style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
-                >
-                  <span className="text-center leading-snug uppercase tracking-wide">
-                    <span>Sim, eu também quero</span>
-                    <br />
-                    <span>transformar meu cabelo</span>
-                  </span>
-                </motion.button>
-
-                <p className="text-sm text-stone-500 text-center leading-relaxed max-w-xs">
-                  Já preparamos um plano feito especialmente para você, para que você também possa atingir estes resultados.
-                </p>
+              <motion.button
+                onClick={() => setStep(STEPS.NAME)}
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
+                style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
+              >
+                <span className="text-center leading-snug uppercase tracking-wide">
+                  <span>Sim, eu também quero</span>
+                  <br />
+                  <span>transformar meu cabelo</span>
+                </span>
+              </motion.button>
               </div>
             </motion.div>
           )}
