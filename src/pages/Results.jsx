@@ -250,50 +250,62 @@ function PricingCard({ onCheckout, loading, error }) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{ border: `2px solid ${P}`, boxShadow: '0 8px 40px rgba(251,69,169,0.2)' }}
+      className="rounded-2xl overflow-hidden bg-white"
+      style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 8px 40px rgba(251,69,169,0.12)' }}
     >
-      <div
-        className="text-white text-center py-3 text-sm font-extrabold tracking-wide"
-        style={{ background: GRAD }}
-      >
-        🔥 Promoção Especial de Lançamento
-      </div>
+      {/* promo badge */}
+      <div className="px-7 pt-7 pb-5">
+        <div
+          className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
+          style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+        >
+          🔥 Promoção Especial de Lançamento
+        </div>
 
-      <div className="bg-white p-6 sm:p-8">
+        {/* timer */}
         {timeLeft > 0 && (
           <div
-            className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 mb-6 text-sm font-bold"
-            style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+            className="flex items-center gap-2 rounded-xl px-4 py-3 mb-6 text-sm font-semibold"
+            style={{ background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', color: '#1c1c1c' }}
           >
-            <Clock className="w-4 h-4 flex-shrink-0" />
+            <Clock className="w-4 h-4 flex-shrink-0" style={{ color: P }} />
             <span>Esta oferta expira em</span>
-            <span className="font-extrabold text-base tabular-nums">{fmt(timeLeft)}</span>
+            <span className="font-extrabold tabular-nums ml-auto" style={{ color: PD }}>{fmt(timeLeft)}</span>
           </div>
         )}
 
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <p className="text-stone-400 line-through text-lg">$47.99/mês</p>
+        {/* price */}
+        <div className="mb-7">
+          <div className="flex items-center gap-2.5 mb-1">
+            <p className="text-stone-400 line-through text-base">$47.99/mês</p>
             <span
-              className="text-xs font-bold px-2.5 py-1 rounded-full"
+              className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: '#FEF2F2', color: '#DC2626' }}
             >
               Você economiza $41/mês
             </span>
           </div>
-          <div className="flex items-baseline justify-center gap-1 mb-1">
+          <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold" style={{ color: PD }}>$</span>
-            <span className="text-6xl font-extrabold leading-none" style={{ color: PD }}>6.99</span>
-            <span className="text-stone-400 text-lg">/mês</span>
+            <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: PD }}>6.99</span>
+            <span className="text-stone-400 text-lg ml-1">/mês</span>
           </div>
-          <p className="text-xs text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
+          <p className="text-sm text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
         </div>
 
-        <ul className="space-y-3 mb-6">
+        {/* divider */}
+        <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', marginBottom: '24px' }} />
+
+        {/* benefits */}
+        <ul className="space-y-3.5 mb-7">
           {BENEFITS.map((b, i) => (
-            <li key={i} className="flex items-center gap-3 text-sm text-stone-700">
-              <span className="text-lg leading-none flex-shrink-0">{b.icon}</span>
+            <li key={i} className="flex items-center gap-3 text-base text-stone-700">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: PL2 }}
+              >
+                <Check className="w-3 h-3" style={{ color: PD }} />
+              </div>
               {b.text}
             </li>
           ))}
@@ -303,10 +315,11 @@ function PricingCard({ onCheckout, loading, error }) {
           <p className="text-red-500 text-sm mb-4 bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
         )}
 
+        {/* CTA */}
         <button
           onClick={onCheckout}
           disabled={loading}
-          className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full transition-all"
+          className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full transition-all active:scale-[0.98]"
           style={{
             background: GRAD,
             boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
@@ -321,7 +334,7 @@ function PricingCard({ onCheckout, loading, error }) {
             : <>Quero meu plano personalizado agora <ArrowRight className="w-5 h-5" /></>}
         </button>
 
-        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-stone-400">
+        <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-stone-400">
           <Shield className="w-3.5 h-3.5 flex-shrink-0" />
           Pagamento seguro via Stripe. Cancele quando quiser. Sem taxas ocultas.
         </div>
