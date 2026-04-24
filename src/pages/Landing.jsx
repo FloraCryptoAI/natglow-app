@@ -1,22 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 
 const HAIR_PROBLEMS = [
-  { label: 'Cabelo ressecado',          img: '/images/quiz/dry-hair.jpg' },
-  { label: 'Frizz excessivo',           img: '/images/quiz/frizz.jpg' },
-  { label: 'Queda de cabelo',           img: '/images/quiz/hair-loss.jpg' },
-  { label: 'Pontas duplas / quebradas', img: '/images/quiz/split-ends.jpg' },
-  { label: 'Oleosidade excessiva',      img: '/images/quiz/oily-hair.jpg' },
-  { label: 'Falta de volume',           img: '/images/quiz/no-volume.jpg' },
-  { label: 'Cabelo sem brilho',         img: '/images/quiz/no-shine.jpg' },
-  { label: 'Dificuldade para crescer',  img: '/images/quiz/slow-growth.jpg' },
+  { label: 'Ressecado / frizz',       img: '/images/quiz-v2/ressecado-frizz.jpg' },
+  { label: 'Pontas duplas',            img: '/images/quiz-v2/quebra-pontas.jpg' },
+  { label: 'Queda / Não cresce',       img: '/images/quiz-v2/queda-crescimento.jpg' },
+  { label: 'Oleoso',                   img: '/images/quiz-v2/oleoso.jpg' },
+  { label: 'Sem volume',               img: '/images/quiz-v2/sem-volume.jpg' },
+  { label: 'Sem brilho',              img: '/images/quiz-v2/sem-brilho.jpg' },
 ];
 
-const STEPS = { ANCHOR: 0, Q1: 1, Q2: 2, Q3: 3, Q4: 4, Q5: 5, NAME: 6, LOADING: 7 };
-const TOTAL_QUIZ_STEPS = 6;
+const HAIR_TYPES = [
+  { value: 'liso',     label: 'Liso',     img: '/images/quiz-v2/liso.jpg' },
+  { value: 'ondulado', label: 'Ondulado', img: '/images/quiz-v2/ondulado.jpg' },
+  { value: 'cacheado', label: 'Cacheado', img: '/images/quiz-v2/cacheado.jpg' },
+  { value: 'crespo',   label: 'Crespo',   img: '/images/quiz-v2/crespo.jpg' },
+];
+
+const BEFORE_AFTER = [
+  { antes: '/images/quiz-v2/antes-1.jpg', depois: '/images/quiz-v2/depois-1.jpg' },
+  { antes: '/images/quiz-v2/antes-2.jpg', depois: '/images/quiz-v2/depois-2.jpg' },
+  { antes: '/images/quiz-v2/antes-3.jpg', depois: '/images/quiz-v2/depois-3.jpg' },
+];
+
+const STEPS = {
+  ANCHOR: 0, AGE: 1, HAIR_TYPE: 2,
+  Q1: 3, Q2: 4, Q3: 5, Q4: 6, Q5: 7,
+  NAME: 8, BEFORE_AFTER: 9, LOADING: 10,
+};
+const TOTAL_QUIZ_STEPS = 8;
+
+const P  = '#FB45A9';
+const PD = '#E03594';
+const PL = '#FFF5FA';
+const PL2 = '#FFE4F2';
+const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)';
 
 const slide = {
   initial: { opacity: 0, x: 40 },
@@ -40,7 +61,7 @@ function ProgressBar({ current, total }) {
   );
 }
 
-function QuizOption({ value, label, desc, emoji, selected, onClick }) {
+function QuizOption({ label, desc, emoji, selected, onClick }) {
   return (
     <div
       className={`card-option px-4 py-4 flex items-center gap-4 ${selected ? 'selected' : ''}`}
@@ -51,7 +72,7 @@ function QuizOption({ value, label, desc, emoji, selected, onClick }) {
         <p className="font-semibold text-stone-700 text-base">{label}</p>
         {desc && <p className="text-sm text-stone-400 mt-0.5">{desc}</p>}
       </div>
-      {selected && <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#FB45A9' }} />}
+      {selected && <Check className="w-5 h-5 flex-shrink-0" style={{ color: P }} />}
     </div>
   );
 }
@@ -60,10 +81,14 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
   const [step, setStep] = useState(STEPS.ANCHOR);
-  const [answers, setAnswers] = useState({ washFreq: '', waterTemp: '', heatTools: '', hydration: '', chemProducts: '', name: '' });
+  const [answers, setAnswers] = useState({
+    age: '', hairType: '',
+    washFreq: '', waterTemp: '', heatTools: '', hydration: '', chemProducts: '',
+    name: '',
+  });
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [currentPair, setCurrentPair] = useState(0);
 
-  // Restore from sessionStorage on mount
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem('glow_quiz_state');
@@ -74,19 +99,29 @@ export default function Landing() {
     } catch {}
   }, []);
 
-  // Persist state to sessionStorage
   useEffect(() => {
     if (step < STEPS.LOADING) {
       sessionStorage.setItem('glow_quiz_state', JSON.stringify({ step, answers }));
     }
   }, [step, answers]);
 
-  // Subscribed users go straight to the app
   useEffect(() => {
     if (user && isSubscribed) navigate('/HairDashboard');
   }, [user, isSubscribed, navigate]);
 
-  // Loading animation → navigate to Results
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
+
+  // Carrossel antes/depois
+  useEffect(() => {
+    if (step !== STEPS.BEFORE_AFTER) return;
+    const t = setInterval(() => {
+      setCurrentPair(p => (p + 1) % BEFORE_AFTER.length);
+    }, 3000);
+    return () => clearInterval(t);
+  }, [step]);
+
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
     setLoadingProgress(0);
@@ -103,7 +138,6 @@ export default function Landing() {
     return () => { timers.forEach(clearTimeout); clearTimeout(done); };
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const showStepCounter = step >= STEPS.Q1 && step <= STEPS.NAME;
   const ans = (field, value) => setAnswers(a => ({ ...a, [field]: value }));
 
   return (
@@ -117,26 +151,11 @@ export default function Landing() {
         .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
         .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
         .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
+        .img-card { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
+        .img-card:hover { border-color:#FB45A9; }
+        .img-card.selected { border-color:#FB45A9; }
       `}</style>
 
-      {/* HEADER */}
-      <header className="bg-white" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-        <div className="max-w-lg mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="NatGlow" className="w-11 h-11 rounded-2xl object-cover" />
-            <span style={{ fontWeight: 400, color: '#535353', fontSize: '16px', letterSpacing: '-0.01em' }}>NatGlow</span>
-          </div>
-          {showStepCounter ? (
-            <span className="text-xs text-stone-400 font-medium">{step}/{TOTAL_QUIZ_STEPS}</span>
-          ) : (
-            <Link to="/Login" className="text-xs text-stone-400 hover:text-stone-600 transition-colors font-medium">
-              Já tenho conta →
-            </Link>
-          )}
-        </div>
-      </header>
-
-      {/* CONTENT */}
       <div className="flex-1 flex flex-col">
         <AnimatePresence mode="wait">
 
@@ -150,13 +169,10 @@ export default function Landing() {
                 <p className="text-base text-stone-500">Por favor, seja sincera</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {HAIR_PROBLEMS.map((opt, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-stone-100 px-3 py-2.5 shadow-sm">
-                    <div
-                      className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
-                      style={{ background: '#FFE4F2' }}
-                    >
+                  <div key={i} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+                    <div className="w-full overflow-hidden" style={{ aspectRatio: '3/2', background: PL2 }}>
                       <img
                         src={opt.img}
                         alt={opt.label}
@@ -164,30 +180,94 @@ export default function Landing() {
                         onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
-                    <span className="text-sm font-semibold text-stone-700 leading-snug">{opt.label}</span>
+                    <div className="px-3 py-3.5 text-center">
+                      <span className="text-sm font-semibold text-stone-700 leading-snug">{opt.label}</span>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <p className="text-sm text-stone-500 text-center leading-relaxed">
-                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
-              </p>
-
               <button
-                onClick={() => setStep(STEPS.Q1)}
+                onClick={() => setStep(STEPS.AGE)}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
                 Sim, tenho pelo menos 1 deles
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
-              <p className="text-center text-xs text-stone-400 -mt-2">100% gratuito · Leva menos de 60 segundos</p>
+
+              <p className="text-sm text-stone-500 text-center leading-relaxed -mt-1">
+                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
+              </p>
+            </motion.div>
+          )}
+
+          {/* ═══ AGE ═══ */}
+          {step === STEPS.AGE && (
+            <motion.div key="age" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
+              <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                  Qual a sua idade?
+                </h2>
+              </div>
+              <div className="flex flex-col gap-3">
+                {[
+                  { value: '18_29',   label: '18 a 29 anos',    emoji: '🌸' },
+                  { value: '30_39',   label: '30 a 39 anos',    emoji: '🌺' },
+                  { value: '40_49',   label: '40 a 49 anos',    emoji: '🌼' },
+                  { value: '50_plus', label: '50 anos ou mais', emoji: '🌻' },
+                ].map(opt => (
+                  <QuizOption
+                    key={opt.value}
+                    {...opt}
+                    selected={answers.age === opt.value}
+                    onClick={() => { ans('age', opt.value); setStep(STEPS.HAIR_TYPE); }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ HAIR TYPE ═══ */}
+          {step === STEPS.HAIR_TYPE && (
+            <motion.div key="hair-type" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
+              <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                  Qual seu tipo de cabelo?
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {HAIR_TYPES.map(opt => (
+                  <div
+                    key={opt.value}
+                    className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
+                    onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1); }}
+                  >
+                    <div className="w-full overflow-hidden" style={{ aspectRatio: '3/2', background: PL2 }}>
+                      <img
+                        src={opt.img}
+                        alt={opt.label}
+                        className="w-full h-full object-cover"
+                        onError={e => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                    <div className="px-3 py-3.5 flex items-center justify-center gap-2">
+                      <span className="text-sm font-semibold text-stone-700 text-center">{opt.label}</span>
+                      {answers.hairType === opt.value && (
+                        <Check className="w-4 h-4 flex-shrink-0" style={{ color: P }} />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </motion.div>
           )}
 
           {/* ═══ Q1 — frequência de lavagem ═══ */}
           {step === STEPS.Q1 && (
             <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Com que frequência você lava o cabelo?
@@ -195,9 +275,9 @@ export default function Landing() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily', label: 'Todos os dias',           emoji: '🚿', desc: 'Quase todo dia, faz parte da rotina' },
-                  { value: '3_4',   label: '3 a 4 vezes por semana',  emoji: '📅', desc: 'Na maioria dos dias da semana' },
-                  { value: '1_2',   label: '1 a 2 vezes por semana',  emoji: '🌿', desc: 'Só quando realmente precisa' },
+                  { value: 'daily', label: 'Todos os dias',          emoji: '🚿', desc: 'Quase todo dia, faz parte da rotina' },
+                  { value: '3_4',   label: '3 a 4 vezes por semana', emoji: '📅', desc: 'Na maioria dos dias da semana' },
+                  { value: '1_2',   label: '1 a 2 vezes por semana', emoji: '🌿', desc: 'Só quando realmente precisa' },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -213,7 +293,7 @@ export default function Landing() {
           {/* ═══ Q2 — temperatura da água ═══ */}
           {step === STEPS.Q2 && (
             <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   A água do seu banho é geralmente:
@@ -222,8 +302,8 @@ export default function Landing() {
               <div className="flex flex-col gap-3">
                 {[
                   { value: 'hot',  label: 'Bem quente', emoji: '🔥', desc: 'Bem quente, como eu gosto' },
-                  { value: 'warm', label: 'Morna',       emoji: '💧', desc: 'Temperatura agradável, não extrema' },
-                  { value: 'cold', label: 'Fria',        emoji: '❄️', desc: 'Fria ou finalizo sempre fria' },
+                  { value: 'warm', label: 'Morna',      emoji: '💧', desc: 'Temperatura agradável, não extrema' },
+                  { value: 'cold', label: 'Fria',       emoji: '❄️', desc: 'Fria ou finalizo sempre fria' },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -239,7 +319,7 @@ export default function Landing() {
           {/* ═══ Q3 — calor ═══ */}
           {step === STEPS.Q3 && (
             <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Você usa secador ou chapinha com frequência?
@@ -247,9 +327,9 @@ export default function Landing() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily',  label: 'Todos os dias',             emoji: '🔌', desc: 'Faz parte da minha rotina diária' },
-                  { value: 'few',    label: 'Algumas vezes por semana',  emoji: '📆', desc: 'Na maioria das vezes que lavo' },
-                  { value: 'rarely', label: 'Raramente',                 emoji: '🌬️', desc: 'Só em ocasiões especiais' },
+                  { value: 'daily',  label: 'Todos os dias',            emoji: '🔌', desc: 'Faz parte da minha rotina diária' },
+                  { value: 'few',    label: 'Algumas vezes por semana', emoji: '📆', desc: 'Na maioria das vezes que lavo' },
+                  { value: 'rarely', label: 'Raramente',                emoji: '🌬️', desc: 'Só em ocasiões especiais' },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -265,7 +345,7 @@ export default function Landing() {
           {/* ═══ Q4 — hidratação ═══ */}
           {step === STEPS.Q4 && (
             <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Você costuma fazer hidratação no cabelo?
@@ -291,11 +371,8 @@ export default function Landing() {
           {/* ═══ Q5 — produtos químicos ═══ */}
           {step === STEPS.Q5 && (
             <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={7} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
-                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#FB45A9' }}>
-                  Esse detalhe muda tudo no diagnóstico
-                </p>
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                   Você usa produtos químicos no cabelo?
                 </h2>
@@ -321,7 +398,7 @@ export default function Landing() {
           {/* ═══ NAME ═══ */}
           {step === STEPS.NAME && (
             <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-              <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
+              <ProgressBar current={8} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center pt-6">
                 <div className="text-5xl mb-4">🌿</div>
                 <h2 className="text-2xl font-extrabold text-stone-900 mb-2">
@@ -337,17 +414,103 @@ export default function Landing() {
                 value={answers.name}
                 onChange={e => ans('name', e.target.value)}
                 className="w-full border-2 border-stone-200 rounded-2xl px-5 py-4 text-lg text-stone-800 outline-none transition-colors"
-                onFocus={e => { e.target.style.borderColor = '#FB45A9'; }}
+                onFocus={e => { e.target.style.borderColor = P; }}
                 onBlur={e => { if (!answers.name.trim()) e.target.style.borderColor = '#e7e5e4'; }}
               />
               <button
                 disabled={!answers.name.trim()}
-                onClick={() => setStep(STEPS.LOADING)}
+                onClick={() => setStep(STEPS.BEFORE_AFTER)}
                 className="btn-primary py-6 text-base flex items-center justify-center gap-2"
               >
                 Ver meu diagnóstico personalizado
                 <ArrowRight className="w-5 h-5" />
               </button>
+            </motion.div>
+          )}
+
+          {/* ═══ BEFORE / AFTER ═══ */}
+          {step === STEPS.BEFORE_AFTER && (
+            <motion.div
+              key="before-after"
+              {...slide}
+              className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-6"
+              style={{ background: PL, minHeight: '100vh' }}
+            >
+              <div className="text-center">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
+                  Você quer resultados como estes?
+                </h2>
+                <p className="text-sm text-stone-500 leading-relaxed max-w-xs mx-auto">
+                  Estes são alguns dos resultados de mulheres que seguiram nosso plano com 3 receitas caseiras que a indústria de cosméticos não quer que você saiba.
+                </p>
+              </div>
+
+              <div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentPair}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="grid grid-cols-2 gap-3"
+                  >
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-xs font-bold text-center text-stone-400 uppercase tracking-widest">Antes</span>
+                      <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
+                        <img
+                          src={BEFORE_AFTER[currentPair].antes}
+                          alt="Antes"
+                          className="w-full h-full object-cover"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-xs font-bold text-center uppercase tracking-widest" style={{ color: PD }}>Depois</span>
+                      <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
+                        <img
+                          src={BEFORE_AFTER[currentPair].depois}
+                          alt="Depois"
+                          className="w-full h-full object-cover"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                <div className="flex justify-center gap-2 mt-4">
+                  {BEFORE_AFTER.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPair(i)}
+                      className="w-2 h-2 rounded-full transition-all duration-300"
+                      style={{ background: i === currentPair ? PD : PL2 }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <motion.button
+                  onClick={() => setStep(STEPS.LOADING)}
+                  animate={{ scale: [1, 1.04, 1] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                  className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
+                  style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
+                >
+                  <span className="text-center leading-snug uppercase tracking-wide">
+                    <span>Sim, eu também quero</span>
+                    <br />
+                    <span>transformar meu cabelo</span>
+                  </span>
+                </motion.button>
+
+                <p className="text-sm text-stone-500 text-center leading-relaxed max-w-xs">
+                  Já preparamos um plano feito especialmente para você, para que você também possa atingir estes resultados.
+                </p>
+              </div>
             </motion.div>
           )}
 
@@ -373,7 +536,7 @@ export default function Landing() {
                   <div key={i} className="flex items-center gap-3">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
-                      style={{ background: loadingProgress >= item.threshold ? '#FB45A9' : '#e7e5e4' }}
+                      style={{ background: loadingProgress >= item.threshold ? P : '#e7e5e4' }}
                     >
                       {loadingProgress >= item.threshold && <Check className="w-3 h-3 text-white" />}
                     </div>
