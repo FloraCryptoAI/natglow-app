@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const P    = '#FB45A9';
@@ -99,42 +99,17 @@ export default function QuizResultsV2() {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
-      {/* ── HERO ── */}
-      <section className="relative pt-10 pb-4 overflow-hidden bg-white">
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '-140px', right: '-140px',
-            width: '560px', height: '560px',
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${PL2} 0%, transparent 70%)`,
-            opacity: 0.8,
-          }}
-        />
-        <div className="max-w-xl mx-auto px-6 relative text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-7"
-            style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
-          >
-            🌿 Diagnóstico concluído
-          </motion.div>
-
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex justify-center"
-          >
-            <ArrowDown className="w-6 h-6" style={{ color: P }} />
-          </motion.div>
-        </div>
-      </section>
-
       {/* ── DIAGNOSIS ── */}
       <section className="bg-white">
-        <div className="max-w-xl mx-auto px-6 pt-12 pb-10 flex flex-col gap-4">
+        <div className="max-w-xl mx-auto px-6 pt-10 pb-10 flex flex-col gap-4">
+          <div className="flex justify-center">
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full"
+              style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+            >
+              🌿 Diagnóstico concluído
+            </div>
+          </div>
           <FadeIn>
             <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
