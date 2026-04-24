@@ -395,7 +395,7 @@ export default function QuizSalesV2() {
             transition={{ duration: 0.65, delay: 0.1, ease }}
             className="text-base text-stone-500 leading-relaxed mb-8"
           >
-            Conheça as 3 receitas secretas que transformaram o cabelo de milhares de mulheres e um plano personalizado exclusivamente para o seu tipo de cabelo e necessidade para você chegar ao ponto máximo da sua beleza natural.
+            Conheça as 3 receitas secretas que transformaram o cabelo de milhares de mulheres e um plano personalizado exclusivamente para o seu tipo de cabelo e necessidades, para você chegar ao ponto máximo da sua beleza natural.
           </motion.p>
 
           <motion.div
