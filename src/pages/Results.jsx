@@ -410,27 +410,66 @@ export default function Results() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ background: GRAD }}>
-        <div className="max-w-xl mx-auto px-6 pt-12 pb-14 text-center">
+      <section className="relative pt-14 pb-16 overflow-hidden bg-white">
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: '-140px', right: '-140px',
+            width: '560px', height: '560px',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${PL2} 0%, transparent 70%)`,
+            opacity: 0.8,
+          }}
+        />
+        <div className="max-w-xl mx-auto px-6 relative">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-7"
+            style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
           >
-            <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-5"
-              style={{ background: 'rgba(255,255,255,0.22)', color: '#fff' }}
-            >
-              🌿 Diagnóstico concluído
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-3">
-              {name
-                ? <>{name}, seu diagnóstico<br />está pronto 🌿</>
-                : <>Seu diagnóstico<br />está pronto 🌿</>}
-            </h1>
-            <p className="text-pink-100 text-base leading-relaxed max-w-sm mx-auto">
-              Encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
-            </p>
+            🌿 Diagnóstico concluído
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.07, ease }}
+            className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
+          >
+            {name ? (
+              <>{name}, seu cabelo<br />merece uma rotina que<br /><span style={{ color: P }}>realmente funciona.</span></>
+            ) : (
+              <>Seu cabelo merece<br />uma rotina que<br /><span style={{ color: P }}>realmente funciona.</span></>
+            )}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.13, ease }}
+            className="text-base text-stone-500 leading-relaxed"
+          >
+            Analisamos seus hábitos e encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="flex items-center gap-8 mt-10"
+          >
+            {[
+              { num: '3.200+',  label: 'já transformaram o cabelo' },
+              { num: '100%',    label: 'ingredientes naturais' },
+              { num: '21 dias', label: 'para ver resultados reais' },
+            ].map((s, i) => (
+              <div key={i}>
+                <p className="text-xl font-extrabold" style={{ color: i === 0 ? P : '#1c1c1c' }}>{s.num}</p>
+                <p className="text-xs text-stone-400 mt-0.5 leading-tight">{s.label}</p>
+              </div>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -505,9 +544,8 @@ export default function Results() {
                 <Sparkles className="w-3.5 h-3.5" /> Exclusivo para assinantes
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
-                <span className="text-stone-900">As 3 receitas que estão </span>
-                <span style={{ color: P }}>transformando o cabelo</span>
-                <span className="text-stone-900"> de quem experimentou</span>
+                <span className="text-stone-900">As 3 receitas que transformaram o cabelo e a </span>
+                <span style={{ color: P }}>autoestima de milhares de mulheres</span>
               </h2>
               <p className="text-stone-500 text-sm leading-relaxed max-w-sm mx-auto">
                 Resultados reais já na primeira aplicação. Com ingredientes que você provavelmente já tem em casa.
@@ -588,9 +626,12 @@ export default function Results() {
         <div className="max-w-xl mx-auto px-6 py-14 flex flex-col gap-6">
           <FadeIn>
             <div className="text-center mb-4">
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
-                Oferta exclusiva
-              </p>
+              <div
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-5"
+                style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+              >
+                🌸 Oferta exclusiva
+              </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-3">
                 <span className="text-stone-900">Seu plano personalizado </span>
                 <span style={{ color: P }}>começa hoje</span>
