@@ -286,8 +286,8 @@ function PricingCard({ onCheckout, loading, error }) {
             </span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold" style={{ color: PD }}>$</span>
-            <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: PD }}>6.99</span>
+            <span className="text-2xl font-bold" style={{ color: P }}>$</span>
+            <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P }}>6.99</span>
             <span className="text-stone-400 text-lg ml-1">/mês</span>
           </div>
           <p className="text-sm text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
@@ -316,10 +316,12 @@ function PricingCard({ onCheckout, loading, error }) {
         )}
 
         {/* CTA */}
-        <button
+        <motion.button
           onClick={onCheckout}
           disabled={loading}
-          className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full transition-all active:scale-[0.98]"
+          animate={loading ? {} : { scale: [1, 1.04, 1] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full"
           style={{
             background: GRAD,
             boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
@@ -331,8 +333,17 @@ function PricingCard({ onCheckout, loading, error }) {
         >
           {loading
             ? <><Loader2 className="w-5 h-5 animate-spin" /> Aguarde...</>
-            : <>Quero meu plano personalizado agora <ArrowRight className="w-5 h-5" /></>}
-        </button>
+            : (
+              <span className="flex items-center gap-2.5">
+                <span className="text-center leading-snug">
+                  <span>Quero meu plano</span>
+                  <br className="sm:hidden" />
+                  <span> personalizado agora</span>
+                </span>
+                <ArrowRight className="w-5 h-5 flex-shrink-0" />
+              </span>
+            )}
+        </motion.button>
 
         <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-stone-400">
           <Shield className="w-3.5 h-3.5 flex-shrink-0" />
