@@ -284,19 +284,30 @@ export default function QuizResultsV2() {
           </FadeIn>
 
           <FadeIn delay={0.14}>
-            <motion.button
-              onClick={() => navigate('/quiz-sales', { state: { answers } })}
-              animate={{ scale: [1, 1.04, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full"
-              style={{
-                background: GRAD,
-                boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
-              }}
-            >
-              Sim, eu também quero transformar meu cabelo
-              <ArrowRight className="w-5 h-5 flex-shrink-0" />
-            </motion.button>
+            <div className="flex flex-col items-center gap-4">
+              <motion.button
+                onClick={() => navigate('/quiz-sales', { state: { answers } })}
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-full py-5 font-extrabold text-white flex items-center justify-center gap-3 rounded-full"
+                style={{
+                  background: GRAD,
+                  boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
+                  fontSize: '0.95rem',
+                }}
+              >
+                <span className="text-center leading-snug uppercase tracking-wide">
+                  <span>Sim, eu também quero</span>
+                  <br />
+                  <span>transformar meu cabelo</span>
+                </span>
+                <ArrowRight className="w-5 h-5 flex-shrink-0" />
+              </motion.button>
+
+              <p className="text-sm text-stone-500 text-center leading-relaxed max-w-xs">
+                Já preparamos um plano feito especialmente para você, para que você também possa atingir estes resultados.
+              </p>
+            </div>
           </FadeIn>
         </div>
       </section>

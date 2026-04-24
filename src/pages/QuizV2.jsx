@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/AuthContext';
 const HAIR_PROBLEMS_V2 = [
   { label: 'Ressecado / com frizz',     img: '/images/quiz-v2/ressecado-frizz.jpg' },
   { label: 'Quebra / pontas duplas',    img: '/images/quiz-v2/quebra-pontas.jpg' },
-  { label: 'Queda / crescimento lento', img: '/images/quiz-v2/queda-crescimento.jpg' },
+  { label: 'Queda / Não cresce',         img: '/images/quiz-v2/queda-crescimento.jpg' },
   { label: 'Oleoso',                    img: '/images/quiz-v2/oleoso.jpg' },
   { label: 'Sem volume',                img: '/images/quiz-v2/sem-volume.jpg' },
   { label: 'Sem brilho',               img: '/images/quiz-v2/sem-brilho.jpg' },
@@ -155,7 +155,7 @@ export default function QuizV2() {
                         onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
-                    <div className="px-3 py-2.5">
+                    <div className="px-3 py-3.5 text-center">
                       <span className="text-sm font-semibold text-stone-700 leading-snug">{opt.label}</span>
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export default function QuizV2() {
                 onClick={() => setStep(STEPS.AGE)}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
-                Sim, enfrento pelo menos um desses problemas
+                Sim, tenho pelo menos 1 deles
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
               <p className="text-center text-xs text-stone-400 -mt-2">100% gratuito · Leva menos de 60 segundos</p>
@@ -228,8 +228,8 @@ export default function QuizV2() {
                         onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
-                    <div className="px-3 py-2.5 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-stone-700">{opt.label}</span>
+                    <div className="px-3 py-3.5 flex items-center justify-center gap-2">
+                      <span className="text-sm font-semibold text-stone-700 text-center">{opt.label}</span>
                       {answers.hairType === opt.value && (
                         <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#FB45A9' }} />
                       )}
