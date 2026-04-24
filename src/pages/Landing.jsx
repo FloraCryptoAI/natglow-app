@@ -29,7 +29,7 @@ const BEFORE_AFTER = [
 const STEPS = {
   ANCHOR: 0, AGE: 1, HAIR_TYPE: 2,
   Q1: 3, Q2: 4, Q3: 5, Q4: 6, Q5: 7,
-  NAME: 8, BEFORE_AFTER: 9, LOADING: 10,
+  BEFORE_AFTER: 8, NAME: 9, LOADING: 10,
 };
 const TOTAL_QUIZ_STEPS = 8;
 
@@ -388,7 +388,7 @@ export default function Landing() {
                     key={opt.value}
                     {...opt}
                     selected={answers.chemProducts === opt.value}
-                    onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.NAME); }}
+                    onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.BEFORE_AFTER); }}
                   />
                 ))}
               </div>
@@ -419,7 +419,7 @@ export default function Landing() {
               />
               <button
                 disabled={!answers.name.trim()}
-                onClick={() => setStep(STEPS.BEFORE_AFTER)}
+                onClick={() => setStep(STEPS.LOADING)}
                 className="btn-primary py-6 text-base flex items-center justify-center gap-2"
               >
                 Ver meu diagnóstico personalizado
@@ -494,7 +494,7 @@ export default function Landing() {
 
               <div className="flex flex-col items-center gap-3">
                 <motion.button
-                  onClick={() => setStep(STEPS.LOADING)}
+                  onClick={() => setStep(STEPS.NAME)}
                   animate={{ scale: [1, 1.04, 1] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                   className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
