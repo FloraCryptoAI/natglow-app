@@ -102,7 +102,7 @@ export default function QuizResultsV2() {
       {/* ── DIAGNOSIS ── */}
       <section className="bg-white">
         <div className="max-w-xl mx-auto px-6 pt-10 pb-10 flex flex-col gap-4">
-          <div className="flex justify-center">
+          <div className="flex justify-center mb-4">
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full"
               style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
@@ -248,7 +248,6 @@ export default function QuizResultsV2() {
                   <br />
                   <span>transformar meu cabelo</span>
                 </span>
-                <ArrowRight className="w-5 h-5 flex-shrink-0" />
               </motion.button>
 
               <p className="text-sm text-stone-500 text-center leading-relaxed max-w-xs">
