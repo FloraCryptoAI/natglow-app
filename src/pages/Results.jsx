@@ -397,14 +397,11 @@ export default function Results() {
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ── HEADER ── */}
-      <header
-        className="sticky top-0 z-50"
-        style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}
-      >
-        <div className="max-w-xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="NatGlow" className="w-9 h-9 rounded-xl" />
-            <span style={{ fontWeight: 400, color: '#535353', fontSize: '15px', letterSpacing: '-0.01em' }}>NatGlow</span>
+      <header className="bg-white" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="max-w-xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="NatGlow" className="w-11 h-11 rounded-2xl object-cover" />
+            <span style={{ fontWeight: 400, color: '#535353', fontSize: '16px', letterSpacing: '-0.01em' }}>NatGlow</span>
           </div>
           <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600 transition-colors">
             Já tenho conta →
