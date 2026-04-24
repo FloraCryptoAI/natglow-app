@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, Shield, Star, Loader2, ChevronDown, ChevronUp,
+  ArrowRight, ArrowDown, Shield, Star, Loader2, ChevronDown, ChevronUp,
   Clock, Lock, Check, Sparkles,
 } from 'lucide-react';
 import { supabase } from '@/api/supabaseClient';
@@ -447,10 +447,18 @@ export default function Results() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.13, ease }}
-            className="text-base text-stone-500 leading-relaxed"
+            className="text-base text-stone-500 leading-relaxed mb-8"
           >
             Analisamos seus hábitos e encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
           </motion.p>
+
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex justify-center"
+          >
+            <ArrowDown className="w-6 h-6" style={{ color: P }} />
+          </motion.div>
         </div>
       </section>
 
@@ -506,7 +514,7 @@ export default function Results() {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <ChevronDown className="w-7 h-7" style={{ color: '#16A34A' }} />
+              <ArrowDown className="w-6 h-6" style={{ color: P }} />
             </motion.div>
           </div>
         </div>
