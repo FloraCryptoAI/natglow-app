@@ -14,9 +14,15 @@ export default function Login() {
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState(null);
 
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
   useEffect(() => {
     if (user && !subscriptionLoading) {
-      navigate(isSubscribed ? '/HairDashboard' : '/Upgrade', { replace: true });
+      if (user.email === ADMIN_EMAIL) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(isSubscribed ? '/HairDashboard' : '/Upgrade', { replace: true });
+      }
     }
   }, [user, isSubscribed, subscriptionLoading, navigate]);
 
