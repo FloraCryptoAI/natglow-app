@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Results from './pages/Results';
@@ -15,6 +16,7 @@ import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
 import Admin from './pages/Admin';
+import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
 import HairDashboard from './pages/HairDashboard';
@@ -27,8 +29,6 @@ import Recipes from './pages/Recipes';
 import Progress from './pages/Progress';
 import Plan30Days from './pages/Plan30Days';
 import SkinAge from './pages/SkinAge';
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -65,13 +65,10 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
-// Rota exclusiva para o admin
+// Rota exclusiva para o admin — usa JWT admin (independente do Supabase Auth)
 const AdminRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) return <Spinner />;
-  if (!user || user.email !== ADMIN_EMAIL) return <Navigate to="/Login" replace />;
-
+  const { isAdmin } = useAdminAuth();
+  if (!isAdmin) return <Navigate to="/admin/login" replace />;
   return children;
 };
 
@@ -99,7 +96,10 @@ const AppRoutes = () => {
       {/* Confirmação pós-pagamento — pública (usuário ainda não está logado) */}
       <Route path="/success" element={<SubscriptionSuccess />} />
 
-      {/* Painel de admin */}
+      {/* Login do admin — rota pública, separada do /Login de usuário */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* Painel de admin — protegido por JWT admin (MFA) */}
       <Route path="/admin" element={
         <AdminRoute><Admin /></AdminRoute>
       } />
@@ -142,13 +142,15 @@ const AppRoutes = () => {
 function App() {
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AppRoutes />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+      <AdminAuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <AppRoutes />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AdminAuthProvider>
     </AuthProvider>
   )
 }

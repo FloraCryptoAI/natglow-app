@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, CreditCard, TrendingUp, RefreshCw, LogOut } from 'lucide-react'
-import { useAuth } from '@/lib/AuthContext'
+import { useAdminAuth } from '@/lib/AdminAuthContext'
 import { supabase } from '@/api/supabaseClient'
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL
 
 const STATUS_BADGE = {
   active:   { label: 'Ativo',      bg: 'bg-emerald-100', text: 'text-emerald-700' },
@@ -23,25 +21,26 @@ function StatusBadge({ status }) {
 }
 
 export default function Admin() {
-  const { user, signOut } = useAuth()
+  const { isAdmin, adminToken, clearAdminToken } = useAdminAuth()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('metrics')
 
-  const isAdmin = user?.email === ADMIN_EMAIL
-
-  useEffect(() => {
-    if (!isAdmin) {
-      navigate('/Landing')
-    }
-  }, [isAdmin, navigate])
-
   const loadData = async () => {
     setLoading(true)
     try {
-      const { data: result, error } = await supabase.functions.invoke('admin-data')
-      if (error) throw error
+      const { data: result, error } = await supabase.functions.invoke('admin-data', {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      })
+      if (error) {
+        if (error?.context?.status === 401 || error?.message?.includes('401')) {
+          clearAdminToken()
+          navigate('/admin/login', { replace: true })
+          return
+        }
+        throw error
+      }
       setData(result)
     } catch (err) {
       console.error('Erro ao carregar dados admin:', err)
@@ -54,12 +53,10 @@ export default function Admin() {
     if (isAdmin) loadData()
   }, [isAdmin])
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/Landing')
+  const handleLogout = () => {
+    clearAdminToken()
+    navigate('/admin/login', { replace: true })
   }
-
-  if (!isAdmin) return null
 
   const activeCount = data?.activeCount ?? 0
   const totalUsers = data?.totalUsers ?? 0
@@ -73,11 +70,7 @@ export default function Admin() {
       <header className="bg-white border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="NatGlow"
-              className="w-8 h-8 rounded-xl"
-            />
+            <img src="/logo.png" alt="NatGlow" className="w-8 h-8 rounded-xl" />
             <span className="font-bold text-stone-800 text-sm">Admin — NatGlow</span>
           </div>
           <div className="flex items-center gap-2">
