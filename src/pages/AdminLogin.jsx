@@ -37,9 +37,10 @@ export default function AdminLogin() {
       const { data, error: fnErr } = await supabase.functions.invoke('admin-auth-step1', {
         body: { email: email.trim().toLowerCase(), password },
       })
-      if (fnErr || !data?.sessionId) {
-        throw new Error(data?.error ?? fnErr?.message ?? 'Credenciais inválidas')
-      }
+      // supabase-js v2: data contém o body mesmo em respostas não-2xx
+      const msg = data?.error ?? (fnErr?.message?.includes('non-2xx') ? null : fnErr?.message)
+      if (msg) throw new Error(msg)
+      if (!data?.sessionId) throw new Error('Credenciais inválidas')
       setSessionId(data.sessionId)
       setStep(2)
       setTimeout(() => otpRefs.current[0]?.focus(), 100)
@@ -83,9 +84,9 @@ export default function AdminLogin() {
       const { data, error: fnErr } = await supabase.functions.invoke('admin-auth-step2', {
         body: { sessionId, otp: code },
       })
-      if (fnErr || !data?.token) {
-        throw new Error(data?.error ?? fnErr?.message ?? 'Código inválido')
-      }
+      const msg = data?.error ?? (fnErr?.message?.includes('non-2xx') ? null : fnErr?.message)
+      if (msg) throw new Error(msg)
+      if (!data?.token) throw new Error('Código inválido')
       setAdminToken(data.token)
       navigate('/admin', { replace: true })
     } catch (err) {
