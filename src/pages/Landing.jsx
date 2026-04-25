@@ -2,23 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
-
-const HAIR_PROBLEMS = [
-  { label: 'Ressecado / frizz',       img: '/images/quiz-v2/ressecado-frizz.jpg' },
-  { label: 'Pontas duplas',            img: '/images/quiz-v2/quebra-pontas.jpg' },
-  { label: 'Queda / Não cresce',       img: '/images/quiz-v2/queda-crescimento.jpg' },
-  { label: 'Oleoso',                   img: '/images/quiz-v2/oleoso.jpg' },
-  { label: 'Sem volume',               img: '/images/quiz-v2/sem-volume.jpg' },
-  { label: 'Sem brilho',              img: '/images/quiz-v2/sem-brilho.jpg' },
-];
-
-const HAIR_TYPES = [
-  { value: 'liso',     label: 'Liso',     img: '/images/quiz-v2/liso.jpg' },
-  { value: 'ondulado', label: 'Ondulado', img: '/images/quiz-v2/ondulado.jpg' },
-  { value: 'cacheado', label: 'Cacheado', img: '/images/quiz-v2/cacheado.jpg' },
-  { value: 'crespo',   label: 'Crespo',   img: '/images/quiz-v2/crespo.jpg' },
-];
 
 const BEFORE_AFTER = [
   { antes: '/images/quiz-v2/antes-1.jpg', depois: '/images/quiz-v2/depois-1.jpg' },
@@ -78,6 +63,7 @@ function QuizOption({ label, desc, emoji, selected, onClick }) {
 }
 
 export default function Landing() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
   const [step, setStep] = useState(STEPS.ANCHOR);
@@ -88,6 +74,22 @@ export default function Landing() {
   });
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [currentPair, setCurrentPair] = useState(0);
+
+  const HAIR_PROBLEMS = [
+    { label: t('quiz.problems.dryFrizz'),  img: '/images/quiz-v2/ressecado-frizz.jpg' },
+    { label: t('quiz.problems.splitEnds'), img: '/images/quiz-v2/quebra-pontas.jpg' },
+    { label: t('quiz.problems.hairLoss'),  img: '/images/quiz-v2/queda-crescimento.jpg' },
+    { label: t('quiz.problems.oily'),      img: '/images/quiz-v2/oleoso.jpg' },
+    { label: t('quiz.problems.noVolume'),  img: '/images/quiz-v2/sem-volume.jpg' },
+    { label: t('quiz.problems.noShine'),   img: '/images/quiz-v2/sem-brilho.jpg' },
+  ];
+
+  const HAIR_TYPES = [
+    { value: 'liso',     label: t('quiz.hairTypes.liso'),     img: '/images/quiz-v2/liso.jpg' },
+    { value: 'ondulado', label: t('quiz.hairTypes.ondulado'), img: '/images/quiz-v2/ondulado.jpg' },
+    { value: 'cacheado', label: t('quiz.hairTypes.cacheado'), img: '/images/quiz-v2/cacheado.jpg' },
+    { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz-v2/crespo.jpg' },
+  ];
 
   useEffect(() => {
     try {
@@ -114,13 +116,12 @@ export default function Landing() {
     document.body.scrollTop = 0;
   }, [step]);
 
-  // Carrossel antes/depois
   useEffect(() => {
     if (step !== STEPS.BEFORE_AFTER) return;
-    const t = setInterval(() => {
+    const t2 = setInterval(() => {
       setCurrentPair(p => (p + 1) % BEFORE_AFTER.length);
     }, 3000);
-    return () => clearInterval(t);
+    return () => clearInterval(t2);
   }, [step]);
 
   useEffect(() => {
@@ -165,9 +166,9 @@ export default function Landing() {
             <motion.div key="anchor" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-6 flex flex-col gap-4">
               <div className="text-center">
                 <h1 className="text-2xl font-extrabold text-stone-900 leading-snug mb-1">
-                  Você sofre de algum destes problemas capilares?
+                  {t('quiz.anchor.title')}
                 </h1>
-                <p className="text-base text-stone-500">Por favor, seja sincera</p>
+                <p className="text-base text-stone-500">{t('quiz.anchor.subtitle')}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -192,12 +193,12 @@ export default function Landing() {
                 onClick={() => setStep(STEPS.AGE)}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
-                Sim, tenho pelo menos 1 deles
+                {t('quiz.anchor.cta')}
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
 
               <p className="text-sm text-stone-500 text-center leading-relaxed -mt-1">
-                Você não está sozinha! Milhares de mulheres enfrentam exatamente isso todos os dias.
+                {t('quiz.anchor.reassurance')}
               </p>
             </motion.div>
           )}
@@ -208,15 +209,15 @@ export default function Landing() {
               <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Qual a sua idade?
+                  {t('quiz.age.title')}
                 </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: '18_29',   label: '18 a 29 anos',    emoji: '🌸' },
-                  { value: '30_39',   label: '30 a 39 anos',    emoji: '🌺' },
-                  { value: '40_49',   label: '40 a 49 anos',    emoji: '🌼' },
-                  { value: '50_plus', label: '50 anos ou mais', emoji: '🌻' },
+                  { value: '18_29',   label: t('quiz.options.age18'), emoji: '🌸' },
+                  { value: '30_39',   label: t('quiz.options.age30'), emoji: '🌺' },
+                  { value: '40_49',   label: t('quiz.options.age40'), emoji: '🌼' },
+                  { value: '50_plus', label: t('quiz.options.age50'), emoji: '🌻' },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -235,7 +236,7 @@ export default function Landing() {
               <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Qual seu tipo de cabelo?
+                  {t('quiz.hairType.title')}
                 </h2>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -265,20 +266,20 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q1 — frequência de lavagem ═══ */}
+          {/* ═══ Q1 — wash frequency ═══ */}
           {step === STEPS.Q1 && (
             <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Com que frequência você lava o cabelo?
+                  {t('quiz.washFreq.title')}
                 </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily', label: 'Todos os dias',          emoji: '🚿', desc: 'Quase todo dia, faz parte da rotina' },
-                  { value: '3_4',   label: '3 a 4 vezes por semana', emoji: '📅', desc: 'Na maioria dos dias da semana' },
-                  { value: '1_2',   label: '1 a 2 vezes por semana', emoji: '🌿', desc: 'Só quando realmente precisa' },
+                  { value: 'daily', label: t('quiz.options.washDaily'), emoji: '🚿', desc: t('quiz.options.washDailyDesc') },
+                  { value: '3_4',   label: t('quiz.options.wash3_4'),   emoji: '📅', desc: t('quiz.options.wash3_4Desc') },
+                  { value: '1_2',   label: t('quiz.options.wash1_2'),   emoji: '🌿', desc: t('quiz.options.wash1_2Desc') },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -291,20 +292,20 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q2 — temperatura da água ═══ */}
+          {/* ═══ Q2 — water temperature ═══ */}
           {step === STEPS.Q2 && (
             <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  A água do seu banho é geralmente:
+                  {t('quiz.waterTemp.title')}
                 </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'hot',  label: 'Bem quente', emoji: '🔥', desc: 'Bem quente, como eu gosto' },
-                  { value: 'warm', label: 'Morna',      emoji: '💧', desc: 'Temperatura agradável, não extrema' },
-                  { value: 'cold', label: 'Fria',       emoji: '❄️', desc: 'Fria ou finalizo sempre fria' },
+                  { value: 'hot',  label: t('quiz.options.waterHot'),  emoji: '🔥', desc: t('quiz.options.waterHotDesc') },
+                  { value: 'warm', label: t('quiz.options.waterWarm'), emoji: '💧', desc: t('quiz.options.waterWarmDesc') },
+                  { value: 'cold', label: t('quiz.options.waterCold'), emoji: '❄️', desc: t('quiz.options.waterColdDesc') },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -317,20 +318,20 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q3 — calor ═══ */}
+          {/* ═══ Q3 — heat tools ═══ */}
           {step === STEPS.Q3 && (
             <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Você usa secador ou chapinha com frequência?
+                  {t('quiz.heatTools.title')}
                 </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'daily',  label: 'Todos os dias',            emoji: '🔌', desc: 'Faz parte da minha rotina diária' },
-                  { value: 'few',    label: 'Algumas vezes por semana', emoji: '📆', desc: 'Na maioria das vezes que lavo' },
-                  { value: 'rarely', label: 'Raramente',                emoji: '🌬️', desc: 'Só em ocasiões especiais' },
+                  { value: 'daily',  label: t('quiz.options.heatDaily'),  emoji: '🔌', desc: t('quiz.options.heatDailyDesc') },
+                  { value: 'few',    label: t('quiz.options.heatFew'),    emoji: '📆', desc: t('quiz.options.heatFewDesc') },
+                  { value: 'rarely', label: t('quiz.options.heatRarely'), emoji: '🌬️', desc: t('quiz.options.heatRarelyDesc') },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -343,20 +344,20 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q4 — hidratação ═══ */}
+          {/* ═══ Q4 — hydration ═══ */}
           {step === STEPS.Q4 && (
             <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Você costuma fazer hidratação no cabelo?
+                  {t('quiz.hydration.title')}
                 </h2>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'regularly', label: 'Sim, regularmente', emoji: '✅', desc: 'Faço hidratação toda semana' },
-                  { value: 'sometimes', label: 'Às vezes',          emoji: '🔄', desc: 'Quando lembro ou tenho tempo' },
-                  { value: 'never',     label: 'Quase nunca',       emoji: '❌', desc: 'Não tenho esse hábito ainda' },
+                  { value: 'regularly', label: t('quiz.options.hydroRegularly'), emoji: '✅', desc: t('quiz.options.hydroRegularlyDesc') },
+                  { value: 'sometimes', label: t('quiz.options.hydroSometimes'), emoji: '🔄', desc: t('quiz.options.hydroSometimesDesc') },
+                  { value: 'never',     label: t('quiz.options.hydroNever'),     emoji: '❌', desc: t('quiz.options.hydroNeverDesc') },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -369,21 +370,21 @@ export default function Landing() {
             </motion.div>
           )}
 
-          {/* ═══ Q5 — produtos químicos ═══ */}
+          {/* ═══ Q5 — chemical products ═══ */}
           {step === STEPS.Q5 && (
             <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
               <ProgressBar current={7} total={TOTAL_QUIZ_STEPS} />
               <div className="text-center">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Você usa produtos químicos no cabelo?
+                  {t('quiz.chemProducts.title')}
                 </h2>
-                <p className="text-sm text-stone-400 mt-2">Cremes, máscaras, botox, progressiva, etc...</p>
+                <p className="text-sm text-stone-400 mt-2">{t('quiz.chemProducts.subtitle')}</p>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { value: 'yes_heavy', label: 'Sim, químicas fortes',   emoji: '⚗️', desc: 'Progressiva, botox, relaxamento, tintura' },
-                  { value: 'yes_mild',  label: 'Sim, cremes e máscaras', emoji: '🧴', desc: 'Produtos de tratamento convencionais' },
-                  { value: 'no',        label: 'Não uso',                emoji: '🌿', desc: 'Meu cabelo é natural, sem químicos' },
+                  { value: 'yes_heavy', label: t('quiz.options.chemHeavy'), emoji: '⚗️', desc: t('quiz.options.chemHeavyDesc') },
+                  { value: 'yes_mild',  label: t('quiz.options.chemMild'),  emoji: '🧴', desc: t('quiz.options.chemMildDesc') },
+                  { value: 'no',        label: t('quiz.options.chemNo'),    emoji: '🌿', desc: t('quiz.options.chemNoDesc') },
                 ].map(opt => (
                   <QuizOption
                     key={opt.value}
@@ -403,15 +404,15 @@ export default function Landing() {
               <div className="text-center pt-6">
                 <div className="text-5xl mb-4">🌿</div>
                 <h2 className="text-2xl font-extrabold text-stone-900 mb-2">
-                  Quase lá! Como posso te chamar?
+                  {t('quiz.name.title')}
                 </h2>
                 <p className="text-base text-stone-500">
-                  Seu plano será personalizado especialmente para você.
+                  {t('quiz.name.subtitle')}
                 </p>
               </div>
               <input
                 type="text"
-                placeholder="Seu primeiro nome"
+                placeholder={t('quiz.name.placeholder')}
                 value={answers.name}
                 onChange={e => ans('name', e.target.value)}
                 className="w-full border-2 border-stone-200 rounded-2xl px-5 py-4 text-lg text-stone-800 outline-none transition-colors"
@@ -423,7 +424,7 @@ export default function Landing() {
                 onClick={() => setStep(STEPS.LOADING)}
                 className="btn-primary py-6 text-base flex items-center justify-center gap-2"
               >
-                Ver meu diagnóstico personalizado
+                {t('quiz.name.cta')}
                 <ArrowRight className="w-5 h-5" />
               </button>
             </motion.div>
@@ -438,75 +439,77 @@ export default function Landing() {
               style={{ background: PL, minHeight: '100vh' }}
             >
               <div className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-6">
-              <div className="text-center">
-                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
-                  Você quer resultados como estes?
-                </h2>
-                <p className="text-sm text-stone-500 leading-relaxed max-w-xs mx-auto">
-                  Estes são alguns dos resultados de mulheres que seguiram nosso plano com 3 receitas caseiras que a indústria de cosméticos não quer que você saiba.
-                </p>
-              </div>
-
-              <div>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentPair}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="grid grid-cols-2 gap-3"
-                  >
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-xs font-bold text-center text-stone-400 uppercase tracking-widest">Antes</span>
-                      <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
-                        <img
-                          src={BEFORE_AFTER[currentPair].antes}
-                          alt="Antes"
-                          className="w-full h-full object-cover"
-                          onError={e => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-xs font-bold text-center uppercase tracking-widest" style={{ color: PD }}>Depois</span>
-                      <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
-                        <img
-                          src={BEFORE_AFTER[currentPair].depois}
-                          alt="Depois"
-                          className="w-full h-full object-cover"
-                          onError={e => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-
-                <div className="flex justify-center gap-2 mt-4">
-                  {BEFORE_AFTER.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPair(i)}
-                      className="w-2 h-2 rounded-full transition-all duration-300"
-                      style={{ background: i === currentPair ? PD : PL2 }}
-                    />
-                  ))}
+                <div className="text-center">
+                  <h2 className="text-2xl font-extrabold text-stone-900 leading-snug mb-2">
+                    {t('quiz.beforeAfter.title')}
+                  </h2>
+                  <p className="text-sm text-stone-500 leading-relaxed max-w-xs mx-auto">
+                    {t('quiz.beforeAfter.subtitle')}
+                  </p>
                 </div>
-              </div>
 
-              <motion.button
-                onClick={() => setStep(STEPS.NAME)}
-                animate={{ scale: [1, 1.04, 1] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
-                style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
-              >
-                <span className="text-center leading-snug uppercase tracking-wide">
-                  <span>Sim, eu também quero</span>
-                  <br />
-                  <span>transformar meu cabelo</span>
-                </span>
-              </motion.button>
+                <div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentPair}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="grid grid-cols-2 gap-3"
+                    >
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-bold text-center text-stone-400 uppercase tracking-widest">
+                          {t('quiz.beforeAfter.before')}
+                        </span>
+                        <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
+                          <img
+                            src={BEFORE_AFTER[currentPair].antes}
+                            alt={t('quiz.beforeAfter.before')}
+                            className="w-full h-full object-cover"
+                            onError={e => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-bold text-center uppercase tracking-widest" style={{ color: PD }}>
+                          {t('quiz.beforeAfter.after')}
+                        </span>
+                        <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
+                          <img
+                            src={BEFORE_AFTER[currentPair].depois}
+                            alt={t('quiz.beforeAfter.after')}
+                            className="w-full h-full object-cover"
+                            onError={e => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  <div className="flex justify-center gap-2 mt-4">
+                    {BEFORE_AFTER.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPair(i)}
+                        className="w-2 h-2 rounded-full transition-all duration-300"
+                        style={{ background: i === currentPair ? PD : PL2 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <motion.button
+                  onClick={() => setStep(STEPS.NAME)}
+                  animate={{ scale: [1, 1.04, 1] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                  className="w-full py-5 font-extrabold text-white flex items-center justify-center rounded-full"
+                  style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
+                >
+                  <span className="text-center leading-snug uppercase tracking-wide">
+                    {t('quiz.beforeAfter.cta')}
+                  </span>
+                </motion.button>
               </div>
             </motion.div>
           )}
@@ -521,14 +524,14 @@ export default function Landing() {
             >
               <div className="text-center">
                 <div className="text-4xl mb-4">🔬</div>
-                <h2 className="text-2xl font-extrabold text-stone-900">Analisando suas respostas…</h2>
-                <p className="text-sm text-stone-400 mt-2">Isso leva apenas alguns segundos</p>
+                <h2 className="text-2xl font-extrabold text-stone-900">{t('quiz.loading.title')}</h2>
+                <p className="text-sm text-stone-400 mt-2">{t('quiz.loading.subtitle')}</p>
               </div>
               <div className="w-full space-y-4">
                 {[
-                  { label: 'Identificando hábitos que prejudicam seu cabelo', threshold: 30 },
-                  { label: 'Avaliando a saúde dos seus fios',                 threshold: 65 },
-                  { label: 'Montando seu diagnóstico personalizado',           threshold: 100 },
+                  { label: t('quiz.loading.step1'), threshold: 30 },
+                  { label: t('quiz.loading.step2'), threshold: 65 },
+                  { label: t('quiz.loading.step3'), threshold: 100 },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div

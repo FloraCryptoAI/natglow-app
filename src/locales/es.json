@@ -1,0 +1,598 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "next": "Siguiente",
+    "error": "Error"
+  },
+
+  "layout": {
+    "myRoutine": "Mi Rutina",
+    "recipes": "Recetas",
+    "plan": "Plan",
+    "progress": "Progreso"
+  },
+
+  "login": {
+    "title": "Acceder a mi cuenta",
+    "subtitle": "Ingresa el email usado en la compra",
+    "placeholder": "tu@email.com",
+    "submit": "Entrar a mi plan",
+    "submitting": "Ingresando...",
+    "or": "o",
+    "google": "Continuar con Google",
+    "noAccount": "¿Todavía no tienes un plan?",
+    "noAccountLink": "Haz el diagnóstico gratis →",
+    "errorNotFound": "Email no encontrado. Verifica que usaste el mismo email de la compra.",
+    "errorGoogle": "Error al conectar con Google. Inténtalo de nuevo.",
+    "errorInError": "¿Todavía no tienes un plan?",
+    "errorInErrorLink": "Haz clic aquí para el diagnóstico gratis →"
+  },
+
+  "quiz": {
+    "step": "Paso {{current}} de {{total}}",
+    "anchor": {
+      "title": "¿Sufres de alguno de estos problemas capilares?",
+      "subtitle": "Por favor, sé honesta",
+      "cta": "Sí, tengo al menos 1 de ellos",
+      "reassurance": "¡No estás sola! Miles de mujeres enfrentan exactamente esto todos los días."
+    },
+    "age": {
+      "title": "¿Cuántos años tienes?"
+    },
+    "hairType": {
+      "title": "¿Cuál es tu tipo de cabello?"
+    },
+    "washFreq": {
+      "title": "¿Con qué frecuencia lavas tu cabello?"
+    },
+    "waterTemp": {
+      "title": "El agua de tu ducha generalmente es:"
+    },
+    "heatTools": {
+      "title": "¿Usas secador o plancha con frecuencia?"
+    },
+    "hydration": {
+      "title": "¿Sueles hidratar tu cabello?"
+    },
+    "chemProducts": {
+      "title": "¿Usas productos químicos en tu cabello?",
+      "subtitle": "Cremas, mascarillas, keratina, alisado, etc..."
+    },
+    "name": {
+      "title": "¡Ya casi! ¿Cómo puedo llamarte?",
+      "subtitle": "Tu plan será personalizado especialmente para ti.",
+      "placeholder": "Tu primer nombre",
+      "cta": "Ver mi diagnóstico personalizado"
+    },
+    "beforeAfter": {
+      "title": "¿Quieres resultados como estos?",
+      "subtitle": "Estos son algunos resultados de mujeres que siguieron nuestro plan con 3 recetas caseras que la industria cosmética no quiere que sepas.",
+      "before": "Antes",
+      "after": "Después",
+      "cta": "Sí, yo también quiero transformar mi cabello"
+    },
+    "loading": {
+      "title": "Analizando tus respuestas…",
+      "subtitle": "Esto tarda solo unos segundos",
+      "step1": "Identificando hábitos que dañan tu cabello",
+      "step2": "Evaluando la salud de tus cabellos",
+      "step3": "Preparando tu diagnóstico personalizado"
+    },
+    "problems": {
+      "dryFrizz": "Seco / frizz",
+      "splitEnds": "Puntas abiertas",
+      "hairLoss": "Caída / no crece",
+      "oily": "Graso",
+      "noVolume": "Sin volumen",
+      "noShine": "Sin brillo"
+    },
+    "hairTypes": {
+      "liso": "Liso",
+      "ondulado": "Ondulado",
+      "cacheado": "Rizado",
+      "crespo": "Muy rizado"
+    },
+    "options": {
+      "age18": "18 a 29 años",
+      "age30": "30 a 39 años",
+      "age40": "40 a 49 años",
+      "age50": "50 años o más",
+      "washDaily": "Todos los días",
+      "washDailyDesc": "Casi todos los días, es parte de mi rutina",
+      "wash3_4": "3 a 4 veces por semana",
+      "wash3_4Desc": "La mayoría de los días de la semana",
+      "wash1_2": "1 a 2 veces por semana",
+      "wash1_2Desc": "Solo cuando realmente lo necesito",
+      "waterHot": "Muy caliente",
+      "waterHotDesc": "Muy caliente, como me gusta",
+      "waterWarm": "Tibia",
+      "waterWarmDesc": "Temperatura agradable, no extrema",
+      "waterCold": "Fría",
+      "waterColdDesc": "Fría o siempre termino con agua fría",
+      "heatDaily": "Todos los días",
+      "heatDailyDesc": "Parte de mi rutina diaria",
+      "heatFew": "Algunas veces por semana",
+      "heatFewDesc": "La mayoría de las veces que lavo",
+      "heatRarely": "Raramente",
+      "heatRarelyDesc": "Solo en ocasiones especiales",
+      "hydroRegularly": "Sí, regularmente",
+      "hydroRegularlyDesc": "Hidrato cada semana",
+      "hydroSometimes": "A veces",
+      "hydroSometimesDesc": "Cuando recuerdo o tengo tiempo",
+      "hydroNever": "Casi nunca",
+      "hydroNeverDesc": "No tengo ese hábito todavía",
+      "chemHeavy": "Sí, químicos fuertes",
+      "chemHeavyDesc": "Keratina, alisado, decoloración, tinte",
+      "chemMild": "Sí, cremas y mascarillas",
+      "chemMildDesc": "Productos de tratamiento convencionales",
+      "chemNo": "No uso ninguno",
+      "chemNoDesc": "Mi cabello es natural, sin químicos"
+    }
+  },
+
+  "results": {
+    "header": {
+      "alreadyHaveAccount": "Ya tengo cuenta →"
+    },
+    "hero": {
+      "badge": "🌿 Diagnóstico completado",
+      "titleWithName": "{{name}}, tu cabello merece una rutina que",
+      "titleHighlight": "realmente funcione.",
+      "titleNoName": "Tu cabello merece una rutina que",
+      "subtitle": "Analizamos tus hábitos y encontramos exactamente lo que está impidiendo que tu cabello alcance todo su potencial."
+    },
+    "diagnosis": {
+      "signs": "🚨 Tu cabello está pidiendo socorro:",
+      "causes": "⚠️ Y esto sucede porque:",
+      "goodNews": "🌱 ¿La buena noticia? Tiene solución.",
+      "goodNewsText": "Tu cabello puede recuperarse mucho más rápido de lo que imaginas. Todo lo que necesitas son las recetas correctas, con ingredientes que ya tienes en casa, con resultados que aparecen en la primera aplicación."
+    },
+    "diagnosisItems": {
+      "chemHeavy": {
+        "sign": "Estructura del cabello debilitada por sobrecarga química",
+        "cause": "Los químicos fuertes rompen las proteínas del cabello con el uso continuo"
+      },
+      "chemMild": {
+        "sign": "Dependencia de productos para resultados temporales",
+        "cause": "Las cremas convencionales enmascaran el problema sin tratar la causa raíz"
+      },
+      "waterHot": {
+        "sign": "Sequedad y pérdida de brillo",
+        "cause": "El agua caliente abre las cutículas y reseca profundamente cada cabello"
+      },
+      "heatTools": {
+        "sign": "Daño térmico acumulado en los cabellos",
+        "cause": "El calor frecuente sin protección debilita y fragiliza el cabello"
+      },
+      "noHydration": {
+        "sign": "Falta de hidratación profunda y constante",
+        "cause": "La hidratación irregular no repone los nutrientes que los cabellos pierden cada día"
+      },
+      "washDaily": {
+        "sign": "Eliminación excesiva de los aceites naturales protectores",
+        "cause": "El lavado diario elimina la barrera natural que protege e hidrata los cabellos"
+      },
+      "default": {
+        "sign": "Rutina parcialmente correcta, pero con lagunas ocultas",
+        "cause": "Pequeños ajustes en las técnicas pueden desbloquear resultados mucho mayores"
+      }
+    },
+    "recipes": {
+      "badge": "Exclusivo para suscriptoras",
+      "title1": "Las 3 recetas que transformaron el cabello y la ",
+      "title2": "autoestima de miles de mujeres",
+      "subtitle": "Resultados reales en la primera aplicación. Con ingredientes que probablemente ya tienes en casa.",
+      "recipe1": {
+        "tag": "Resultados en la 1ª aplicación",
+        "title": "La receta de la suavidad instantánea",
+        "subtitle": "Lo que vas a sentir en la primera aplicación:",
+        "benefits": [
+          "Frizz eliminado en menos de 20 minutos",
+          "Brillo intenso visible al instante",
+          "Suavidad profunda que dura días",
+          "Cutículas cerradas y cabello liso"
+        ]
+      },
+      "recipe2": {
+        "tag": "Actúa mientras duermes",
+        "title": "La receta del cabello fuerte",
+        "subtitle": "Lo que sucede mientras duermes:",
+        "benefits": [
+          "Nutrición profunda actuando toda la noche",
+          "Fortalece cada cabello desde adentro hacia afuera",
+          "Reduce la rotura de forma visible",
+          "Despierta con cabello sedoso y con vida"
+        ]
+      },
+      "recipe3": {
+        "tag": "El efecto dura hasta 5 días",
+        "title": "La receta antifrizz definitiva",
+        "subtitle": "Por qué esta receta es diferente a todo lo demás:",
+        "benefits": [
+          "Controla el frizz por hasta 5 días seguidos",
+          "Funciona en cualquier clima, incluso en días lluviosos",
+          "Brillo intenso y sellado duradero",
+          "Ligereza y suavidad al mismo tiempo"
+        ]
+      },
+      "unlock": "🔒 Desbloquear las 3 recetas ahora",
+      "howToPrepare": "Cómo preparar",
+      "secretIngredientA": "Ingrediente secreto A + Ingrediente secreto B",
+      "revealedAfter": "Receta revelada después de la suscripción"
+    },
+    "social": {
+      "stars": "4,9 de 5 estrellas en reseñas verificadas",
+      "title1": "3.200+ personas ya ",
+      "title2": "transformaron su cabello",
+      "verifiedPost": "📸 Publicación verificada"
+    },
+    "pricing": {
+      "badge": "🌸 Oferta exclusiva",
+      "title": "Tu plan personalizado",
+      "titleHighlight": "comienza hoy",
+      "subtitle": "Accede ahora y comienza la transformación esta semana.",
+      "promoBadge": "🔥 Oferta Especial de Lanzamiento",
+      "offerExpires": "Esta oferta expira en",
+      "originalPrice": "$47.99/mes",
+      "savings": "Ahorras $41/mes",
+      "price": "6.99",
+      "period": "/mes",
+      "cancel": "Cancela cuando quieras. Sin compromiso.",
+      "benefits": [
+        "Las 3 recetas campeonas con resultados en la primera aplicación",
+        "Rutina capilar personalizada de 21 días",
+        "Plan progresivo de 4 fases con 84 días de tratamiento completo",
+        "Biblioteca completa con 25 recetas naturales caseras",
+        "Seguimiento de progreso y logros",
+        "Acceso en cualquier dispositivo, en cualquier momento"
+      ],
+      "cta": "Quiero mi plan personalizado ahora",
+      "ctaLoading": "Espera...",
+      "secure": "Pago seguro vía Stripe. Cancela cuando quieras. Sin cargos ocultos.",
+      "cancelTitle": "Cancela cuando quieras",
+      "cancelText": "Sin preguntas, sin burocracia. Tienes control total de tu suscripción en cualquier momento, a través del portal del cliente, en segundos. Sin cargo de cancelación.",
+      "errorCheckout": "Error al iniciar el pago. Inténtalo de nuevo."
+    },
+    "reassurance": [
+      { "icon": "🚫", "text": "Sin productos caros" },
+      { "icon": "🌱", "text": "Sin químicos agresivos" },
+      { "icon": "✔️", "text": "Solo lo que funciona" }
+    ],
+    "faq": {
+      "tag": "Preguntas frecuentes",
+      "title": "Todo lo que necesitas saber",
+      "items": [
+        {
+          "q": "¿Y si no me gusta?",
+          "a": "Cancela cuando quieras, directamente desde el portal del cliente. Sin preguntas, sin burocracia, sin cargos. Tienes control total de tu suscripción. Un clic y listo."
+        },
+        {
+          "q": "¿Los ingredientes de las recetas son caros?",
+          "a": "¡No! Las recetas usan ingredientes simples como miel, aloe vera, aceite de coco y otros que probablemente ya tienes en casa ahora mismo. El costo promedio de cada receta es menos de $0.50."
+        },
+        {
+          "q": "¿Cuánto tiempo hasta ver resultados?",
+          "a": "Muchas personas notan diferencia ya en la primera aplicación de las recetas. Para resultados de transformación completa, la mayoría los ve en 2 a 3 semanas siguiendo la rutina."
+        },
+        {
+          "q": "¿Funciona para cualquier tipo de cabello?",
+          "a": "¡Sí! Tu plan fue creado con base en tus respuestas del diagnóstico, así que las recetas y la rutina son específicas para tu tipo de cabello y tu problema principal."
+        }
+      ]
+    },
+    "finePrint": "Al suscribirte aceptas los términos de uso. Cobro recurrente mensual en dólares americanos. Cancela en cualquier momento a través del portal del cliente sin ningún cargo."
+  },
+
+  "upgrade": {
+    "header": {
+      "redo": "← Rehacer diagnóstico"
+    },
+    "timer": "Tu diagnóstico expira en",
+    "badge": "Plan listo para ti",
+    "titleWithName": "{{name}}, tu plan está aquí",
+    "titleNoName": "Tu plan está aquí",
+    "subtitle": "Creamos una rutina personalizada basada en tus respuestas. Más de 3.200 mujeres ya transformaron su cabello con este método.",
+    "rating": "4,9 · 3.200+ reseñas",
+    "benefitsTitle": "Lo que recibes:",
+    "benefits": [
+      "Rutina capilar personalizada de 21 días",
+      "Plan progresivo de 4 fases (84+ días)",
+      "Biblioteca con 25 recetas naturales caseras",
+      "Filtro por ingrediente y tipo de problema",
+      "Seguimiento de progreso y logros",
+      "Acceso en cualquier dispositivo, en cualquier momento"
+    ],
+    "accessLabel": "Acceso Completo",
+    "period": "/mes",
+    "cancelNote": "Cancela cuando quieras · Sin compromiso",
+    "cta": "Desbloquear mi plan",
+    "ctaBottom": "Desbloquear mi plan ahora",
+    "ctaLoading": "Espera...",
+    "secure": "Pago seguro vía Stripe · Tarjeta de crédito",
+    "cancelTitle": "Cancela cuando quieras",
+    "cancelText": "Sin preguntas, sin burocracia. Tienes control total de tu suscripción en cualquier momento.",
+    "testimonialsTitle": "Lo que dicen nuestras usuarias",
+    "testimonials": [
+      { "name": "Ana Paula R.", "text": "¡En 3 semanas mi cabello dejó de romperse. No podía creer que fuera tan rápido!", "result": "Rotura -70%" },
+      { "name": "Camila S.", "text": "Las recetas son simples con ingredientes que ya tengo en casa. ¡Las adoro!", "result": "100% natural" },
+      { "name": "Julia M.", "text": "Mi frizz disminuyó mucho en los primeros 15 días. El plan es fácil de seguir.", "result": "Frizz -80%" },
+      { "name": "Mariana C.", "text": "Mi cabello estaba cayendo mucho y en 30 días vi resultados reales. ¡Vale cada centavo!", "result": "Caída reducida" },
+      { "name": "Beatriz L.", "text": "Nunca imaginé que ingredientes caseros pudieran hacer tanto. ¡Cabello nuevo!", "result": "Brillo y fuerza" }
+    ],
+    "faqTitle": "Preguntas frecuentes",
+    "faq": [
+      { "q": "¿Y si no me gusta?", "a": "Puedes cancelar en cualquier momento a través del portal del cliente. Sin preguntas, sin burocracia. Control total en tus manos." },
+      { "q": "¿Los ingredientes de las recetas son caros?", "a": "¡No! Todas las recetas usan ingredientes simples como miel, aceite de oliva, huevos y aloe vera — que probablemente ya tienes en casa." },
+      { "q": "¿Cuánto tiempo hasta ver resultados?", "a": "La mayoría de las usuarias nota mejora visible en 2 a 3 semanas siguiendo la rutina. Resultados a largo plazo en 60–90 días." },
+      { "q": "¿Funciona para cualquier tipo de cabello?", "a": "¡Sí! El plan es personalizado con base en tu diagnóstico para funcionar con tu tipo y problema específico." }
+    ],
+    "finePrint": "Al suscribirte aceptas los términos de uso. Cobro recurrente mensual. Cancela en cualquier momento a través del portal del cliente."
+  },
+
+  "success": {
+    "paymentConfirmed": "¡Pago confirmado!",
+    "redirecting": "Redirigiendo a tu rutina…",
+    "confirming": "Confirmando tu pago…",
+    "purchaseConfirmed": "¡Compra confirmada!",
+    "emailError": "No se pudo confirmar el email. Revisa tu bandeja de entrada.",
+    "accessAccount": "Acceder a mi cuenta",
+    "purchaseConfirmedEmoji": "¡Compra confirmada! 🎉",
+    "emailSentTo": "Enviamos el enlace de acceso a:",
+    "useEmailToAccess": "Usa este email para acceder a la app ahora.",
+    "accessPlan": "Acceder a mi plan",
+    "clickInstruction": "Haz clic en \"Acceder a mi plan\", ingresa este email y entra instantáneamente."
+  },
+
+  "hairDiagnosis": {
+    "analyzing": "Analizando tus respuestas…",
+    "preparingPlan": "Preparando tu plan de recuperación",
+    "step1": "Analizando tus hábitos capilares",
+    "step2": "Identificando causas principales del daño",
+    "step3": "Seleccionando los mejores ingredientes para ti",
+    "step4": "Preparando tu plan de recuperación",
+    "planReady": "Plan Listo",
+    "planReadyTitle": "Tu plan de recuperación está listo",
+    "planReadySubtitle": "Identificamos lo que puede estar dañando tu cabello",
+    "signsLabel": "Tu cabello presenta señales de",
+    "signs": {
+      "dry": "sequedad y falta de brillo",
+      "frizz": "frizz y dificultad para controlar",
+      "breakage": "rotura y puntas debilitadas"
+    },
+    "causesLabel": "Lo que probablemente está causando esto",
+    "causes": {
+      "daily": "hábitos diarios que dañan el cabello con el tiempo",
+      "hydration": "falta de hidratación y nutrición regulares"
+    },
+    "planIncludes": "Tu plan incluye",
+    "planItems": [
+      "Rutina capilar completa para recuperación e hidratación",
+      "Plan de 21 días paso a paso",
+      "Biblioteca de recetas naturales con ingredientes simples",
+      "Checklist diario de seguimiento",
+      "Progreso y logros a lo largo del camino"
+    ],
+    "recipesLabel": "Recetas incluidas en tu plan",
+    "planPreview": "Vista previa del plan de 21 días",
+    "day1Task": "Cambia agua caliente por tibia o fría",
+    "day3Task": "Mascarilla de Aloe Vera y Miel — 20 min",
+    "day7Task": "Check-in: observa el brillo y el frizz",
+    "moreDays": "+ 18 días de plan detallado",
+    "startTitle": "Comienza tu recuperación hoy",
+    "startSubtitle": "Plan de 21 días con recetas naturales, rutina completa y seguimiento de progreso.",
+    "startCta": "Acceder a mi plan ahora",
+    "startHelper": "Gratis · Comienza hoy"
+  },
+
+  "hairDashboard": {
+    "planLabel": "Tu Plan de Recuperación",
+    "title": "Rutina Capilar ✨",
+    "subtitle": "Plan estructurado para restaurar la salud del cabello, controlar el frizz y prevenir la rotura con ingredientes naturales.",
+    "focusLabel": "Enfoque actual",
+    "focusValue": "Recuperación e hidratación",
+    "durationLabel": "Duración del Plan",
+    "durationValue": "21 días",
+    "essentialTitle": "Método Esencial",
+    "essentialLabel": "Empieza aquí",
+    "essentialSubtitle": "Para mejores resultados, enfócate en estas 3 recetas. Son la base de la recuperación capilar.",
+    "habitsAdopt": "Hábitos para Adoptar",
+    "habitsAvoid": "Hábitos para Evitar",
+    "dailyHabits": [
+      "Usa agua tibia o fría para lavar el cabello",
+      "Protege tu cabello con protector térmico antes de usar calor",
+      "Duerme con funda de satén o seda para reducir la fricción",
+      "Mantenerte bien hidratada — el cabello refleja la salud interna del cuerpo",
+      "Peina con cuidado, siempre de abajo hacia arriba, sin jalar",
+      "Evita recoger el cabello mojado — causa rotura"
+    ],
+    "habitsToAvoid": [
+      "Agua caliente en la ducha — reseca los cabellos y abre la cutícula",
+      "Uso diario de secador o plancha sin protección térmica",
+      "Cepillar el cabello mojado con fuerza — es cuando está más débil",
+      "Exceso de productos químicos sin hidratación compensatoria",
+      "Recoger muy apretado con ligas de hule"
+    ],
+    "essentialRecipes": {
+      "babosa-mel": {
+        "shortName": "Aloe Vera + Miel",
+        "shortDesc": "Hidratación profunda, brillo y cierre de cutículas"
+      },
+      "tratamento-noturno-oleo": {
+        "shortName": "Aceite de Coco + Ricino",
+        "shortDesc": "Nutrición profunda nocturna y fortalecimiento del cabello"
+      },
+      "maizena-acucar": {
+        "shortName": "Maicena + Azúcar",
+        "shortDesc": "Suavidad intensa, brillo y sellado de cutículas"
+      }
+    },
+    "tagLabels": {
+      "ultra": "Ultra efectiva",
+      "eficiente": "Efectiva",
+      "complementar": "Complementaria"
+    },
+    "specialRecipe": {
+      "name": "Tónico para cuero cabelludo con vinagre de manzana",
+      "description": "Equilibra el pH, elimina residuos de productos y estimula la circulación para un crecimiento más saludable.",
+      "ingredients": [
+        "2 cucharadas de vinagre de manzana orgánico",
+        "200ml de agua",
+        "5 gotas de aceite esencial de romero (opcional)"
+      ],
+      "instructions": "Mezcla el vinagre en el agua. Después de lavar el cabello, aplica en el cuero cabelludo con masaje suave. Deja actuar 2 minutos y enjuaga.",
+      "frequency": "Cada 15 días",
+      "benefits": ["Equilibrio de pH", "Reducción de grasa", "Estimulación del crecimiento", "Cuero cabelludo saludable"]
+    },
+    "navPlan": "Plan Capilar",
+    "navPlanSub": "Guía semanal",
+    "navRecipes": "Recetas",
+    "navRecipesSub": "Tratamientos naturales"
+  },
+
+  "hairRecipes": {
+    "title": "Recetas Naturales",
+    "subtitle": "Biblioteca curada de {{count}} recetas · Selecciona ingredientes para filtrar",
+    "essentialTitle": "Empieza con estas",
+    "essentialSubtitle": "Si solo haces estas recetas, ya verás una diferencia real en tu cabello.",
+    "filterTitle": "Filtrar por ingrediente",
+    "clearFilters": "Limpiar filtros",
+    "count_one": "{{count}} receta disponible",
+    "count_other": "{{count}} recetas disponibles",
+    "empty": "Ninguna receta con estos ingredientes combinados.",
+    "showAll": "Ver todas las recetas",
+    "ingredients": {
+      "babosa": { "name": "Aloe Vera", "benefit": "Hidratación" },
+      "mel": { "name": "Miel", "benefit": "Nutrición" },
+      "oleo-coco": { "name": "Aceite de Coco", "benefit": "Nutrición profunda" },
+      "abacate": { "name": "Aguacate", "benefit": "Hidratación intensa" },
+      "ovo": { "name": "Huevo", "benefit": "Proteína" }
+    },
+    "tagLabels": {
+      "ultra": "Ultra efectiva",
+      "eficiente": "Efectiva",
+      "complementar": "Complementaria"
+    }
+  },
+
+  "hairRecipeDetail": {
+    "backToRecipes": "Volver a las recetas",
+    "ingredients": "Ingredientes",
+    "howToPrepare": "Cómo Preparar",
+    "benefits": "Beneficios",
+    "importantTip": "Consejo importante",
+    "indicatedFor": "Indicado para:"
+  },
+
+  "hairSpecialRecipe": {
+    "label": "Receta Especial Casera",
+    "showFull": "Ver receta completa",
+    "hideFull": "Ocultar receta completa",
+    "ingredients": "Ingredientes",
+    "howToPrepare": "Cómo preparar"
+  },
+
+  "hairWeeklyCard": {
+    "ingredients": "Ingredientes",
+    "howToPrepare": "Cómo preparar",
+    "time": "⏱ Tiempo: {{time}}"
+  },
+
+  "hairPlan": {
+    "title": "Plan Capilar",
+    "subtitle": "Viaje de 4 fases · 3 semanas cada una",
+    "phaseLabel": "Fase {{n}} de 4",
+    "weeksCompleted": "Semanas completadas",
+    "weekLabel": "Semana {{n}}",
+    "recipesThisWeek": "Recetas de esta semana",
+    "habitsThisWeek": "Hábitos de esta semana",
+    "markComplete": "Marcar semana como completada",
+    "weekCompleted": "Semana completada",
+    "reminder": "Recuerda",
+    "reminderText": "No necesitas hacer todo. Elige 1 receta por semana y mantén los hábitos. La consistencia simple genera resultados reales.",
+    "restart": "Reiniciar tratamiento",
+    "restartConfirmTitle": "¿Reiniciar desde el principio?",
+    "restartConfirmText": "Tu progreso se borrará y volverás a la Fase 1.",
+    "confirmRestart": "Sí, reiniciar",
+    "phases": {
+      "1": {
+        "name": "Recuperación",
+        "focus": "Hidratar profundamente y reparar los daños existentes",
+        "description": "El primer paso es restaurar lo que se perdió. Hidrataremos, cerraremos cutículas y crearemos hábitos que detengan el daño.",
+        "goals": ["Hidratación profunda", "Cierre de cutículas", "Reducción del frizz", "Eliminar hábitos perjudiciales"],
+        "weeks": {
+          "1": { "focus": "Hidratación inicial", "desc": "El primer paso es restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Usa agua tibia o fría para lavar el cabello", "Mantenerte bien hidratada — el cabello refleja la salud interna del cuerpo", "Evita recoger el cabello mojado", "Evita el uso excesivo de calor"] },
+          "2": { "focus": "Consolidación", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente.", "habits": ["Termina la ducha con 30 segundos de agua fría", "Evita el secador — deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto", "Sigue bebiendo bastante agua"] },
+          "3": { "focus": "Sellado", "desc": "Sella los resultados logrados y prepárate para la fase de fortalecimiento.", "habits": ["Mantén los hábitos de las semanas anteriores", "Observa la diferencia en brillo y suavidad", "Evita herramientas de calor y ligas con metal", "Tómate una foto para comparar con el inicio 📸"] }
+        }
+      },
+      "2": {
+        "name": "Fortalecimiento",
+        "focus": "Reducir la rotura y mejorar la estructura del cabello",
+        "description": "Con la hidratación restablecida, es hora de fortalecer la fibra capilar y reducir la rotura sistemáticamente.",
+        "goals": ["Aporte proteico", "Reducción de rotura", "Fortalecimiento de la fibra", "Elasticidad restaurada"],
+        "weeks": {
+          "1": { "focus": "Inicio proteico", "desc": "Empieza a agregar proteína a tu rutina para reconstruir los cabellos dañados.", "habits": ["Sigue usando agua tibia o fría", "Evita ligas que jalen el cabello", "Córtate las puntas abiertas si las hay", "Evita el calor excesivo"] },
+          "2": { "focus": "Consolidación", "desc": "Balancea proteína e hidratación para cabellos sanos y fuertes.", "habits": ["Duerme con trenza suelta para reducir la rotura nocturna", "Aplica aceite de coco en las puntas antes de dormir", "Bebe 2L de agua al día", "Evita la plancha o el secador esta semana"] },
+          "3": { "focus": "Fortalecimiento", "desc": "Termina la fase con cabellos más fuertes y resistentes.", "habits": ["Observa la reducción en la rotura al cepillar", "Mantén los hábitos de las semanas anteriores", "Sigue evitando el calor", "Mantente bien hidratada internamente"] }
+        }
+      },
+      "3": {
+        "name": "Crecimiento",
+        "focus": "Estimular el crecimiento saludable y reducir la caída",
+        "description": "Un cuero cabelludo sano crece más. En esta fase nos enfocamos en la nutrición de la raíz y la estimulación de los folículos.",
+        "goals": ["Estimular folículos", "Reducir caída", "Nutrición de la raíz", "Crecimiento acelerado"],
+        "weeks": {
+          "1": { "focus": "Activación del cuero cabelludo", "desc": "Empieza a estimular el cuero cabelludo con tratamientos específicos.", "habits": ["Masajea el cuero cabelludo por 5 min antes de dormir", "Bebe 2L de agua al día", "Evita recoger el cabello con tensión", "Aliméntate bien — las vitaminas hacen diferencia"] },
+          "2": { "focus": "Tónicos de crecimiento", "desc": "Aplica tónicos anticaída regularmente para resultados consistentes.", "habits": ["Continúa con el masaje capilar diario", "Evita recoger muy apretado", "Usa agua fría al final de la ducha", "Duerme con el cabello suelto"] },
+          "3": { "focus": "Consolidación", "desc": "Consolida los resultados de crecimiento y prepárate para la fase de mantenimiento.", "habits": ["Masajea el cuero cabelludo con las yemas de los dedos por 5 min", "Bebe 2L de agua al día", "Evita ligas que jalen", "Continúa con los tratamientos semanales"] }
+        }
+      },
+      "4": {
+        "name": "Mantenimiento",
+        "focus": "Mantener los resultados y prevenir nuevos daños",
+        "description": "Llegaste al estado ideal. Ahora mantén con consistencia y sigue evolucionando mes a mes.",
+        "goals": ["Mantener hidratación", "Prevenir daños", "Hábitos consistentes", "Mejora continua"],
+        "weeks": {
+          "1": { "focus": "Rutina de mantenimiento", "desc": "Mantén los hábitos y recetas que te dieron resultados.", "habits": ["Aplica aloe vera puro como hidratante ligero", "Mantén el agua fría al final de la ducha", "Aceite de coco en las puntas antes de dormir", "Mantente bien hidratada internamente"] },
+          "2": { "focus": "Revisión de progreso", "desc": "Revisa tu progreso y ajusta la rutina según sea necesario.", "habits": ["Hidratación ligera semanal con las recetas base", "Evita el calor excesivo", "Duerme con cabello suelto en almohada limpia", "Masajea el cuero cabelludo por 3 minutos"] },
+          "3": { "focus": "Evolución continua", "desc": "Sigue evolucionando y disfrutando tu cabello transformado.", "habits": ["Aplica miel pura en las puntas por 15 min antes de lavar", "Evita recoger muy apretado", "Mantén los hábitos aprendidos en las fases anteriores", "¡Celebra los resultados logrados! 🎉"] }
+        }
+      }
+    },
+    "habits": [
+      "Usa agua tibia o fría para lavar el cabello",
+      "Mantenerte bien hidratada — bebe 2L de agua",
+      "Evita recoger el cabello mojado",
+      "Evita el uso excesivo de calor"
+    ]
+  },
+
+  "hairProgress": {
+    "title": "Tu Progreso",
+    "subtitle": "Viaje capilar continuo — sigue cada fase",
+    "phaseLabel": "Fase actual",
+    "phaseTitle": "Fase {{n}} — {{name}}",
+    "weeksCompleted": "Semanas completadas",
+    "weeksCount": "{{n}}/3 semanas",
+    "journeyTitle": "Tu Viaje Capilar",
+    "currentBadge": "Actual",
+    "totalWeeks": "Semanas en total",
+    "weeksThisPhase": "Semanas en esta fase",
+    "weeksCurrentPhase": "Semanas completadas (fase actual)",
+    "achievementsTitle": "Logros",
+    "achievements": [
+      "Primera semana completada",
+      "Fase 1 completada — Recuperación",
+      "Fase 2 completada — Fortalecimiento",
+      "Fase 3 completada — Crecimiento",
+      "Viaje completo — Mantenimiento activo"
+    ],
+    "motivational": "Sigue marcando las semanas en el plan para avanzar en las fases.",
+    "goToPlan": "Ir al plan"
+  }
+}

@@ -2,49 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, ArrowRight, Sparkles, AlertTriangle, Calendar, BookOpen, BarChart3, ListChecks } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { HAIR_RECIPES, TAG_LABELS } from '../lib/hairData';
+import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
-const analyzingSteps = [
-  { label: 'Analisando seus hábitos capilares', delay: 0 },
-  { label: 'Identificando principais causas do dano', delay: 900 },
-  { label: 'Selecionando melhores ingredientes para você', delay: 1800 },
-  { label: 'Preparando seu plano de recuperação', delay: 2700 },
-];
+const PREVIEW_IDS = ['babosa-mel', 'oleo-coco-nutricao', 'abacate-azeite'];
 
-const PREVIEW_RECIPES = [
-  HAIR_RECIPES.find(r => r.id === 'babosa-mel'),
-  HAIR_RECIPES.find(r => r.id === 'oleo-coco-nutricao'),
-  HAIR_RECIPES.find(r => r.id === 'abacate-azeite'),
-];
-
-const PREVIEW_PLAN = [
-  { day: 1, task: 'Troque água quente por morna ou fria' },
-  { day: 3, task: 'Máscara de Babosa e Mel — 20 min' },
-  { day: 7, task: 'Check-in: observe o brilho e o frizz' },
-];
-
-const FIXED_ISSUES = [
-  'ressecamento e falta de brilho',
-  'frizz e dificuldade de controle',
-  'quebra e pontas fragilizadas',
-];
-
-const FIXED_CAUSES = [
-  'hábitos diários que danificam o fio ao longo do tempo',
-  'falta de hidratação e nutrição regulares',
-];
-
-function EfficiencyTag({ tag }) {
-  const t = TAG_LABELS[tag];
-  if (!t) return null;
-  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${t.color}`}>{t.label}</span>;
+function EfficiencyTag({ tag, tagLabels }) {
+  const data = tagLabels[tag];
+  if (!data) return null;
+  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${data.color}`}>{data.label}</span>;
 }
 
 export default function HairDiagnosis() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { getRecipeById, tagLabels } = useTranslatedHairData();
   const [analyzing, setAnalyzing] = useState(true);
   const [completedSteps, setCompletedSteps] = useState([]);
+
+  const analyzingSteps = [
+    { label: t('hairDiagnosis.step1'), delay: 0 },
+    { label: t('hairDiagnosis.step2'), delay: 900 },
+    { label: t('hairDiagnosis.step3'), delay: 1800 },
+    { label: t('hairDiagnosis.step4'), delay: 2700 },
+  ];
+
+  const PREVIEW_PLAN = [
+    { day: 1, task: t('hairDiagnosis.day1Task') },
+    { day: 3, task: t('hairDiagnosis.day3Task') },
+    { day: 7, task: t('hairDiagnosis.day7Task') },
+  ];
+
+  const FIXED_ISSUES = [
+    t('hairDiagnosis.signs.dry'),
+    t('hairDiagnosis.signs.frizz'),
+    t('hairDiagnosis.signs.breakage'),
+  ];
+
+  const FIXED_CAUSES = [
+    t('hairDiagnosis.causes.daily'),
+    t('hairDiagnosis.causes.hydration'),
+  ];
+
+  const PLAN_ITEMS = t('hairDiagnosis.planItems', { returnObjects: true });
+
+  const planItemIcons = [Sparkles, Calendar, BookOpen, ListChecks, BarChart3];
 
   useEffect(() => {
     analyzingSteps.forEach(({ delay }, index) => {
@@ -52,6 +55,8 @@ export default function HairDiagnosis() {
     });
     setTimeout(() => setAnalyzing(false), 3800);
   }, []);
+
+  const previewRecipes = PREVIEW_IDS.map(id => getRecipeById(id)).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white flex flex-col">
@@ -83,8 +88,8 @@ export default function HairDiagnosis() {
                 <div className="w-16 h-16 rounded-full bg-brand-pale flex items-center justify-center mx-auto mb-6">
                   <div className="w-8 h-8 border-t-emerald-600 border-emerald-200 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid' }} />
                 </div>
-                <h2 className="text-xl font-bold text-stone-900 mb-2">Analisando suas respostas…</h2>
-                <p className="text-stone-500 text-sm mb-8">Preparando seu plano de recuperação</p>
+                <h2 className="text-xl font-bold text-stone-900 mb-2">{t('hairDiagnosis.analyzing')}</h2>
+                <p className="text-stone-500 text-sm mb-8">{t('hairDiagnosis.preparingPlan')}</p>
                 <div className="space-y-3 text-left">
                   {analyzingSteps.map((s, i) => (
                     <motion.div
@@ -116,13 +121,13 @@ export default function HairDiagnosis() {
                 className="space-y-4"
               >
                 <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-7 text-white text-center">
-                  <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">Plano Pronto</p>
-                  <h1 className="text-2xl font-bold leading-tight mb-1">Seu plano de recuperação está pronto</h1>
-                  <p className="text-white/80 text-sm">Identificamos o que pode estar prejudicando seu cabelo</p>
+                  <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">{t('hairDiagnosis.planReady')}</p>
+                  <h1 className="text-2xl font-bold leading-tight mb-1">{t('hairDiagnosis.planReadyTitle')}</h1>
+                  <p className="text-white/80 text-sm">{t('hairDiagnosis.planReadySubtitle')}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Seu cabelo apresenta sinais de</p>
+                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">{t('hairDiagnosis.signsLabel')}</p>
                   <div className="space-y-2">
                     {FIXED_ISSUES.map((issue, i) => (
                       <div key={i} className="flex items-center gap-2">
@@ -137,7 +142,7 @@ export default function HairDiagnosis() {
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">O que provavelmente está causando isso</p>
+                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">{t('hairDiagnosis.causesLabel')}</p>
                       <ul className="space-y-1">
                         {FIXED_CAUSES.map((cause, i) => (
                           <li key={i} className="text-stone-700 text-sm leading-relaxed flex items-start gap-2">
@@ -151,39 +156,36 @@ export default function HairDiagnosis() {
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Seu plano inclui</p>
+                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">{t('hairDiagnosis.planIncludes')}</p>
                   <div className="space-y-3">
-                    {[
-                      { icon: Sparkles, label: 'Rotina capilar completa para recuperação e hidratação' },
-                      { icon: Calendar, label: 'Plano de 21 dias passo a passo' },
-                      { icon: BookOpen, label: 'Biblioteca de receitas naturais com ingredientes simples' },
-                      { icon: ListChecks, label: 'Checklist diário de acompanhamento' },
-                      { icon: BarChart3, label: 'Progresso e conquistas ao longo da jornada' },
-                    ].map(({ icon: Icon, label }, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-4 h-4 text-brand" />
+                    {Array.isArray(PLAN_ITEMS) && PLAN_ITEMS.map((label, i) => {
+                      const Icon = planItemIcons[i] || Sparkles;
+                      return (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0">
+                            <Icon className="w-4 h-4 text-brand" />
+                          </div>
+                          <span className="text-stone-700 text-sm">{label}</span>
                         </div>
-                        <span className="text-stone-700 text-sm">{label}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Receitas incluídas no seu plano</p>
+                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">{t('hairDiagnosis.recipesLabel')}</p>
                   <div className="space-y-2">
-                    {PREVIEW_RECIPES.filter(Boolean).map((recipe, i) => (
+                    {previewRecipes.map((recipe, i) => (
                       <div key={i} className="flex items-center justify-between gap-2 bg-stone-50 rounded-xl px-3 py-2.5">
                         <span className="text-stone-700 text-sm font-medium">{recipe.name}</span>
-                        <EfficiencyTag tag={recipe.tag} />
+                        <EfficiencyTag tag={recipe.tag} tagLabels={tagLabels} />
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm">
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Preview do plano de 21 dias</p>
+                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">{t('hairDiagnosis.planPreview')}</p>
                   <div className="space-y-2">
                     {PREVIEW_PLAN.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 bg-stone-50 rounded-xl px-3 py-2.5">
@@ -193,25 +195,25 @@ export default function HairDiagnosis() {
                         <span className="text-stone-700 text-sm">{item.task}</span>
                       </div>
                     ))}
-                    <p className="text-xs text-stone-400 text-center pt-1">+ 18 dias de plano detalhado</p>
+                    <p className="text-xs text-stone-400 text-center pt-1">{t('hairDiagnosis.moreDays')}</p>
                   </div>
                 </div>
 
                 <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-7 text-center text-white shadow-xl">
-                  <h3 className="text-lg font-bold mb-2 leading-snug">Comece sua recuperação hoje</h3>
+                  <h3 className="text-lg font-bold mb-2 leading-snug">{t('hairDiagnosis.startTitle')}</h3>
                   <p className="text-white/80 text-sm mb-6 leading-relaxed">
-                    Plano de 21 dias com receitas naturais, rotina completa e acompanhamento de progresso.
+                    {t('hairDiagnosis.startSubtitle')}
                   </p>
                   <Button
                     onClick={() => navigate('/HairDashboard')}
                     className="w-full bg-white text-brand hover:bg-brand-bg rounded-full py-5 text-base font-bold shadow-lg transition-all"
                   >
                     <div className="flex items-center gap-2 justify-center">
-                      Acessar meu plano agora
+                      {t('hairDiagnosis.startCta')}
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </Button>
-                  <p className="text-white/60 text-xs mt-3">Gratuito · Começa hoje</p>
+                  <p className="text-white/60 text-xs mt-3">{t('hairDiagnosis.startHelper')}</p>
                 </div>
               </motion.div>
             )}

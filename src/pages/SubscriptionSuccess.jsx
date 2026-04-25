@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Loader2, Mail, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
 
 export default function SubscriptionSuccess() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, isSubscribed } = useAuth();
@@ -16,15 +18,13 @@ export default function SubscriptionSuccess() {
   const [fetchError, setFetchError] = useState(null);
   const [fetching, setFetching] = useState(true);
 
-  // Usuária já logada e assinante → redireciona
   useEffect(() => {
     if (user && isSubscribed) {
-      const t = setTimeout(() => navigate('/HairDashboard'), 2000);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => navigate('/HairDashboard'), 2000);
+      return () => clearTimeout(timer);
     }
   }, [user, isSubscribed, navigate]);
 
-  // Busca email da sessão Stripe
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     if (!sessionId) {
@@ -35,14 +35,14 @@ export default function SubscriptionSuccess() {
       .invoke('get-checkout-session', { body: { sessionId } })
       .then(({ data, error: fnError }) => {
         if (fnError || !data?.email) {
-          setFetchError('Não foi possível confirmar o email. Verifique sua caixa de entrada.');
+          setFetchError(t('success.emailError'));
         } else {
           setEmail(data.email);
         }
       })
-      .catch(() => setFetchError('Erro ao confirmar pagamento.'))
+      .catch(() => setFetchError(t('success.emailError')))
       .finally(() => setFetching(false));
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const handleResend = async () => {
     if (!email) return;
@@ -54,7 +54,7 @@ export default function SubscriptionSuccess() {
       });
       setResendDone(true);
     } catch {
-      setFetchError('Não foi possível reenviar. Tente novamente.');
+      setFetchError(t('success.emailError'));
     } finally {
       setResendLoading(false);
     }
@@ -80,64 +80,64 @@ export default function SubscriptionSuccess() {
           </Link>
         </div>
 
-        {/* ── Já assinante → redirecionando ── */}
+        {/* Already subscribed → redirecting */}
         {user && isSubscribed ? (
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center flex flex-col gap-4">
             <CheckCircle className="w-14 h-14 mx-auto" style={{ color: '#FB45A9' }} />
-            <h1 className="text-2xl font-extrabold text-stone-900">Pagamento confirmado!</h1>
-            <p className="text-stone-500 text-sm">Redirecionando para sua rotina…</p>
+            <h1 className="text-2xl font-extrabold text-stone-900">{t('success.paymentConfirmed')}</h1>
+            <p className="text-stone-500 text-sm">{t('success.redirecting')}</p>
             <Loader2 className="w-6 h-6 animate-spin mx-auto text-stone-400" />
           </div>
 
         ) : fetching ? (
-          /* ── Buscando email ── */
+          /* Fetching session */
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center flex flex-col gap-4">
             <Loader2 className="w-10 h-10 animate-spin mx-auto" style={{ color: '#FB45A9' }} />
-            <p className="text-stone-500 text-sm">Confirmando seu pagamento…</p>
+            <p className="text-stone-500 text-sm">{t('success.confirming')}</p>
           </div>
 
         ) : fetchError ? (
-          /* ── Erro ao buscar email ── */
+          /* Error fetching email */
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center flex flex-col gap-4">
             <CheckCircle className="w-14 h-14 mx-auto" style={{ color: '#FB45A9' }} />
-            <h1 className="text-xl font-extrabold text-stone-900">Compra confirmada!</h1>
+            <h1 className="text-xl font-extrabold text-stone-900">{t('success.purchaseConfirmed')}</h1>
             <p className="text-stone-500 text-sm">{fetchError}</p>
             <Link
               to="/Login"
               className="btn-primary py-4 text-sm flex items-center justify-center gap-2"
             >
-              Acessar minha conta <ArrowRight className="w-4 h-4" />
+              {t('success.accessAccount')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
         ) : (
-          /* ── Estado principal: email encontrado ── */
+          /* Main state: email found */
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 flex flex-col gap-5">
             <div className="text-center flex flex-col gap-3">
               <CheckCircle className="w-14 h-14 mx-auto" style={{ color: '#FB45A9' }} />
-              <h1 className="text-2xl font-extrabold text-stone-900">Compra confirmada! 🎉</h1>
-              <p className="text-stone-500 text-sm">Enviamos o link de acesso para:</p>
+              <h1 className="text-2xl font-extrabold text-stone-900">{t('success.purchaseConfirmedEmoji')}</h1>
+              <p className="text-stone-500 text-sm">{t('success.emailSentTo')}</p>
             </div>
 
-            {/* Email mascarado */}
+            {/* Email */}
             <div className="bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 flex items-center gap-3">
               <Mail className="w-5 h-5 flex-shrink-0" style={{ color: '#FB45A9' }} />
               <p className="font-semibold text-stone-800 text-sm truncate">{email}</p>
             </div>
 
             <p className="text-stone-500 text-sm text-center leading-relaxed">
-              Use esse email para acessar o app agora.
+              {t('success.useEmailToAccess')}
             </p>
 
             <Link
               to="/Login"
               className="btn-primary py-4 text-sm flex items-center justify-center gap-2"
             >
-              Acessar meu plano <ArrowRight className="w-4 h-4" />
+              {t('success.accessPlan')} <ArrowRight className="w-4 h-4" />
             </Link>
 
             <p className="text-center text-xs text-stone-400">
-              Clique em "Acessar meu plano", digite esse email e entre instantaneamente.
+              {t('success.clickInstruction')}
             </p>
           </div>
         )}

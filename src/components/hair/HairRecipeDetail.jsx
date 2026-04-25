@@ -1,14 +1,18 @@
 import React from 'react';
 import { ArrowLeft, Clock, Leaf, Heart, Repeat, Lightbulb } from 'lucide-react';
-import { TAG_LABELS } from '../../lib/hairData';
+import { useTranslation } from 'react-i18next';
+import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
-function EfficiencyTag({ tag }) {
-  const t = TAG_LABELS[tag];
-  if (!t) return null;
-  return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${t.color}`}>{t.label}</span>;
+function EfficiencyTag({ tag, tagLabels }) {
+  const data = tagLabels[tag];
+  if (!data) return null;
+  return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${data.color}`}>{data.label}</span>;
 }
 
 export default function HairRecipeDetail({ recipe, onBack }) {
+  const { t } = useTranslation();
+  const { tagLabels } = useTranslatedHairData();
+
   return (
     <div className="space-y-6 pb-8">
       <style>{`
@@ -20,13 +24,13 @@ export default function HairRecipeDetail({ recipe, onBack }) {
 
       <button onClick={onBack} className="flex items-center gap-2 text-stone-500 hover:text-stone-700 transition-colors">
         <ArrowLeft className="w-4 h-4" />
-        Voltar às receitas
+        {t('hairRecipeDetail.backToRecipes')}
       </button>
 
       <div>
         <div className="flex items-start justify-between gap-3 mb-2">
           <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider">{recipe.category}</p>
-          <EfficiencyTag tag={recipe.tag} />
+          <EfficiencyTag tag={recipe.tag} tagLabels={tagLabels} />
         </div>
         <h1 className="text-2xl font-bold text-stone-900 tracking-tight">{recipe.name}</h1>
         <p className="text-stone-500 mt-2 leading-relaxed">{recipe.description}</p>
@@ -52,7 +56,7 @@ export default function HairRecipeDetail({ recipe, onBack }) {
       <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
         <div className="flex items-center gap-2 mb-3">
           <Leaf className="w-5 h-5 text-emerald-600" />
-          <h2 className="font-semibold text-stone-800">Ingredientes</h2>
+          <h2 className="font-semibold text-stone-800">{t('hairRecipeDetail.ingredients')}</h2>
         </div>
         <ul className="space-y-2">
           {(recipe.amounts || recipe.ingredients || []).map((ing, i) => (
@@ -65,7 +69,7 @@ export default function HairRecipeDetail({ recipe, onBack }) {
       </div>
 
       <div className="bg-white rounded-2xl p-5 border border-stone-200">
-        <h2 className="font-semibold text-stone-800 mb-3">Como Preparar</h2>
+        <h2 className="font-semibold text-stone-800 mb-3">{t('hairRecipeDetail.howToPrepare')}</h2>
         <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">{recipe.instructions}</p>
       </div>
 
@@ -73,7 +77,7 @@ export default function HairRecipeDetail({ recipe, onBack }) {
         <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
           <div className="flex items-center gap-2 mb-3">
             <Heart className="w-5 h-5 text-amber-600" />
-            <h2 className="font-semibold text-stone-800">Benefícios</h2>
+            <h2 className="font-semibold text-stone-800">{t('hairRecipeDetail.benefits')}</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {recipe.benefits.map((b, i) => (
@@ -87,14 +91,14 @@ export default function HairRecipeDetail({ recipe, onBack }) {
         <div className="bg-stone-50 rounded-2xl p-5 border border-stone-200">
           <div className="flex items-center gap-2 mb-2">
             <Lightbulb className="w-5 h-5 text-stone-500" />
-            <h2 className="font-semibold text-stone-800">Dica importante</h2>
+            <h2 className="font-semibold text-stone-800">{t('hairRecipeDetail.importantTip')}</h2>
           </div>
           <p className="text-sm text-stone-500 leading-relaxed">{recipe.tips}</p>
         </div>
       )}
 
       {recipe.hair_types && recipe.hair_types.length > 0 && (
-        <p className="text-sm text-stone-400">Indicado para: {recipe.hair_types.join(', ')}</p>
+        <p className="text-sm text-stone-400">{t('hairRecipeDetail.indicatedFor')} {recipe.hair_types.join(', ')}</p>
       )}
     </div>
   );

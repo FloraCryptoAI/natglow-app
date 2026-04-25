@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function HairWeeklyCard({ mask }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -30,7 +32,7 @@ export default function HairWeeklyCard({ mask }) {
         <div className="px-5 pb-5 border-t border-stone-50 space-y-4 pt-4">
           {mask.recipe.ingredients && mask.recipe.ingredients.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Ingredientes</p>
+              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('hairWeeklyCard.ingredients')}</p>
               <ul className="space-y-1">
                 {mask.recipe.ingredients.map((ing, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
@@ -43,13 +45,13 @@ export default function HairWeeklyCard({ mask }) {
           )}
           {mask.recipe.instructions && (
             <div>
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Como preparar</p>
+              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('hairWeeklyCard.howToPrepare')}</p>
               <p className="text-stone-600 text-sm leading-relaxed">{mask.recipe.instructions}</p>
             </div>
           )}
           {mask.recipe.time && (
             <p className="text-xs text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 inline-block">
-              ⏱ Tempo: {mask.recipe.time}
+              {t('hairWeeklyCard.time', { time: mask.recipe.time })}
             </p>
           )}
           {mask.benefits && mask.benefits.length > 0 && (

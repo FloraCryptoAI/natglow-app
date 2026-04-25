@@ -1,23 +1,32 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
-
-const navItems = [
-  { path: '/HairDashboard', label: 'Minha Rotina', icon: Home },
-  { path: '/HairRecipes', label: 'Receitas', icon: BookOpen },
-  { path: '/HairPlan', label: 'Plano', icon: Calendar },
-  { path: '/HairProgress', label: 'Progresso', icon: BarChart3 },
-];
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const navItems = [
+    { path: '/HairDashboard', label: t('layout.myRoutine'), icon: Home },
+    { path: '/HairRecipes', label: t('layout.recipes'), icon: BookOpen },
+    { path: '/HairPlan', label: t('layout.plan'), icon: Calendar },
+    { path: '/HairProgress', label: t('layout.progress'), icon: BarChart3 },
+  ];
 
   const handleLogout = async () => {
     await signOut();
     navigate('/Landing');
+  };
+
+  const currentLang = i18n.language === 'es' ? 'es' : 'en';
+
+  const toggleLang = (lang) => {
+    if (lang !== currentLang) setLang(lang);
   };
 
   return (
@@ -52,12 +61,30 @@ export default function Layout() {
             ))}
           </nav>
 
-          <button
-            onClick={handleLogout}
-            className="hidden md:flex items-center gap-2 px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Language selector */}
+            <div className="flex items-center gap-0.5 text-xs font-semibold">
+              <button
+                onClick={() => toggleLang('es')}
+                className={`px-2 py-1 rounded-l-full transition-colors ${currentLang === 'es' ? 'bg-brand text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
+              >
+                ES
+              </button>
+              <button
+                onClick={() => toggleLang('en')}
+                className={`px-2 py-1 rounded-r-full transition-colors ${currentLang === 'en' ? 'bg-brand text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
+              >
+                EN
+              </button>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="hidden md:flex items-center gap-2 px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </header>
 

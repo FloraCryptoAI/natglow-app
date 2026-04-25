@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Sparkles, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function HairSpecialRecipe({ recipe }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   if (!recipe) return null;
@@ -11,7 +13,7 @@ export default function HairSpecialRecipe({ recipe }) {
       <div className="bg-gradient-to-r from-amber-400 to-amber-500 p-5">
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="w-5 h-5 text-white" />
-          <span className="text-white text-xs font-semibold uppercase tracking-wider">Receita Especial Caseira</span>
+          <span className="text-white text-xs font-semibold uppercase tracking-wider">{t('hairSpecialRecipe.label')}</span>
         </div>
         <h3 className="text-white font-bold text-lg leading-tight">{recipe.name}</h3>
         {recipe.frequency && (
@@ -29,9 +31,9 @@ export default function HairSpecialRecipe({ recipe }) {
           className="flex items-center gap-2 text-amber-600 text-sm font-medium"
         >
           {expanded ? (
-            <>Esconder receita completa <ChevronUp className="w-4 h-4" /></>
+            <>{t('hairSpecialRecipe.hideFull')} <ChevronUp className="w-4 h-4" /></>
           ) : (
-            <>Ver receita completa <ChevronDown className="w-4 h-4" /></>
+            <>{t('hairSpecialRecipe.showFull')} <ChevronDown className="w-4 h-4" /></>
           )}
         </button>
 
@@ -39,7 +41,7 @@ export default function HairSpecialRecipe({ recipe }) {
           <div className="mt-4 space-y-4">
             {recipe.ingredients && recipe.ingredients.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Ingredientes</p>
+                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('hairSpecialRecipe.ingredients')}</p>
                 <ul className="space-y-1">
                   {recipe.ingredients.map((ing, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
@@ -52,7 +54,7 @@ export default function HairSpecialRecipe({ recipe }) {
             )}
             {recipe.instructions && (
               <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Como preparar</p>
+                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{t('hairSpecialRecipe.howToPrepare')}</p>
                 <p className="text-stone-600 text-sm leading-relaxed">{recipe.instructions}</p>
               </div>
             )}

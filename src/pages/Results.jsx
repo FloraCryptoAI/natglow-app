@@ -5,6 +5,7 @@ import {
   ArrowRight, ArrowDown, Shield, Star, Loader2, ChevronDown, ChevronUp,
   Clock, Lock, Check, Sparkles,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -16,120 +17,45 @@ const PL2  = '#FFE4F2';
 const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)';
 const ease = [0.22, 1, 0.36, 1];
 
-// ── static data ────────────────────────────────────────────────────────────
-
-const BENEFITS = [
-  { icon: '🌿', text: 'As 3 receitas campeãs com resultado já na primeira aplicação' },
-  { icon: '📋', text: 'Rotina capilar personalizada de 21 dias' },
-  { icon: '📅', text: 'Plano progressivo de 4 fases com 84 dias de tratamento completo' },
-  { icon: '🍯', text: 'Biblioteca completa com 25 receitas naturais caseiras' },
-  { icon: '📈', text: 'Acompanhamento de progresso e conquistas' },
-  { icon: '📱', text: 'Acesso em qualquer dispositivo, a qualquer hora' },
-];
-
-const RECIPES_TEASE = [
-  {
-    emoji: '🌿',
-    tag: 'Resultado na 1ª aplicação',
-    tagColor: '#16A34A',
-    tagBg: '#F0FDF4',
-    title: 'A receita da maciez instantânea',
-    subtitle: 'O que você vai sentir logo na primeira aplicação:',
-    benefits: [
-      'Frizz eliminado em menos de 20 minutos',
-      'Brilho intenso visível na hora',
-      'Maciez profunda que dura dias inteiros',
-      'Cutículas fechadas e cabelo liso',
-    ],
-  },
-  {
-    emoji: '🌙',
-    tag: 'Age enquanto você dorme',
-    tagColor: '#7C3AED',
-    tagBg: '#F5F3FF',
-    title: 'A receita do cabelo forte',
-    subtitle: 'O que acontece enquanto você dorme:',
-    benefits: [
-      'Nutrição profunda agindo a noite toda',
-      'Fortalece cada fio do interior para fora',
-      'Reduz a quebra de forma visível',
-      'Acorde com cabelo sedoso e com vida',
-    ],
-  },
-  {
-    emoji: '✨',
-    tag: 'Efeito dura até 5 dias',
-    tagColor: '#B45309',
-    tagBg: '#FFFBEB',
-    title: 'A receita antifrizz definitiva',
-    subtitle: 'Por que essa receita é diferente de tudo:',
-    benefits: [
-      'Controla o frizz por até 5 dias seguidos',
-      'Funciona em qualquer clima, até em dia de chuva',
-      'Brilho intenso e selamento duradouro',
-      'Leveza e maciez ao mesmo tempo',
-    ],
-  },
-];
-
 const TESTIMONIALS = [
   { screenshot: '/images/testimonials/screenshot-1.jpg' },
   { screenshot: '/images/testimonials/screenshot-2.jpg' },
   { screenshot: '/images/testimonials/screenshot-3.jpg' },
 ];
 
-const FAQ_ITEMS = [
-  {
-    q: 'E se eu não gostar?',
-    a: 'Cancele quando quiser, direto pelo portal do cliente. Sem perguntas, sem burocracia, sem taxas. Você tem total controle da sua assinatura. Um clique e está feito.',
-  },
-  {
-    q: 'Os ingredientes das receitas são caros?',
-    a: 'Não! As receitas usam ingredientes simples como mel, babosa, óleo de coco e outros que você provavelmente já tem em casa agora mesmo. O custo médio de cada receita é menos de R$2,00.',
-  },
-  {
-    q: 'Quanto tempo até ver resultado?',
-    a: 'Muitas pessoas notam diferença já na primeira aplicação das receitas. Para resultados de transformação completa, a maioria vê em 2 a 3 semanas seguindo a rotina.',
-  },
-  {
-    q: 'Funciona para qualquer tipo de cabelo?',
-    a: 'Sim! Seu plano foi montado com base nas respostas do seu diagnóstico, então as receitas e a rotina são específicas para o seu tipo de fio e o seu problema principal.',
-  },
-];
-
 // ── helpers ────────────────────────────────────────────────────────────────
 
-function getDiagnosis(answers) {
+function getDiagnosis(answers, t) {
   const signs = [];
   const causes = [];
 
   if (answers.chemProducts === 'yes_heavy') {
-    signs.push('Estrutura do fio fragilizada por sobrecarga química');
-    causes.push('Produtos químicos fortes rompem as proteínas do fio com o uso contínuo');
+    signs.push(t('results.diagnosisItems.chemHeavy.sign'));
+    causes.push(t('results.diagnosisItems.chemHeavy.cause'));
   }
   if (answers.chemProducts === 'yes_mild') {
-    signs.push('Dependência de produtos para resultados temporários');
-    causes.push('Cremes convencionais mascaram o problema sem tratar a causa raiz');
+    signs.push(t('results.diagnosisItems.chemMild.sign'));
+    causes.push(t('results.diagnosisItems.chemMild.cause'));
   }
   if (answers.waterTemp === 'hot') {
-    signs.push('Ressecamento e perda de brilho nos fios');
-    causes.push('Água quente abre as cutículas e resseca profundamente cada fio');
+    signs.push(t('results.diagnosisItems.waterHot.sign'));
+    causes.push(t('results.diagnosisItems.waterHot.cause'));
   }
   if (answers.heatTools === 'daily' || answers.heatTools === 'few') {
-    signs.push('Dano térmico acumulado nos fios');
-    causes.push('Calor frequente sem proteção enfraquece e fragiliza o fio');
+    signs.push(t('results.diagnosisItems.heatTools.sign'));
+    causes.push(t('results.diagnosisItems.heatTools.cause'));
   }
   if (answers.hydration === 'never' || answers.hydration === 'sometimes') {
-    signs.push('Falta de hidratação profunda e constante');
-    causes.push('Hidratação irregular não repõe a nutrição que os fios perdem todo dia');
+    signs.push(t('results.diagnosisItems.noHydration.sign'));
+    causes.push(t('results.diagnosisItems.noHydration.cause'));
   }
   if (answers.washFreq === 'daily') {
-    signs.push('Remoção excessiva dos óleos naturais protetores');
-    causes.push('Lavagem diária elimina a barreira natural que protege e hidrata os fios');
+    signs.push(t('results.diagnosisItems.washDaily.sign'));
+    causes.push(t('results.diagnosisItems.washDaily.cause'));
   }
   if (signs.length === 0) {
-    signs.push('Rotina parcialmente correta, mas com lacunas ocultas');
-    causes.push('Pequenos ajustes nas técnicas podem destravar um resultado muito maior');
+    signs.push(t('results.diagnosisItems.default.sign'));
+    causes.push(t('results.diagnosisItems.default.cause'));
   }
 
   return { signs: signs.slice(0, 4), causes: causes.slice(0, 3) };
@@ -178,7 +104,7 @@ function FaqItem({ q, a }) {
   );
 }
 
-function RecipeCard({ recipe }) {
+function RecipeCard({ recipe, t }) {
   return (
     <div
       className="rounded-2xl overflow-hidden bg-white"
@@ -217,22 +143,24 @@ function RecipeCard({ recipe }) {
         <div className="rounded-xl p-4" style={{ background: PL, border: `1px solid ${PL2}` }}>
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-3.5 h-3.5" style={{ color: P }} />
-            <span className="text-xs font-bold" style={{ color: PD }}>Como preparar</span>
+            <span className="text-xs font-bold" style={{ color: PD }}>{t('results.recipes.howToPrepare')}</span>
           </div>
           <div
             className="text-sm font-medium text-stone-500 mb-1"
             style={{ filter: 'blur(5px)', userSelect: 'none' }}
           >
-            Ingrediente secreto A + Ingrediente secreto B
+            {t('results.recipes.secretIngredientA')}
           </div>
-          <p className="text-xs text-stone-400">Receita revelada após a assinatura</p>
+          <p className="text-xs text-stone-400">{t('results.recipes.revealedAfter')}</p>
         </div>
       </div>
     </div>
   );
 }
 
-function PricingCard({ onCheckout, loading, error }) {
+function PricingCard({ onCheckout, loading, error, t }) {
+  const benefits = t('results.pricing.benefits', { returnObjects: true });
+
   const [timeLeft, setTimeLeft] = useState(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (stored) {
@@ -244,8 +172,8 @@ function PricingCard({ onCheckout, loading, error }) {
 
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const t = setInterval(() => setTimeLeft(s => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setTimeLeft(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
   }, [timeLeft]);
 
   return (
@@ -253,52 +181,49 @@ function PricingCard({ onCheckout, loading, error }) {
       className="rounded-2xl overflow-hidden bg-white"
       style={{ border: `1.5px solid ${PL2}`, boxShadow: '0 12px 48px rgba(251,69,169,0.18)' }}
     >
-      {/* promo badge */}
       <div className="px-7 pt-7 pb-5">
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
           style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
         >
-          🔥 Promoção Especial de Lançamento
+          {t('results.pricing.promoBadge')}
         </div>
 
-        {/* timer */}
         {timeLeft > 0 && (
           <div
             className="flex items-center gap-2 rounded-xl px-4 py-3 mb-6 text-sm font-semibold"
             style={{ background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', color: '#1c1c1c' }}
           >
             <Clock className="w-4 h-4 flex-shrink-0" style={{ color: P }} />
-            <span>Esta oferta expira em</span>
+            <span>{t('results.pricing.offerExpires')}</span>
             <span className="font-extrabold tabular-nums ml-auto" style={{ color: PD }}>{fmt(timeLeft)}</span>
           </div>
         )}
 
-        {/* price */}
         <div className="mb-7">
           <div className="flex items-center gap-2.5 mb-1">
-            <p className="text-stone-400 line-through text-base">$47.99/mês</p>
+            <p className="text-stone-400 line-through text-base">{t('results.pricing.originalPrice')}</p>
             <span
               className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: '#FEF2F2', color: '#DC2626' }}
             >
-              Você economiza $41/mês
+              {t('results.pricing.savings')}
             </span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold" style={{ color: P }}>$</span>
-            <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P }}>6.99</span>
-            <span className="text-stone-400 text-lg ml-1">/mês</span>
+            <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P }}>
+              {t('results.pricing.price')}
+            </span>
+            <span className="text-stone-400 text-lg ml-1">{t('results.pricing.period')}</span>
           </div>
-          <p className="text-sm text-stone-400 mt-2">Cancele quando quiser. Sem fidelidade.</p>
+          <p className="text-sm text-stone-400 mt-2">{t('results.pricing.cancel')}</p>
         </div>
 
-        {/* divider */}
         <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', marginBottom: '24px' }} />
 
-        {/* benefits */}
         <ul className="space-y-3.5 mb-7">
-          {BENEFITS.map((b, i) => (
+          {Array.isArray(benefits) && benefits.map((text, i) => (
             <li key={i} className="flex items-center gap-3 text-base text-stone-700">
               <div
                 className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -306,7 +231,7 @@ function PricingCard({ onCheckout, loading, error }) {
               >
                 <Check className="w-3 h-3" style={{ color: PD }} />
               </div>
-              {b.text}
+              {text}
             </li>
           ))}
         </ul>
@@ -315,7 +240,6 @@ function PricingCard({ onCheckout, loading, error }) {
           <p className="text-red-500 text-sm mb-4 bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
         )}
 
-        {/* CTA */}
         <motion.button
           onClick={onCheckout}
           disabled={loading}
@@ -332,19 +256,17 @@ function PricingCard({ onCheckout, loading, error }) {
           onMouseLeave={e => { if (!loading) e.currentTarget.style.opacity = '1'; }}
         >
           {loading
-            ? <><Loader2 className="w-5 h-5 animate-spin" /> Aguarde...</>
+            ? <><Loader2 className="w-5 h-5 animate-spin" /> {t('results.pricing.ctaLoading')}</>
             : (
               <span className="text-center leading-snug uppercase tracking-wide">
-                <span>Quero meu plano</span>
-                <br className="sm:hidden" />
-                <span> personalizado agora</span>
+                {t('results.pricing.cta')}
               </span>
             )}
         </motion.button>
 
         <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-stone-400">
           <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-          Pagamento seguro via Stripe. Cancele quando quiser. Sem taxas ocultas.
+          {t('results.pricing.secure')}
         </div>
       </div>
     </div>
@@ -354,6 +276,7 @@ function PricingCard({ onCheckout, loading, error }) {
 // ── main component ─────────────────────────────────────────────────────────
 
 export default function Results() {
+  const { t } = useTranslation();
   const { state } = useLocation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
@@ -361,6 +284,39 @@ export default function Results() {
   const [error, setError] = useState(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const pricingRef = useRef(null);
+
+  const RECIPES_TEASE = [
+    {
+      emoji: '🌿',
+      tag: t('results.recipes.recipe1.tag'),
+      tagColor: '#16A34A',
+      tagBg: '#F0FDF4',
+      title: t('results.recipes.recipe1.title'),
+      subtitle: t('results.recipes.recipe1.subtitle'),
+      benefits: t('results.recipes.recipe1.benefits', { returnObjects: true }),
+    },
+    {
+      emoji: '🌙',
+      tag: t('results.recipes.recipe2.tag'),
+      tagColor: '#7C3AED',
+      tagBg: '#F5F3FF',
+      title: t('results.recipes.recipe2.title'),
+      subtitle: t('results.recipes.recipe2.subtitle'),
+      benefits: t('results.recipes.recipe2.benefits', { returnObjects: true }),
+    },
+    {
+      emoji: '✨',
+      tag: t('results.recipes.recipe3.tag'),
+      tagColor: '#B45309',
+      tagBg: '#FFFBEB',
+      title: t('results.recipes.recipe3.title'),
+      subtitle: t('results.recipes.recipe3.subtitle'),
+      benefits: t('results.recipes.recipe3.benefits', { returnObjects: true }),
+    },
+  ];
+
+  const FAQ_ITEMS = t('results.faq.items', { returnObjects: true });
+  const REASSURANCE = t('results.reassurance', { returnObjects: true });
 
   useEffect(() => {
     const stored = sessionStorage.getItem('glow_results_timer_end');
@@ -374,10 +330,10 @@ export default function Results() {
   }, [state, navigate]);
 
   useEffect(() => {
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
       setCurrentTestimonial(i => (i + 1) % TESTIMONIALS.length);
     }, 4000);
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -387,7 +343,7 @@ export default function Results() {
   if (!state?.answers) return null;
 
   const { answers } = state;
-  const { signs, causes } = getDiagnosis(answers);
+  const { signs, causes } = getDiagnosis(answers, t);
   const name = answers.name?.trim();
 
   const scrollToPricing = () => {
@@ -413,11 +369,11 @@ export default function Results() {
       }
       const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', invokeOptions);
       if (fnError) throw fnError;
-      if (!data?.url) throw new Error('URL de checkout não retornada');
+      if (!data?.url) throw new Error('Checkout URL not returned');
       window.location.href = data.url;
     } catch (err) {
       console.error('Checkout error:', err);
-      setError('Erro ao iniciar pagamento. Tente novamente.');
+      setError(t('results.pricing.errorCheckout'));
       setLoading(false);
     }
   };
@@ -433,7 +389,7 @@ export default function Results() {
             <span style={{ fontWeight: 400, color: '#535353', fontSize: '16px', letterSpacing: '-0.01em' }}>NatGlow</span>
           </div>
           <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600 transition-colors">
-            Já tenho conta →
+            {t('results.header.alreadyHaveAccount')}
           </Link>
         </div>
       </header>
@@ -458,7 +414,7 @@ export default function Results() {
             className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-7"
             style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
           >
-            🌿 Diagnóstico concluído
+            {t('results.hero.badge')}
           </motion.div>
 
           <motion.h1
@@ -468,8 +424,8 @@ export default function Results() {
             className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
           >
             {name
-              ? <>{name}, seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>
-              : <>Seu cabelo merece uma rotina que <span style={{ color: P }}>realmente funciona.</span></>}
+              ? <>{t('results.hero.titleWithName', { name })}{' '}<span style={{ color: P }}>{t('results.hero.titleHighlight')}</span></>
+              : <>{t('results.hero.titleNoName')}{' '}<span style={{ color: P }}>{t('results.hero.titleHighlight')}</span></>}
           </motion.h1>
 
           <motion.p
@@ -478,7 +434,7 @@ export default function Results() {
             transition={{ duration: 0.65, delay: 0.13, ease }}
             className="text-base text-stone-500 leading-relaxed mb-8"
           >
-            Analisamos seus hábitos e encontramos exatamente o que está impedindo seu cabelo de alcançar todo o seu potencial.
+            {t('results.hero.subtitle')}
           </motion.p>
 
           <motion.div
@@ -497,7 +453,7 @@ export default function Results() {
           <FadeIn>
             <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                <span className="text-2xl">🚨</span> Seu cabelo está pedindo socorro:
+                {t('results.diagnosis.signs')}
               </p>
               <ul className="space-y-3">
                 {signs.map((s, i) => (
@@ -513,7 +469,7 @@ export default function Results() {
           <FadeIn delay={0.06}>
             <div className="rounded-2xl p-6" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                <span className="text-2xl">⚠️</span> E isso acontece porque:
+                {t('results.diagnosis.causes')}
               </p>
               <ul className="space-y-3">
                 {causes.map((c, i) => (
@@ -529,15 +485,14 @@ export default function Results() {
           <FadeIn delay={0.12}>
             <div className="rounded-2xl p-6" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
               <p className="text-lg font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
-                <span className="text-2xl">🌱</span> A boa notícia? Isso tem solução.
+                {t('results.diagnosis.goodNews')}
               </p>
               <p className="text-base text-stone-600 leading-relaxed">
-                Seu cabelo pode se recuperar muito mais rápido do que você imagina. Tudo que você precisa são as receitas certas, com ingredientes que você já tem em casa, com resultados que aparecem na primeira aplicação.
+                {t('results.diagnosis.goodNewsText')}
               </p>
             </div>
           </FadeIn>
 
-          {/* bouncing arrow directing to the next section */}
           <div className="flex justify-center pt-2">
             <motion.div
               animate={{ y: [0, 10, 0] }}
@@ -558,14 +513,14 @@ export default function Results() {
                 className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold mb-4"
                 style={{ background: PL2, color: PD }}
               >
-                <Sparkles className="w-3.5 h-3.5" /> Exclusivo para assinantes
+                <Sparkles className="w-3.5 h-3.5" /> {t('results.recipes.badge')}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
-                <span className="text-stone-900">As 3 receitas que transformaram o cabelo e a </span>
-                <span style={{ color: P }}>autoestima de milhares de mulheres</span>
+                <span className="text-stone-900">{t('results.recipes.title1')}</span>
+                <span style={{ color: P }}>{t('results.recipes.title2')}</span>
               </h2>
               <p className="text-stone-500 text-sm leading-relaxed max-w-sm mx-auto">
-                Resultados reais já na primeira aplicação. Com ingredientes que você provavelmente já tem em casa.
+                {t('results.recipes.subtitle')}
               </p>
             </div>
           </FadeIn>
@@ -573,7 +528,7 @@ export default function Results() {
           <div className="flex flex-col gap-5">
             {RECIPES_TEASE.map((recipe, i) => (
               <FadeIn key={i} delay={i * 0.08}>
-                <RecipeCard recipe={recipe} />
+                <RecipeCard recipe={recipe} t={t} />
               </FadeIn>
             ))}
           </div>
@@ -585,7 +540,7 @@ export default function Results() {
               style={{ background: PL2, border: `1px solid ${P}30` }}
             >
               <p className="font-bold text-sm" style={{ color: PD }}>
-                🔒 Desbloqueie as 3 receitas agora
+                {t('results.recipes.unlock')}
               </p>
               <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: PD }} />
             </button>
@@ -604,9 +559,9 @@ export default function Results() {
                 ))}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-2">
-                3.200+ pessoas já <span style={{ color: P }}>transformaram o cabelo</span>
+                {t('results.social.title1')}<span style={{ color: P }}>{t('results.social.title2')}</span>
               </h2>
-              <p className="text-stone-400 text-sm">4,9 de 5 estrelas em avaliações verificadas</p>
+              <p className="text-stone-400 text-sm">{t('results.social.stars')}</p>
             </div>
           </FadeIn>
 
@@ -619,14 +574,14 @@ export default function Results() {
                 className="flex items-center gap-2 px-4 py-2.5"
                 style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
               >
-                <span className="text-xs font-semibold text-stone-400">📸 Post verificado</span>
+                <span className="text-xs font-semibold text-stone-400">{t('results.social.verifiedPost')}</span>
               </div>
               <div className="relative overflow-hidden bg-white">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentTestimonial}
                     src={TESTIMONIALS[currentTestimonial].screenshot}
-                    alt={`Depoimento ${currentTestimonial + 1}`}
+                    alt={`Testimonial ${currentTestimonial + 1}`}
                     className="w-full block"
                     initial={{ opacity: 0, x: 40 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -668,19 +623,19 @@ export default function Results() {
                 className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-5"
                 style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
               >
-                🌸 Oferta exclusiva
+                {t('results.pricing.badge')}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
-                Seu plano personalizado <span style={{ color: P }}>começa hoje</span>
+                {t('results.pricing.title')}{' '}<span style={{ color: P }}>{t('results.pricing.titleHighlight')}</span>
               </h2>
               <p className="text-stone-500 text-sm">
-                Acesse agora e comece a transformação ainda esta semana.
+                {t('results.pricing.subtitle')}
               </p>
             </div>
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} />
           </FadeIn>
 
           <FadeIn delay={0.1}>
@@ -690,9 +645,9 @@ export default function Results() {
             >
               <span className="text-3xl leading-none flex-shrink-0">🛡️</span>
               <div>
-                <p className="font-bold text-stone-800 mb-1">Cancele quando quiser</p>
+                <p className="font-bold text-stone-800 mb-1">{t('results.pricing.cancelTitle')}</p>
                 <p className="text-sm text-stone-500 leading-relaxed">
-                  Sem perguntas, sem burocracia. Você tem total controle da sua assinatura a qualquer momento, pelo portal do cliente, em segundos. Nenhuma taxa de cancelamento.
+                  {t('results.pricing.cancelText')}
                 </p>
               </div>
             </div>
@@ -705,11 +660,7 @@ export default function Results() {
         <div className="max-w-xl mx-auto px-6 py-12">
           <FadeIn>
             <div className="grid grid-cols-3 gap-3">
-              {[
-                { icon: '🚫', text: 'Sem produtos caros' },
-                { icon: '🌱', text: 'Sem químicas agressivas' },
-                { icon: '✔️', text: 'Apenas o que funciona' },
-              ].map((item, i) => (
+              {Array.isArray(REASSURANCE) && REASSURANCE.map((item, i) => (
                 <div
                   key={i}
                   className="rounded-2xl p-4 text-center"
@@ -730,15 +681,15 @@ export default function Results() {
           <FadeIn>
             <div className="text-center mb-8">
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: P }}>
-                Dúvidas frequentes
+                {t('results.faq.tag')}
               </p>
               <h2 className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight">
-                Tudo que você precisa saber
+                {t('results.faq.title')}
               </h2>
             </div>
           </FadeIn>
           <div className="flex flex-col gap-3">
-            {FAQ_ITEMS.map((item, i) => (
+            {Array.isArray(FAQ_ITEMS) && FAQ_ITEMS.map((item, i) => (
               <FadeIn key={i} delay={i * 0.05}>
                 <FaqItem q={item.q} a={item.a} />
               </FadeIn>
@@ -750,7 +701,7 @@ export default function Results() {
       {/* ── FINE PRINT ── */}
       <div className="bg-stone-50 py-6 px-6 text-center">
         <p className="text-xs text-stone-400 max-w-sm mx-auto leading-relaxed">
-          Ao assinar você concorda com os termos de uso. Cobrança recorrente mensal em dólares americanos. Cancele a qualquer momento pelo portal do cliente sem nenhuma taxa.
+          {t('results.finePrint')}
         </p>
       </div>
     </div>

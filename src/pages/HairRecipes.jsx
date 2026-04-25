@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
 import { Star } from 'lucide-react';
-import { HAIR_RECIPES, HAIR_INGREDIENTS, TAG_LABELS } from '../lib/hairData';
+import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
 const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'maizena-acucar'];
+const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🥥', 'maizena-acucar': '🍋' };
+const ESSENTIAL_STAR = { 'babosa-mel': true };
 
-const ESSENTIAL_DISPLAY = {
-  'babosa-mel':              { emoji: '🌿', shortName: 'Babosa + Mel',          shortDesc: 'Hidratação profunda, brilho e fechamento de cutículas', star: true },
-  'tratamento-noturno-oleo': { emoji: '🥥', shortName: 'Óleo de Coco + Rícino', shortDesc: 'Nutrição profunda noturna e fortalecimento dos fios' },
-  'maizena-acucar':          { emoji: '🍋', shortName: 'Maizena + Açúcar',      shortDesc: 'Maciez intensa, brilho e selamento das cutículas' },
-};
-
-function EfficiencyTag({ tag }) {
-  const t = TAG_LABELS[tag];
-  if (!t) return null;
+function EfficiencyTag({ tag, tagLabels }) {
+  const data = tagLabels[tag];
+  if (!data) return null;
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${t.color}`}>
-      {t.label}
+    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${data.color}`}>
+      {data.label}
     </span>
   );
 }
 
 export default function HairRecipes() {
+  const { t } = useTranslation();
+  const { recipes, ingredients, tagLabels, getRecipeById } = useTranslatedHairData();
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const essentialRecipes = ESSENTIAL_IDS.map(id => HAIR_RECIPES.find(r => r.id === id)).filter(Boolean);
+  const essentialRecipes = ESSENTIAL_IDS.map(id => getRecipeById(id)).filter(Boolean);
+  const essentialDisplay = t('hairDashboard.essentialRecipes', { returnObjects: true });
 
   const toggleIngredient = (name) => {
     setSelectedIngredients(prev =>
@@ -34,8 +34,8 @@ export default function HairRecipes() {
   };
 
   const filteredRecipes = selectedIngredients.length === 0
-    ? HAIR_RECIPES
-    : HAIR_RECIPES.filter(recipe =>
+    ? recipes
+    : recipes.filter(recipe =>
         selectedIngredients.every(sel =>
           recipe.ingredients.some(ing => ing.toLowerCase().includes(sel.split(' ')[0].toLowerCase()))
         )
@@ -45,28 +45,29 @@ export default function HairRecipes() {
     return <HairRecipeDetail recipe={selectedRecipe} onBack={() => setSelectedRecipe(null)} />;
   }
 
+  const count = filteredRecipes.length;
+
   return (
     <div className="space-y-6 pb-8">
 
       <div>
-        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Receitas Naturais</h1>
-        <p className="text-stone-500 mt-1">Biblioteca curada de {HAIR_RECIPES.length} receitas · Selecione ingredientes para filtrar</p>
+        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">{t('hairRecipes.title')}</h1>
+        <p className="text-stone-500 mt-1">{t('hairRecipes.subtitle', { count: recipes.length })}</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
         <div className="bg-gradient-to-r from-brand-bg to-white border-b border-stone-100 px-5 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-            <h2 className="text-base font-bold text-stone-900">Comece por essas</h2>
+            <h2 className="text-base font-bold text-stone-900">{t('hairRecipes.essentialTitle')}</h2>
           </div>
           <p className="text-sm text-stone-500 leading-relaxed">
-            Se você fizer apenas essas receitas, já verá diferença real no seu cabelo.
+            {t('hairRecipes.essentialSubtitle')}
           </p>
         </div>
         <div className="divide-y divide-stone-100">
           {essentialRecipes.map(recipe => {
-            const t = TAG_LABELS[recipe.tag];
-            const disp = ESSENTIAL_DISPLAY[recipe.id] || {};
+            const disp = essentialDisplay?.[recipe.id] || {};
             return (
               <button
                 key={recipe.id}
@@ -74,13 +75,13 @@ export default function HairRecipes() {
                 className="w-full flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-all text-left"
               >
                 <div className="w-11 h-11 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-xl flex-shrink-0">
-                  {disp.emoji || '🌿'}
+                  {ESSENTIAL_EMOJIS[recipe.id] || '🌿'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <p className="font-bold text-stone-800 text-sm">{disp.shortName || recipe.name}</p>
-                    {t && <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${t.color}`}>{t.label}</span>}
-                    {disp.star && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />}
+                    <EfficiencyTag tag={recipe.tag} tagLabels={tagLabels} />
+                    {ESSENTIAL_STAR[recipe.id] && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />}
                   </div>
                   <p className="text-xs text-stone-400 leading-snug">{disp.shortDesc || recipe.description}</p>
                 </div>
@@ -92,10 +93,10 @@ export default function HairRecipes() {
 
       <div>
         <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3">
-          Filtrar por ingrediente
+          {t('hairRecipes.filterTitle')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {HAIR_INGREDIENTS.map((ing) => {
+          {ingredients.map((ing) => {
             const active = selectedIngredients.includes(ing.name);
             return (
               <button
@@ -113,7 +114,7 @@ export default function HairRecipes() {
                     {ing.name.split(' ')[0]}
                   </p>
                   <div className="mt-1">
-                    <EfficiencyTag tag={ing.tag} />
+                    <EfficiencyTag tag={ing.tag} tagLabels={tagLabels} />
                   </div>
                 </div>
               </button>
@@ -123,22 +124,22 @@ export default function HairRecipes() {
         {selectedIngredients.length > 0 && (
           <button
             onClick={() => setSelectedIngredients([])}
-            className="mt-2 text-xs text-stone-400 hover:text-stone-600 transition-colors mt-2"
+            className="mt-2 text-xs text-stone-400 hover:text-stone-600 transition-colors"
           >
-            Limpar filtros
+            {t('hairRecipes.clearFilters')}
           </button>
         )}
       </div>
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-stone-800">
-          {filteredRecipes.length} receita{filteredRecipes.length !== 1 ? 's' : ''} disponíve{filteredRecipes.length !== 1 ? 'is' : 'l'}
+          {t(count === 1 ? 'hairRecipes.count_one' : 'hairRecipes.count_other', { count })}
         </h2>
-        {filteredRecipes.length === 0 ? (
+        {count === 0 ? (
           <div className="bg-white rounded-2xl p-8 border border-stone-200 text-center">
-            <p className="text-stone-400 text-sm">Nenhuma receita com esses ingredientes combinados.</p>
+            <p className="text-stone-400 text-sm">{t('hairRecipes.empty')}</p>
             <button onClick={() => setSelectedIngredients([])} className="mt-2 text-brand text-sm font-medium">
-              Ver todas as receitas
+              {t('hairRecipes.showAll')}
             </button>
           </div>
         ) : (
@@ -154,7 +155,7 @@ export default function HairRecipes() {
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-xs text-stone-400 font-medium uppercase tracking-wider">{recipe.category}</p>
-                  <EfficiencyTag tag={recipe.tag} />
+                  <EfficiencyTag tag={recipe.tag} tagLabels={tagLabels} />
                 </div>
                 <h3 className="font-semibold text-stone-800 mb-1 leading-snug">{recipe.name}</h3>
                 <p className="text-sm text-stone-500 line-clamp-2 leading-relaxed">{recipe.description}</p>

@@ -2,19 +2,23 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trophy, CheckCircle2, Sparkles } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { HAIR_PHASES } from '../lib/hairData';
+import { useTranslation } from 'react-i18next';
+import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 import { useHairPlan } from '@/hooks/useHairPlan';
 
 export default function HairProgress() {
+  const { t } = useTranslation();
+  const { phases } = useTranslatedHairData();
   const { planState: { phase: currentPhaseNumber, completedWeeks }, loading } = useHairPlan();
-  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-4 border-stone-200 border-t-brand rounded-full animate-spin" /></div>;
-  const currentPhase = HAIR_PHASES[currentPhaseNumber - 1];
 
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-4 border-stone-200 border-t-brand rounded-full animate-spin" /></div>;
+
+  const currentPhase = phases[currentPhaseNumber - 1];
   const totalWeeksCompleted = (currentPhaseNumber - 1) * 3 + completedWeeks.length;
   const weeksInCurrentPhase = completedWeeks.length;
 
   const weeklyData = [1, 2, 3].map(w => ({
-    name: `Sem ${w}`,
+    name: `${t('hairProgress.weeksCount', { n: w }).split('/')[0]}`,
     completos: completedWeeks.includes(w) ? 1 : 0,
   }));
 
@@ -26,25 +30,37 @@ export default function HairProgress() {
   };
   const colors = phaseColors[currentPhaseNumber] || phaseColors[1];
 
+  const achievements = t('hairProgress.achievements', { returnObjects: true });
+
+  const achievementData = Array.isArray(achievements)
+    ? [
+        { label: achievements[0], done: totalWeeksCompleted >= 1, icon: '🌱' },
+        { label: achievements[1], done: currentPhaseNumber > 1, icon: '🏅' },
+        { label: achievements[2], done: currentPhaseNumber > 2, icon: '💪' },
+        { label: achievements[3], done: currentPhaseNumber > 3, icon: '🚀' },
+        { label: achievements[4], done: currentPhaseNumber === 4, icon: '🏆' },
+      ]
+    : [];
+
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Seu Progresso</h1>
-        <p className="text-stone-500 mt-1">Jornada capilar contínua — acompanhe cada fase</p>
+        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">{t('hairProgress.title')}</h1>
+        <p className="text-stone-500 mt-1">{t('hairProgress.subtitle')}</p>
       </div>
 
       {/* Current phase hero */}
       <div className={`bg-gradient-to-br ${colors.gradient} rounded-3xl p-6 text-white`}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-2xl">{currentPhase.emoji}</span>
-          <p className={`text-sm font-semibold ${colors.text}`}>Fase atual</p>
+          <span className="text-2xl">{currentPhase?.emoji}</span>
+          <p className={`text-sm font-semibold ${colors.text}`}>{t('hairProgress.phaseLabel')}</p>
         </div>
-        <h2 className="text-xl font-bold">Fase {currentPhaseNumber} — {currentPhase.name}</h2>
-        <p className={`text-sm ${colors.text} mt-1`}>{currentPhase.focus}</p>
+        <h2 className="text-xl font-bold">{t('hairProgress.phaseTitle', { n: currentPhaseNumber, name: currentPhase?.name })}</h2>
+        <p className={`text-sm ${colors.text} mt-1`}>{currentPhase?.focus}</p>
         <div className="mt-4">
           <div className="flex justify-between text-xs mb-1">
-            <span className={colors.text}>Semanas concluídas</span>
-            <span className={colors.text}>{weeksInCurrentPhase}/3 semanas</span>
+            <span className={colors.text}>{t('hairProgress.weeksCompleted')}</span>
+            <span className={colors.text}>{t('hairProgress.weeksCount', { n: weeksInCurrentPhase })}</span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
             <div
@@ -57,9 +73,9 @@ export default function HairProgress() {
 
       {/* Journey phases overview */}
       <div className="bg-white rounded-2xl p-5 border border-stone-200">
-        <h3 className="font-semibold text-stone-800 mb-4">Sua Jornada Capilar</h3>
+        <h3 className="font-semibold text-stone-800 mb-4">{t('hairProgress.journeyTitle')}</h3>
         <div className="space-y-3">
-          {HAIR_PHASES.map((phase, i) => {
+          {phases.map((phase, i) => {
             const phaseNum = i + 1;
             const phaseCompleted = currentPhaseNumber > phaseNum;
             const isActive = currentPhaseNumber === phaseNum;
@@ -71,11 +87,11 @@ export default function HairProgress() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium ${isLocked ? 'text-stone-300' : 'text-stone-800'}`}>
-                    Fase {phaseNum} — {phase.name}
+                    {t('hairProgress.phaseTitle', { n: phaseNum, name: phase.name })}
                   </p>
                   <p className={`text-xs ${isLocked ? 'text-stone-300' : 'text-stone-400'}`}>{phase.focus}</p>
                 </div>
-                {isActive && <span className="text-xs bg-stone-800 text-white px-2 py-1 rounded-full font-medium flex-shrink-0">Atual</span>}
+                {isActive && <span className="text-xs bg-stone-800 text-white px-2 py-1 rounded-full font-medium flex-shrink-0">{t('hairProgress.currentBadge')}</span>}
                 {phaseCompleted && <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />}
                 {isLocked && <span className="text-xs text-stone-300 flex-shrink-0">🔒</span>}
               </div>
@@ -89,18 +105,18 @@ export default function HairProgress() {
         <div className={`bg-gradient-to-br ${colors.gradient} rounded-2xl p-5 text-white`}>
           <Trophy className={`w-6 h-6 ${colors.text} mb-2`} />
           <p className="text-3xl font-bold">{totalWeeksCompleted}</p>
-          <p className={`${colors.text} text-sm`}>Semanas no total</p>
+          <p className={`${colors.text} text-sm`}>{t('hairProgress.totalWeeks')}</p>
         </div>
         <div className="bg-white rounded-2xl p-5 border border-stone-200">
           <Sparkles className="w-6 h-6 text-amber-500 mb-2" />
           <p className="text-3xl font-bold text-stone-900">{weeksInCurrentPhase}</p>
-          <p className="text-stone-400 text-sm">Semanas nesta fase</p>
+          <p className="text-stone-400 text-sm">{t('hairProgress.weeksThisPhase')}</p>
         </div>
       </div>
 
       {/* Chart */}
       <div className="bg-white rounded-2xl p-5 border border-stone-200">
-        <h3 className="font-semibold text-stone-800 mb-4">Semanas concluídas (fase atual)</h3>
+        <h3 className="font-semibold text-stone-800 mb-4">{t('hairProgress.weeksCurrentPhase')}</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyData}>
@@ -115,15 +131,9 @@ export default function HairProgress() {
 
       {/* Achievements */}
       <div className="bg-white rounded-2xl p-5 border border-stone-200">
-        <h3 className="font-semibold text-stone-800 mb-4">Conquistas</h3>
+        <h3 className="font-semibold text-stone-800 mb-4">{t('hairProgress.achievementsTitle')}</h3>
         <div className="space-y-3">
-          {[
-            { label: 'Primeira semana concluída', done: totalWeeksCompleted >= 1, icon: '🌱' },
-            { label: 'Fase 1 concluída — Recuperação', done: currentPhaseNumber > 1, icon: '🏅' },
-            { label: 'Fase 2 concluída — Fortalecimento', done: currentPhaseNumber > 2, icon: '💪' },
-            { label: 'Fase 3 concluída — Crescimento', done: currentPhaseNumber > 3, icon: '🚀' },
-            { label: 'Jornada completa — Manutenção ativa', done: currentPhaseNumber === 4, icon: '🏆' },
-          ].map((a, i) => (
+          {achievementData.map((a, i) => (
             <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${a.done ? 'bg-emerald-50' : 'bg-stone-50'}`}>
               <span className="text-xl">{a.icon}</span>
               <span className={`text-sm font-medium flex-1 ${a.done ? 'text-emerald-700' : 'text-stone-400'}`}>{a.label}</span>
@@ -135,9 +145,9 @@ export default function HairProgress() {
 
       {/* Motivational link to plan */}
       <div className="bg-stone-50 rounded-2xl p-5 border border-stone-200 text-center">
-        <p className="text-sm text-stone-600 mb-3">Continue marcando as semanas no plano para avançar nas fases.</p>
+        <p className="text-sm text-stone-600 mb-3">{t('hairProgress.motivational')}</p>
         <Link to="/HairPlan" className="inline-flex items-center gap-2 bg-stone-800 text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-stone-700 transition-colors">
-          Ir para o plano
+          {t('hairProgress.goToPlan')}
         </Link>
       </div>
     </div>

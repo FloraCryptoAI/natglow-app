@@ -1,0 +1,598 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "next": "Next",
+    "error": "Error"
+  },
+
+  "layout": {
+    "myRoutine": "My Routine",
+    "recipes": "Recipes",
+    "plan": "Plan",
+    "progress": "Progress"
+  },
+
+  "login": {
+    "title": "Access my account",
+    "subtitle": "Enter the email used at purchase",
+    "placeholder": "your@email.com",
+    "submit": "Sign in to my plan",
+    "submitting": "Signing in...",
+    "or": "or",
+    "google": "Continue with Google",
+    "noAccount": "Don't have a plan yet?",
+    "noAccountLink": "Take the free diagnosis →",
+    "errorNotFound": "Email not found. Make sure you used the same email from your purchase.",
+    "errorGoogle": "Error connecting with Google. Please try again.",
+    "errorInError": "Don't have a plan yet?",
+    "errorInErrorLink": "Click here for a free diagnosis →"
+  },
+
+  "quiz": {
+    "step": "Step {{current}} of {{total}}",
+    "anchor": {
+      "title": "Do you suffer from any of these hair problems?",
+      "subtitle": "Please be honest",
+      "cta": "Yes, I have at least 1 of them",
+      "reassurance": "You're not alone! Thousands of women face exactly this every single day."
+    },
+    "age": {
+      "title": "How old are you?"
+    },
+    "hairType": {
+      "title": "What is your hair type?"
+    },
+    "washFreq": {
+      "title": "How often do you wash your hair?"
+    },
+    "waterTemp": {
+      "title": "Your shower water is usually:"
+    },
+    "heatTools": {
+      "title": "Do you use a hair dryer or flat iron often?"
+    },
+    "hydration": {
+      "title": "Do you usually moisturize your hair?"
+    },
+    "chemProducts": {
+      "title": "Do you use chemical products on your hair?",
+      "subtitle": "Creams, masks, keratin, relaxer, etc..."
+    },
+    "name": {
+      "title": "Almost there! What can I call you?",
+      "subtitle": "Your plan will be personalized especially for you.",
+      "placeholder": "Your first name",
+      "cta": "See my personalized diagnosis"
+    },
+    "beforeAfter": {
+      "title": "Do you want results like these?",
+      "subtitle": "These are some results from women who followed our plan with 3 homemade recipes the cosmetics industry doesn't want you to know about.",
+      "before": "Before",
+      "after": "After",
+      "cta": "Yes, I also want to transform my hair"
+    },
+    "loading": {
+      "title": "Analyzing your answers…",
+      "subtitle": "This takes just a few seconds",
+      "step1": "Identifying habits that damage your hair",
+      "step2": "Evaluating the health of your strands",
+      "step3": "Building your personalized diagnosis"
+    },
+    "problems": {
+      "dryFrizz": "Dry / frizzy",
+      "splitEnds": "Split ends",
+      "hairLoss": "Hair loss / won't grow",
+      "oily": "Oily",
+      "noVolume": "No volume",
+      "noShine": "No shine"
+    },
+    "hairTypes": {
+      "liso": "Straight",
+      "ondulado": "Wavy",
+      "cacheado": "Curly",
+      "crespo": "Coily"
+    },
+    "options": {
+      "age18": "18 to 29 years",
+      "age30": "30 to 39 years",
+      "age40": "40 to 49 years",
+      "age50": "50 years or older",
+      "washDaily": "Every day",
+      "washDailyDesc": "Almost every day, it's part of my routine",
+      "wash3_4": "3 to 4 times a week",
+      "wash3_4Desc": "Most days of the week",
+      "wash1_2": "1 to 2 times a week",
+      "wash1_2Desc": "Only when I really need to",
+      "waterHot": "Very hot",
+      "waterHotDesc": "Very hot, just the way I like it",
+      "waterWarm": "Warm",
+      "waterWarmDesc": "Comfortable temperature, not extreme",
+      "waterCold": "Cold",
+      "waterColdDesc": "Cold or I always finish with cold water",
+      "heatDaily": "Every day",
+      "heatDailyDesc": "Part of my daily routine",
+      "heatFew": "A few times a week",
+      "heatFewDesc": "Most times I wash",
+      "heatRarely": "Rarely",
+      "heatRarelyDesc": "Only on special occasions",
+      "hydroRegularly": "Yes, regularly",
+      "hydroRegularlyDesc": "I moisturize every week",
+      "hydroSometimes": "Sometimes",
+      "hydroSometimesDesc": "When I remember or have time",
+      "hydroNever": "Almost never",
+      "hydroNeverDesc": "I don't have this habit yet",
+      "chemHeavy": "Yes, strong chemicals",
+      "chemHeavyDesc": "Keratin, relaxer, bleach, dye",
+      "chemMild": "Yes, creams and masks",
+      "chemMildDesc": "Conventional treatment products",
+      "chemNo": "I don't use any",
+      "chemNoDesc": "My hair is natural, no chemicals"
+    }
+  },
+
+  "results": {
+    "header": {
+      "alreadyHaveAccount": "Already have an account →"
+    },
+    "hero": {
+      "badge": "🌿 Diagnosis complete",
+      "titleWithName": "{{name}}, your hair deserves a routine that",
+      "titleHighlight": "actually works.",
+      "titleNoName": "Your hair deserves a routine that",
+      "subtitle": "We analyzed your habits and found exactly what's preventing your hair from reaching its full potential."
+    },
+    "diagnosis": {
+      "signs": "🚨 Your hair is crying for help:",
+      "causes": "⚠️ And this happens because:",
+      "goodNews": "🌱 The good news? There's a solution.",
+      "goodNewsText": "Your hair can recover much faster than you think. All you need are the right recipes, with ingredients you already have at home, with results that show up on the first application."
+    },
+    "diagnosisItems": {
+      "chemHeavy": {
+        "sign": "Strand structure weakened by chemical overload",
+        "cause": "Strong chemicals break down the hair's proteins with continued use"
+      },
+      "chemMild": {
+        "sign": "Dependency on products for temporary results",
+        "cause": "Conventional creams mask the problem without treating the root cause"
+      },
+      "waterHot": {
+        "sign": "Dryness and loss of shine",
+        "cause": "Hot water opens the cuticle and deeply dries out every strand"
+      },
+      "heatTools": {
+        "sign": "Accumulated heat damage",
+        "cause": "Frequent heat without protection weakens and damages the strand"
+      },
+      "noHydration": {
+        "sign": "Lack of deep, consistent moisture",
+        "cause": "Irregular moisturizing doesn't replenish the nutrients strands lose every day"
+      },
+      "washDaily": {
+        "sign": "Excessive removal of natural protective oils",
+        "cause": "Daily washing eliminates the natural barrier that protects and hydrates strands"
+      },
+      "default": {
+        "sign": "Routine partially correct, but with hidden gaps",
+        "cause": "Small adjustments in technique can unlock much greater results"
+      }
+    },
+    "recipes": {
+      "badge": "Exclusive to subscribers",
+      "title1": "The 3 recipes that transformed the hair and ",
+      "title2": "self-esteem of thousands of women",
+      "subtitle": "Real results on the first application. With ingredients you probably already have at home.",
+      "recipe1": {
+        "tag": "Results on 1st application",
+        "title": "The instant softness recipe",
+        "subtitle": "What you'll feel on the very first application:",
+        "benefits": [
+          "Frizz eliminated in less than 20 minutes",
+          "Intense shine visible immediately",
+          "Deep softness that lasts for days",
+          "Closed cuticles and smooth hair"
+        ]
+      },
+      "recipe2": {
+        "tag": "Works while you sleep",
+        "title": "The strong hair recipe",
+        "subtitle": "What happens while you sleep:",
+        "benefits": [
+          "Deep nutrition working all night long",
+          "Strengthens each strand from the inside out",
+          "Visibly reduces breakage",
+          "Wake up with silky, lively hair"
+        ]
+      },
+      "recipe3": {
+        "tag": "Effect lasts up to 5 days",
+        "title": "The ultimate anti-frizz recipe",
+        "subtitle": "Why this recipe is different from everything else:",
+        "benefits": [
+          "Controls frizz for up to 5 days straight",
+          "Works in any weather, even on rainy days",
+          "Intense shine and lasting seal",
+          "Lightness and softness at the same time"
+        ]
+      },
+      "unlock": "🔒 Unlock the 3 recipes now",
+      "howToPrepare": "How to prepare",
+      "secretIngredientA": "Secret ingredient A + Secret ingredient B",
+      "revealedAfter": "Recipe revealed after subscription"
+    },
+    "social": {
+      "stars": "4.9 out of 5 stars in verified reviews",
+      "title1": "3,200+ people have already ",
+      "title2": "transformed their hair",
+      "verifiedPost": "📸 Verified post"
+    },
+    "pricing": {
+      "badge": "🌸 Exclusive offer",
+      "title": "Your personalized plan",
+      "titleHighlight": "starts today",
+      "subtitle": "Access now and start the transformation this week.",
+      "promoBadge": "🔥 Special Launch Offer",
+      "offerExpires": "This offer expires in",
+      "originalPrice": "$47.99/month",
+      "savings": "You save $41/month",
+      "price": "6.99",
+      "period": "/month",
+      "cancel": "Cancel anytime. No commitment.",
+      "benefits": [
+        "The 3 champion recipes with results on the first application",
+        "Personalized 21-day hair routine",
+        "Progressive 4-phase plan with 84 days of complete treatment",
+        "Full library of 25 natural homemade recipes",
+        "Progress and achievement tracking",
+        "Access on any device, anytime"
+      ],
+      "cta": "I want my personalized plan now",
+      "ctaLoading": "Please wait...",
+      "secure": "Secure payment via Stripe. Cancel anytime. No hidden fees.",
+      "cancelTitle": "Cancel anytime",
+      "cancelText": "No questions, no hassle. You have full control of your subscription at any time, through the customer portal, in seconds. No cancellation fee.",
+      "errorCheckout": "Error starting payment. Please try again."
+    },
+    "reassurance": [
+      { "icon": "🚫", "text": "No expensive products" },
+      { "icon": "🌱", "text": "No harsh chemicals" },
+      { "icon": "✔️", "text": "Only what works" }
+    ],
+    "faq": {
+      "tag": "Frequently asked questions",
+      "title": "Everything you need to know",
+      "items": [
+        {
+          "q": "What if I don't like it?",
+          "a": "Cancel anytime, directly through the customer portal. No questions, no hassle, no fees. You have full control of your subscription. One click and you're done."
+        },
+        {
+          "q": "Are the recipe ingredients expensive?",
+          "a": "No! The recipes use simple ingredients like honey, aloe vera, coconut oil and others you probably already have at home right now. The average cost per recipe is less than $0.50."
+        },
+        {
+          "q": "How long until I see results?",
+          "a": "Many people notice a difference on the very first recipe application. For complete transformation results, most see it in 2 to 3 weeks following the routine."
+        },
+        {
+          "q": "Does it work for any hair type?",
+          "a": "Yes! Your plan was built based on your diagnosis answers, so the recipes and routine are specific to your hair type and main problem."
+        }
+      ]
+    },
+    "finePrint": "By subscribing you agree to the terms of use. Monthly recurring charge in US dollars. Cancel anytime through the customer portal with no fee."
+  },
+
+  "upgrade": {
+    "header": {
+      "redo": "← Redo diagnosis"
+    },
+    "timer": "Your diagnosis expires in",
+    "badge": "Plan ready for you",
+    "titleWithName": "{{name}}, your plan is here",
+    "titleNoName": "Your plan is here",
+    "subtitle": "We created a personalized routine based on your answers. Over 3,200 women have already transformed their hair with this method.",
+    "rating": "4.9 · 3,200+ reviews",
+    "benefitsTitle": "What you get:",
+    "benefits": [
+      "Personalized 21-day hair routine",
+      "Progressive 4-phase plan (84+ days)",
+      "Library of 25 natural homemade recipes",
+      "Filter by ingredient and problem type",
+      "Progress and achievement tracking",
+      "Access on any device, anytime"
+    ],
+    "accessLabel": "Full Access",
+    "period": "/month",
+    "cancelNote": "Cancel anytime · No commitment",
+    "cta": "Unlock my plan",
+    "ctaBottom": "Unlock my plan now",
+    "ctaLoading": "Please wait...",
+    "secure": "Secure payment via Stripe · Credit card",
+    "cancelTitle": "Cancel anytime",
+    "cancelText": "No questions, no hassle. You have full control of your subscription at any time.",
+    "testimonialsTitle": "What our users say",
+    "testimonials": [
+      { "name": "Ana Paula R.", "text": "In 3 weeks my hair stopped breaking. I couldn't believe it would be so fast!", "result": "Breakage -70%" },
+      { "name": "Camila S.", "text": "The recipes are simple with ingredients I already have at home. Loved it so much!", "result": "100% natural" },
+      { "name": "Julia M.", "text": "My frizz decreased a lot in the first 15 days. The plan is easy to follow.", "result": "Frizz -80%" },
+      { "name": "Mariana C.", "text": "My hair was falling out a lot and in 30 days I saw real results. Worth every penny!", "result": "Reduced shedding" },
+      { "name": "Beatriz L.", "text": "I never imagined homemade ingredients could do so much. Brand new hair!", "result": "Shine & strength" }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      { "q": "What if I don't like it?", "a": "You can cancel anytime through the customer portal. No questions, no hassle. Full control in your hands." },
+      { "q": "Are the recipe ingredients expensive?", "a": "No! All recipes use simple ingredients like honey, olive oil, eggs and aloe vera — which you probably already have at home." },
+      { "q": "How long until I see results?", "a": "Most users notice visible improvement in 2 to 3 weeks following the routine. Long-term results in 60–90 days." },
+      { "q": "Does it work for any hair type?", "a": "Yes! The plan is personalized based on your diagnosis to work with your specific type and problem." }
+    ],
+    "finePrint": "By subscribing you agree to the terms of use. Monthly recurring charge. Cancel anytime through the customer portal."
+  },
+
+  "success": {
+    "paymentConfirmed": "Payment confirmed!",
+    "redirecting": "Redirecting to your routine…",
+    "confirming": "Confirming your payment…",
+    "purchaseConfirmed": "Purchase confirmed!",
+    "emailError": "Could not confirm email. Please check your inbox.",
+    "accessAccount": "Access my account",
+    "purchaseConfirmedEmoji": "Purchase confirmed! 🎉",
+    "emailSentTo": "We sent the access link to:",
+    "useEmailToAccess": "Use this email to access the app now.",
+    "accessPlan": "Access my plan",
+    "clickInstruction": "Click \"Access my plan\", enter this email and log in instantly."
+  },
+
+  "hairDiagnosis": {
+    "analyzing": "Analyzing your answers…",
+    "preparingPlan": "Preparing your recovery plan",
+    "step1": "Analyzing your hair habits",
+    "step2": "Identifying main causes of damage",
+    "step3": "Selecting best ingredients for you",
+    "step4": "Preparing your recovery plan",
+    "planReady": "Plan Ready",
+    "planReadyTitle": "Your recovery plan is ready",
+    "planReadySubtitle": "We identified what may be damaging your hair",
+    "signsLabel": "Your hair shows signs of",
+    "signs": {
+      "dry": "dryness and lack of shine",
+      "frizz": "frizz and difficulty controlling",
+      "breakage": "breakage and weakened ends"
+    },
+    "causesLabel": "What is probably causing this",
+    "causes": {
+      "daily": "daily habits that damage the strand over time",
+      "hydration": "lack of regular hydration and nutrition"
+    },
+    "planIncludes": "Your plan includes",
+    "planItems": [
+      "Complete hair routine for recovery and hydration",
+      "Step-by-step 21-day plan",
+      "Natural recipe library with simple ingredients",
+      "Daily tracking checklist",
+      "Progress and achievements throughout the journey"
+    ],
+    "recipesLabel": "Recipes included in your plan",
+    "planPreview": "Preview of the 21-day plan",
+    "day1Task": "Switch hot water for warm or cold",
+    "day3Task": "Aloe Vera & Honey Mask — 20 min",
+    "day7Task": "Check-in: observe shine and frizz",
+    "moreDays": "+ 18 more detailed days",
+    "startTitle": "Start your recovery today",
+    "startSubtitle": "21-day plan with natural recipes, complete routine and progress tracking.",
+    "startCta": "Access my plan now",
+    "startHelper": "Free · Starts today"
+  },
+
+  "hairDashboard": {
+    "planLabel": "Your Recovery Plan",
+    "title": "Hair Routine ✨",
+    "subtitle": "Structured plan to restore strand health, control frizz and prevent breakage with natural ingredients.",
+    "focusLabel": "Current focus",
+    "focusValue": "Recovery and hydration",
+    "durationLabel": "Plan Duration",
+    "durationValue": "21 days",
+    "essentialTitle": "Essential Method",
+    "essentialLabel": "Start here",
+    "essentialSubtitle": "For best results, focus on these 3 recipes. They are the foundation of hair recovery.",
+    "habitsAdopt": "Habits to Adopt",
+    "habitsAvoid": "Habits to Avoid",
+    "dailyHabits": [
+      "Use warm or cold water to wash your hair",
+      "Protect your hair with heat protectant before using heat tools",
+      "Sleep with a satin or silk pillowcase to reduce friction",
+      "Stay well hydrated — hair reflects your body's internal health",
+      "Brush carefully, always from bottom to top, without pulling",
+      "Avoid tying wet hair — it causes breakage"
+    ],
+    "habitsToAvoid": [
+      "Hot water in the shower — dries out strands and opens the cuticle",
+      "Daily use of hair dryer or flat iron without heat protection",
+      "Brushing wet hair forcefully — that's when it's weakest",
+      "Excess chemical products without compensatory moisturizing",
+      "Tying too tightly with rubber bands"
+    ],
+    "essentialRecipes": {
+      "babosa-mel": {
+        "shortName": "Aloe Vera + Honey",
+        "shortDesc": "Deep hydration, shine and cuticle sealing"
+      },
+      "tratamento-noturno-oleo": {
+        "shortName": "Coconut Oil + Castor Oil",
+        "shortDesc": "Deep overnight nutrition and strand strengthening"
+      },
+      "maizena-acucar": {
+        "shortName": "Cornstarch + Sugar",
+        "shortDesc": "Intense softness, shine and cuticle sealing"
+      }
+    },
+    "tagLabels": {
+      "ultra": "Ultra effective",
+      "eficiente": "Effective",
+      "complementar": "Complementary"
+    },
+    "specialRecipe": {
+      "name": "Scalp tonic with apple cider vinegar",
+      "description": "Balances pH, removes product buildup and stimulates circulation for healthier growth.",
+      "ingredients": [
+        "2 tablespoons of organic apple cider vinegar",
+        "200ml of water",
+        "5 drops of rosemary essential oil (optional)"
+      ],
+      "instructions": "Mix vinegar in water. After washing hair, apply to scalp with gentle massage. Leave for 2 minutes and rinse.",
+      "frequency": "Every 15 days",
+      "benefits": ["pH balance", "Reduced oiliness", "Growth stimulation", "Healthy scalp"]
+    },
+    "navPlan": "Hair Plan",
+    "navPlanSub": "Weekly guide",
+    "navRecipes": "Recipes",
+    "navRecipesSub": "Natural treatments"
+  },
+
+  "hairRecipes": {
+    "title": "Natural Recipes",
+    "subtitle": "Curated library of {{count}} recipes · Select ingredients to filter",
+    "essentialTitle": "Start with these",
+    "essentialSubtitle": "If you only do these recipes, you'll already see a real difference in your hair.",
+    "filterTitle": "Filter by ingredient",
+    "clearFilters": "Clear filters",
+    "count_one": "{{count}} recipe available",
+    "count_other": "{{count}} recipes available",
+    "empty": "No recipe with these combined ingredients.",
+    "showAll": "Show all recipes",
+    "ingredients": {
+      "babosa": { "name": "Aloe Vera", "benefit": "Hydration" },
+      "mel": { "name": "Honey", "benefit": "Nutrition" },
+      "oleo-coco": { "name": "Coconut Oil", "benefit": "Deep nutrition" },
+      "abacate": { "name": "Avocado", "benefit": "Intense hydration" },
+      "ovo": { "name": "Egg", "benefit": "Protein" }
+    },
+    "tagLabels": {
+      "ultra": "Ultra effective",
+      "eficiente": "Effective",
+      "complementar": "Complementary"
+    }
+  },
+
+  "hairRecipeDetail": {
+    "backToRecipes": "Back to recipes",
+    "ingredients": "Ingredients",
+    "howToPrepare": "How to Prepare",
+    "benefits": "Benefits",
+    "importantTip": "Important tip",
+    "indicatedFor": "Indicated for:"
+  },
+
+  "hairSpecialRecipe": {
+    "label": "Special Homemade Recipe",
+    "showFull": "See full recipe",
+    "hideFull": "Hide full recipe",
+    "ingredients": "Ingredients",
+    "howToPrepare": "How to prepare"
+  },
+
+  "hairWeeklyCard": {
+    "ingredients": "Ingredients",
+    "howToPrepare": "How to prepare",
+    "time": "⏱ Time: {{time}}"
+  },
+
+  "hairPlan": {
+    "title": "Hair Plan",
+    "subtitle": "4-phase journey · 3 weeks each",
+    "phaseLabel": "Phase {{n}} of 4",
+    "weeksCompleted": "Completed weeks",
+    "weekLabel": "Week {{n}}",
+    "recipesThisWeek": "Recipes this week",
+    "habitsThisWeek": "Habits this week",
+    "markComplete": "Mark week as complete",
+    "weekCompleted": "Week completed",
+    "reminder": "Remember",
+    "reminderText": "You don't have to do everything. Choose 1 recipe per week and maintain the habits. Simple consistency creates real results.",
+    "restart": "Restart treatment",
+    "restartConfirmTitle": "Restart from the beginning?",
+    "restartConfirmText": "Your progress will be erased and you'll go back to Phase 1.",
+    "confirmRestart": "Yes, restart",
+    "phases": {
+      "1": {
+        "name": "Recovery",
+        "focus": "Deeply hydrate and repair existing damage",
+        "description": "The first step is to restore what was lost. We'll hydrate, seal cuticles and build habits that stop damage.",
+        "goals": ["Deep hydration", "Cuticle sealing", "Frizz reduction", "Eliminate harmful habits"],
+        "weeks": {
+          "1": { "focus": "Initial hydration", "desc": "The first step is restoring lost moisture. Do at least 1 recipe this week.", "habits": ["Use warm or cold water to wash your hair", "Stay well hydrated — hair reflects the body's internal health", "Avoid tying wet hair", "Avoid excessive heat"] },
+          "2": { "focus": "Consolidation", "desc": "Keep the hydration going and start building new habits consistently.", "habits": ["Finish the shower with 30 seconds of cold water", "Avoid the hair dryer — let it air dry when possible", "Sleep with hair loose", "Keep drinking plenty of water"] },
+          "3": { "focus": "Sealing", "desc": "Seal the results achieved and prepare for the strengthening phase.", "habits": ["Keep the habits from previous weeks", "Notice the difference in shine and softness", "Avoid heat tools and metal hair ties", "Take a photo to compare to the start 📸"] }
+        }
+      },
+      "2": {
+        "name": "Strengthening",
+        "focus": "Reduce breakage and improve strand structure",
+        "description": "With hydration restored, it's time to strengthen the hair fiber and systematically reduce breakage.",
+        "goals": ["Protein intake", "Breakage reduction", "Fiber strengthening", "Restored elasticity"],
+        "weeks": {
+          "1": { "focus": "Protein start", "desc": "Start adding protein to your routine to rebuild damaged strands.", "habits": ["Keep using warm or cold water", "Avoid hair ties that pull", "Trim split ends if any", "Avoid excessive heat"] },
+          "2": { "focus": "Consolidation", "desc": "Balance protein and hydration for healthy, strong strands.", "habits": ["Sleep with a loose braid to reduce overnight breakage", "Apply coconut oil to ends before sleeping", "Drink 2L of water per day", "Avoid flat iron or hair dryer this week"] },
+          "3": { "focus": "Strengthening", "desc": "Finish the phase with stronger, more resilient strands.", "habits": ["Notice reduced breakage when brushing", "Keep habits from previous weeks", "Keep avoiding heat", "Stay well hydrated internally"] }
+        }
+      },
+      "3": {
+        "name": "Growth",
+        "focus": "Stimulate healthy growth and reduce hair loss",
+        "description": "A healthy scalp grows more. In this phase we focus on root nutrition and follicle stimulation.",
+        "goals": ["Stimulate follicles", "Reduce shedding", "Root nutrition", "Accelerated growth"],
+        "weeks": {
+          "1": { "focus": "Scalp activation", "desc": "Start stimulating the scalp with targeted treatments.", "habits": ["Massage your scalp for 5 min before sleeping", "Drink 2L of water per day", "Avoid tying hair with tension", "Eat well — vitamins make a difference"] },
+          "2": { "focus": "Growth tonics", "desc": "Apply anti-shedding tonics regularly for consistent results.", "habits": ["Continue with daily scalp massage", "Avoid tying too tight", "Use cold water at the end of the shower", "Sleep with hair loose"] },
+          "3": { "focus": "Consolidation", "desc": "Consolidate growth results and prepare for the maintenance phase.", "habits": ["Massage scalp with fingertips for 5 min", "Drink 2L of water per day", "Avoid hair ties that pull", "Keep up with weekly treatments"] }
+        }
+      },
+      "4": {
+        "name": "Maintenance",
+        "focus": "Maintain results and prevent new damage",
+        "description": "You've reached the ideal state. Now maintain with consistency and keep evolving month by month.",
+        "goals": ["Maintain hydration", "Prevent damage", "Consistent habits", "Continuous improvement"],
+        "weeks": {
+          "1": { "focus": "Maintenance routine", "desc": "Keep up the habits and recipes that gave you results.", "habits": ["Apply pure aloe vera as a light conditioner", "Keep cold water at the end of the shower", "Coconut oil on ends before sleeping", "Stay well hydrated internally"] },
+          "2": { "focus": "Progress check", "desc": "Review your progress and adjust the routine as needed.", "habits": ["Light weekly hydration with base recipes", "Avoid excessive heat", "Sleep with hair loose on a clean pillowcase", "Massage scalp for 3 minutes"] },
+          "3": { "focus": "Continuous evolution", "desc": "Keep evolving and enjoying your transformed hair.", "habits": ["Apply pure honey to ends for 15 min before washing", "Avoid tying too tight", "Keep habits from previous phases", "Celebrate the results you've achieved! 🎉"] }
+        }
+      }
+    },
+    "habits": [
+      "Use warm or cold water to wash your hair",
+      "Stay well hydrated — drink 2L of water",
+      "Avoid tying wet hair",
+      "Avoid excessive heat"
+    ]
+  },
+
+  "hairProgress": {
+    "title": "Your Progress",
+    "subtitle": "Continuous hair journey — track each phase",
+    "phaseLabel": "Current phase",
+    "phaseTitle": "Phase {{n}} — {{name}}",
+    "weeksCompleted": "Completed weeks",
+    "weeksCount": "{{n}}/3 weeks",
+    "journeyTitle": "Your Hair Journey",
+    "currentBadge": "Current",
+    "totalWeeks": "Total weeks",
+    "weeksThisPhase": "Weeks in this phase",
+    "weeksCurrentPhase": "Weeks completed (current phase)",
+    "achievementsTitle": "Achievements",
+    "achievements": [
+      "First week completed",
+      "Phase 1 complete — Recovery",
+      "Phase 2 complete — Strengthening",
+      "Phase 3 complete — Growth",
+      "Full journey — Active maintenance"
+    ],
+    "motivational": "Keep marking weeks in the plan to advance through phases.",
+    "goToPlan": "Go to plan"
+  }
+}
