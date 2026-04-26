@@ -1,32 +1,21 @@
-import { createClient } from 'npm:@supabase/supabase-js@2'
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-token',
 }
-
-const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-})
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
   try {
-    const authHeader = req.headers.get('Authorization') ?? ''
-    const token = authHeader.replace(/^Bearer\s+/i, '')
+    const token = req.headers.get('x-admin-token') ?? ''
     const payload = await verifyAdminJWT(token)
 
     if (!payload) {
-      const hint = token.length > 10 ? token.slice(0, 12) + '...' : '(empty)'
-      await db.from('admin_audit_log')
-        .insert({ ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown', step: 'data', result: 'jwt_invalid', notes: `token_prefix: ${hint}` })
-        .then(() => {}).catch(() => {})
       return new Response(JSON.stringify({ error: 'Não autorizado' }), {
         status: 401,
         headers: { ...CORS, 'Content-Type': 'application/json' },

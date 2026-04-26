@@ -33,12 +33,13 @@ export default function Admin() {
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
       const res = await fetch(`${supabaseUrl}/functions/v1/admin-data`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
           'apikey': supabaseAnonKey,
+          'x-admin-token': adminToken,
           'Content-Type': 'application/json',
         },
       })
-      if (res.status === 401) {
+      if (res.status === 401 || res.status === 403) {
         clearAdminToken()
         navigate('/admin/login', { replace: true })
         return
