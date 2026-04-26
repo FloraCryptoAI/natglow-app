@@ -1,15 +1,11 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const ADMIN_EMAIL = (Deno.env.get('ADMIN_EMAIL') ?? '').trim().toLowerCase()
 const ADMIN_PASSWORD_HASH = (Deno.env.get('ADMIN_PASSWORD_HASH') ?? '').trim()
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? ''
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
 
 const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -19,10 +15,10 @@ function getIP(req: Request): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 }
 
-function json(data: object, status = 200) {
+function json(cors: Record<string, string>, data: object, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   })
 }
 
@@ -31,11 +27,6 @@ function hexToBytes(hex: string): Uint8Array {
   return new Uint8Array(pairs.map((b) => parseInt(b, 16)))
 }
 
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
-// Verifica senha usando PBKDF2 nativo do Deno — formato: "saltHex:hashHex"
 async function verifyPassword(password: string, stored: string): Promise<boolean> {
   try {
     const [saltHex, hashHex] = stored.split(':')
@@ -60,7 +51,10 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
   }
 }
 
-// Hash do OTP com SHA-256 (OTPs são aleatórios e de curta duração — SHA-256 é suficiente)
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
 async function hashOTP(otp: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(otp))
   return bytesToHex(new Uint8Array(buf))
@@ -148,29 +142,30 @@ async function audit(ip: string, email: string, step: string, result: string, no
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const cors = corsHeaders(req.headers.get('Origin'))
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   const ip = getIP(req)
   let emailAttempted = ''
 
   try {
     if (!ADMIN_PASSWORD_HASH || !ADMIN_PASSWORD_HASH.includes(':')) {
-      return json({ error: 'ADMIN_PASSWORD_HASH inválido. Use o formato pbkdf2 (saltHex:hashHex).' }, 503)
+      return json(cors, { error: 'ADMIN_PASSWORD_HASH inválido. Use o formato pbkdf2 (saltHex:hashHex).' }, 503)
     }
     if (!ADMIN_EMAIL) {
-      return json({ error: 'ADMIN_EMAIL não configurado.' }, 503)
+      return json(cors, { error: 'ADMIN_EMAIL não configurado.' }, 503)
     }
 
     const body = await req.json()
     const { email, password } = body as { email?: string; password?: string }
     emailAttempted = email?.toLowerCase().trim() ?? ''
 
-    if (!emailAttempted || !password) return json({ error: 'Credenciais inválidas' }, 400)
+    if (!emailAttempted || !password) return json(cors, { error: 'Credenciais inválidas' }, 400)
 
     const allowed = await checkRateLimit(ip)
     if (!allowed) {
       await audit(ip, emailAttempted, 'step1', 'rate_limited')
-      return json({ error: 'Credenciais inválidas' }, 429)
+      return json(cors, { error: 'Credenciais inválidas' }, 429)
     }
 
     const emailOk = emailAttempted === ADMIN_EMAIL
@@ -178,8 +173,16 @@ Deno.serve(async (req) => {
 
     if (!emailOk || !passwordOk) {
       await audit(ip, emailAttempted, 'step1', 'invalid_credentials')
-      return json({ error: 'Credenciais inválidas' }, 401)
+      return json(cors, { error: 'Credenciais inválidas' }, 401)
     }
+
+    // Invalida qualquer sessão OTP pendente anterior antes de criar nova
+    await db
+      .from('admin_otp_sessions')
+      .delete()
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .then(() => {}).catch(() => {})
 
     const otp = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0')
     const otpHash = await hashOTP(otp)
@@ -193,20 +196,20 @@ Deno.serve(async (req) => {
 
     if (sessErr || !session) {
       await audit(ip, emailAttempted, 'step1', 'session_error', sessErr?.message)
-      return json({ error: 'Erro ao criar sessão.' }, 500)
+      return json(cors, { error: 'Erro ao criar sessão.' }, 500)
     }
 
     const sent = await sendOTP(ADMIN_EMAIL, otp)
     if (!sent) {
       await db.from('admin_otp_sessions').delete().eq('id', session.id)
       await audit(ip, emailAttempted, 'step1', 'email_error')
-      return json({ error: 'Erro ao enviar código. Verifique RESEND_API_KEY.' }, 500)
+      return json(cors, { error: 'Erro ao enviar código. Verifique RESEND_API_KEY.' }, 500)
     }
 
     await audit(ip, emailAttempted, 'step1', 'otp_sent')
-    return json({ sessionId: session.id })
+    return json(cors, { sessionId: session.id })
   } catch (err) {
     await audit(ip, emailAttempted, 'step1', 'exception', err?.message).catch(() => {})
-    return json({ error: `Erro interno: ${err?.message ?? 'desconhecido'}` }, 500)
+    return json(cors, { error: `Erro interno: ${err?.message ?? 'desconhecido'}` }, 500)
   }
 })

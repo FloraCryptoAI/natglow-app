@@ -1,13 +1,9 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { createAdminJWT } from '../_shared/admin-jwt.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
 
 const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -23,10 +19,10 @@ function getIP(req: Request): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 }
 
-function json(data: object, status = 200) {
+function json(cors: Record<string, string>, data: object, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   })
 }
 
@@ -37,7 +33,8 @@ async function audit(ip: string, step: string, result: string, notes?: string) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const cors = corsHeaders(req.headers.get('Origin'))
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   const ip = getIP(req)
 
@@ -46,7 +43,7 @@ Deno.serve(async (req) => {
     const { sessionId, otp } = body as { sessionId?: string; otp?: string }
 
     if (!sessionId || !otp || !/^\d{6}$/.test(otp)) {
-      return json({ error: 'Código inválido' }, 400)
+      return json(cors, { error: 'Código inválido' }, 400)
     }
 
     const { data: session, error: sessErr } = await db
@@ -57,24 +54,24 @@ Deno.serve(async (req) => {
 
     if (sessErr || !session) {
       await audit(ip, 'step2', 'session_not_found')
-      return json({ error: 'Sessão inválida. Reinicie o login.' }, 401)
+      return json(cors, { error: 'Sessão inválida. Reinicie o login.' }, 401)
     }
 
     if (new Date(session.expires_at) < new Date()) {
       await db.from('admin_otp_sessions').delete().eq('id', sessionId)
       await audit(ip, 'step2', 'otp_expired')
-      return json({ error: 'Código expirado. Reinicie o login.' }, 401)
+      return json(cors, { error: 'Código expirado. Reinicie o login.' }, 401)
     }
 
     if (session.used_at) {
       await audit(ip, 'step2', 'otp_already_used')
-      return json({ error: 'Código já utilizado. Reinicie o login.' }, 401)
+      return json(cors, { error: 'Código já utilizado. Reinicie o login.' }, 401)
     }
 
     if (session.attempt_count >= 3) {
       await db.from('admin_otp_sessions').delete().eq('id', sessionId)
       await audit(ip, 'step2', 'max_attempts')
-      return json({ error: 'Muitas tentativas. Reinicie o login.' }, 429)
+      return json(cors, { error: 'Muitas tentativas. Reinicie o login.' }, 429)
     }
 
     await db.from('admin_otp_sessions')
@@ -88,9 +85,9 @@ Deno.serve(async (req) => {
       await audit(ip, 'step2', 'otp_invalid')
       if (remaining <= 0) {
         await db.from('admin_otp_sessions').delete().eq('id', sessionId)
-        return json({ error: 'Muitas tentativas. Reinicie o login.' }, 429)
+        return json(cors, { error: 'Muitas tentativas. Reinicie o login.' }, 429)
       }
-      return json({
+      return json(cors, {
         error: `Código incorreto. ${remaining} tentativa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`,
       }, 401)
     }
@@ -102,9 +99,9 @@ Deno.serve(async (req) => {
     const token = await createAdminJWT(7200)
     await audit(ip, 'step2', 'login_success')
 
-    return json({ token })
+    return json(cors, { token })
   } catch (err) {
     await audit(ip, 'step2', 'exception', err?.message).catch(() => {})
-    return json({ error: 'Erro interno' }, 500)
+    return json(cors, { error: 'Erro interno' }, 500)
   }
 })

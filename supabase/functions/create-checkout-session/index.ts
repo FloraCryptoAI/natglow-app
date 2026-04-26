@@ -1,12 +1,9 @@
+import { corsHeaders } from '../_shared/cors.ts'
+
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
 
 async function getUser(authHeader: string) {
   if (!authHeader) return null
@@ -39,12 +36,18 @@ async function stripePost(path: string, params: Record<string, string>) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const cors = corsHeaders(req.headers.get('Origin'))
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
     const { priceId, successUrl, cancelUrl } = await req.json()
 
-    // Auth é opcional — guest checkout não precisa de sessão
+    if (!priceId || !successUrl || !cancelUrl) {
+      return new Response(JSON.stringify({ error: 'Parâmetros obrigatórios ausentes' }), {
+        status: 400, headers: { ...cors, 'Content-Type': 'application/json' },
+      })
+    }
+
     const authHeader = req.headers.get('Authorization') ?? ''
     const user = await getUser(authHeader)
 
@@ -58,7 +61,6 @@ Deno.serve(async (req) => {
     }
 
     if (user?.id) {
-      // Usuária logada: reutiliza ou cria customer Stripe para evitar duplicatas
       let customerId = await getCustomerId(user.id)
       if (!customerId) {
         const customer = await stripePost('/customers', {
@@ -72,17 +74,16 @@ Deno.serve(async (req) => {
       sessionParams['metadata[supabase_uid]'] = user.id
       sessionParams['subscription_data[metadata][supabase_uid]'] = user.id
     }
-    // Sem usuário logado: Stripe coleta o email durante o checkout
 
     const session = await stripePost('/checkout/sessions', sessionParams)
     if (session.error) throw new Error(session.error.message)
 
     return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
-      status: 400, headers: { ...CORS, 'Content-Type': 'application/json' },
+      status: 400, headers: { ...cors, 'Content-Type': 'application/json' },
     })
   }
 })

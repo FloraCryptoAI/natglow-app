@@ -47,8 +47,8 @@ export default function Admin() {
       const result = await res.json()
       if (result?.error) throw new Error(result.error)
       setData(result)
-    } catch (err) {
-      console.error('Erro ao carregar dados admin:', err)
+    } catch {
+      // erro já tratado via status 401/403 acima
     } finally {
       setLoading(false)
     }
