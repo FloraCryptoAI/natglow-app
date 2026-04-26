@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, CreditCard, TrendingUp, RefreshCw, LogOut } from 'lucide-react'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { supabase } from '@/api/supabaseClient'
 
 const STATUS_BADGE = {
   active:   { label: 'Ativo',      bg: 'bg-emerald-100', text: 'text-emerald-700' },
@@ -30,17 +29,22 @@ export default function Admin() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const { data: result, error } = await supabase.functions.invoke('admin-data', {
-        headers: { Authorization: `Bearer ${adminToken}` },
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      const res = await fetch(`${supabaseUrl}/functions/v1/admin-data`, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'apikey': supabaseAnonKey,
+          'Content-Type': 'application/json',
+        },
       })
-      if (error) {
-        if (error?.context?.status === 401 || error?.message?.includes('401')) {
-          clearAdminToken()
-          navigate('/admin/login', { replace: true })
-          return
-        }
-        throw error
+      if (res.status === 401) {
+        clearAdminToken()
+        navigate('/admin/login', { replace: true })
+        return
       }
+      const result = await res.json()
+      if (result?.error) throw new Error(result.error)
       setData(result)
     } catch (err) {
       console.error('Erro ao carregar dados admin:', err)

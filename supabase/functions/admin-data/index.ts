@@ -1,3 +1,4 @@
+import { createClient } from 'npm:@supabase/supabase-js@2'
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -9,6 +10,10 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+})
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
@@ -18,6 +23,10 @@ Deno.serve(async (req) => {
     const payload = await verifyAdminJWT(token)
 
     if (!payload) {
+      const hint = token.length > 10 ? token.slice(0, 12) + '...' : '(empty)'
+      await db.from('admin_audit_log')
+        .insert({ ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown', step: 'data', result: 'jwt_invalid', notes: `token_prefix: ${hint}` })
+        .then(() => {}).catch(() => {})
       return new Response(JSON.stringify({ error: 'Não autorizado' }), {
         status: 401,
         headers: { ...CORS, 'Content-Type': 'application/json' },
