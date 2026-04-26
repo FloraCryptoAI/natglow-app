@@ -87,8 +87,8 @@ export default function AdminLogin() {
       const msg = data?.error ?? (fnErr?.message?.includes('non-2xx') ? null : fnErr?.message)
       if (msg) throw new Error(msg)
       if (!data?.token) throw new Error('Código inválido')
+      // setAdminToken atualiza o estado → useEffect detecta isAdmin=true → navega para /admin
       setAdminToken(data.token)
-      navigate('/admin', { replace: true })
     } catch (err) {
       const msg = err.message || 'Código inválido'
       setError(msg)
