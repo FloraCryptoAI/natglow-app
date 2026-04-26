@@ -1,4 +1,3 @@
-import * as bcrypt from 'npm:bcryptjs@2.4.3'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { createAdminJWT } from '../_shared/admin-jwt.ts'
 
@@ -13,6 +12,12 @@ const CORS = {
 const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
+
+async function verifyOTP(otp: string, storedHash: string): Promise<boolean> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(otp))
+  const hash = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hash === storedHash
+}
 
 function getIP(req: Request): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
@@ -76,7 +81,7 @@ Deno.serve(async (req) => {
       .update({ attempt_count: session.attempt_count + 1 })
       .eq('id', sessionId)
 
-    const otpMatch = await bcrypt.compare(otp, session.otp_hash)
+    const otpMatch = await verifyOTP(otp, session.otp_hash)
 
     if (!otpMatch) {
       const remaining = 2 - session.attempt_count
