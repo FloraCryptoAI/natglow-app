@@ -419,16 +419,16 @@ export default function Landing() {
                 </h2>
                 <div className="flex flex-col gap-3 text-base text-stone-600 leading-relaxed">
                   <p>
-                    A indústria de cosméticos movimenta <strong className="text-stone-800">mais de R$ 50 bilhões por ano</strong> só no Brasil — e grande parte desse dinheiro vem de produtos que prometem transformar seu cabelo, mas na prática nunca entregam o resultado que você espera.
+                    Desde os tempos antigos, nosso cabelo nunca precisou de tantos produtos quanto hoje. A indústria de cosméticos está sempre inventando algo novo e vendendo como essencial, criando um ciclo infinito de consumo. Você compra, usa, sente uma melhora momentânea… e logo precisa de outro produto.
                   </p>
                   <p>
-                    O problema não é você. É que a maioria dos produtos foi formulada para <strong className="text-stone-800">mascarar o dano</strong>, não para tratá-lo de verdade. Silicones pesados deixam o cabelo "bonito" por um dia e acumulam camadas que sufocam os fios com o tempo.
+                    No meio disso tudo, seu cabelo e seu couro cabeludo vão sendo sobrecarregados por químicas, resíduos e excessos. E sabe qual é o resultado depois de alguns anos?
+                  </p>
+                  <p className="font-semibold text-stone-800">
+                    Queda de cabelo, enfraquecimento dos fios e dependência constante de novos tratamentos.
                   </p>
                   <p>
-                    Enquanto isso, ingredientes naturais com eficácia comprovada — como óleos vegetais, manteigas e proteínas vegetais — ficam de fora das prateleiras porque custam mais e duram menos na vitrine.
-                  </p>
-                  <p>
-                    Com base nas suas respostas, preparamos um <strong className="text-stone-800">protocolo personalizado</strong> com receitas naturais que realmente nutrem, reparam e fortalecem os seus fios — sem químicas agressivas, sem enganação.
+                    Você precisa se prevenir disso e cuidar do seu cabelo naturalmente e nós vamos te ajudar com isso.
                   </p>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export default function Landing() {
                 className="w-full py-5 font-extrabold text-white flex items-center justify-center gap-2 rounded-full"
                 style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
               >
-                Ver minha transformação
+                Continuar
                 <ArrowRight className="w-5 h-5 flex-shrink-0" />
               </motion.button>
             </motion.div>
