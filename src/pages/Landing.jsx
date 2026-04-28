@@ -9,6 +9,9 @@ const BEFORE_AFTER = [
   { antes: '/images/quiz-v2/antes-1.jpg', depois: '/images/quiz-v2/depois-1.jpg' },
   { antes: '/images/quiz-v2/antes-2.jpg', depois: '/images/quiz-v2/depois-2.jpg' },
   { antes: '/images/quiz-v2/antes-3.jpg', depois: '/images/quiz-v2/depois-3.jpg' },
+  { antes: '/images/quiz-v2/antes-4.jpg', depois: '/images/quiz-v2/depois-4.jpg' },
+  { antes: '/images/quiz-v2/antes-5.jpg', depois: '/images/quiz-v2/depois-5.jpg' },
+  { antes: '/images/quiz-v2/antes-6.jpg', depois: '/images/quiz-v2/depois-6.jpg' },
 ];
 
 const STEPS = {
