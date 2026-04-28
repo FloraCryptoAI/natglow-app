@@ -69,6 +69,14 @@
       "placeholder": "Your first name",
       "cta": "See my personalized diagnosis"
     },
+    "voceSabia": {
+      "title": "Did you know?",
+      "p1": "Since ancient times, our hair has never needed as many products as it does today. The cosmetics industry is always inventing something new and selling it as essential, creating an endless cycle of consumption. You buy, use, feel a momentary improvement… and soon need another product.",
+      "p2": "In the middle of all this, your hair and scalp get overloaded with chemicals, residue, and excess. And do you know what the result is after a few years?",
+      "p3": "Hair loss, weakened strands, and a constant dependency on new treatments.",
+      "p4": "You need to protect yourself from this and take care of your hair naturally — and we're going to help you with that.",
+      "cta": "Continue"
+    },
     "beforeAfter": {
       "title": "Do you want results like these?",
       "subtitle": "These are some results from women who followed our plan with 3 homemade recipes the cosmetics industry doesn't want you to know about.",

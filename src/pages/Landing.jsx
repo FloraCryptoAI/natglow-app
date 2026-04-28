@@ -407,7 +407,7 @@ export default function Landing() {
               <div className="rounded-2xl overflow-hidden w-full" style={{ aspectRatio: '16/9', background: PL2 }}>
                 <img
                   src="/images/quiz-v2/voce-sabia.jpg"
-                  alt="Você sabia?"
+                  alt={t('quiz.voceSabia.title')}
                   className="w-full h-full object-cover"
                   onError={e => { e.currentTarget.style.display = 'none'; }}
                 />
@@ -415,21 +415,13 @@ export default function Landing() {
 
               <div className="flex flex-col gap-4">
                 <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                  Você sabia?
+                  {t('quiz.voceSabia.title')}
                 </h2>
                 <div className="flex flex-col gap-3 text-base text-stone-600 leading-relaxed">
-                  <p>
-                    Desde os tempos antigos, nosso cabelo nunca precisou de tantos produtos quanto hoje. A indústria de cosméticos está sempre inventando algo novo e vendendo como essencial, criando um ciclo infinito de consumo. Você compra, usa, sente uma melhora momentânea… e logo precisa de outro produto.
-                  </p>
-                  <p>
-                    No meio disso tudo, seu cabelo e seu couro cabeludo vão sendo sobrecarregados por químicas, resíduos e excessos. E sabe qual é o resultado depois de alguns anos?
-                  </p>
-                  <p className="font-semibold text-stone-800">
-                    Queda de cabelo, enfraquecimento dos fios e dependência constante de novos tratamentos.
-                  </p>
-                  <p>
-                    Você precisa se prevenir disso e cuidar do seu cabelo naturalmente e nós vamos te ajudar com isso.
-                  </p>
+                  <p>{t('quiz.voceSabia.p1')}</p>
+                  <p>{t('quiz.voceSabia.p2')}</p>
+                  <p className="font-semibold text-stone-800">{t('quiz.voceSabia.p3')}</p>
+                  <p>{t('quiz.voceSabia.p4')}</p>
                 </div>
               </div>
 
@@ -440,7 +432,7 @@ export default function Landing() {
                 className="w-full py-5 font-extrabold text-white flex items-center justify-center gap-2 rounded-full"
                 style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
               >
-                Continuar
+                {t('quiz.voceSabia.cta')}
                 <ArrowRight className="w-5 h-5 flex-shrink-0" />
               </motion.button>
             </motion.div>

@@ -69,6 +69,14 @@
       "placeholder": "Tu primer nombre",
       "cta": "Ver mi diagnóstico personalizado"
     },
+    "voceSabia": {
+      "title": "¿Sabías que?",
+      "p1": "Desde tiempos antiguos, nuestro cabello nunca había necesitado tantos productos como hoy. La industria cosmética siempre está inventando algo nuevo y vendiéndolo como esencial, creando un ciclo interminable de consumo. Compras, usas, sientes una mejora momentánea… y pronto necesitas otro producto.",
+      "p2": "En medio de todo esto, tu cabello y tu cuero cabelludo van siendo sobrecargados por químicos, residuos y excesos. ¿Y sabes cuál es el resultado después de algunos años?",
+      "p3": "Caída del cabello, debilitamiento de los cabellos y dependencia constante de nuevos tratamientos.",
+      "p4": "Necesitas protegerte de esto y cuidar tu cabello de forma natural — y nosotros vamos a ayudarte con eso.",
+      "cta": "Continuar"
+    },
     "beforeAfter": {
       "title": "¿Quieres resultados como estos?",
       "subtitle": "Estos son algunos resultados de mujeres que siguieron nuestro plan con 3 recetas caseras que la industria cosmética no quiere que sepas.",
