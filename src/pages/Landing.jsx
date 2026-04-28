@@ -17,7 +17,8 @@ const BEFORE_AFTER = [
 const STEPS = {
   ANCHOR: 0, AGE: 1, HAIR_TYPE: 2,
   Q1: 3, Q2: 4, Q3: 5, Q4: 6, Q5: 7,
-  BEFORE_AFTER: 8, NAME: 9, LOADING: 10,
+  VOCE_SABIA: 8,
+  BEFORE_AFTER: 9, NAME: 10, LOADING: 11,
 };
 const TOTAL_QUIZ_STEPS = 8;
 
@@ -393,10 +394,55 @@ export default function Landing() {
                     key={opt.value}
                     {...opt}
                     selected={answers.chemProducts === opt.value}
-                    onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.BEFORE_AFTER); }}
+                    onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.VOCE_SABIA); }}
                   />
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* ═══ VOCÊ SABIA? ═══ */}
+          {step === STEPS.VOCE_SABIA && (
+            <motion.div key="voce-sabia" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-8 flex flex-col gap-6">
+              <div className="rounded-2xl overflow-hidden w-full" style={{ aspectRatio: '16/9', background: PL2 }}>
+                <img
+                  src="/images/quiz-v2/voce-sabia.jpg"
+                  alt="Você sabia?"
+                  className="w-full h-full object-cover"
+                  onError={e => { e.currentTarget.style.display = 'none'; }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                  Você sabia?
+                </h2>
+                <div className="flex flex-col gap-3 text-base text-stone-600 leading-relaxed">
+                  <p>
+                    A indústria de cosméticos movimenta <strong className="text-stone-800">mais de R$ 50 bilhões por ano</strong> só no Brasil — e grande parte desse dinheiro vem de produtos que prometem transformar seu cabelo, mas na prática nunca entregam o resultado que você espera.
+                  </p>
+                  <p>
+                    O problema não é você. É que a maioria dos produtos foi formulada para <strong className="text-stone-800">mascarar o dano</strong>, não para tratá-lo de verdade. Silicones pesados deixam o cabelo "bonito" por um dia e acumulam camadas que sufocam os fios com o tempo.
+                  </p>
+                  <p>
+                    Enquanto isso, ingredientes naturais com eficácia comprovada — como óleos vegetais, manteigas e proteínas vegetais — ficam de fora das prateleiras porque custam mais e duram menos na vitrine.
+                  </p>
+                  <p>
+                    Com base nas suas respostas, preparamos um <strong className="text-stone-800">protocolo personalizado</strong> com receitas naturais que realmente nutrem, reparam e fortalecem os seus fios — sem químicas agressivas, sem enganação.
+                  </p>
+                </div>
+              </div>
+
+              <motion.button
+                onClick={() => setStep(STEPS.BEFORE_AFTER)}
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-full py-5 font-extrabold text-white flex items-center justify-center gap-2 rounded-full"
+                style={{ background: GRAD, boxShadow: '0 4px 24px rgba(251,69,169,0.4)', fontSize: '0.95rem' }}
+              >
+                Ver minha transformação
+                <ArrowRight className="w-5 h-5 flex-shrink-0" />
+              </motion.button>
             </motion.div>
           )}
 
