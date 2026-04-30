@@ -7,9 +7,9 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
-import Landing from './pages/Landing';
+import Quiz from './pages/Quiz';
 import Results from './pages/Results';
-import QuizV2 from './pages/QuizV2';
+import QuizLegacy from './pages/QuizLegacy';
 import QuizResultsV2 from './pages/QuizResultsV2';
 import QuizSalesV2 from './pages/QuizSalesV2';
 import Login from './pages/Login';
@@ -88,10 +88,10 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Login" replace />} />
-      <Route path="/quiz" element={<Landing />} />
+      <Route path="/quiz" element={<Quiz />} />
       <Route path="/Landing" element={<Navigate to="/quiz" replace />} />
       <Route path="/Results" element={<Results />} />
-      <Route path="/quiz2" element={<QuizV2 />} />
+      <Route path="/quiz2" element={<QuizLegacy />} />
       <Route path="/quiz-results" element={<QuizResultsV2 />} />
       <Route path="/quiz-sales" element={<QuizSalesV2 />} />
       <Route path="/Login" element={<Login />} />

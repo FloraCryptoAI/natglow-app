@@ -67,7 +67,7 @@ function QuizOption({ value, label, desc, emoji, selected, onClick }) {
   );
 }
 
-export default function QuizV2() {
+export default function QuizLegacy() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
