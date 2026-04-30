@@ -183,7 +183,10 @@ Deno.serve(async (req) => {
       }
       case 'customer.subscription.deleted': {
         const sub = event.data.object
-        await dbUpdate('subscriptions', { status: 'canceled' }, `stripe_subscription_id=eq.${sub.id}`)
+        await dbUpdate('subscriptions', {
+          status: 'canceled',
+          canceled_at: toISO(sub.canceled_at) ?? new Date().toISOString(),
+        }, `stripe_subscription_id=eq.${sub.id}`)
         break
       }
       case 'invoice.payment_failed': {

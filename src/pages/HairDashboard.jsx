@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Calendar, AlertTriangle, CheckCircle, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import HairSpecialRecipe from '../components/hair/HairSpecialRecipe';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
+import { supabase } from '@/api/supabaseClient';
 
 const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'maizena-acucar'];
 const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🥥', 'maizena-acucar': '🍋' };
@@ -20,6 +21,17 @@ export default function HairDashboard() {
   const { t } = useTranslation();
   const { getRecipeById, tagLabels } = useTranslatedHairData();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from('subscriptions')
+        .update({ last_access: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .then(() => {})
+    })
+  }, []);
 
   const essentialRecipes = ESSENTIAL_IDS.map(id => getRecipeById(id)).filter(Boolean);
   const essentialDisplay = t('hairDashboard.essentialRecipes', { returnObjects: true });

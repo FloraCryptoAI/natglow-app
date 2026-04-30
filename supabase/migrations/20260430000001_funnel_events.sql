@@ -22,8 +22,16 @@ create index if not exists funnel_events_user_idx
 alter table public.funnel_events enable row level security;
 
 -- Anon and authenticated users can insert (tracking only — no read)
-create policy "funnel_events_insert" on public.funnel_events
-  for insert to anon, authenticated
-  with check (true);
+do $$ begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename  = 'funnel_events'
+      and policyname = 'funnel_events_insert'
+  ) then
+    execute 'create policy "funnel_events_insert" on public.funnel_events
+      for insert to anon, authenticated with check (true)';
+  end if;
+end $$;
 
 -- No client-side reads — admin reads via service role (bypasses RLS)
