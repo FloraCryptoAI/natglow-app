@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
 
 // ── design tokens ──────────────────────────────────────────────────────────
 const P    = '#FB45A9';
@@ -319,6 +320,7 @@ export default function Results() {
   const REASSURANCE = t('results.reassurance', { returnObjects: true });
 
   useEffect(() => {
+    trackFunnelEvent('results_viewed');
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (!stored) {
       sessionStorage.setItem('glow_results_timer_end', (Date.now() + 15 * 60 * 1000).toString());
@@ -353,12 +355,14 @@ export default function Results() {
   const handleCheckout = async () => {
     setLoading(true);
     setError(null);
+    trackFunnelEvent('cta_clicked');
     try {
       const invokeOptions = {
         body: {
           priceId: import.meta.env.VITE_STRIPE_PRICE_ID,
           successUrl: window.location.origin + '/success',
           cancelUrl: window.location.origin + '/Results',
+          funnelSessionId: getFunnelSessionId(),
         },
       };
       if (user) {
