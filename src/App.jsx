@@ -9,9 +9,6 @@ import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
 import Quiz from './pages/Quiz';
 import Results from './pages/Results';
-import QuizLegacy from './pages/QuizLegacy';
-import QuizResultsV2 from './pages/QuizResultsV2';
-import QuizSalesV2 from './pages/QuizSalesV2';
 import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
@@ -91,9 +88,6 @@ const AppRoutes = () => {
       <Route path="/quiz" element={<Quiz />} />
       <Route path="/Landing" element={<Navigate to="/quiz" replace />} />
       <Route path="/Results" element={<Results />} />
-      <Route path="/quiz2" element={<QuizLegacy />} />
-      <Route path="/quiz-results" element={<QuizResultsV2 />} />
-      <Route path="/quiz-sales" element={<QuizSalesV2 />} />
       <Route path="/Login" element={<Login />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}
