@@ -18,7 +18,7 @@ async function fetchAllStripeSubscriptions(): Promise<Record<string, unknown>[]>
   for (let page = 0; page < 10; page++) {
     const q = new URLSearchParams({ limit: '100', status: 'all' })
     if (startingAfter) q.set('starting_after', startingAfter)
-    const data = await stripeGet(`/v1/subscriptions?${q}`)
+    const data = await stripeGet(`/subscriptions?${q}`)
     all.push(...(data.data ?? []))
     if (!data.has_more || data.data.length === 0) break
     startingAfter = data.data[data.data.length - 1].id

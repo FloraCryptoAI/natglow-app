@@ -19,7 +19,7 @@ async function fetchAllStripeSubscriptions(): Promise<Record<string, unknown>[]>
   for (let page = 0; page < 10; page++) {
     const q = new URLSearchParams({ limit: '100', status: 'all' })
     if (startingAfter) q.set('starting_after', startingAfter)
-    const data = await stripeGet(`/v1/subscriptions?${q}`)
+    const data = await stripeGet(`/subscriptions?${q}`)
     all.push(...(data.data ?? []))
     if (!data.has_more || data.data.length === 0) break
     startingAfter = data.data[data.data.length - 1].id
@@ -33,7 +33,7 @@ async function fetchTotalRevenueCents(): Promise<number> {
   for (let page = 0; page < 10; page++) {
     const q = new URLSearchParams({ limit: '100', status: 'paid' })
     if (startingAfter) q.set('starting_after', startingAfter)
-    const data = await stripeGet(`/v1/invoices?${q}`)
+    const data = await stripeGet(`/invoices?${q}`)
     for (const inv of data.data ?? []) total += (inv.amount_paid as number) ?? 0
     if (!data.has_more || data.data.length === 0) break
     startingAfter = data.data[data.data.length - 1].id
@@ -72,8 +72,8 @@ Deno.serve(async (req) => {
 
     const [allSubs, recentPaidData, failedData, totalRevenueCents] = await Promise.all([
       fetchAllStripeSubscriptions(),
-      stripeGet('/v1/invoices?limit=20&status=paid&expand[]=data.customer'),
-      stripeGet('/v1/invoices?limit=20&status=open&collection_method=charge_automatically&expand[]=data.customer'),
+      stripeGet('/invoices?limit=20&status=paid&expand[]=data.customer'),
+      stripeGet('/invoices?limit=20&status=open&collection_method=charge_automatically&expand[]=data.customer'),
       fetchTotalRevenueCents(),
     ])
 
