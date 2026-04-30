@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
 
 const P    = '#FB45A9';
 const PD   = '#E03594';
@@ -308,12 +309,14 @@ export default function QuizSalesV2() {
   const handleCheckout = async () => {
     setLoading(true);
     setError(null);
+    trackFunnelEvent('cta_clicked');
     try {
       const invokeOptions = {
         body: {
           priceId: import.meta.env.VITE_STRIPE_PRICE_ID,
           successUrl: window.location.origin + '/success',
           cancelUrl: window.location.origin + '/quiz-sales',
+          funnelSessionId: getFunnelSessionId(),
         },
       };
       if (user) {

@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { priceId, successUrl, cancelUrl } = await req.json()
+    const { priceId, successUrl, cancelUrl, funnelSessionId } = await req.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return new Response(JSON.stringify({ error: 'Parâmetros obrigatórios ausentes' }), {
@@ -58,6 +58,10 @@ Deno.serve(async (req) => {
       'line_items[0][quantity]': '1',
       success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl,
+    }
+
+    if (funnelSessionId) {
+      sessionParams['metadata[funnel_session_id]'] = funnelSessionId
     }
 
     if (user?.id) {

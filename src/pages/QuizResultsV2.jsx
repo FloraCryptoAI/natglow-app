@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
+import { trackFunnelEvent } from '@/lib/trackFunnelEvent';
 
 const P    = '#FB45A9';
 const PD   = '#E03594';
@@ -79,7 +80,8 @@ export default function QuizResultsV2() {
 
   useEffect(() => {
     if (!state?.answers) navigate('/quiz', { replace: true });
-  }, [state, navigate]);
+    else trackFunnelEvent('results_viewed');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (user && isSubscribed) navigate('/HairDashboard', { replace: true });

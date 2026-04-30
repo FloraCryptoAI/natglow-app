@@ -50,6 +50,18 @@ async function dbUpdate(table: string, data: Record<string, unknown>, filter: st
   })
 }
 
+async function dbInsert(table: string, data: Record<string, unknown>) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      apikey: SUPABASE_SERVICE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+}
+
 // Busca user_id existente pelo email na tabela subscriptions
 async function getUserIdByEmail(email: string): Promise<string | null> {
   const res = await fetch(
@@ -130,6 +142,8 @@ Deno.serve(async (req) => {
           }
         }
 
+        const funnelSessionId: string | null = session.metadata?.funnel_session_id ?? null
+
         if (userId) {
           await dbUpsert('subscriptions', {
             user_id: userId,
@@ -143,6 +157,18 @@ Deno.serve(async (req) => {
 
           // Envia magic link para a compradora acessar o app
           if (email) await adminSendMagicLink(email)
+
+          // Link funnel events to the new user and record payment
+          if (funnelSessionId) {
+            await Promise.all([
+              dbUpdate('funnel_events', { user_id: userId }, `session_id=eq.${funnelSessionId}`),
+              dbInsert('funnel_events', {
+                event_type: 'payment_completed',
+                session_id: funnelSessionId,
+                user_id: userId,
+              }),
+            ])
+          }
         }
         break
       }

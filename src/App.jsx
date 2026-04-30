@@ -15,7 +15,15 @@ import QuizSalesV2 from './pages/QuizSalesV2';
 import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
-import Admin from './pages/Admin';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminFunnel from './pages/admin/AdminFunnel';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminFinancial from './pages/admin/AdminFinancial';
+import AdminRetention from './pages/admin/AdminRetention';
+import AdminGeography from './pages/admin/AdminGeography';
+import AdminQuizAnswers from './pages/admin/AdminQuizAnswers';
+import AdminSettings from './pages/admin/AdminSettings';
 import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
@@ -100,9 +108,17 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
 
       {/* Painel de admin — protegido por JWT admin (MFA) */}
-      <Route path="/admin" element={
-        <AdminRoute><Admin /></AdminRoute>
-      } />
+      <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview"  element={<AdminOverview />} />
+        <Route path="funnel"    element={<AdminFunnel />} />
+        <Route path="users"     element={<AdminUsers />} />
+        <Route path="financial" element={<AdminFinancial />} />
+        <Route path="retention" element={<AdminRetention />} />
+        <Route path="geography" element={<AdminGeography />} />
+        <Route path="quiz"      element={<AdminQuizAnswers />} />
+        <Route path="settings"  element={<AdminSettings />} />
+      </Route>
 
       {/* Skin care — página standalone */}
       <Route path="/SkinAge" element={

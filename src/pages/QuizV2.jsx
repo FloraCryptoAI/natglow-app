@@ -4,6 +4,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
+import { trackFunnelEvent } from '@/lib/trackFunnelEvent';
 
 const STEPS = {
   ANCHOR: 0, AGE: 1, HAIR_TYPE: 2,
@@ -121,6 +122,7 @@ export default function QuizV2() {
 
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
+    trackFunnelEvent('quiz_completed', { answers });
     setLoadingProgress(0);
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),
@@ -184,7 +186,7 @@ export default function QuizV2() {
               </div>
 
               <button
-                onClick={() => setStep(STEPS.AGE)}
+                onClick={() => { trackFunnelEvent('quiz_started'); setStep(STEPS.AGE); }}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
                 {t('quiz.anchor.cta')}
