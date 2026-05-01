@@ -159,10 +159,12 @@ function RecipeCard({ recipe, t }) {
   );
 }
 
-function PricingCard({ onCheckout, loading, error, t }) {
+function PricingCard({ onCheckout, loading, error, t, adminConfig = {} }) {
   const benefits = t('results.pricing.benefits', { returnObjects: true });
+  const timerEnabled = adminConfig.timer_enabled !== 'false';
 
   const [timeLeft, setTimeLeft] = useState(() => {
+    if (!timerEnabled) return 0;
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (stored) {
       const remaining = Math.floor((parseInt(stored) - Date.now()) / 1000);
@@ -187,10 +189,10 @@ function PricingCard({ onCheckout, loading, error, t }) {
           className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
           style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
         >
-          {t('results.pricing.promoBadge')}
+          {adminConfig.promo_badge || t('results.pricing.promoBadge')}
         </div>
 
-        {timeLeft > 0 && (
+        {timerEnabled && timeLeft > 0 && (
           <div
             className="flex items-center gap-2 rounded-xl px-4 py-3 mb-6 text-sm font-semibold"
             style={{ background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', color: '#1c1c1c' }}
@@ -203,7 +205,9 @@ function PricingCard({ onCheckout, loading, error, t }) {
 
         <div className="mb-7">
           <div className="flex items-center gap-2.5 mb-1">
-            <p className="text-stone-400 line-through text-base">{t('results.pricing.originalPrice')}</p>
+            <p className="text-stone-400 line-through text-base">
+              {adminConfig.crossed_price || t('results.pricing.originalPrice')}
+            </p>
             <span
               className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: '#FEF2F2', color: '#DC2626' }}
@@ -214,7 +218,7 @@ function PricingCard({ onCheckout, loading, error, t }) {
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold" style={{ color: P }}>$</span>
             <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P }}>
-              {t('results.pricing.price')}
+              {adminConfig.displayed_price || t('results.pricing.price')}
             </span>
             <span className="text-stone-400 text-lg ml-1">{t('results.pricing.period')}</span>
           </div>
@@ -274,6 +278,28 @@ function PricingCard({ onCheckout, loading, error, t }) {
   );
 }
 
+// ── admin config defaults ──────────────────────────────────────────────────
+
+const CONFIG_DEFAULTS = {
+  displayed_price: '6.99',
+  crossed_price: '$47.99',
+  promo_badge: null,
+  timer_enabled: 'true',
+  timer_minutes: '15',
+  maintenance_mode: 'false',
+  maintenance_text: 'Estamos em manutenção. Voltamos em breve! 🌿',
+};
+
+function MaintenanceScreen({ message }) {
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center">
+      <div className="text-6xl mb-6">🌿</div>
+      <h1 className="text-2xl font-extrabold text-stone-900 mb-3">Em manutenção</h1>
+      <p className="text-stone-500 text-base max-w-sm leading-relaxed">{message}</p>
+    </div>
+  );
+}
+
 // ── main component ─────────────────────────────────────────────────────────
 
 export default function Results() {
@@ -284,6 +310,7 @@ export default function Results() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [adminConfig, setAdminConfig] = useState(CONFIG_DEFAULTS);
   const pricingRef = useRef(null);
 
   const RECIPES_TEASE = [
@@ -321,11 +348,29 @@ export default function Results() {
 
   useEffect(() => {
     trackFunnelEvent('results_viewed');
+    // Fetch admin config (non-blocking — failures silently use defaults)
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    fetch(`${supabaseUrl}/functions/v1/admin-config`, {
+      headers: {
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey: supabaseAnonKey,
+      },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(cfg => { if (cfg && !cfg.error) setAdminConfig({ ...CONFIG_DEFAULTS, ...cfg }); })
+      .catch(() => {});
+  }, []);
+
+  // Set urgency timer duration from admin config (runs when config loads)
+  useEffect(() => {
+    if (adminConfig.timer_enabled !== 'true') return;
     const stored = sessionStorage.getItem('glow_results_timer_end');
     if (!stored) {
-      sessionStorage.setItem('glow_results_timer_end', (Date.now() + 15 * 60 * 1000).toString());
+      const minutes = parseInt(adminConfig.timer_minutes) || 15;
+      sessionStorage.setItem('glow_results_timer_end', (Date.now() + minutes * 60 * 1000).toString());
     }
-  }, []);
+  }, [adminConfig]);
 
   useEffect(() => {
     if (!state?.answers) navigate('/quiz', { replace: true });
@@ -343,6 +388,11 @@ export default function Results() {
   }, [user, isSubscribed, navigate]);
 
   if (!state?.answers) return null;
+
+  // Maintenance mode — block access for everyone (admin bypasses via /admin)
+  if (adminConfig.maintenance_mode === 'true') {
+    return <MaintenanceScreen message={adminConfig.maintenance_text} />;
+  }
 
   const { answers } = state;
   const { signs, causes } = getDiagnosis(answers, t);
@@ -639,7 +689,7 @@ export default function Results() {
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} />
           </FadeIn>
 
           <FadeIn delay={0.1}>
