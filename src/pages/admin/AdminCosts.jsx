@@ -1,0 +1,902 @@
+import React, { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAdminAuth } from '@/lib/AdminAuthContext'
+import {
+  RefreshCw, AlertCircle, Plus, Pencil, Trash2, X, Check,
+  DollarSign, TrendingUp, TrendingDown, Percent, ChevronLeft, ChevronRight,
+} from 'lucide-react'
+import {
+  ResponsiveContainer, BarChart, Bar, LineChart, Line,
+  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend,
+} from 'recharts'
+
+// ── constants ──────────────────────────────────────────
+
+const CATEGORIES = [
+  { key: 'trafego_pago', label: 'Tráfego Pago',  emoji: '📢' },
+  { key: 'freelancer',   label: 'Freelancer',     emoji: '👩‍💻' },
+  { key: 'ferramentas',  label: 'Ferramentas',    emoji: '🛠️' },
+  { key: 'outros',       label: 'Outros',         emoji: '📝' },
+]
+
+const PERIODS = [
+  { key: 'today',         label: 'Hoje' },
+  { key: '7d',            label: '7 dias' },
+  { key: '30d',           label: '30 dias' },
+  { key: 'current_month', label: 'Mês atual' },
+  { key: 'custom',        label: 'Personalizado' },
+]
+
+const TODAY = new Date().toISOString().slice(0, 10)
+
+// ── shared UI helpers ──────────────────────────────────
+
+function SectionHeader({ title }) {
+  return <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">{title}</p>
+}
+
+function ChartTooltip({ active, payload, label, prefix = '' }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
+      <p className="font-bold text-stone-700 mb-1">{label}</p>
+      {payload.map(p => (
+        <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
+          {p.name}: {prefix}
+          {typeof p.value === 'number' ? p.value.toFixed(2) : p.value}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function ChartSkeleton({ h = 200 }) {
+  return <div className="animate-pulse bg-stone-50 rounded-xl" style={{ height: h }} />
+}
+
+function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading, highlight }) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl border border-stone-100 p-5 animate-pulse">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl bg-stone-100 flex-shrink-0" />
+          <div className="h-3.5 bg-stone-100 rounded w-28" />
+        </div>
+        <div className="h-8 bg-stone-100 rounded w-20" />
+        {sub !== undefined && <div className="h-3 bg-stone-100 rounded w-24 mt-2" />}
+      </div>
+    )
+  }
+  return (
+    <div className={`rounded-2xl border p-5 ${highlight ? 'bg-brand-pale border-brand/20' : 'bg-white border-stone-100'}`}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
+          <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
+        </div>
+        <span className="text-sm text-stone-500 font-medium leading-tight">{label}</span>
+      </div>
+      <p className={`text-3xl font-extrabold tracking-tight ${highlight ? 'text-brand' : 'text-stone-900'}`}>{value}</p>
+      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
+    </div>
+  )
+}
+
+function ErrorBanner({ message, onRetry }) {
+  return (
+    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+      <p className="text-sm text-red-600 flex-1">{message}</p>
+      {onRetry && (
+        <button onClick={onRetry} className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5 flex-shrink-0">
+          <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── period selector ────────────────────────────────────
+
+function PeriodSelector({ period, onPeriod, customStart, customEnd, onCustomStart, onCustomEnd }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex bg-white border border-stone-200 rounded-xl p-1 gap-0.5 flex-wrap">
+        {PERIODS.map(p => (
+          <button
+            key={p.key}
+            onClick={() => onPeriod(p.key)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+              period === p.key ? 'bg-stone-900 text-white' : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      {period === 'custom' && (
+        <div className="flex items-center gap-2 text-sm">
+          <input
+            type="date" value={customStart} onChange={e => onCustomStart(e.target.value)}
+            className="rounded-xl border border-stone-200 px-2.5 py-1.5 text-sm text-stone-700 focus:outline-none focus:border-brand"
+          />
+          <span className="text-stone-400">→</span>
+          <input
+            type="date" value={customEnd} onChange={e => onCustomEnd(e.target.value)}
+            className="rounded-xl border border-stone-200 px-2.5 py-1.5 text-sm text-stone-700 focus:outline-none focus:border-brand"
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── cost form modal ────────────────────────────────────
+
+function CostFormModal({ open, onClose, onSave, initial, saving }) {
+  const [form, setForm] = useState({
+    data:             TODAY,
+    categoria:        'trafego_pago',
+    descricao_outros: '',
+    valor:            '',
+    observacao:       '',
+    ...initial,
+  })
+  const [errors, setErrors] = useState({})
+
+  useEffect(() => {
+    if (open) {
+      setForm({ data: TODAY, categoria: 'trafego_pago', descricao_outros: '', valor: '', observacao: '', ...initial })
+      setErrors({})
+    }
+  }, [open, JSON.stringify(initial)])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const validate = () => {
+    const e = {}
+    if (!form.data)  e.data = 'Data obrigatória'
+    if (!form.valor || isNaN(Number(form.valor)) || Number(form.valor) <= 0) e.valor = 'Valor inválido'
+    if (form.categoria === 'outros' && !form.descricao_outros?.trim()) e.descricao_outros = 'Descrição obrigatória para Outros'
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const handleSave = () => {
+    if (!validate()) return
+    onSave({
+      data:             form.data,
+      categoria:        form.categoria,
+      descricao_outros: form.categoria === 'outros' ? form.descricao_outros.trim() : null,
+      valor:            Number(form.valor),
+      observacao:       form.observacao?.trim() || null,
+    })
+  }
+
+  if (!open) return null
+
+  const catInfo = CATEGORIES.find(c => c.key === form.categoria)
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+          <p className="font-bold text-stone-900">{initial?.id ? 'Editar custo' : 'Registrar custo'}</p>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          {/* Data */}
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Data</label>
+            <input
+              type="date" value={form.data}
+              onChange={e => set('data', e.target.value)}
+              className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-700 focus:outline-none focus:border-brand"
+            />
+            {errors.data && <p className="text-xs text-red-500 mt-1">{errors.data}</p>}
+          </div>
+
+          {/* Categoria */}
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Categoria</label>
+            <div className="grid grid-cols-2 gap-2">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.key}
+                  onClick={() => set('categoria', cat.key)}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                    form.categoria === cat.key
+                      ? 'bg-brand-pale border-brand/30 text-brand'
+                      : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50'
+                  }`}
+                >
+                  <span>{cat.emoji}</span>
+                  <span>{cat.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Descrição (somente para Outros) */}
+          {form.categoria === 'outros' && (
+            <div>
+              <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                Descreva o custo <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.descricao_outros}
+                onChange={e => set('descricao_outros', e.target.value)}
+                placeholder="Ex: Domínio, Curso, Design..."
+                className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:border-brand"
+              />
+              {errors.descricao_outros && <p className="text-xs text-red-500 mt-1">{errors.descricao_outros}</p>}
+            </div>
+          )}
+
+          {/* Valor */}
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Valor ($)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-medium">$</span>
+              <input
+                type="number" min="0" step="0.01" value={form.valor}
+                onChange={e => set('valor', e.target.value)}
+                placeholder="0.00"
+                className="w-full rounded-xl border border-stone-200 pl-7 pr-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:border-brand"
+              />
+            </div>
+            {errors.valor && <p className="text-xs text-red-500 mt-1">{errors.valor}</p>}
+          </div>
+
+          {/* Observação */}
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Observação <span className="text-stone-400 font-normal">(opcional)</span></label>
+            <textarea
+              value={form.observacao}
+              onChange={e => set('observacao', e.target.value)}
+              placeholder="Detalhes adicionais..."
+              rows={2}
+              className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:border-brand resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 flex gap-2 justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl text-sm font-semibold text-stone-500 hover:bg-stone-100 transition-all"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-all disabled:opacity-50"
+          >
+            {saving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            {initial?.id ? 'Salvar' : 'Registrar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── delete confirm modal ───────────────────────────────
+
+function DeleteModal({ open, cost, onClose, onConfirm, deleting }) {
+  if (!open || !cost) return null
+  const catInfo = CATEGORIES.find(c => c.key === cost.categoria)
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+          <Trash2 className="w-5 h-5 text-red-500" />
+        </div>
+        <p className="font-bold text-stone-900 text-center mb-1">Excluir custo?</p>
+        <p className="text-sm text-stone-500 text-center mb-5">
+          {catInfo?.emoji} {catInfo?.label}
+          {cost.descricao_outros ? ` — ${cost.descricao_outros}` : ''}
+          {' '}· <strong>${Number(cost.valor).toFixed(2)}</strong>
+        </p>
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 text-sm font-semibold text-stone-600 hover:bg-stone-50 transition-all">
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={deleting}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-all disabled:opacity-50"
+          >
+            {deleting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── pie chart tooltip ──────────────────────────────────
+
+function PieTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]
+  return (
+    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
+      <p className="font-bold text-stone-700 mb-0.5">{d.name}</p>
+      <p className="font-medium" style={{ color: d.payload.color }}>
+        ${Number(d.value).toFixed(2)} ({d.payload.pct}%)
+      </p>
+    </div>
+  )
+}
+
+// ── main page ──────────────────────────────────────────
+
+export default function AdminCosts() {
+  const { adminToken, clearAdminToken } = useAdminAuth()
+  const navigate = useNavigate()
+
+  const supabaseUrl    = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+  const authHeaders = useCallback(() => ({
+    Authorization: `Bearer ${supabaseAnonKey}`,
+    apikey: supabaseAnonKey,
+    'x-admin-token': adminToken,
+    'Content-Type': 'application/json',
+  }), [adminToken, supabaseAnonKey])
+
+  const baseUrl = `${supabaseUrl}/functions/v1/admin-costs`
+
+  const handleUnauth = (status) => {
+    if (status === 401 || status === 403) {
+      clearAdminToken()
+      navigate('/admin/login', { replace: true })
+      return true
+    }
+    return false
+  }
+
+  // ── ROI state ─────────────────────────────────────────
+  const [roiPeriod,     setRoiPeriod]     = useState('30d')
+  const [roiCustomStart, setRoiCustomStart] = useState('')
+  const [roiCustomEnd,   setRoiCustomEnd]   = useState('')
+  const [roiData,       setRoiData]       = useState(null)
+  const [loadingRoi,    setLoadingRoi]    = useState(true)
+  const [errorRoi,      setErrorRoi]      = useState(null)
+
+  // ── List state ────────────────────────────────────────
+  const [page,           setPage]          = useState(1)
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [listPeriod,     setListPeriod]    = useState('all')
+  const [listCustomStart, setListCustomStart] = useState('')
+  const [listCustomEnd,   setListCustomEnd]   = useState('')
+  const [costs,          setCosts]         = useState([])
+  const [costsTotal,     setCostsTotal]    = useState(0)
+  const [loadingList,    setLoadingList]   = useState(true)
+  const [errorList,      setErrorList]     = useState(null)
+
+  // ── Form state ────────────────────────────────────────
+  const [formOpen,    setFormOpen]    = useState(false)
+  const [editingCost, setEditingCost] = useState(null)
+  const [saving,      setSaving]      = useState(false)
+
+  // ── Delete state ──────────────────────────────────────
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleting,     setDeleting]     = useState(false)
+
+  // ── fetch ROI ─────────────────────────────────────────
+  const loadRoi = useCallback(async (p = roiPeriod, cs = roiCustomStart, ce = roiCustomEnd) => {
+    setLoadingRoi(true)
+    setErrorRoi(null)
+    try {
+      const params = new URLSearchParams({ mode: 'roi', period: p })
+      if (p === 'custom') { params.set('start', cs); params.set('end', ce) }
+      const res = await fetch(`${baseUrl}?${params}`, { headers: authHeaders() })
+      if (handleUnauth(res.status)) return
+      const result = await res.json()
+      if (result?.error) throw new Error(result.error)
+      setRoiData(result)
+    } catch (e) {
+      setErrorRoi(e?.message ?? 'Erro ao carregar dados de ROI')
+    } finally {
+      setLoadingRoi(false)
+    }
+  }, [adminToken]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── fetch list ────────────────────────────────────────
+  const loadList = useCallback(async (p = page, cat = categoryFilter, lp = listPeriod, ls = listCustomStart, le = listCustomEnd) => {
+    setLoadingList(true)
+    setErrorList(null)
+    try {
+      const params = new URLSearchParams({
+        mode: 'list', page: String(p), categoria: cat, period: lp,
+      })
+      if (lp === 'custom') { params.set('start', ls); params.set('end', le) }
+      const res = await fetch(`${baseUrl}?${params}`, { headers: authHeaders() })
+      if (handleUnauth(res.status)) return
+      const result = await res.json()
+      if (result?.error) throw new Error(result.error)
+      setCosts(result.costs ?? [])
+      setCostsTotal(result.total ?? 0)
+    } catch (e) {
+      setErrorList(e?.message ?? 'Erro ao carregar custos')
+    } finally {
+      setLoadingList(false)
+    }
+  }, [adminToken]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { loadRoi() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { loadList() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── ROI period change ─────────────────────────────────
+  const handleRoiPeriod = (p) => {
+    setRoiPeriod(p)
+    if (p !== 'custom') loadRoi(p)
+  }
+  const handleRoiCustomApply = () => {
+    if (roiCustomStart && roiCustomEnd) loadRoi('custom', roiCustomStart, roiCustomEnd)
+  }
+
+  // ── list filter change ────────────────────────────────
+  const handleListFilter = (cat, lp) => {
+    setCategoryFilter(cat)
+    setListPeriod(lp)
+    setPage(1)
+    loadList(1, cat, lp, listCustomStart, listCustomEnd)
+  }
+
+  // ── CRUD actions ──────────────────────────────────────
+  const handleSave = async (formData) => {
+    setSaving(true)
+    try {
+      const isEdit = !!editingCost?.id
+      const url    = isEdit ? `${baseUrl}?id=${editingCost.id}` : baseUrl
+      const method = isEdit ? 'PATCH' : 'POST'
+      const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(formData) })
+      if (handleUnauth(res.status)) return
+      const result = await res.json()
+      if (result?.error) throw new Error(result.error)
+      setFormOpen(false)
+      setEditingCost(null)
+      loadList(page, categoryFilter, listPeriod)
+      loadRoi(roiPeriod, roiCustomStart, roiCustomEnd)
+    } catch (e) {
+      alert(e?.message ?? 'Erro ao salvar custo')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`${baseUrl}?id=${deleteTarget.id}`, { method: 'DELETE', headers: authHeaders() })
+      if (handleUnauth(res.status)) return
+      setDeleteTarget(null)
+      loadList(page, categoryFilter, listPeriod)
+      loadRoi(roiPeriod, roiCustomStart, roiCustomEnd)
+    } catch (e) {
+      alert(e?.message ?? 'Erro ao excluir custo')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const openEdit = (cost) => {
+    setEditingCost({
+      id:               cost.id,
+      data:             cost.data,
+      categoria:        cost.categoria,
+      descricao_outros: cost.descricao_outros ?? '',
+      valor:            String(cost.valor),
+      observacao:       cost.observacao ?? '',
+    })
+    setFormOpen(true)
+  }
+
+  const pageSize  = 20
+  const totalPages = Math.ceil(costsTotal / pageSize)
+
+  const summary = roiData?.summary ?? {}
+  const sixMonthData   = roiData?.sixMonthData ?? []
+  const catDist        = roiData?.categoryDistribution ?? []
+  const trafficByMonth = roiData?.trafficRoiByMonth ?? []
+
+  const fmt = v => `$${Number(v ?? 0).toFixed(2)}`
+  const fmtX = v => v == null ? '—' : `${v}×`
+
+  return (
+    <>
+      <CostFormModal
+        open={formOpen}
+        onClose={() => { setFormOpen(false); setEditingCost(null) }}
+        onSave={handleSave}
+        initial={editingCost}
+        saving={saving}
+      />
+      <DeleteModal
+        open={!!deleteTarget}
+        cost={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        deleting={deleting}
+      />
+
+      <div className="flex flex-col gap-8 max-w-5xl">
+
+        {/* ── Page header ─────────────────────────────── */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-xl font-extrabold text-stone-900">Custos & ROI</h1>
+            <p className="text-sm text-stone-400 mt-0.5">Registro de custos e retorno sobre investimento</p>
+          </div>
+          <button
+            onClick={() => { setFormOpen(true); setEditingCost(null) }}
+            className="flex items-center gap-2 bg-brand text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand/90 transition-all shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Registrar custo
+          </button>
+        </div>
+
+        {/* ══════════════════════════════════════════════
+            SEÇÃO A — Registro de Custos
+        ══════════════════════════════════════════════ */}
+        <section>
+          <SectionHeader title="Registro de custos" />
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            {/* Category filter */}
+            <div className="flex bg-white border border-stone-200 rounded-xl p-1 gap-0.5">
+              <button
+                onClick={() => handleListFilter('all', listPeriod)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  categoryFilter === 'all' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:text-stone-800'
+                }`}
+              >
+                Todas
+              </button>
+              {CATEGORIES.map(c => (
+                <button
+                  key={c.key}
+                  onClick={() => handleListFilter(c.key, listPeriod)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    categoryFilter === c.key ? 'bg-stone-900 text-white' : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  {c.emoji}
+                </button>
+              ))}
+            </div>
+
+            {/* Period filter for list */}
+            <div className="flex bg-white border border-stone-200 rounded-xl p-1 gap-0.5">
+              <button
+                onClick={() => handleListFilter(categoryFilter, 'all')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  listPeriod === 'all' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:text-stone-800'
+                }`}
+              >
+                Todos
+              </button>
+              {PERIODS.map(p => (
+                <button
+                  key={p.key}
+                  onClick={() => handleListFilter(categoryFilter, p.key)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    listPeriod === p.key ? 'bg-stone-900 text-white' : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {listPeriod === 'custom' && (
+              <div className="flex items-center gap-2 text-sm">
+                <input type="date" value={listCustomStart} onChange={e => setListCustomStart(e.target.value)}
+                  className="rounded-xl border border-stone-200 px-2.5 py-1.5 text-sm text-stone-700 focus:outline-none focus:border-brand" />
+                <span className="text-stone-400">→</span>
+                <input type="date" value={listCustomEnd} onChange={e => setListCustomEnd(e.target.value)}
+                  className="rounded-xl border border-stone-200 px-2.5 py-1.5 text-sm text-stone-700 focus:outline-none focus:border-brand" />
+                <button
+                  onClick={() => loadList(1, categoryFilter, 'custom', listCustomStart, listCustomEnd)}
+                  className="px-3 py-1.5 rounded-xl bg-stone-900 text-white text-sm font-semibold"
+                >
+                  Aplicar
+                </button>
+              </div>
+            )}
+          </div>
+
+          {errorList && <div className="mb-4"><ErrorBanner message={errorList} onRetry={() => loadList()} /></div>}
+
+          {/* Table */}
+          <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
+            {loadingList ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="w-7 h-7 border-4 border-stone-200 border-t-stone-700 rounded-full animate-spin" />
+              </div>
+            ) : costs.length === 0 ? (
+              <div className="flex flex-col items-center py-16 gap-2">
+                <p className="text-stone-400 text-sm font-medium">Nenhum custo registrado</p>
+                <button
+                  onClick={() => { setFormOpen(true); setEditingCost(null) }}
+                  className="text-brand text-sm font-semibold hover:underline"
+                >
+                  Registrar primeiro custo
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-stone-100 bg-stone-50">
+                      {['Data', 'Categoria', 'Descrição', 'Valor', 'Observação', ''].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-50">
+                    {costs.map(cost => {
+                      const cat = CATEGORIES.find(c => c.key === cost.categoria)
+                      return (
+                        <tr key={cost.id} className="hover:bg-stone-50 transition-colors">
+                          <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{cost.data}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-stone-100 px-2.5 py-1 rounded-full">
+                              {cat?.emoji} {cat?.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-stone-500 max-w-[180px] truncate">
+                            {cost.descricao_outros || '—'}
+                          </td>
+                          <td className="px-4 py-3 font-bold text-stone-900 tabular-nums whitespace-nowrap">
+                            ${Number(cost.valor).toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-stone-400 max-w-[200px] truncate text-xs">
+                            {cost.observacao || '—'}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => openEdit(cost)}
+                                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-all"
+                                title="Editar"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setDeleteTarget(cost)}
+                                className="p-1.5 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                                title="Excluir"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-3 px-1">
+              <p className="text-xs text-stone-400">
+                {costsTotal} registro{costsTotal !== 1 ? 's' : ''} · página {page} de {totalPages}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  disabled={page === 1}
+                  onClick={() => { const p = page - 1; setPage(p); loadList(p, categoryFilter, listPeriod) }}
+                  className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  disabled={page >= totalPages}
+                  onClick={() => { const p = page + 1; setPage(p); loadList(p, categoryFilter, listPeriod) }}
+                  className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ══════════════════════════════════════════════
+            SEÇÃO B — Dashboard de ROI
+        ══════════════════════════════════════════════ */}
+        <section>
+          <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <SectionHeader title="Dashboard de ROI" />
+            <div className="flex items-center gap-2">
+              <PeriodSelector
+                period={roiPeriod} onPeriod={handleRoiPeriod}
+                customStart={roiCustomStart} customEnd={roiCustomEnd}
+                onCustomStart={setRoiCustomStart} onCustomEnd={setRoiCustomEnd}
+              />
+              {roiPeriod === 'custom' && (
+                <button
+                  onClick={handleRoiCustomApply}
+                  className="px-3 py-1.5 rounded-xl bg-stone-900 text-white text-sm font-semibold"
+                >
+                  Aplicar
+                </button>
+              )}
+              <button
+                onClick={() => loadRoi(roiPeriod, roiCustomStart, roiCustomEnd)}
+                disabled={loadingRoi}
+                className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingRoi ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {errorRoi && <div className="mb-4"><ErrorBanner message={errorRoi} onRetry={() => loadRoi()} /></div>}
+
+          {/* Summary cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <MetricCard
+              icon={TrendingDown} iconBg="bg-red-50" iconColor="text-red-400"
+              label="Custos do período"
+              value={loadingRoi ? '—' : fmt(summary.totalCosts)}
+              loading={loadingRoi}
+            />
+            <MetricCard
+              icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
+              label="Receita do período"
+              value={loadingRoi ? '—' : fmt(summary.totalRevenue)}
+              sub="Via Stripe"
+              loading={loadingRoi}
+            />
+            <MetricCard
+              icon={TrendingUp} iconBg="bg-blue-50" iconColor="text-blue-500"
+              label="Lucro líquido"
+              value={loadingRoi ? '—' : fmt(summary.profit)}
+              loading={loadingRoi}
+              highlight={!loadingRoi && summary.profit > 0}
+            />
+            <MetricCard
+              icon={Percent} iconBg="bg-violet-50" iconColor="text-violet-500"
+              label="Margem líquida"
+              value={loadingRoi ? '—' : `${summary.margin ?? 0}%`}
+              sub="Lucro ÷ Receita"
+              loading={loadingRoi}
+            />
+            <MetricCard
+              icon={TrendingUp} iconBg="bg-orange-50" iconColor="text-orange-500"
+              label="ROI tráfego pago"
+              value={loadingRoi ? '—' : (summary.trafficRoi != null ? `${summary.trafficRoi}×` : '—')}
+              sub={loadingRoi || !summary.trafficCosts ? undefined : `$${Number(summary.trafficCosts).toFixed(2)} em anúncios`}
+              loading={loadingRoi}
+            />
+          </div>
+
+          {/* Chart 1: Receita vs Custos vs Lucro */}
+          <div className="bg-white rounded-2xl border border-stone-100 p-5 mb-4">
+            <p className="font-bold text-stone-800 mb-1">Receita × Custos × Lucro</p>
+            <p className="text-xs text-stone-400 mb-4">Últimos 6 meses (MRR + custos registrados)</p>
+            {loadingRoi ? (
+              <ChartSkeleton h={220} />
+            ) : sixMonthData.length === 0 ? (
+              <p className="text-sm text-stone-400 text-center py-12">Sem dados.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={sixMonthData} barGap={2} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={v => `$${v}`} tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} width={52} />
+                  <Tooltip content={({ active, payload, label }) => <ChartTooltip active={active} payload={payload} label={label} prefix="$" />} />
+                  <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={v => <span className="text-stone-500">{v}</span>} />
+                  <Bar dataKey="receita" name="Receita"  fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                  <Bar dataKey="custos"  name="Custos"   fill="#f87171" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                  <Bar dataKey="lucro"   name="Lucro"    fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {/* Charts 2 + 3 side by side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Pie: distribuição de custos */}
+            <div className="bg-white rounded-2xl border border-stone-100 p-5">
+              <p className="font-bold text-stone-800 mb-1">Distribuição de custos</p>
+              <p className="text-xs text-stone-400 mb-4">Por categoria no período</p>
+              {loadingRoi ? (
+                <ChartSkeleton h={200} />
+              ) : catDist.length === 0 ? (
+                <p className="text-sm text-stone-400 text-center py-12">Sem custos no período.</p>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <ResponsiveContainer width="60%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={catDist} dataKey="value" nameKey="name"
+                        cx="50%" cy="50%" outerRadius={80} innerRadius={48}
+                      >
+                        {catDist.map(entry => (
+                          <Cell key={entry.key} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<PieTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex-1 space-y-2">
+                    {catDist.map(entry => (
+                      <div key={entry.key} className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }} />
+                        <span className="text-xs text-stone-600 flex-1 leading-tight">{entry.name}</span>
+                        <span className="text-xs font-bold text-stone-700">{entry.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Line: ROI tráfego pago por mês */}
+            <div className="bg-white rounded-2xl border border-stone-100 p-5">
+              <p className="font-bold text-stone-800 mb-1">ROI — Tráfego pago</p>
+              <p className="text-xs text-stone-400 mb-4">Receita ÷ custo de anúncios por mês</p>
+              {loadingRoi ? (
+                <ChartSkeleton h={200} />
+              ) : trafficByMonth.every(m => m.roi == null) ? (
+                <p className="text-sm text-stone-400 text-center py-12">Sem custos de tráfego pago.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart
+                    data={trafficByMonth.map(m => ({ ...m, roi: m.roi ?? 0 }))}
+                    margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+                    <YAxis
+                      tickFormatter={v => `${v}×`}
+                      tick={{ fontSize: 11, fill: '#a8a29e' }}
+                      axisLine={false} tickLine={false} width={40}
+                    />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null
+                        const d = payload[0]
+                        return (
+                          <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
+                            <p className="font-bold text-stone-700 mb-1">{label}</p>
+                            <p className="font-medium text-orange-500">ROI: {d.value}×</p>
+                          </div>
+                        )
+                      }}
+                    />
+                    <Line
+                      type="monotone" dataKey="roi" name="ROI"
+                      stroke="#f97316" strokeWidth={2.5}
+                      dot={{ r: 3.5, fill: '#f97316', strokeWidth: 0 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
+  )
+}

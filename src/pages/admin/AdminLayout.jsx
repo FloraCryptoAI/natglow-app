@@ -4,7 +4,7 @@ import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
   LayoutDashboard, ArrowLeftRight, Users, CreditCard,
   TrendingDown, Globe, ClipboardList, Settings,
-  LogOut, Menu, X,
+  LogOut, Menu, X, Receipt,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/admin/funnel',     icon: ArrowLeftRight,  label: 'Funil de Conversão' },
   { to: '/admin/users',      icon: Users,           label: 'Usuárias' },
   { to: '/admin/financial',  icon: CreditCard,      label: 'Financeiro' },
+  { to: '/admin/costs',      icon: Receipt,         label: 'Custos & ROI' },
   { to: '/admin/retention',  icon: TrendingDown,    label: 'Retenção' },
   { to: '/admin/geography',  icon: Globe,           label: 'Idioma & Geografia' },
   { to: '/admin/quiz',       icon: ClipboardList,   label: 'Respostas do Quiz' },

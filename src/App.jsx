@@ -21,6 +21,7 @@ import AdminRetention from './pages/admin/AdminRetention';
 import AdminGeography from './pages/admin/AdminGeography';
 import AdminQuizAnswers from './pages/admin/AdminQuizAnswers';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminCosts from './pages/admin/AdminCosts';
 import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
@@ -111,6 +112,7 @@ const AppRoutes = () => {
         <Route path="retention" element={<AdminRetention />} />
         <Route path="geography" element={<AdminGeography />} />
         <Route path="quiz"      element={<AdminQuizAnswers />} />
+        <Route path="costs"     element={<AdminCosts />} />
         <Route path="settings"  element={<AdminSettings />} />
       </Route>
 

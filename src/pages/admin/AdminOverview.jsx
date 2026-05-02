@@ -4,7 +4,12 @@ import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
   Users, CreditCard, TrendingUp, TrendingDown,
   UserPlus, Percent, RefreshCw, AlertCircle,
+  DollarSign, CalendarCheck, Info,
 } from 'lucide-react'
+import {
+  ResponsiveContainer, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ReferenceDot,
+} from 'recharts'
 
 const PLAN_PRICE = 6.99
 
@@ -28,7 +33,7 @@ function startOfMonth() {
   return d
 }
 
-function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
+function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading, tooltip }) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-stone-100 p-5 animate-pulse">
@@ -47,7 +52,12 @@ function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading 
         <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
         </div>
-        <span className="text-sm text-stone-500 font-medium leading-tight">{label}</span>
+        <span className="text-sm text-stone-500 font-medium leading-tight flex-1">{label}</span>
+        {tooltip && (
+          <span title={tooltip} className="cursor-help text-stone-300 hover:text-stone-500 transition-colors flex-shrink-0">
+            <Info className="w-3.5 h-3.5" />
+          </span>
+        )}
       </div>
       <p className="text-3xl font-extrabold text-stone-900 tracking-tight">{value}</p>
       {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
@@ -111,6 +121,24 @@ function StatusBreakdown({ subscriptions }) {
   )
 }
 
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
+      <p className="font-bold text-stone-700 mb-1">{label}</p>
+      {payload.map(p => (
+        <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
+          {p.name}: ${p.value}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function ChartSkeleton({ h = 200 }) {
+  return <div className="animate-pulse bg-stone-50 rounded-xl" style={{ height: h }} />
+}
+
 export default function AdminOverview() {
   const { adminToken, clearAdminToken } = useAdminAuth()
   const navigate = useNavigate()
@@ -155,6 +183,8 @@ export default function AdminOverview() {
   const canceledCount = data?.canceledCount ?? 0
   const pastDueCount = data?.pastDueCount ?? 0
   const canceledThisMonth = data?.canceledThisMonth ?? 0
+  const totalRevenue = data?.totalRevenue ?? 0
+  const mrrHistory12 = data?.mrrHistory12 ?? []
   const mrr = activeCount * PLAN_PRICE
 
   const todayStart = startOfDay()
@@ -166,12 +196,21 @@ export default function AdminOverview() {
   const newThisMonth = subs.filter(s => new Date(s.created_at) >= monthStart).length
 
   const totalTracked = activeCount + canceledCount + pastDueCount
-  const churnRate = totalTracked > 0
-    ? ((canceledCount / totalTracked) * 100).toFixed(1)
-    : '0.0'
+  const churnRateNum = totalTracked > 0 ? (canceledCount / totalTracked) * 100 : 0
+  const churnRate = churnRateNum.toFixed(1)
   const conversionRate = totalUsers > 0
     ? ((activeCount / totalUsers) * 100).toFixed(1)
     : '0.0'
+
+  const ltv = churnRateNum > 0
+    ? `$${(PLAN_PRICE / (churnRateNum / 100)).toFixed(2)}`
+    : 'Em cálculo'
+  const ltvSub = churnRateNum > 0
+    ? `$${PLAN_PRICE} ÷ ${churnRate}% churn`
+    : 'Churn rate = 0%'
+
+  const currentMonthLabel = mrrHistory12[mrrHistory12.length - 1]?.label
+  const currentMonthMrr   = mrrHistory12[mrrHistory12.length - 1]?.mrr
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
@@ -279,6 +318,87 @@ export default function AdminOverview() {
             loading={loading}
           />
         </div>
+      </section>
+
+      {/* Financial extra cards */}
+      <section>
+        <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">Financeiro</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <MetricCard
+            icon={DollarSign}
+            iconBg="bg-violet-50"
+            iconColor="text-violet-500"
+            label="Receita total acumulada"
+            value={loading ? '—' : `$${totalRevenue.toFixed(2)}`}
+            sub="Todos os pagamentos recebidos"
+            loading={loading}
+          />
+          <MetricCard
+            icon={TrendingUp}
+            iconBg="bg-teal-50"
+            iconColor="text-teal-500"
+            label="LTV médio estimado"
+            value={loading ? '—' : ltv}
+            sub={loading ? undefined : ltvSub}
+            loading={loading}
+            tooltip="LTV = MRR por cliente ÷ churn rate. Estimativa baseada no churn rate histórico acumulado."
+          />
+          <MetricCard
+            icon={CalendarCheck}
+            iconBg="bg-orange-50"
+            iconColor="text-orange-500"
+            label="Próximas renovações (30d)"
+            value={loading ? '—' : `$${(activeCount * PLAN_PRICE).toFixed(2)}`}
+            sub="Se nenhuma assinante cancelar"
+            loading={loading}
+          />
+        </div>
+      </section>
+
+      {/* MRR 12-month chart */}
+      <section className="bg-white rounded-2xl border border-stone-100 p-5">
+        <p className="font-bold text-stone-800 mb-1">Evolução do MRR</p>
+        <p className="text-xs text-stone-400 mb-4">Últimos 12 meses</p>
+        {loading ? (
+          <ChartSkeleton h={220} />
+        ) : mrrHistory12.length === 0 ? (
+          <p className="text-sm text-stone-400 text-center py-12">Sem dados no período.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={mrrHistory12} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+              <defs>
+                <linearGradient id="mrrLineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%"   stopColor="#7c3aed" />
+                  <stop offset="100%" stopColor="#a855f7" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: '#a8a29e' }}
+                axisLine={false} tickLine={false}
+              />
+              <YAxis
+                tickFormatter={v => `$${v}`}
+                tick={{ fontSize: 11, fill: '#a8a29e' }}
+                axisLine={false} tickLine={false} width={52}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Line
+                type="monotone" dataKey="mrr" name="MRR"
+                stroke="url(#mrrLineGrad)" strokeWidth={2.5}
+                dot={{ r: 3.5, fill: '#7c3aed', strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: '#7c3aed' }}
+              />
+              {currentMonthLabel && currentMonthMrr != null && (
+                <ReferenceDot
+                  x={currentMonthLabel} y={currentMonthMrr}
+                  r={7} fill="#7c3aed" stroke="white" strokeWidth={2.5}
+                />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </section>
 
       {/* Status breakdown */}
