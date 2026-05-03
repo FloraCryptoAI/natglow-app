@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { RefreshCw, AlertCircle, TrendingDown } from 'lucide-react'
+import { AlertCircle, TrendingDown } from 'lucide-react'
+import { ArrowClockwise } from '@phosphor-icons/react'
 
 const FUNNEL_STEPS = [
   { key: 'quiz_started',      label: 'Iniciaram o quiz',      color: 'bg-violet-500', light: 'bg-violet-50', text: 'text-violet-600' },
   { key: 'quiz_completed',    label: 'Completaram o quiz',    color: 'bg-blue-500',   light: 'bg-blue-50',   text: 'text-blue-600' },
-  { key: 'results_viewed',    label: 'Viram os resultados',   color: 'bg-brand',      light: 'bg-brand-pale',text: 'text-brand-dark' },
+  { key: 'results_viewed',    label: 'Viram os resultados',   color: 'bg-violet-400', light: 'bg-violet-50', text: 'text-violet-600' },
   { key: 'cta_clicked',       label: 'Clicaram em Assinar',   color: 'bg-amber-500',  light: 'bg-amber-50',  text: 'text-amber-600' },
   { key: 'payment_completed', label: 'Pagamento confirmado',  color: 'bg-emerald-500',light: 'bg-emerald-50',text: 'text-emerald-600' },
 ]
@@ -78,7 +79,6 @@ export default function AdminFunnel() {
   const steps = data?.steps ?? []
   const first = steps[0]?.count ?? 0
 
-  // Find step with biggest drop (index 1+)
   let maxDropIdx = -1
   let maxDropPct = 0
   for (let i = 1; i < steps.length; i++) {
@@ -97,30 +97,29 @@ export default function AdminFunnel() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Funil de Conversão</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Acompanhe onde as usuárias abandonam o fluxo</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Funil de Conversão</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Acompanhe onde as usuárias abandonam o fluxo</p>
         </div>
         <button
           onClick={() => load()}
           disabled={loading}
-          className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+          className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Atualizar
+          <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
 
       {/* Period filters */}
       <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex bg-white border border-stone-200 rounded-xl p-1 gap-0.5">
+        <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
           {PERIODS.map(p => (
             <button
               key={p.key}
               onClick={() => handlePeriod(p.key)}
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                 period === p.key
-                  ? 'bg-stone-900 text-white'
-                  : 'text-stone-500 hover:text-stone-800'
+                  ? 'bg-violet-600 text-white'
+                  : 'text-gray-500 hover:text-gray-800'
               }`}
             >
               {p.label}
@@ -133,19 +132,19 @@ export default function AdminFunnel() {
               type="date"
               value={customStart}
               onChange={e => setCustomStart(e.target.value)}
-              className="border border-stone-200 rounded-xl px-3 py-1.5 text-sm text-stone-700 bg-white outline-none focus:border-brand"
+              className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
             />
-            <span className="text-stone-400 text-sm">até</span>
+            <span className="text-gray-400 text-sm">até</span>
             <input
               type="date"
               value={customEnd}
               onChange={e => setCustomEnd(e.target.value)}
-              className="border border-stone-200 rounded-xl px-3 py-1.5 text-sm text-stone-700 bg-white outline-none focus:border-brand"
+              className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
             />
             <button
               onClick={handleCustomApply}
               disabled={!customStart || !customEnd}
-              className="px-3 py-1.5 bg-stone-900 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
+              className="px-3 py-1.5 bg-violet-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
             >
               Aplicar
             </button>
@@ -163,20 +162,20 @@ export default function AdminFunnel() {
       {/* Summary cards */}
       {!loading && data && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-stone-100 p-5">
-            <p className="text-sm text-stone-500 font-medium mb-2">Conversão início → fim</p>
-            <p className="text-3xl font-extrabold text-stone-900">{totalConversion}%</p>
-            <p className="text-xs text-stone-400 mt-1">
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="text-sm text-gray-500 font-medium mb-2">Conversão início → fim</p>
+            <p className="text-3xl font-extrabold text-gray-900">{totalConversion}%</p>
+            <p className="text-xs text-gray-400 mt-1">
               {steps[4]?.count ?? 0} pagamentos de {first} inícios
             </p>
           </div>
           {maxDropIdx > 0 && (
-            <div className="bg-white rounded-2xl border border-stone-100 p-5">
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingDown className="w-4 h-4 text-red-400" />
-                <p className="text-sm text-stone-500 font-medium">Maior abandono</p>
+                <p className="text-sm text-gray-500 font-medium">Maior abandono</p>
               </div>
-              <p className="text-base font-bold text-stone-900">
+              <p className="text-base font-bold text-gray-900">
                 {FUNNEL_STEPS[maxDropIdx]?.label}
               </p>
               <p className="text-xs text-red-500 font-semibold mt-1">
@@ -188,16 +187,16 @@ export default function AdminFunnel() {
       )}
 
       {/* Funnel bars */}
-      <div className="bg-white rounded-2xl border border-stone-100 p-5 sm:p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
         {loading ? (
           <div className="space-y-6 animate-pulse">
             {[1, 2, 3, 4, 5].map(i => (
               <div key={i} className="space-y-2">
                 <div className="flex justify-between">
-                  <div className="h-4 bg-stone-100 rounded w-40" />
-                  <div className="h-4 bg-stone-100 rounded w-12" />
+                  <div className="h-4 bg-gray-100 rounded w-40" />
+                  <div className="h-4 bg-gray-100 rounded w-12" />
                 </div>
-                <div className="h-8 bg-stone-100 rounded-xl" style={{ width: `${100 - i * 12}%` }} />
+                <div className="h-8 bg-gray-100 rounded-xl" style={{ width: `${100 - i * 12}%` }} />
               </div>
             ))}
           </div>
@@ -214,10 +213,9 @@ export default function AdminFunnel() {
 
               return (
                 <div key={step.key}>
-                  {/* Drop indicator between steps */}
                   {i > 0 && (
                     <div className="flex items-center gap-2 py-2 px-1">
-                      <div className="w-0.5 h-6 bg-stone-200 ml-2 flex-shrink-0" />
+                      <div className="w-0.5 h-6 bg-gray-200 ml-2 flex-shrink-0" />
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                           isBiggestDrop
@@ -232,18 +230,17 @@ export default function AdminFunnel() {
                     </div>
                   )}
 
-                  {/* Step row */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-stone-700">{step.label}</span>
+                      <span className="text-sm font-semibold text-gray-700">{step.label}</span>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-stone-400">{fromTotal.toFixed(1)}% do total</span>
-                        <span className="text-base font-extrabold text-stone-900 tabular-nums">
+                        <span className="text-xs text-gray-400">{fromTotal.toFixed(1)}% do total</span>
+                        <span className="text-base font-extrabold text-gray-900 tabular-nums">
                           {count.toLocaleString()}
                         </span>
                       </div>
                     </div>
-                    <div className="h-8 bg-stone-100 rounded-xl overflow-hidden">
+                    <div className="h-8 bg-gray-100 rounded-xl overflow-hidden">
                       <div
                         className={`h-full ${step.color} rounded-xl transition-all duration-700`}
                         style={{ width: `${Math.max(widthPct, count > 0 ? 2 : 0)}%` }}
@@ -255,7 +252,7 @@ export default function AdminFunnel() {
             })}
 
             {first === 0 && (
-              <p className="text-sm text-stone-400 text-center py-8">
+              <p className="text-sm text-gray-400 text-center py-8">
                 Nenhum evento registrado no período selecionado.
               </p>
             )}

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { RefreshCw, AlertCircle, ClipboardList, Users, TrendingUp } from 'lucide-react'
+import { AlertCircle, ClipboardList, Users, TrendingUp } from 'lucide-react'
+import { ArrowClockwise } from '@phosphor-icons/react'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Cell,
@@ -59,26 +60,26 @@ const QUESTION_LABELS = {
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-stone-100 p-5 animate-pulse">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-stone-100 flex-shrink-0" />
-          <div className="h-3.5 bg-stone-100 rounded w-28" />
+          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
+          <div className="h-3.5 bg-gray-100 rounded w-28" />
         </div>
-        <div className="h-8 bg-stone-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-stone-100 rounded w-24 mt-2" />}
+        <div className="h-8 bg-gray-100 rounded w-20" />
+        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
       </div>
     )
   }
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
         </div>
-        <span className="text-sm text-stone-500 font-medium leading-tight">{label}</span>
+        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
       </div>
-      <p className="text-3xl font-extrabold text-stone-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
+      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -86,8 +87,8 @@ function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
-      <p className="font-bold text-stone-700 mb-1">{label}</p>
+    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
+      <p className="font-bold mb-1">{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
           {p.name}: {p.value}
@@ -98,11 +99,11 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 function ChartSkeleton({ h = 160 }) {
-  return <div className="animate-pulse bg-stone-50 rounded-xl" style={{ height: h }} />
+  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
 function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">{title}</p>
+  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
 }
 
 function QuestionChart({ field, dist, loading }) {
@@ -117,33 +118,33 @@ function QuestionChart({ field, dist, loading }) {
   const total = chartData.reduce((s, d) => s + d.count, 0)
 
   if (loading) return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
-      <div className="h-4 bg-stone-100 rounded w-36 mb-4 animate-pulse" />
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <div className="h-4 bg-gray-100 rounded w-36 mb-4 animate-pulse" />
       <ChartSkeleton h={140} />
     </div>
   )
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-4">
-        <p className="font-bold text-stone-800 text-sm">{cfg.title}</p>
-        <span className="text-xs text-stone-400 font-medium">{total} respostas</span>
+        <p className="font-bold text-gray-800 text-sm">{cfg.title}</p>
+        <span className="text-xs text-gray-400 font-medium">{total} respostas</span>
       </div>
       {total === 0 ? (
-        <p className="text-sm text-stone-400 text-center py-8">Sem dados ainda.</p>
+        <p className="text-sm text-gray-400 text-center py-8">Sem dados ainda.</p>
       ) : (
         <div className="space-y-3">
           {chartData.map(d => (
             <div key={d.label} className="flex items-center gap-3">
-              <span className="text-xs text-stone-600 w-28 flex-shrink-0 leading-tight">{d.label}</span>
-              <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+              <span className="text-xs text-gray-600 w-28 flex-shrink-0 leading-tight">{d.label}</span>
+              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-brand rounded-full transition-all duration-500"
+                  className="h-full bg-violet-500 rounded-full transition-all duration-500"
                   style={{ width: total > 0 ? `${(d.count / total) * 100}%` : '0%' }}
                 />
               </div>
-              <span className="text-xs font-bold text-stone-700 w-8 text-right tabular-nums">{d.count}</span>
-              <span className="text-xs text-stone-400 w-10 text-right tabular-nums">
+              <span className="text-xs font-bold text-gray-700 w-8 text-right tabular-nums">{d.count}</span>
+              <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
                 {total > 0 ? `${((d.count / total) * 100).toFixed(0)}%` : '—'}
               </span>
             </div>
@@ -167,14 +168,14 @@ function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading })
   if (chartData.length === 0) return null
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
-      <p className="font-bold text-stone-800 text-sm mb-1">{cfg.title}</p>
-      <p className="text-xs text-stone-400 mb-4">Convertidas vs. abandonaram em /Results</p>
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <p className="font-bold text-gray-800 text-sm mb-1">{cfg.title}</p>
+      <p className="text-xs text-gray-400 mb-4">Convertidas vs. abandonaram em /Results</p>
       <ResponsiveContainer width="100%" height={150}>
         <BarChart data={chartData} barGap={2} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
-          <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#a8a29e' }} axisLine={false} tickLine={false} width={24} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+          <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+          <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={24} />
           <Tooltip content={({ active, payload, label }) => (
             <ChartTooltip active={active} payload={payload} label={label} />
           )} />
@@ -229,27 +230,20 @@ export default function AdminQuizAnswers() {
 
   const totalDiag = (diagDist.red ?? 0) + (diagDist.amber ?? 0) + (diagDist.green ?? 0)
 
-  const diagChartData = [
-    { label: 'Vermelho', count: diagDist.red   ?? 0, fill: '#f87171' },
-    { label: 'Âmbar',   count: diagDist.amber ?? 0, fill: '#fbbf24' },
-    { label: 'Verde',   count: diagDist.green ?? 0, fill: '#34d399' },
-  ]
-
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Respostas do Quiz</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Análise das respostas e comportamento de conversão</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Respostas do Quiz</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Análise das respostas e comportamento de conversão</p>
         </div>
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+          className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Atualizar
+          <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
 
@@ -258,7 +252,7 @@ export default function AdminQuizAnswers() {
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-red-600 flex-1">{error}</p>
           <button onClick={load} className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
+            <ArrowClockwise size={14} weight="fill" /> Tentar novamente
           </button>
         </div>
       )}
@@ -274,7 +268,7 @@ export default function AdminQuizAnswers() {
             loading={loading}
           />
           <MetricCard
-            icon={Users} iconBg="bg-brand-pale" iconColor="text-brand"
+            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
             label="Quiz completados"
             value={loading ? '—' : (data?.totalCompleted ?? 0)}
             loading={loading}
@@ -294,10 +288,10 @@ export default function AdminQuizAnswers() {
         <SectionHeader title="Diagnóstico recebido" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Distribution bars */}
-          <div className="bg-white rounded-2xl border border-stone-100 p-5">
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-bold text-stone-800">Distribuição de diagnóstico</p>
-              {!loading && <span className="text-sm text-stone-400">{totalDiag} total</span>}
+              <p className="font-bold text-gray-800">Distribuição de diagnóstico</p>
+              {!loading && <span className="text-sm text-gray-400">{totalDiag} total</span>}
             </div>
             {loading ? <ChartSkeleton h={100} /> : (
               <div className="space-y-3">
@@ -308,14 +302,14 @@ export default function AdminQuizAnswers() {
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text} w-16 text-center flex-shrink-0`}>
                         {key === 'red' ? 'Verm.' : key === 'amber' ? 'Âmbar' : 'Verde'}
                       </span>
-                      <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{ width: totalDiag > 0 ? `${(count / totalDiag) * 100}%` : '0%', background: DIAG_CONFIG[key].bar }}
                         />
                       </div>
-                      <span className="text-sm font-bold text-stone-700 w-8 text-right tabular-nums">{count}</span>
-                      <span className="text-xs text-stone-400 w-10 text-right tabular-nums">
+                      <span className="text-sm font-bold text-gray-700 w-8 text-right tabular-nums">{count}</span>
+                      <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
                         {totalDiag > 0 ? `${((count / totalDiag) * 100).toFixed(0)}%` : '—'}
                       </span>
                     </div>
@@ -325,9 +319,9 @@ export default function AdminQuizAnswers() {
             )}
           </div>
 
-          {/* Diagnosis bar chart */}
-          <div className="bg-white rounded-2xl border border-stone-100 p-5">
-            <p className="font-bold text-stone-800 mb-4">Diagnóstico × taxa de conversão</p>
+          {/* Diagnosis conversion rates */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="font-bold text-gray-800 mb-4">Diagnóstico × taxa de conversão</p>
             {loading ? <ChartSkeleton h={140} /> : (
               <div className="space-y-3">
                 {Object.entries(diagConversion).map(([key, val]) => {
@@ -339,17 +333,17 @@ export default function AdminQuizAnswers() {
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
                           {key === 'red' ? 'Vermelho' : key === 'amber' ? 'Âmbar' : 'Verde'}
                         </span>
-                        <span className="text-sm font-bold text-stone-700 tabular-nums">
+                        <span className="text-sm font-bold text-gray-700 tabular-nums">
                           {val.rate ?? 0}% conversão
                         </span>
                       </div>
-                      <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{ width: `${val.rate ?? 0}%`, background: cfg.bar }}
                         />
                       </div>
-                      <p className="text-xs text-stone-400">{val.converted ?? 0} assinaram de {val.total ?? 0}</p>
+                      <p className="text-xs text-gray-400">{val.converted ?? 0} assinaram de {val.total ?? 0}</p>
                     </div>
                   )
                 })}
@@ -366,7 +360,7 @@ export default function AdminQuizAnswers() {
                 <p className={`text-xs font-bold ${cfg.text} mb-0.5`}>
                   {key === 'red' ? '🔴' : key === 'amber' ? '🟡' : '🟢'} {key === 'red' ? 'Vermelho' : key === 'amber' ? 'Âmbar' : 'Verde'}
                 </p>
-                <p className="text-xs text-stone-600 leading-snug">
+                <p className="text-xs text-gray-600 leading-snug">
                   {key === 'red' ? 'Score ≥ 8 — cabelo muito danificado por químicos + calor' :
                    key === 'amber' ? 'Score 4-7 — danos moderados, rotina inconsistente' :
                    'Score < 4 — bons hábitos, baixa agressão capilar'}
@@ -402,7 +396,7 @@ export default function AdminQuizAnswers() {
           ))}
         </div>
         {!loading && (
-          <p className="text-xs text-stone-400 mt-2 text-center">
+          <p className="text-xs text-gray-400 mt-2 text-center">
             "Assinaram" = mesma sessão do quiz que depois completou pagamento · "Abandonaram" = viram /Results mas não converteram
           </p>
         )}

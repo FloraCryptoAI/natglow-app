@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
-  RefreshCw, AlertCircle, Check, DollarSign,
+  AlertCircle, Check, DollarSign,
   Tag, Clock, WrenchIcon, AlertTriangle, Settings,
 } from 'lucide-react'
+import { ArrowClockwise } from '@phosphor-icons/react'
 
 const DEFAULTS = {
   displayed_price: '6.99',
@@ -24,7 +25,7 @@ function Toggle({ checked, onChange, disabled }) {
       onClick={() => onChange(!checked)}
       disabled={disabled}
       className={`relative inline-flex w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
-        checked ? 'bg-stone-800' : 'bg-stone-200'
+        checked ? 'bg-violet-600' : 'bg-gray-200'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <span
@@ -39,8 +40,8 @@ function Toggle({ checked, onChange, disabled }) {
 function SaveIndicator({ state }) {
   if (state === 'saving') {
     return (
-      <span className="flex items-center gap-1 text-xs text-stone-400 font-medium">
-        <div className="w-3 h-3 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+      <span className="flex items-center gap-1 text-xs text-gray-400 font-medium">
+        <div className="w-3 h-3 border-2 border-gray-300 border-t-violet-600 rounded-full animate-spin" />
         Salvando…
       </span>
     )
@@ -57,15 +58,15 @@ function SaveIndicator({ state }) {
 
 function ConfigCard({ icon: Icon, iconBg, iconColor, title, desc, children, saveState }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
             <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
           </div>
           <div>
-            <p className="font-bold text-stone-800 text-sm">{title}</p>
-            {desc && <p className="text-xs text-stone-400 mt-0.5 leading-snug">{desc}</p>}
+            <p className="font-bold text-gray-800 text-sm">{title}</p>
+            {desc && <p className="text-xs text-gray-400 mt-0.5 leading-snug">{desc}</p>}
           </div>
         </div>
         <SaveIndicator state={saveState} />
@@ -158,11 +159,11 @@ export default function AdminSettings() {
     return (
       <div className="flex flex-col gap-6 max-w-3xl">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Configurações do Produto</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Parâmetros dinâmicos do NatGlow</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Configurações do Produto</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Parâmetros dinâmicos do NatGlow</p>
         </div>
         <div className="flex items-center justify-center py-20">
-          <div className="w-7 h-7 border-4 border-stone-200 border-t-stone-700 rounded-full animate-spin" />
+          <div className="w-7 h-7 border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin" />
         </div>
       </div>
     )
@@ -176,16 +177,15 @@ export default function AdminSettings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Configurações do Produto</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Edite e o app aplica em tempo real · auto-salva 1s após parar de digitar</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Configurações do Produto</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Edite e o app aplica em tempo real · auto-salva 1s após parar de digitar</p>
         </div>
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+          className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Recarregar
+          <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
 
@@ -194,7 +194,7 @@ export default function AdminSettings() {
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-red-600 flex-1">{error}</p>
           <button onClick={load} className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
+            <ArrowClockwise size={14} weight="fill" /> Tentar novamente
           </button>
         </div>
       )}
@@ -207,17 +207,17 @@ export default function AdminSettings() {
         saveState={saveStates.displayed_price}
       >
         <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">$</span>
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">$</span>
           <input
             type="text"
             value={config.displayed_price}
             onChange={e => handleText('displayed_price', e.target.value)}
-            className="w-full border border-stone-200 rounded-xl pl-7 pr-4 py-2.5 text-sm text-stone-800 outline-none focus:border-stone-400 transition-colors"
+            className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
             placeholder="6.99"
           />
         </div>
-        <p className="text-xs text-stone-400 mt-2">
-          Preview: <span className="font-bold text-stone-700 text-base">${config.displayed_price}</span>/mês
+        <p className="text-xs text-gray-400 mt-2">
+          Preview: <span className="font-bold text-gray-700 text-base">${config.displayed_price}</span>/mês
         </p>
       </ConfigCard>
 
@@ -232,12 +232,12 @@ export default function AdminSettings() {
           type="text"
           value={config.crossed_price}
           onChange={e => handleText('crossed_price', e.target.value)}
-          className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 outline-none focus:border-stone-400 transition-colors"
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
           placeholder="$47.99"
         />
-        <p className="text-xs text-stone-400 mt-2">
-          Preview: <span className="line-through text-stone-400">{config.crossed_price}</span>{' '}
-          <span className="font-bold text-stone-700">${config.displayed_price}</span>
+        <p className="text-xs text-gray-400 mt-2">
+          Preview: <span className="line-through text-gray-400">{config.crossed_price}</span>{' '}
+          <span className="font-bold text-gray-700">${config.displayed_price}</span>
         </p>
       </ConfigCard>
 
@@ -252,7 +252,7 @@ export default function AdminSettings() {
           type="text"
           value={config.promo_badge}
           onChange={e => handleText('promo_badge', e.target.value)}
-          className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 outline-none focus:border-stone-400 transition-colors"
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
           placeholder="Oferta Especial de Lançamento"
         />
         <div className="mt-2">
@@ -272,8 +272,8 @@ export default function AdminSettings() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-stone-700">Ativar timer</p>
-              <p className="text-xs text-stone-400">Exibe o contador regressivo na página de resultados</p>
+              <p className="text-sm font-semibold text-gray-700">Ativar timer</p>
+              <p className="text-xs text-gray-400">Exibe o contador regressivo na página de resultados</p>
             </div>
             <Toggle
               checked={timerEnabled}
@@ -283,7 +283,7 @@ export default function AdminSettings() {
 
           {timerEnabled && (
             <div>
-              <label className="text-xs font-semibold text-stone-600 mb-1.5 block">
+              <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
                 Duração (minutos)
               </label>
               <input
@@ -291,10 +291,10 @@ export default function AdminSettings() {
                 min={1} max={60}
                 value={config.timer_minutes}
                 onChange={e => handleText('timer_minutes', e.target.value)}
-                className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 outline-none focus:border-stone-400 transition-colors"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
                 placeholder="15"
               />
-              <p className="text-xs text-stone-400 mt-1.5">
+              <p className="text-xs text-gray-400 mt-1.5">
                 O timer começa ao entrar na /Results e não reinicia na mesma sessão.
               </p>
             </div>
@@ -304,7 +304,7 @@ export default function AdminSettings() {
 
       {/* Maintenance mode */}
       <ConfigCard
-        icon={WrenchIcon} iconBg={maintenanceMode ? 'bg-red-50' : 'bg-stone-100'} iconColor={maintenanceMode ? 'text-red-500' : 'text-stone-400'}
+        icon={WrenchIcon} iconBg={maintenanceMode ? 'bg-red-50' : 'bg-gray-100'} iconColor={maintenanceMode ? 'text-red-500' : 'text-gray-400'}
         title="Modo manutenção"
         desc={maintenanceMode ? '⚠️ ATIVO — a /Results está mostrando a tela de manutenção' : 'Inativo — a /Results está funcionando normalmente'}
         saveState={saveStates.maintenance_mode ?? saveStates.maintenance_text}
@@ -322,8 +322,8 @@ export default function AdminSettings() {
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-stone-700">Ativar modo manutenção</p>
-              <p className="text-xs text-stone-400">Bloqueia o acesso à /Results e exibe a mensagem abaixo</p>
+              <p className="text-sm font-semibold text-gray-700">Ativar modo manutenção</p>
+              <p className="text-xs text-gray-400">Bloqueia o acesso à /Results e exibe a mensagem abaixo</p>
             </div>
             <Toggle
               checked={maintenanceMode}
@@ -332,14 +332,14 @@ export default function AdminSettings() {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-stone-600 mb-1.5 block">
+            <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
               Mensagem exibida durante manutenção
             </label>
             <textarea
               rows={3}
               value={config.maintenance_text}
               onChange={e => handleText('maintenance_text', e.target.value)}
-              className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 outline-none focus:border-stone-400 transition-colors resize-none"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors resize-none"
               placeholder="Estamos em manutenção. Voltamos em breve!"
             />
           </div>

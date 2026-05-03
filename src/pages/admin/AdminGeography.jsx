@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { RefreshCw, AlertCircle, Globe, Users, TrendingUp, UserPlus } from 'lucide-react'
+import { AlertCircle, Globe, Users, TrendingUp } from 'lucide-react'
+import { ArrowClockwise } from '@phosphor-icons/react'
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
@@ -13,26 +14,26 @@ const LANG_COLORS = { es: '#10b981', en: '#6366f1' }
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-stone-100 p-5 animate-pulse">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-stone-100 flex-shrink-0" />
-          <div className="h-3.5 bg-stone-100 rounded w-28" />
+          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
+          <div className="h-3.5 bg-gray-100 rounded w-28" />
         </div>
-        <div className="h-8 bg-stone-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-stone-100 rounded w-24 mt-2" />}
+        <div className="h-8 bg-gray-100 rounded w-20" />
+        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
       </div>
     )
   }
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
         </div>
-        <span className="text-sm text-stone-500 font-medium leading-tight">{label}</span>
+        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
       </div>
-      <p className="text-3xl font-extrabold text-stone-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
+      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -40,8 +41,8 @@ function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
-      <p className="font-bold text-stone-700 mb-1">{label}</p>
+    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
+      <p className="font-bold mb-1">{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
           {p.name}: {p.value}
@@ -52,23 +53,23 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 function ChartSkeleton({ h = 200 }) {
-  return <div className="animate-pulse bg-stone-50 rounded-xl" style={{ height: h }} />
+  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
 function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">{title}</p>
+  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
 }
 
 function LangPie({ langStarts }) {
   const total = (langStarts?.es ?? 0) + (langStarts?.en ?? 0)
-  if (total === 0) return <p className="text-sm text-stone-400 text-center py-8">Sem dados ainda.</p>
+  if (total === 0) return <p className="text-sm text-gray-400 text-center py-8">Sem dados ainda.</p>
 
   const pieData = [
     { name: 'Espanhol (ES)', value: langStarts.es, color: LANG_COLORS.es },
     { name: 'Inglês (EN)', value: langStarts.en, color: LANG_COLORS.en },
   ]
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     if (percent < 0.05) return null
     const RADIAN = Math.PI / 180
     const r = innerRadius + (outerRadius - innerRadius) * 0.5
@@ -101,9 +102,9 @@ function LangPie({ langStarts }) {
                 if (!active || !payload?.length) return null
                 const d = payload[0]
                 return (
-                  <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
-                    <p className="font-bold" style={{ color: d.payload.color }}>{d.name}</p>
-                    <p className="text-stone-700">{d.value} sessões</p>
+                  <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl text-xs">
+                    <p className="font-bold mb-0.5">{d.name}</p>
+                    <p>{d.value} sessões</p>
                   </div>
                 )
               }}
@@ -115,9 +116,9 @@ function LangPie({ langStarts }) {
         {pieData.map(d => (
           <div key={d.name} className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: d.color }} />
-            <span className="text-sm text-stone-600 flex-1">{d.name}</span>
-            <span className="text-sm font-bold text-stone-900 tabular-nums">{d.value}</span>
-            <span className="text-xs text-stone-400 tabular-nums w-10 text-right">
+            <span className="text-sm text-gray-600 flex-1">{d.name}</span>
+            <span className="text-sm font-bold text-gray-900 tabular-nums">{d.value}</span>
+            <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
               {total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '—'}
             </span>
           </div>
@@ -178,16 +179,15 @@ export default function AdminGeography() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Idioma & Geografia</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Distribuição por idioma e origem geográfica</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Idioma & Geografia</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Distribuição por idioma e origem geográfica</p>
         </div>
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+          className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Atualizar
+          <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
 
@@ -196,7 +196,7 @@ export default function AdminGeography() {
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-red-600 flex-1">{error}</p>
           <button onClick={load} className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
+            <ArrowClockwise size={14} weight="fill" /> Tentar novamente
           </button>
         </div>
       )}
@@ -240,8 +240,8 @@ export default function AdminGeography() {
       <section>
         <SectionHeader title="Novas assinaturas por idioma" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-stone-100 p-5">
-            <p className="font-bold text-stone-800 mb-4">Esta semana</p>
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="font-bold text-gray-800 mb-4">Esta semana</p>
             {loading ? <ChartSkeleton h={56} /> : (
               <div className="flex flex-col gap-2.5">
                 {[
@@ -249,22 +249,22 @@ export default function AdminGeography() {
                   { lang: 'EN', value: data?.weekEn ?? 0, color: LANG_COLORS.en },
                 ].map(r => (
                   <div key={r.lang} className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-stone-500 w-6">{r.lang}</span>
-                    <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                    <span className="text-xs font-bold text-gray-500 w-6">{r.lang}</span>
+                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, r.value * 20)}%`, background: r.color }}
                       />
                     </div>
-                    <span className="text-sm font-bold text-stone-700 w-5 text-right">{r.value}</span>
+                    <span className="text-sm font-bold text-gray-700 w-5 text-right">{r.value}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-stone-100 p-5">
-            <p className="font-bold text-stone-800 mb-4">Este mês</p>
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="font-bold text-gray-800 mb-4">Este mês</p>
             {loading ? <ChartSkeleton h={56} /> : (
               <div className="flex flex-col gap-2.5">
                 {[
@@ -274,14 +274,14 @@ export default function AdminGeography() {
                   const maxMonth = Math.max(data?.monthEs ?? 0, data?.monthEn ?? 0, 1)
                   return (
                     <div key={r.lang} className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-stone-500 w-6">{r.lang}</span>
-                      <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                      <span className="text-xs font-bold text-gray-500 w-6">{r.lang}</span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{ width: `${(r.value / maxMonth) * 100}%`, background: r.color }}
                         />
                       </div>
-                      <span className="text-sm font-bold text-stone-700 w-5 text-right">{r.value}</span>
+                      <span className="text-sm font-bold text-gray-700 w-5 text-right">{r.value}</span>
                     </div>
                   )
                 })}
@@ -292,37 +292,37 @@ export default function AdminGeography() {
       </section>
 
       {/* Language distribution pie */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
         <div className="flex items-center gap-3 mb-5">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
             <Globe className="w-[18px] h-[18px] text-emerald-500" />
           </div>
-          <p className="font-bold text-stone-800">Distribuição por idioma — quizzes iniciados</p>
+          <p className="font-bold text-gray-800">Distribuição por idioma — quizzes iniciados</p>
           {!loading && (
-            <span className="ml-auto text-sm text-stone-400 font-medium">{totalStarts} total</span>
+            <span className="ml-auto text-sm text-gray-400 font-medium">{totalStarts} total</span>
           )}
         </div>
         {loading ? <ChartSkeleton h={200} /> : <LangPie langStarts={langStarts} />}
       </section>
 
       {/* Monthly trend */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
-        <p className="font-bold text-stone-800 mb-4">Evolução mensal ES vs EN — assinaturas</p>
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 mb-4">Evolução mensal ES vs EN — assinaturas</p>
         {loading ? (
           <ChartSkeleton h={220} />
         ) : monthlyTrend.every(m => m.es === 0 && m.en === 0) ? (
-          <p className="text-sm text-stone-400 text-center py-12">Sem dados de conversão no período.</p>
+          <p className="text-sm text-gray-400 text-center py-12">Sem dados de conversão no período.</p>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={monthlyTrend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} width={28} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
               <Tooltip content={({ active, payload, label }) => (
                 <ChartTooltip active={active} payload={payload} label={label} />
               )} />
               <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-                formatter={v => <span className="text-stone-500">{v}</span>} />
+                formatter={v => <span className="text-gray-500">{v}</span>} />
               <Line
                 type="monotone" dataKey="es" name="Espanhol (ES)"
                 stroke={LANG_COLORS.es} strokeWidth={2.5}
@@ -341,35 +341,35 @@ export default function AdminGeography() {
       </section>
 
       {/* Top 10 countries */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
         <div className="flex items-center gap-3 mb-5">
           <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
             <Globe className="w-[18px] h-[18px] text-blue-500" />
           </div>
-          <p className="font-bold text-stone-800">Top 10 países de origem</p>
-          <span className="ml-auto text-xs text-stone-400">por quizzes iniciados</span>
+          <p className="font-bold text-gray-800">Top 10 países de origem</p>
+          <span className="ml-auto text-xs text-gray-400">por quizzes iniciados</span>
         </div>
         {loading ? (
           <ChartSkeleton h={240} />
         ) : topCountries.length === 0 ? (
           <div className="py-12 text-center">
-            <Globe className="w-8 h-8 text-stone-200 mx-auto mb-2" />
-            <p className="text-sm text-stone-400">Sem dados de país ainda.</p>
-            <p className="text-xs text-stone-300 mt-0.5">Os países aparecem quando o Cloudflare envia o header CF-IPCountry.</p>
+            <Globe className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+            <p className="text-sm text-gray-400">Sem dados de país ainda.</p>
+            <p className="text-xs text-gray-300 mt-0.5">Os países aparecem quando o Cloudflare envia o header CF-IPCountry.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {topCountries.map((c, i) => (
               <div key={c.pais} className="flex items-center gap-3">
-                <span className="text-sm text-stone-400 font-medium w-5 text-right flex-shrink-0">{i + 1}</span>
-                <span className="text-sm font-semibold text-stone-700 w-36 flex-shrink-0 truncate">{c.nome}</span>
-                <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                <span className="text-sm text-gray-400 font-medium w-5 text-right flex-shrink-0">{i + 1}</span>
+                <span className="text-sm font-semibold text-gray-700 w-36 flex-shrink-0 truncate">{c.nome}</span>
+                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-400 rounded-full transition-all duration-500"
+                    className="h-full bg-violet-400 rounded-full transition-all duration-500"
                     style={{ width: `${(c.count / maxCountry) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-bold text-stone-700 w-8 text-right tabular-nums">{c.count}</span>
+                <span className="text-sm font-bold text-gray-700 w-8 text-right tabular-nums">{c.count}</span>
               </div>
             ))}
           </div>
@@ -377,8 +377,8 @@ export default function AdminGeography() {
       </section>
 
       {/* Conversion rate comparison chart */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
-        <p className="font-bold text-stone-800 mb-4">Taxa de conversão por idioma</p>
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 mb-4">Taxa de conversão por idioma</p>
         {loading ? (
           <ChartSkeleton h={160} />
         ) : (
@@ -390,20 +390,20 @@ export default function AdminGeography() {
               ]}
               margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-              <XAxis dataKey="lang" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="lang" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis
                 tickFormatter={v => `${v}%`}
-                tick={{ fontSize: 11, fill: '#a8a29e' }}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
                 axisLine={false} tickLine={false} width={40}
               />
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.length) return null
                   return (
-                    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
-                      <p className="font-bold text-stone-700">{label}</p>
-                      <p className="text-stone-600">{payload[0].value}% de conversão</p>
+                    <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl text-xs">
+                      <p className="font-bold">{label}</p>
+                      <p>{payload[0].value}% de conversão</p>
                     </div>
                   )
                 }}

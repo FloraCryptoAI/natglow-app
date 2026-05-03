@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
-  RefreshCw, AlertCircle, TrendingUp, DollarSign,
+  AlertCircle, TrendingUp, DollarSign,
   CreditCard, XCircle, AlertTriangle, ExternalLink,
 } from 'lucide-react'
+import { ArrowClockwise } from '@phosphor-icons/react'
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -34,26 +35,26 @@ function fmtDate(ts) {
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-stone-100 p-5 animate-pulse">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-stone-100 flex-shrink-0" />
-          <div className="h-3.5 bg-stone-100 rounded w-28" />
+          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
+          <div className="h-3.5 bg-gray-100 rounded w-28" />
         </div>
-        <div className="h-8 bg-stone-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-stone-100 rounded w-24 mt-2" />}
+        <div className="h-8 bg-gray-100 rounded w-20" />
+        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
       </div>
     )
   }
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
         </div>
-        <span className="text-sm text-stone-500 font-medium leading-tight">{label}</span>
+        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
       </div>
-      <p className="text-3xl font-extrabold text-stone-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
+      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -61,8 +62,8 @@ function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading 
 function ChartTooltip({ active, payload, label, prefix = '' }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-stone-100 rounded-xl px-3 py-2 shadow-lg text-sm">
-      <p className="font-bold text-stone-700 mb-1">{label}</p>
+    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
+      <p className="font-bold mb-1">{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
           {p.name}: {prefix}{p.value}
@@ -73,11 +74,11 @@ function ChartTooltip({ active, payload, label, prefix = '' }) {
 }
 
 function ChartSkeleton({ h = 200 }) {
-  return <div className="animate-pulse bg-stone-50 rounded-xl" style={{ height: h }} />
+  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
 function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">{title}</p>
+  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
 }
 
 export default function AdminFinancial() {
@@ -131,19 +132,19 @@ export default function AdminFinancial() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900">Financeiro</h1>
-          <p className="text-sm text-stone-400 mt-0.5">Dados em tempo real via Stripe</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Financeiro</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Dados em tempo real via Stripe</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex bg-white border border-stone-200 rounded-xl p-1 gap-0.5">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
             {PERIODS.map(p => (
               <button
                 key={p.key}
                 onClick={() => handlePeriod(p.key)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                   months === p.key
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'bg-violet-600 text-white'
+                    : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
                 {p.label}
@@ -153,10 +154,9 @@ export default function AdminFinancial() {
           <button
             onClick={() => load()}
             disabled={loading}
-            className="flex items-center gap-2 text-sm font-semibold text-stone-500 hover:text-stone-800 bg-white border border-stone-200 rounded-xl px-3 py-2 transition-all disabled:opacity-40"
+            className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Atualizar
+            <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function AdminFinancial() {
             onClick={() => load()}
             className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5 flex-shrink-0"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <ArrowClockwise size={14} weight="fill" />
             Tentar novamente
           </button>
         </div>
@@ -201,7 +201,7 @@ export default function AdminFinancial() {
             loading={loading}
           />
           <MetricCard
-            icon={CreditCard} iconBg="bg-brand-pale" iconColor="text-brand"
+            icon={CreditCard} iconBg="bg-violet-50" iconColor="text-violet-500"
             label="Assinaturas ativas"
             value={loading ? '—' : (data?.activeCount ?? 0)}
             loading={loading}
@@ -236,12 +236,12 @@ export default function AdminFinancial() {
       </section>
 
       {/* MRR evolution */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
-        <p className="font-bold text-stone-800 mb-4">Evolução do MRR</p>
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 mb-4">Evolução do MRR</p>
         {loading ? (
           <ChartSkeleton h={220} />
         ) : mrrHistory.length === 0 ? (
-          <p className="text-sm text-stone-400 text-center py-12">Sem dados no período.</p>
+          <p className="text-sm text-gray-400 text-center py-12">Sem dados no período.</p>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={mrrHistory} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
@@ -251,18 +251,16 @@ export default function AdminFinancial() {
                   <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis
                 tickFormatter={v => `$${v}`}
-                tick={{ fontSize: 11, fill: '#a8a29e' }}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
                 axisLine={false} tickLine={false} width={52}
               />
-              <Tooltip
-                content={({ active, payload, label }) => (
-                  <ChartTooltip active={active} payload={payload} label={label} prefix="$" />
-                )}
-              />
+              <Tooltip content={({ active, payload, label }) => (
+                <ChartTooltip active={active} payload={payload} label={label} prefix="$" />
+              )} />
               <Area
                 type="monotone" dataKey="mrr" name="MRR"
                 stroke="#16a34a" strokeWidth={2.5}
@@ -276,30 +274,28 @@ export default function AdminFinancial() {
       </section>
 
       {/* New vs canceled */}
-      <section className="bg-white rounded-2xl border border-stone-100 p-5">
-        <p className="font-bold text-stone-800 mb-4">Novas assinaturas vs. Cancelamentos</p>
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 mb-4">Novas assinaturas vs. Cancelamentos</p>
         {loading ? (
           <ChartSkeleton h={200} />
         ) : monthlyFlow.length === 0 ? (
-          <p className="text-sm text-stone-400 text-center py-12">Sem dados no período.</p>
+          <p className="text-sm text-gray-400 text-center py-12">Sem dados no período.</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthlyFlow} barGap={4} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 11, fill: '#a8a29e' }}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
                 axisLine={false} tickLine={false} width={32}
               />
-              <Tooltip
-                content={({ active, payload, label }) => (
-                  <ChartTooltip active={active} payload={payload} label={label} />
-                )}
-              />
+              <Tooltip content={({ active, payload, label }) => (
+                <ChartTooltip active={active} payload={payload} label={label} />
+              )} />
               <Legend
                 wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-                formatter={v => <span className="text-stone-500">{v}</span>}
+                formatter={v => <span className="text-gray-500">{v}</span>}
               />
               <Bar dataKey="new"      name="Novas"      fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={32} />
               <Bar dataKey="canceled" name="Canceladas" fill="#f87171" radius={[4, 4, 0, 0]} maxBarSize={32} />
@@ -311,33 +307,33 @@ export default function AdminFinancial() {
       {/* Recent payments */}
       <section>
         <SectionHeader title="Pagamentos recentes" />
-        <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <div className="w-7 h-7 border-4 border-stone-200 border-t-stone-700 rounded-full animate-spin" />
+              <div className="w-7 h-7 border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin" />
             </div>
           ) : recentPayments.length === 0 ? (
-            <p className="text-sm text-stone-400 text-center py-12">Nenhum pagamento encontrado.</p>
+            <p className="text-sm text-gray-400 text-center py-12">Nenhum pagamento encontrado.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-stone-100 bg-stone-50">
+                  <tr className="border-b border-gray-100 bg-gray-50">
                     {['Email', 'Valor', 'Data', 'Status', ''].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-bold text-stone-500 uppercase tracking-wider">{h}</th>
+                      <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-50">
+                <tbody className="divide-y divide-gray-50">
                   {recentPayments.map(p => {
                     const badge = PAY_STATUS[p.status] ?? PAY_STATUS.paid
                     return (
-                      <tr key={p.id} className="hover:bg-stone-50 transition-colors">
-                        <td className="px-4 py-3 text-stone-700 font-medium max-w-[200px] truncate">{p.email}</td>
-                        <td className="px-4 py-3 font-bold text-stone-900 tabular-nums whitespace-nowrap">
+                      <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-3 text-gray-700 font-medium max-w-[200px] truncate">{p.email}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900 tabular-nums whitespace-nowrap">
                           {p.currency} {fmt(p.amount)}
                         </td>
-                        <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{fmtDate(p.date)}</td>
+                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(p.date)}</td>
                         <td className="px-4 py-3">
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badge.bg} ${badge.text}`}>
                             {badge.label}
@@ -346,7 +342,7 @@ export default function AdminFinancial() {
                         <td className="px-4 py-3">
                           {p.hostedUrl && (
                             <a href={p.hostedUrl} target="_blank" rel="noreferrer"
-                              className="p-1 text-stone-400 hover:text-stone-600 inline-flex">
+                              className="p-1 text-gray-400 hover:text-gray-600 inline-flex">
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           )}
@@ -364,29 +360,29 @@ export default function AdminFinancial() {
       {/* Failed payments */}
       <section>
         <SectionHeader title="Pagamentos com falha" />
-        <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-7 h-7 border-4 border-stone-200 border-t-stone-700 rounded-full animate-spin" />
+              <div className="w-7 h-7 border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin" />
             </div>
           ) : failedPayments.length === 0 ? (
-            <p className="text-sm text-stone-400 text-center py-10">Nenhum pagamento com falha.</p>
+            <p className="text-sm text-gray-400 text-center py-10">Nenhum pagamento com falha.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-stone-100 bg-stone-50">
+                  <tr className="border-b border-gray-100 bg-gray-50">
                     {['Email', 'Valor', 'Data', 'Motivo do erro'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-bold text-stone-500 uppercase tracking-wider">{h}</th>
+                      <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-50">
+                <tbody className="divide-y divide-gray-50">
                   {failedPayments.map(p => (
-                    <tr key={p.id} className="hover:bg-stone-50 transition-colors">
-                      <td className="px-4 py-3 text-stone-700 font-medium max-w-[200px] truncate">{p.email}</td>
-                      <td className="px-4 py-3 font-bold text-stone-900 tabular-nums whitespace-nowrap">{fmt(p.amount)}</td>
-                      <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{fmtDate(p.date)}</td>
+                    <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-gray-700 font-medium max-w-[200px] truncate">{p.email}</td>
+                      <td className="px-4 py-3 font-bold text-gray-900 tabular-nums whitespace-nowrap">{fmt(p.amount)}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(p.date)}</td>
                       <td className="px-4 py-3 text-red-500 text-xs max-w-[240px] truncate">{p.error}</td>
                     </tr>
                   ))}
