@@ -99,33 +99,43 @@ function ErrorBanner({ message, onRetry }) {
 
 // ── period selector ────────────────────────────────────
 
-function PeriodSelector({ period, onPeriod, customStart, customEnd, onCustomStart, onCustomEnd }) {
+function PeriodSelector({ period, onPeriod, customStart, customEnd, onCustomStart, onCustomEnd, onApply }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 flex-wrap">
-        {PERIODS.map(p => (
-          <button
-            key={p.key}
-            onClick={() => onPeriod(p.key)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-              period === p.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
+    <div className="flex flex-col gap-2 min-w-0 flex-1 sm:flex-none">
+      <div className="overflow-x-auto">
+        <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
+          {PERIODS.map(p => (
+            <button
+              key={p.key}
+              onClick={() => onPeriod(p.key)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                period === p.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
       {period === 'custom' && (
         <div className="flex items-center gap-2 text-sm">
           <input
             type="date" value={customStart} onChange={e => onCustomStart(e.target.value)}
-            className="rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400"
+            className="flex-1 min-w-0 rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400"
           />
-          <span className="text-gray-400">→</span>
+          <span className="text-gray-400 flex-shrink-0">→</span>
           <input
             type="date" value={customEnd} onChange={e => onCustomEnd(e.target.value)}
-            className="rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400"
+            className="flex-1 min-w-0 rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400"
           />
+          {onApply && (
+            <button
+              onClick={onApply}
+              className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-violet-600 text-white text-sm font-semibold"
+            >
+              Aplicar
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -549,63 +559,67 @@ export default function AdminCosts() {
           <SectionHeader title="Registro de custos" />
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            {/* Category filter */}
-            <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
-              <button
-                onClick={() => handleListFilter('all', listPeriod)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  categoryFilter === 'all' ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
-                }`}
-              >
-                Todas
-              </button>
-              {CATEGORIES.map(c => (
+          <div className="flex flex-col gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Category filter */}
+              <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
                 <button
-                  key={c.key}
-                  onClick={() => handleListFilter(c.key, listPeriod)}
+                  onClick={() => handleListFilter('all', listPeriod)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    categoryFilter === c.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+                    categoryFilter === 'all' ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
                   }`}
                 >
-                  {c.emoji}
+                  Todas
                 </button>
-              ))}
+                {CATEGORIES.map(c => (
+                  <button
+                    key={c.key}
+                    onClick={() => handleListFilter(c.key, listPeriod)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                      categoryFilter === c.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                  >
+                    {c.emoji}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Period filter for list */}
-            <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
-              <button
-                onClick={() => handleListFilter(categoryFilter, 'all')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  listPeriod === 'all' ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
-                }`}
-              >
-                Todos
-              </button>
-              {PERIODS.map(p => (
+            {/* Period filter for list — scrollable horizontally */}
+            <div className="overflow-x-auto">
+              <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
                 <button
-                  key={p.key}
-                  onClick={() => handleListFilter(categoryFilter, p.key)}
+                  onClick={() => handleListFilter(categoryFilter, 'all')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    listPeriod === p.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+                    listPeriod === 'all' ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
                   }`}
                 >
-                  {p.label}
+                  Todos
                 </button>
-              ))}
+                {PERIODS.map(p => (
+                  <button
+                    key={p.key}
+                    onClick={() => handleListFilter(categoryFilter, p.key)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                      listPeriod === p.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {listPeriod === 'custom' && (
               <div className="flex items-center gap-2 text-sm">
                 <input type="date" value={listCustomStart} onChange={e => setListCustomStart(e.target.value)}
-                  className="rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400" />
-                <span className="text-gray-400">→</span>
+                  className="flex-1 min-w-0 rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400" />
+                <span className="text-gray-400 flex-shrink-0">→</span>
                 <input type="date" value={listCustomEnd} onChange={e => setListCustomEnd(e.target.value)}
-                  className="rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400" />
+                  className="flex-1 min-w-0 rounded-xl border border-gray-200 px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400" />
                 <button
                   onClick={() => loadList(1, categoryFilter, 'custom', listCustomStart, listCustomEnd)}
-                  className="px-3 py-1.5 rounded-xl bg-violet-600 text-white text-sm font-semibold"
+                  className="px-3 py-1.5 rounded-xl bg-violet-600 text-white text-sm font-semibold flex-shrink-0"
                 >
                   Aplicar
                 </button>
@@ -718,26 +732,19 @@ export default function AdminCosts() {
             SEÇÃO B — Dashboard de ROI
         ══════════════════════════════════════════════ */}
         <section>
-          <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
             <SectionHeader title="Dashboard de ROI" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2 w-full sm:w-auto">
               <PeriodSelector
                 period={roiPeriod} onPeriod={handleRoiPeriod}
                 customStart={roiCustomStart} customEnd={roiCustomEnd}
                 onCustomStart={setRoiCustomStart} onCustomEnd={setRoiCustomEnd}
+                onApply={handleRoiCustomApply}
               />
-              {roiPeriod === 'custom' && (
-                <button
-                  onClick={handleRoiCustomApply}
-                  className="px-3 py-1.5 rounded-xl bg-violet-600 text-white text-sm font-semibold"
-                >
-                  Aplicar
-                </button>
-              )}
               <button
                 onClick={() => loadRoi(roiPeriod, roiCustomStart, roiCustomEnd)}
                 disabled={loadingRoi}
-                className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
+                className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
               >
                 <ArrowClockwise size={16} weight="fill" className={loadingRoi ? 'animate-spin' : ''} />
               </button>

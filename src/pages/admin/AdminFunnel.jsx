@@ -110,21 +110,23 @@ export default function AdminFunnel() {
       </div>
 
       {/* Period filters */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
-          {PERIODS.map(p => (
-            <button
-              key={p.key}
-              onClick={() => handlePeriod(p.key)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                period === p.key
-                  ? 'bg-violet-600 text-white'
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
+      <div className="flex flex-col gap-2">
+        <div className="overflow-x-auto">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
+            {PERIODS.map(p => (
+              <button
+                key={p.key}
+                onClick={() => handlePeriod(p.key)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  period === p.key
+                    ? 'bg-violet-600 text-white'
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
         {period === 'custom' && (
           <div className="flex items-center gap-2">
@@ -132,19 +134,19 @@ export default function AdminFunnel() {
               type="date"
               value={customStart}
               onChange={e => setCustomStart(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
+              className="flex-1 min-w-0 border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
             />
-            <span className="text-gray-400 text-sm">até</span>
+            <span className="text-gray-400 text-sm flex-shrink-0">até</span>
             <input
               type="date"
               value={customEnd}
               onChange={e => setCustomEnd(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
+              className="flex-1 min-w-0 border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
             />
             <button
               onClick={handleCustomApply}
               disabled={!customStart || !customEnd}
-              className="px-3 py-1.5 bg-violet-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
+              className="flex-shrink-0 px-3 py-1.5 bg-violet-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
             >
               Aplicar
             </button>

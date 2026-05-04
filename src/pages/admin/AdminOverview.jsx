@@ -83,36 +83,48 @@ function ChartTooltip({ active, payload, label, prefix = '' }) {
 }
 
 // ── KPI Card (Kleon style) ────────────────────────────
-function KpiCard({ label, value, badge, badgePositive = true, sparkNums, sparkColor = '#7c3aed', loading }) {
+const SPARK_COLORS = {
+  '#7c3aed': { iconBg: 'bg-violet-50',  iconColor: 'text-violet-600'  },
+  '#10b981': { iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+  '#f59e0b': { iconBg: 'bg-amber-50',   iconColor: 'text-amber-500'   },
+  '#3b82f6': { iconBg: 'bg-blue-50',    iconColor: 'text-blue-600'    },
+}
+
+function KpiCard({ label, value, badge, badgePositive = true, sparkColor = '#7c3aed', loading }) {
+  const { iconBg, iconColor } = SPARK_COLORS[sparkColor] ?? SPARK_COLORS['#7c3aed']
+
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-        <div className="h-3 bg-gray-100 rounded w-24 mb-4" />
-        <div className="h-9 bg-gray-100 rounded w-20 mb-3" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
+          <div className="h-3.5 bg-gray-100 rounded w-24" />
+        </div>
+        <div className="h-8 bg-gray-100 rounded w-20 mb-2" />
         <div className="h-5 bg-gray-100 rounded w-16" />
       </div>
     )
   }
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold text-gray-400 mb-2 tracking-wide uppercase">{label}</p>
-          <p className="text-[28px] font-extrabold text-gray-900 tracking-tight leading-none mb-3">{value}</p>
-          {badge != null && (
-            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-              badgePositive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
-            }`}>
-              {badgePositive
-                ? <ArrowUpRight className="w-3 h-3" />
-                : <ArrowDownRight className="w-3 h-3" />
-              }
-              {badge}
-            </span>
-          )}
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
+          <TrendingUp className={`w-[18px] h-[18px] ${iconColor}`} />
         </div>
-        <MiniSparkline data={sparkNums} color={sparkColor} />
+        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
       </div>
+      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+      {badge != null && (
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap mt-2 ${
+          badgePositive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
+        }`}>
+          {badgePositive
+            ? <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
+            : <ArrowDownRight className="w-3 h-3 flex-shrink-0" />
+          }
+          <span className="truncate">{badge}</span>
+        </span>
+      )}
     </div>
   )
 }
@@ -473,7 +485,7 @@ export default function AdminOverview() {
             {[1,2,3].map(i => <div key={i} className="h-20 bg-gray-100 rounded-2xl" />)}
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             {[
               { label: 'Hoje',        value: newToday,    gradient: 'from-violet-500 to-purple-700' },
               { label: 'Esta semana', value: newThisWeek,  gradient: 'from-blue-500 to-indigo-600' },
@@ -481,10 +493,10 @@ export default function AdminOverview() {
             ].map(({ label, value, gradient }) => (
               <div
                 key={label}
-                className={`bg-gradient-to-br ${gradient} rounded-2xl p-5 text-center text-white shadow-sm`}
+                className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 sm:p-5 text-center text-white shadow-sm`}
               >
-                <p className="text-4xl font-extrabold leading-none mb-1.5">{value}</p>
-                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">{label}</p>
+                <p className="text-2xl sm:text-4xl font-extrabold leading-none mb-1">{value}</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-white/70 uppercase tracking-wide">{label}</p>
               </div>
             ))}
           </div>

@@ -135,7 +135,7 @@ export default function AdminFinancial() {
           <h1 className="text-xl font-extrabold text-gray-900">Financeiro</h1>
           <p className="text-sm text-gray-400 mt-0.5">Dados em tempo real via Stripe</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
             {PERIODS.map(p => (
               <button

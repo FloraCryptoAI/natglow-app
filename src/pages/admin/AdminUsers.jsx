@@ -377,14 +377,14 @@ export default function AdminUsers() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Buscar por email…"
             value={search}
             onChange={e => handleSearch(e.target.value)}
-            className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white outline-none focus:border-violet-400 w-64"
+            className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white outline-none focus:border-violet-400 w-full"
           />
         </div>
         <select
