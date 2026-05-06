@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
-  AlertCircle, TrendingUp, DollarSign,
+  TrendingUp, DollarSign, AlertCircle,
   CreditCard, XCircle, AlertTriangle, ExternalLink,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
@@ -10,6 +8,12 @@ import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
+import MetricCard from './components/MetricCard'
+import SectionHeader from './components/SectionHeader'
+import ChartSkeleton from './components/ChartSkeleton'
+import ChartTooltip from './components/ChartTooltip'
+import ErrorBanner from './components/ErrorBanner'
+import { useAdminFetch } from './hooks/useAdminFetch'
 
 const PERIODS = [
   { key: 3,  label: '3 meses' },
@@ -32,88 +36,26 @@ function fmtDate(ts) {
   return new Date(ts * 1000).toLocaleDateString('pt-BR')
 }
 
-function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
-  if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
-          <div className="h-3.5 bg-gray-100 rounded w-28" />
-        </div>
-        <div className="h-8 bg-gray-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
-      </div>
-    )
-  }
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
-        </div>
-        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
-      </div>
-      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-    </div>
-  )
-}
-
-function ChartTooltip({ active, payload, label, prefix = '' }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
-      <p className="font-bold mb-1">{label}</p>
-      {payload.map(p => (
-        <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
-          {p.name}: {prefix}{p.value}
-        </p>
-      ))}
-    </div>
-  )
-}
-
-function ChartSkeleton({ h = 200 }) {
-  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
-}
-
-function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
-}
-
 export default function AdminFinancial() {
-  const { adminToken, clearAdminToken } = useAdminAuth()
-  const navigate = useNavigate()
+  const { apiFetch } = useAdminFetch()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
   const [months, setMonths]   = useState(6)
 
-  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
-  const authHeaders = {
-    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    'x-admin-token': adminToken,
-    'Content-Type': 'application/json',
-  }
-
   const load = useCallback(async (m = months) => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${baseUrl}/admin-financial?months=${m}`, { headers: authHeaders })
-      if (res.status === 401 || res.status === 403) {
-        clearAdminToken(); navigate('/admin/login', { replace: true }); return
-      }
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
+      const result = await apiFetch(`/admin-financial?months=${m}`)
+      if (!result) return
       setData(result)
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar dados financeiros')
     } finally {
       setLoading(false)
     }
-  }, [adminToken, clearAdminToken, navigate, months]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [apiFetch, months])
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -161,19 +103,7 @@ export default function AdminFinancial() {
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-600 flex-1">{error}</p>
-          <button
-            onClick={() => load()}
-            className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5 flex-shrink-0"
-          >
-            <ArrowClockwise size={14} weight="fill" />
-            Tentar novamente
-          </button>
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onRetry={() => load()} />}
 
       {/* Primary metrics */}
       <section>
@@ -183,7 +113,7 @@ export default function AdminFinancial() {
             icon={TrendingUp} iconBg="bg-emerald-50" iconColor="text-emerald-500"
             label="MRR atual"
             value={loading ? '—' : fmt(data?.currentMRR)}
-            sub={loading ? undefined : `${data?.activeCount ?? 0} × $6,99/mês`}
+            sub={loading ? undefined : `${data?.activeCount ?? 0} assinantes ativos (multi-plano)`}
             loading={loading}
           />
           <MetricCard
@@ -195,9 +125,9 @@ export default function AdminFinancial() {
           />
           <MetricCard
             icon={DollarSign} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Receita total acumulada"
+            label="Faturamento Bruto"
             value={loading ? '—' : fmt(data?.totalRevenue)}
-            sub="Todos os pagamentos recebidos"
+            sub="Total de pagamentos recebidos via Stripe"
             loading={loading}
           />
           <MetricCard
@@ -232,6 +162,56 @@ export default function AdminFinancial() {
             sub="Inadimplentes ÷ (ativos + inadimplentes)"
             loading={loading}
           />
+        </div>
+      </section>
+
+      {/* Per-plan breakdown */}
+      <section>
+        <SectionHeader title="Detalhamento por plano" />
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-7 h-7 border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50">
+                    {['Plano', 'MRR/usuária', 'Assinantes ativos', 'Canceladas', 'Contribuição MRR'].map(h => (
+                      <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {(data?.planBreakdown ?? []).map(row => (
+                    <tr key={row.plan_key} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-gray-800">{row.label}</td>
+                      <td className="px-4 py-3 text-gray-600 tabular-nums">{fmt(row.mrr_per_user)}/mês</td>
+                      <td className="px-4 py-3 font-bold text-gray-900 tabular-nums">{row.active_count}</td>
+                      <td className="px-4 py-3 text-gray-500 tabular-nums">{row.canceled_count}</td>
+                      <td className="px-4 py-3">
+                        <span className="font-extrabold text-emerald-700 tabular-nums">{fmt(row.mrr_contribution)}</span>
+                        {data?.currentMRR > 0 && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            {((row.mrr_contribution / data.currentMRR) * 100).toFixed(1)}%
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {data?.currentMRR > 0 && (
+                  <tfoot>
+                    <tr className="border-t border-gray-200 bg-gray-50">
+                      <td colSpan={4} className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Total MRR</td>
+                      <td className="px-4 py-3 font-extrabold text-gray-900 tabular-nums">{fmt(data.currentMRR)}</td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { AlertCircle, TrendingDown } from 'lucide-react'
+import { TrendingDown } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
+import FunnelBars from './components/FunnelBars'
+import ErrorBanner from './components/ErrorBanner'
+import { useAdminFetch } from './hooks/useAdminFetch'
 
 const FUNNEL_STEPS = [
-  { key: 'quiz_started',      label: 'Iniciaram o quiz',      color: 'bg-violet-500', light: 'bg-violet-50', text: 'text-violet-600' },
-  { key: 'quiz_completed',    label: 'Completaram o quiz',    color: 'bg-blue-500',   light: 'bg-blue-50',   text: 'text-blue-600' },
-  { key: 'results_viewed',    label: 'Viram os resultados',   color: 'bg-violet-400', light: 'bg-violet-50', text: 'text-violet-600' },
-  { key: 'cta_clicked',       label: 'Clicaram em Assinar',   color: 'bg-amber-500',  light: 'bg-amber-50',  text: 'text-amber-600' },
-  { key: 'payment_completed', label: 'Pagamento confirmado',  color: 'bg-emerald-500',light: 'bg-emerald-50',text: 'text-emerald-600' },
+  { key: 'quiz_started',      label: 'Iniciaram o quiz',      color: '#7c3aed' },
+  { key: 'quiz_completed',    label: 'Completaram o quiz',    color: '#2563eb' },
+  { key: 'results_viewed',    label: 'Viram os resultados',   color: '#8b5cf6' },
+  { key: 'cta_clicked',       label: 'Clicaram em Assinar',   color: '#d97706' },
+  { key: 'payment_completed', label: 'Pagamento confirmado',  color: '#059669' },
 ]
 
 const PERIODS = [
@@ -19,61 +20,54 @@ const PERIODS = [
   { key: 'custom', label: 'Personalizado' },
 ]
 
-function dropColor(pct) {
-  if (pct <= 20) return 'text-emerald-600 bg-emerald-50'
-  if (pct <= 40) return 'text-amber-600 bg-amber-50'
-  return 'text-red-600 bg-red-50'
-}
+const PLAN_FILTERS = [
+  { key: 'all',          label: 'Todos os caminhos' },
+  { key: 'monthly_499',  label: 'Monthly $4.99' },
+  { key: 'monthly_699',  label: 'Monthly $6.99' },
+  { key: 'monthly_1499', label: 'Monthly $14.99' },
+]
 
 export default function AdminFunnel() {
-  const { adminToken, clearAdminToken } = useAdminAuth()
-  const navigate = useNavigate()
+  const { apiFetch } = useAdminFetch()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [period, setPeriod] = useState('30d')
+  const [plan, setPlan] = useState('all')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
 
-  const load = useCallback(async (p = period, cs = customStart, ce = customEnd) => {
+  const load = useCallback(async (p = period, cs = customStart, ce = customEnd, pl = plan) => {
     setLoading(true)
     setError(null)
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-      const params = new URLSearchParams({ period: p })
+      const params = new URLSearchParams({ period: p, plan: pl })
       if (p === 'custom' && cs) params.set('start', cs)
       if (p === 'custom' && ce) params.set('end', ce)
-
-      const res = await fetch(`${supabaseUrl}/functions/v1/admin-funnel?${params}`, {
-        headers: {
-          Authorization: `Bearer ${supabaseAnonKey}`,
-          apikey: supabaseAnonKey,
-          'x-admin-token': adminToken,
-        },
-      })
-      if (res.status === 401 || res.status === 403) {
-        clearAdminToken(); navigate('/admin/login', { replace: true }); return
-      }
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
+      const result = await apiFetch(`/admin-funnel?${params}`)
+      if (!result) return
       setData(result)
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar dados')
     } finally {
       setLoading(false)
     }
-  }, [adminToken, clearAdminToken, navigate, period, customStart, customEnd])
+  }, [apiFetch, period, plan, customStart, customEnd])
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePeriod = (p) => {
     setPeriod(p)
-    if (p !== 'custom') load(p, '', '')
+    if (p !== 'custom') load(p, '', '', plan)
+  }
+
+  const handlePlan = (pl) => {
+    setPlan(pl)
+    load(period, customStart, customEnd, pl)
   }
 
   const handleCustomApply = () => {
-    if (customStart && customEnd) load('custom', customStart, customEnd)
+    if (customStart && customEnd) load('custom', customStart, customEnd, plan)
   }
 
   const steps = data?.steps ?? []
@@ -107,6 +101,28 @@ export default function AdminFunnel() {
         >
           <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
+      </div>
+
+      {/* Filters row */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+        {/* Plan filter */}
+        <div className="overflow-x-auto">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
+            {PLAN_FILTERS.map(pl => (
+              <button
+                key={pl.key}
+                onClick={() => handlePlan(pl.key)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  plan === pl.key
+                    ? 'bg-violet-600 text-white'
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {pl.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Period filters */}
@@ -154,12 +170,7 @@ export default function AdminFunnel() {
         )}
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onRetry={() => load()} />}
 
       {/* Summary cards */}
       {!loading && data && (
@@ -203,62 +214,15 @@ export default function AdminFunnel() {
             ))}
           </div>
         ) : (
-          <div className="space-y-1">
-            {FUNNEL_STEPS.map((step, i) => {
-              const count = steps.find(s => s.event_type === step.key)?.count ?? 0
-              const widthPct = first > 0 ? Math.max((count / first) * 100, 0) : 0
-              const prevCount = i > 0 ? (steps.find(s => s.event_type === FUNNEL_STEPS[i - 1].key)?.count ?? 0) : count
-              const fromPrev = prevCount > 0 ? (count / prevCount) * 100 : 0
-              const dropPct = 100 - fromPrev
-              const fromTotal = first > 0 ? (count / first) * 100 : 0
-              const isBiggestDrop = i === maxDropIdx
-
-              return (
-                <div key={step.key}>
-                  {i > 0 && (
-                    <div className="flex items-center gap-2 py-2 px-1">
-                      <div className="w-0.5 h-6 bg-gray-200 ml-2 flex-shrink-0" />
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
-                          isBiggestDrop
-                            ? 'text-red-600 bg-red-50 ring-1 ring-red-200'
-                            : dropColor(dropPct)
-                        }`}
-                      >
-                        {isBiggestDrop && '⚠️ '}
-                        -{dropPct.toFixed(1)}% (−{(prevCount - count).toLocaleString()} usuárias)
-                        {isBiggestDrop && ' maior queda'}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">{step.label}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-400">{fromTotal.toFixed(1)}% do total</span>
-                        <span className="text-base font-extrabold text-gray-900 tabular-nums">
-                          {count.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-8 bg-gray-100 rounded-xl overflow-hidden">
-                      <div
-                        className={`h-full ${step.color} rounded-xl transition-all duration-700`}
-                        style={{ width: `${Math.max(widthPct, count > 0 ? 2 : 0)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-
-            {first === 0 && (
-              <p className="text-sm text-gray-400 text-center py-8">
-                Nenhum evento registrado no período selecionado.
-              </p>
-            )}
-          </div>
+          <FunnelBars
+            steps={FUNNEL_STEPS.map(step => ({
+              label: step.label,
+              color: step.color,
+              count: steps.find(s => s.event_type === step.key)?.count ?? 0,
+            }))}
+            maxDropIdx={maxDropIdx}
+            showTotal
+          />
         )}
       </div>
     </div>

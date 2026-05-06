@@ -194,6 +194,7 @@ Deno.serve(async (req) => {
       stripe_customer_id: s.stripe_customer_id,
       stripe_subscription_id: s.stripe_subscription_id,
       current_period_end: s.current_period_end,
+      pricing_plan: (s.pricing_plan as string | null) ?? 'monthly_699',
       idioma: funnelData[s.user_id as string]?.idioma ?? null,
       pais: funnelData[s.user_id as string]?.pais ?? null,
       diagnosis: funnelData[s.user_id as string]?.diagnosis ?? null,

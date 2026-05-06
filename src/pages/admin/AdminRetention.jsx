@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
-  AlertCircle, TrendingDown, Clock,
+  TrendingDown, Clock,
   AlertTriangle, Star, Users,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
@@ -10,35 +8,13 @@ import {
   ResponsiveContainer, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
+import MetricCard from './components/MetricCard'
+import SectionHeader from './components/SectionHeader'
+import ChartSkeleton from './components/ChartSkeleton'
+import ErrorBanner from './components/ErrorBanner'
+import { useAdminFetch } from './hooks/useAdminFetch'
 
-function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
-  if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
-          <div className="h-3.5 bg-gray-100 rounded w-28" />
-        </div>
-        <div className="h-8 bg-gray-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
-      </div>
-    )
-  }
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
-        </div>
-        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
-      </div>
-      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-    </div>
-  )
-}
-
-function ChartTooltip({ active, payload, label }) {
+function ChurnTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
@@ -50,14 +26,6 @@ function ChartTooltip({ active, payload, label }) {
       ))}
     </div>
   )
-}
-
-function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
-}
-
-function ChartSkeleton({ h = 200 }) {
-  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
 function fmtDate(iso) {
@@ -80,37 +48,24 @@ function cohortCell(val) {
 }
 
 export default function AdminRetention() {
-  const { adminToken, clearAdminToken } = useAdminAuth()
-  const navigate = useNavigate()
+  const { apiFetch } = useAdminFetch()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
-
-  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
-  const authHeaders = {
-    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    'x-admin-token': adminToken,
-    'Content-Type': 'application/json',
-  }
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${baseUrl}/admin-retention`, { headers: authHeaders })
-      if (res.status === 401 || res.status === 403) {
-        clearAdminToken(); navigate('/admin/login', { replace: true }); return
-      }
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
+      const result = await apiFetch('/admin-retention')
+      if (!result) return
       setData(result)
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar dados de retenção')
     } finally {
       setLoading(false)
     }
-  }, [adminToken, clearAdminToken, navigate]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [apiFetch])
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -140,19 +95,7 @@ export default function AdminRetention() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-600 flex-1">{error}</p>
-          <button
-            onClick={load}
-            className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5 flex-shrink-0"
-          >
-            <ArrowClockwise size={14} weight="fill" />
-            Tentar novamente
-          </button>
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onRetry={load} />}
 
       {/* Metric cards */}
       <section>
@@ -199,9 +142,7 @@ export default function AdminRetention() {
                 tick={{ fontSize: 11, fill: '#9ca3af' }}
                 axisLine={false} tickLine={false} width={40}
               />
-              <Tooltip content={({ active, payload, label }) => (
-                <ChartTooltip active={active} payload={payload} label={label} />
-              )} />
+              <Tooltip content={<ChurnTooltip />} />
               <Bar
                 dataKey="churnRate" name="Churn rate"
                 fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={40}

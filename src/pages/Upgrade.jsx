@@ -61,7 +61,7 @@ export default function Upgrade() {
     try {
       const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', {
         body: {
-          priceId: import.meta.env.VITE_STRIPE_PRICE_ID,
+          priceId: import.meta.env.VITE_STRIPE_PRICE_MONTHLY,
           successUrl: window.location.origin + '/success',
           cancelUrl: window.location.origin + '/Upgrade',
         },

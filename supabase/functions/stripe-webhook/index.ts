@@ -4,6 +4,24 @@ const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://natglow.app'
 
+// Reverse map: Stripe price ID → plan_key (fallback when metadata is absent)
+const PRICE_TO_PLAN: Record<string, string> = {}
+const _envPrices: [string, string][] = [
+  ['STRIPE_PRICE_MONTHLY',         'monthly_699'],
+  ['STRIPE_PRICE_MONTHLY_CHEAP',   'monthly_499'],
+  ['STRIPE_PRICE_MONTHLY_PREMIUM', 'monthly_1499'],
+]
+for (const [envKey, planKey] of _envPrices) {
+  const id = Deno.env.get(envKey)
+  if (id) PRICE_TO_PLAN[id] = planKey
+}
+
+function resolvePlanKey(priceId: string | null, metaPlanKey: string | null): string | null {
+  if (metaPlanKey) return metaPlanKey
+  if (priceId && PRICE_TO_PLAN[priceId]) return PRICE_TO_PLAN[priceId]
+  return null
+}
+
 async function verifySignature(payload: string, sigHeader: string): Promise<boolean> {
   const timestamp = sigHeader.split(',').find(p => p.startsWith('t='))?.slice(2)
   const signature = sigHeader.split(',').find(p => p.startsWith('v1='))?.slice(3)
@@ -143,6 +161,8 @@ Deno.serve(async (req) => {
         }
 
         const funnelSessionId: string | null = session.metadata?.funnel_session_id ?? null
+        const rawPriceId: string | null = sub.items?.data?.[0]?.price?.id ?? null
+        const planKey = resolvePlanKey(rawPriceId, session.metadata?.plan_key ?? null)
 
         if (userId) {
           await dbUpsert('subscriptions', {
@@ -151,7 +171,8 @@ Deno.serve(async (req) => {
             stripe_customer_id: session.customer,
             stripe_subscription_id: sub.id,
             status: sub.status ?? 'active',
-            price_id: sub.items?.data?.[0]?.price?.id ?? null,
+            price_id: rawPriceId,
+            pricing_plan: planKey,
             current_period_end: toISO(sub.current_period_end),
           })
 
@@ -166,6 +187,7 @@ Deno.serve(async (req) => {
                 event_type: 'payment_completed',
                 session_id: funnelSessionId,
                 user_id: userId,
+                pricing_plan: planKey,
               }),
             ])
           }

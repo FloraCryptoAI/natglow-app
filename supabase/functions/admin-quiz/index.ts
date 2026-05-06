@@ -9,6 +9,16 @@ const dbHeaders = {
   apikey: SUPABASE_SERVICE_KEY,
 }
 
+// Build PostgREST plan filter fragment (appended to query string)
+function planFilter(plan: string | null): string {
+  if (!plan || plan === 'all') return ''
+  if (plan === 'monthly_699') {
+    // Old events have null pricing_plan — treat them as monthly_699
+    return '&or=(pricing_plan.eq.monthly_699,pricing_plan.is.null)'
+  }
+  return `&pricing_plan=eq.${encodeURIComponent(plan)}`
+}
+
 async function fetchEvents(filter: string): Promise<Record<string, unknown>[]> {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/funnel_events?${filter}&limit=10000`,
@@ -51,35 +61,36 @@ Deno.serve(async (req) => {
       })
     }
 
+    const url  = new URL(req.url)
+    const plan = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
+    const pf   = planFilter(plan)
+
     const [quizEvents, payEvents, startedEvents] = await Promise.all([
-      fetchEvents('event_type=eq.quiz_completed&select=session_id,idioma,metadata,created_at'),
-      fetchEvents('event_type=eq.payment_completed&select=session_id,created_at'),
-      fetchEvents('event_type=eq.quiz_started&select=session_id'),
+      fetchEvents(`event_type=eq.quiz_completed&select=session_id,idioma,metadata,created_at${pf}`),
+      fetchEvents(`event_type=eq.payment_completed&select=session_id,created_at${pf}`),
+      fetchEvents(`event_type=eq.quiz_started&select=session_id,idioma,pais${pf}`),
     ])
 
     const convertedSessions = new Set(payEvents.map(e => e.session_id as string))
     const startedCount = new Set(startedEvents.map(e => e.session_id as string)).size
 
-    // Distributions per question
+    // ── Per-question distributions ────────────────────────────────────────
     const dist: Record<string, Record<string, number>> = {}
     for (const f of QUESTION_FIELDS) dist[f] = {}
 
     const diagDist: Record<DiagColor, number> = { red: 0, amber: 0, green: 0 }
-
     const diagConversion: Record<DiagColor, { total: number; converted: number; rate: number }> = {
       red:   { total: 0, converted: 0, rate: 0 },
       amber: { total: 0, converted: 0, rate: 0 },
       green: { total: 0, converted: 0, rate: 0 },
     }
 
-    // Converted vs abandoned per question (only the 5 main questions)
     const mainFields = ['washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts'] as const
     const convertedAnswers: Record<string, Record<string, number>> = {}
     const abandonedAnswers: Record<string, Record<string, number>> = {}
     for (const f of mainFields) { convertedAnswers[f] = {}; abandonedAnswers[f] = {} }
 
     for (const e of quizEvents) {
-      // metadata shape can be { answers: {...} } or directly the answers object
       const raw = e.metadata as Record<string, unknown> | null
       const answers = (raw?.answers ?? raw ?? {}) as Record<string, string>
       if (!answers || typeof answers !== 'object') continue
@@ -108,6 +119,25 @@ Deno.serve(async (req) => {
       d.rate = d.total > 0 ? parseFloat(((d.converted / d.total) * 100).toFixed(1)) : 0
     }
 
+    // ── Language distribution (from quiz_started) ─────────────────────────
+    const langDist: Record<string, number> = {}
+    for (const ev of startedEvents) {
+      const lang = (ev.idioma as string | null) ?? 'unknown'
+      langDist[lang] = (langDist[lang] ?? 0) + 1
+    }
+
+    // ── Country distribution — top 10 (from quiz_started) ─────────────────
+    const countryCounts: Record<string, number> = {}
+    for (const ev of startedEvents) {
+      const country = ev.pais as string | null
+      if (!country || country === 'XX' || country === 'T1') continue
+      countryCounts[country] = (countryCounts[country] ?? 0) + 1
+    }
+    const countryDist = Object.entries(countryCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([country, count]) => ({ country, count }))
+
     const completionRate = startedCount > 0
       ? parseFloat(((quizEvents.length / startedCount) * 100).toFixed(1))
       : 0
@@ -121,6 +151,8 @@ Deno.serve(async (req) => {
       diagConversion,
       convertedAnswers,
       abandonedAnswers,
+      langDist,
+      countryDist,
     }), { headers: { ...cors, 'Content-Type': 'application/json' } })
 
   } catch (err) {

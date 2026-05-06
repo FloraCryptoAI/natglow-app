@@ -1,12 +1,33 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { AlertCircle, ClipboardList, Users, TrendingUp } from 'lucide-react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import {
+  ClipboardList, Users, TrendingUp, Trophy,
+  Download, ChevronDown, ChevronUp,
+} from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Cell,
 } from 'recharts'
+import FunnelBars from './components/FunnelBars'
+import ChartSkeleton from './components/ChartSkeleton'
+import ChartTooltip from './components/ChartTooltip'
+import SectionHeader from './components/SectionHeader'
+import ErrorBanner from './components/ErrorBanner'
+import { useAdminFetch } from './hooks/useAdminFetch'
+
+// ── constants ────────────────────────────────────────────────────────────────
+
+const PLANS = [
+  { key: 'monthly_499',  label: 'Monthly $4.99',  short: '$4.99/mês',   color: '#0891b2' },
+  { key: 'monthly_699',  label: 'Monthly $6.99',  short: '$6.99/mês',   color: '#7c3aed' },
+  { key: 'monthly_1499', label: 'Monthly $14.99', short: '$14.99/mês',  color: '#d97706' },
+]
+
+const PERIODS = [
+  { key: '7d',  label: '7 dias' },
+  { key: '30d', label: '30 dias' },
+  { key: '90d', label: '90 dias' },
+]
 
 const DIAG_CONFIG = {
   red:   { label: 'Vermelho — Cabelo muito danificado', bg: 'bg-red-50',    text: 'text-red-600',    bar: '#f87171' },
@@ -15,112 +36,385 @@ const DIAG_CONFIG = {
 }
 
 const QUESTION_LABELS = {
-  washFreq: {
-    title: 'Frequência de lavagem',
-    options: {
-      daily: 'Todo dia',
-      '3_4': '3-4x por semana',
-      '1_2': '1-2x por semana',
-    },
-  },
-  waterTemp: {
-    title: 'Temperatura da água',
-    options: {
-      hot:  'Quente',
-      warm: 'Morna',
-      cold: 'Fria',
-    },
-  },
-  heatTools: {
-    title: 'Uso de calor',
-    options: {
-      daily:  'Todo dia',
-      few:    'Algumas vezes',
-      rarely: 'Raramente',
-    },
-  },
-  hydration: {
-    title: 'Hidratação',
-    options: {
-      regularly: 'Regularmente',
-      sometimes: 'Às vezes',
-      never:     'Nunca',
-    },
-  },
-  chemProducts: {
-    title: 'Produtos químicos',
-    options: {
-      yes_heavy: 'Sim (forte)',
-      yes_mild:  'Sim (suave)',
-      no:        'Não',
-    },
-  },
+  washFreq:     { title: 'Frequência de lavagem',   options: { daily: 'Todo dia', '3_4': '3-4x/semana', '1_2': '1-2x/semana' } },
+  waterTemp:    { title: 'Temperatura da água',     options: { hot: 'Quente', warm: 'Morna', cold: 'Fria' } },
+  heatTools:    { title: 'Uso de calor',            options: { daily: 'Todo dia', few: 'Algumas vezes', rarely: 'Raramente' } },
+  hydration:    { title: 'Hidratação',              options: { regularly: 'Regularmente', sometimes: 'Às vezes', never: 'Nunca' } },
+  chemProducts: { title: 'Produtos químicos',       options: { yes_heavy: 'Sim (forte)', yes_mild: 'Sim (suave)', no: 'Não' } },
 }
 
-function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
-  if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
-          <div className="h-3.5 bg-gray-100 rounded w-28" />
-        </div>
-        <div className="h-8 bg-gray-100 rounded w-20" />
-        {sub !== undefined && <div className="h-3 bg-gray-100 rounded w-24 mt-2" />}
-      </div>
-    )
+// Comparison table metric definitions
+const METRICS = [
+  { key: 'quiz_started',    label: 'Visitas únicas no quiz',         fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'completion_rate', label: 'Taxa de conclusão do quiz',      fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
+  { key: 'results_viewed',  label: 'Visualizações da Results',       fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'cta_clicked',     label: 'Cliques no CTA',                 fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'conversions',     label: 'Conversões pagas',               fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'conversion_rate', label: 'Taxa de conversão Quiz→Pago',    fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
+  { key: 'revenue_period',  label: 'Receita total no período',       fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
+  { key: 'mrr_added',       label: 'MRR equivalente adicionado',     fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
+  { key: 'churn_7d_pct',    label: 'Churn em 7 dias',                fmt: v => `${v}%`,      higherBetter: false, group: 'Retenção' },
+  { key: 'churn_30d_pct',   label: 'Churn em 30 dias',               fmt: v => `${v}%`,      higherBetter: false, group: 'Retenção' },
+  { key: 'ltv_90d',         label: 'LTV estimado em 90 dias',        fmt: v => v != null ? `$${v}` : '—', higherBetter: true, group: 'Valor', specialNull: true },
+  { key: 'roi_score',       label: 'ROI score (conversão × LTV)',    fmt: v => v.toFixed(4), higherBetter: true,  group: 'ROI', highlight: true },
+]
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function fmt$(v) { return `$${Number(v ?? 0).toFixed(2)}` }
+
+function cellClass(value, allValues, higherBetter, specialNull = false) {
+  if (value == null) return 'text-gray-400'
+  if (specialNull) {
+    // Only compare cells that have actual values
+    const valid = allValues.filter(v => v != null)
+    if (valid.length < 2) return 'text-gray-700'
+    const best  = higherBetter ? Math.max(...valid) : Math.min(...valid)
+    const worst = higherBetter ? Math.min(...valid) : Math.max(...valid)
+    if (value === best)  return 'bg-emerald-50 text-emerald-800 font-bold'
+    if (value === worst) return 'bg-red-50 text-red-700'
+    return 'text-gray-700'
   }
+  const best  = higherBetter ? Math.max(...allValues) : Math.min(...allValues)
+  const worst = higherBetter ? Math.min(...allValues) : Math.max(...allValues)
+  if (value === best)  return 'bg-emerald-50 text-emerald-800 font-bold'
+  if (value === worst) return 'bg-red-50 text-red-700'
+  return 'text-gray-700'
+}
+
+function exportCSV(plans, metrics) {
+  const headers = ['Métrica', ...plans.map(p => p.label)]
+  const rows = metrics.map(m => {
+    const vals = plans.map(p => {
+      const v = p[m.key]
+      return v != null ? m.fmt(v) : '—'
+    })
+    return [m.label, ...vals]
+  })
+  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `natglow-comparacao-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+}
+
+// ── sub-components ────────────────────────────────────────────────────────────
+
+
+function SigBadge({ level }) {
+  if (level === 'significant') return (
+    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+      ✓ Significativo (p&lt;0.05)
+    </span>
+  )
+  if (level === 'trend') return (
+    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+      ~ Tendência
+    </span>
+  )
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
+    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
+      ⏳ Aguardando dados
+    </span>
+  )
+}
+
+function WinnerCard({ significance, plans }) {
+  if (!significance?.winner_key) return null
+  const winnerPlan = PLANS.find(p => p.key === significance.winner_key)
+  const winnerData = plans?.find(p => p.plan_key === significance.winner_key)
+  if (!winnerPlan || !winnerData) return null
+
+  return (
+    <div
+      className="rounded-2xl p-5 border"
+      style={{ background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)', borderColor: '#c4b5fd' }}
+    >
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+            <Trophy className="w-5 h-5 text-violet-600" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-violet-500 uppercase tracking-wider mb-0.5">
+              Vencedor estimado por ROI
+            </p>
+            <p className="text-xl font-extrabold text-violet-900">{winnerPlan.label}</p>
+          </div>
         </div>
-        <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
+        <div className="flex flex-col items-end gap-2">
+          <SigBadge level={significance.level} />
+          {significance.z_score > 0 && (
+            <span className="text-xs text-gray-500">Z = {significance.z_score}</span>
+          )}
+        </div>
       </div>
-      <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="bg-white/70 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 mb-0.5">Conversão</p>
+          <p className="text-lg font-extrabold text-violet-800">{winnerData.conversion_rate}%</p>
+        </div>
+        <div className="bg-white/70 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 mb-0.5">MRR/usuária</p>
+          <p className="text-lg font-extrabold text-violet-800">${winnerData.mrr_per_user}</p>
+        </div>
+        <div className="bg-white/70 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 mb-0.5">LTV 90d</p>
+          <p className="text-lg font-extrabold text-violet-800">
+            {winnerData.ltv_90d != null ? `$${winnerData.ltv_90d}` : '—'}
+          </p>
+        </div>
+      </div>
+      {significance.note && (
+        <p className="mt-3 text-xs text-violet-700 bg-white/50 rounded-xl px-3 py-2 leading-relaxed">
+          {significance.note}
+        </p>
+      )}
     </div>
   )
 }
 
-function ChartTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
-      <p className="font-bold mb-1">{label}</p>
-      {payload.map(p => (
-        <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
-          {p.name}: {p.value}
-        </p>
+function ComparisonTable({ plans, loading }) {
+  const [expanded, setExpanded] = useState({ Funil: true, Receita: true, Retenção: true, Valor: true, ROI: true })
+
+  if (loading) return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 animate-pulse">
+      {[1, 2, 3, 4, 5, 6, 7].map(i => (
+        <div key={i} className="flex gap-4">
+          <div className="h-4 bg-gray-100 rounded w-48" />
+          {[1, 2, 3, 4].map(j => <div key={j} className="h-4 bg-gray-100 rounded w-20" />)}
+        </div>
       ))}
     </div>
   )
+
+  if (!plans?.length) return null
+
+  const groups = [...new Set(METRICS.map(m => m.group))]
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 bg-gray-50">
+              <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-52">
+                Métrica
+              </th>
+              {PLANS.map(p => (
+                <th key={p.key} className="text-center px-3 py-3 text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: p.color }}>
+                  {p.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map(group => {
+              const groupMetrics = METRICS.filter(m => m.group === group)
+              const isOpen = expanded[group] !== false
+              return (
+                <React.Fragment key={group}>
+                  <tr
+                    className="border-t border-b border-gray-100 bg-gray-50/60 cursor-pointer hover:bg-gray-100/60 transition-colors"
+                    onClick={() => setExpanded(e => ({ ...e, [group]: !isOpen }))}
+                  >
+                    <td colSpan={5} className="px-4 py-2">
+                      <span className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        {group}
+                      </span>
+                    </td>
+                  </tr>
+                  {isOpen && groupMetrics.map(metric => {
+                    const allVals = plans.map(p => p[metric.key])
+                    return (
+                      <tr
+                        key={metric.key}
+                        className={`border-b border-gray-50 hover:bg-gray-50/40 transition-colors ${metric.highlight ? 'bg-violet-50/30' : ''}`}
+                      >
+                        <td className={`px-4 py-3 text-gray-700 text-xs ${metric.highlight ? 'font-bold text-violet-700' : ''}`}>
+                          {metric.label}
+                          {metric.highlight && <span className="ml-1 text-violet-400">★</span>}
+                        </td>
+                        {plans.map(plan => {
+                          const val   = plan[metric.key]
+                          const isLtv = metric.key === 'ltv_90d'
+                          const conf  = isLtv ? plan.ltv_confidence : null
+
+                          if (isLtv && conf === 'insufficient') {
+                            return (
+                              <td key={plan.plan_key} className="px-3 py-3 text-center">
+                                <span className="text-xs text-gray-400 italic">Aguardando</span>
+                              </td>
+                            )
+                          }
+
+                          const cls = cellClass(val, allVals, metric.higherBetter, metric.specialNull)
+                          return (
+                            <td key={plan.plan_key} className={`px-3 py-3 text-center tabular-nums text-xs ${cls}`}>
+                              {val != null ? metric.fmt(val) : '—'}
+                              {isLtv && conf === 'trend' && val != null && (
+                                <span className="ml-1 text-amber-400 text-[10px]">~</span>
+                              )}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    )
+                  })}
+                </React.Fragment>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+        <p className="text-xs text-gray-400">
+          🟢 Melhor · 🔴 Pior na métrica · ~ LTV com dados parciais · ★ Métrica principal de ROI
+        </p>
+        <button
+          onClick={() => exportCSV(plans, METRICS)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 border border-gray-200 px-3 py-1.5 rounded-xl hover:border-gray-300 transition-all"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+  )
 }
 
-function ChartSkeleton({ h = 160 }) {
-  return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
+function MrrTooltip({ plans }) {
+  if (!plans?.length) return null
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <p className="font-bold text-gray-800 text-sm mb-1">Receita mensal por assinante</p>
+      <p className="text-xs text-gray-500 leading-relaxed mb-4">
+        Comparação de quanto cada assinante gera por mês em cada plano.
+      </p>
+      <div className="space-y-2">
+        {PLANS.map(p => {
+          const pd = plans.find(x => x.plan_key === p.key)
+          return (
+            <div key={p.key} className="flex items-center justify-between text-xs">
+              <span className="font-semibold" style={{ color: p.color }}>{p.label}</span>
+              <span className="font-bold text-gray-800">${pd?.mrr_per_user ?? '—'}/mês equiv.</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
-function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
+// ── Individual mode sub-components ───────────────────────────────────────────
+
+const INDIVIDUAL_STEPS = [
+  { key: 'quiz_started',   label: 'Iniciaram o quiz',      color: '#7c3aed' },
+  { key: 'quiz_completed', label: 'Completaram o quiz',    color: '#2563eb' },
+  { key: 'results_viewed', label: 'Viram os resultados',   color: '#8b5cf6' },
+  { key: 'cta_clicked',    label: 'Clicaram em Assinar',   color: '#d97706' },
+  { key: 'conversions',    label: 'Pagamento confirmado',  color: '#059669' },
+]
+
+function IndividualFunnel({ planData }) {
+  if (!planData) return null
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <p className="font-bold text-gray-800 mb-4">Funil — {PLANS.find(p => p.key === planData.plan_key)?.label}</p>
+      <FunnelBars
+        steps={INDIVIDUAL_STEPS.map(s => ({ label: s.label, color: s.color, count: planData[s.key] ?? 0 }))}
+      />
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="bg-gray-50 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 mb-0.5">Conversão quiz→pago</p>
+          <p className="text-xl font-extrabold text-gray-900">{planData.conversion_rate}%</p>
+        </div>
+        <div className="bg-gray-50 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 mb-0.5">Conclusão do quiz</p>
+          <p className="text-xl font-extrabold text-gray-900">{planData.completion_rate}%</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LangCountryPanel({ quizData, loading }) {
+  if (loading) return <ChartSkeleton h={140} />
+
+  const langDist    = quizData?.langDist    ?? {}
+  const countryDist = quizData?.countryDist ?? []
+  const totalLang   = Object.values(langDist).reduce((a, b) => a + b, 0) || 1
+
+  const LANG_COLOR = { es: '#7c3aed', en: '#2563eb', unknown: '#9ca3af' }
+  const LANG_LABEL = { es: '🇪🇸 Espanhol', en: '🇺🇸 Inglês', unknown: 'Desconhecido' }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 text-sm mb-4">Idioma (quiz iniciado)</p>
+        <div className="space-y-3">
+          {Object.entries(langDist).sort((a, b) => b[1] - a[1]).map(([lang, count]) => (
+            <div key={lang} className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-gray-600 w-28 flex-shrink-0 truncate">
+                {LANG_LABEL[lang] ?? lang.toUpperCase()}
+              </span>
+              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${(count / totalLang) * 100}%`, background: LANG_COLOR[lang] ?? '#6b7280' }}
+                />
+              </div>
+              <span className="text-xs font-bold text-gray-700 w-8 text-right tabular-nums">{count}</span>
+              <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
+                {((count / totalLang) * 100).toFixed(0)}%
+              </span>
+            </div>
+          ))}
+          {Object.keys(langDist).length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-6">Sem dados de idioma.</p>
+          )}
+        </div>
+      </div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <p className="font-bold text-gray-800 text-sm mb-4">Top países (quiz iniciado)</p>
+        {countryDist.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-6">Sem dados de país.</p>
+        ) : (
+          <div className="space-y-2.5">
+            {countryDist.slice(0, 6).map(({ country, count }) => (
+              <div key={country} className="flex items-center gap-3">
+                <span className="text-xs font-semibold text-gray-600 w-10 flex-shrink-0">{country}</span>
+                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-violet-500 rounded-full"
+                    style={{ width: countryDist[0]?.count > 0 ? `${(count / countryDist[0].count) * 100}%` : '0%' }}
+                  />
+                </div>
+                <span className="text-xs font-bold text-gray-700 w-8 text-right tabular-nums">{count}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function QuestionChart({ field, dist, loading }) {
   const cfg = QUESTION_LABELS[field]
   if (!cfg) return null
-
   const chartData = Object.entries(cfg.options).map(([key, label]) => ({
     label,
     count: dist?.[field]?.[key] ?? 0,
   })).filter(d => d.count > 0)
-
   const total = chartData.reduce((s, d) => s + d.count, 0)
 
   if (loading) return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="h-4 bg-gray-100 rounded w-36 mb-4 animate-pulse" />
-      <ChartSkeleton h={140} />
+      <ChartSkeleton h={120} />
     </div>
   )
 
@@ -128,10 +422,10 @@ function QuestionChart({ field, dist, loading }) {
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-4">
         <p className="font-bold text-gray-800 text-sm">{cfg.title}</p>
-        <span className="text-xs text-gray-400 font-medium">{total} respostas</span>
+        <span className="text-xs text-gray-400">{total} respostas</span>
       </div>
       {total === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">Sem dados ainda.</p>
+        <p className="text-sm text-gray-400 text-center py-8">Sem dados.</p>
       ) : (
         <div className="space-y-3">
           {chartData.map(d => (
@@ -140,12 +434,12 @@ function QuestionChart({ field, dist, loading }) {
               <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-violet-500 rounded-full transition-all duration-500"
-                  style={{ width: total > 0 ? `${(d.count / total) * 100}%` : '0%' }}
+                  style={{ width: `${(d.count / total) * 100}%` }}
                 />
               </div>
               <span className="text-xs font-bold text-gray-700 w-8 text-right tabular-nums">{d.count}</span>
               <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
-                {total > 0 ? `${((d.count / total) * 100).toFixed(0)}%` : '—'}
+                {((d.count / total) * 100).toFixed(0)}%
               </span>
             </div>
           ))}
@@ -158,27 +452,23 @@ function QuestionChart({ field, dist, loading }) {
 function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading }) {
   const cfg = QUESTION_LABELS[field]
   if (!cfg || loading) return null
-
   const chartData = Object.entries(cfg.options).map(([key, label]) => ({
     label,
     convertidos: convertedAnswers?.[field]?.[key] ?? 0,
     abandonaram: abandonedAnswers?.[field]?.[key] ?? 0,
   })).filter(d => d.convertidos + d.abandonaram > 0)
-
   if (chartData.length === 0) return null
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <p className="font-bold text-gray-800 text-sm mb-1">{cfg.title}</p>
-      <p className="text-xs text-gray-400 mb-4">Convertidas vs. abandonaram em /Results</p>
-      <ResponsiveContainer width="100%" height={150}>
+      <p className="text-xs text-gray-400 mb-4">Convertidas vs. abandonaram</p>
+      <ResponsiveContainer width="100%" height={140}>
         <BarChart data={chartData} barGap={2} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
           <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
           <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={24} />
-          <Tooltip content={({ active, payload, label }) => (
-            <ChartTooltip active={active} payload={payload} label={label} />
-          )} />
+          <Tooltip content={<ChartTooltip />} />
           <Bar dataKey="convertidos" name="Assinaram"   fill="#10b981" radius={[3,3,0,0]} maxBarSize={28} />
           <Bar dataKey="abandonaram" name="Abandonaram" fill="#f87171" radius={[3,3,0,0]} maxBarSize={28} />
         </BarChart>
@@ -187,220 +477,303 @@ function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading })
   )
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
+
 export default function AdminQuizAnswers() {
-  const { adminToken, clearAdminToken } = useAdminAuth()
-  const navigate = useNavigate()
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { apiFetch } = useAdminFetch()
 
-  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
-  const authHeaders = {
-    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    'x-admin-token': adminToken,
-    'Content-Type': 'application/json',
-  }
+  const [mode, setMode]           = useState('comparison')  // 'comparison' | plan_key
+  const [period, setPeriod]       = useState('30d')
+  const [compData, setCompData]   = useState(null)
+  const [quizData, setQuizData]   = useState(null)
+  const [compLoading, setCompLoading] = useState(true)
+  const [quizLoading, setQuizLoading] = useState(false)
+  const [error, setError]         = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const loadComparison = useCallback(async (p = period) => {
+    setCompLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${baseUrl}/admin-quiz`, { headers: authHeaders })
-      if (res.status === 401 || res.status === 403) {
-        clearAdminToken(); navigate('/admin/login', { replace: true }); return
-      }
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
-      setData(result)
+      const result = await apiFetch(`/admin-multiplan?period=${p}`)
+      if (!result) return
+      setCompData(result)
     } catch (e) {
-      setError(e?.message ?? 'Erro ao carregar dados do quiz')
+      setError(e?.message ?? 'Erro ao carregar dados de comparação')
     } finally {
-      setLoading(false)
+      setCompLoading(false)
     }
-  }, [adminToken, clearAdminToken, navigate]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [apiFetch, period])
 
-  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const loadIndividualQuiz = useCallback(async (plan) => {
+    setQuizLoading(true)
+    try {
+      const result = await apiFetch(`/admin-quiz?plan=${plan}`)
+      if (!result) return
+      setQuizData(result)
+    } catch {
+      setQuizData(null)
+    } finally {
+      setQuizLoading(false)
+    }
+  }, [apiFetch])
 
-  const dist             = data?.dist             ?? {}
-  const diagDist         = data?.diagDist         ?? { red: 0, amber: 0, green: 0 }
-  const diagConversion   = data?.diagConversion   ?? {}
-  const convertedAnswers = data?.convertedAnswers ?? {}
-  const abandonedAnswers = data?.abandonedAnswers ?? {}
+  // Always load comparison data (drives both modes)
+  useEffect(() => { loadComparison() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Load individual quiz data when switching to a plan mode
+  useEffect(() => {
+    if (mode !== 'comparison') loadIndividualQuiz(mode)
+  }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePeriod = (p) => {
+    setPeriod(p)
+    loadComparison(p)
+  }
+
+  const handleMode = (m) => {
+    setMode(m)
+    if (m !== 'comparison' && (!quizData || m !== mode)) {
+      loadIndividualQuiz(m)
+    }
+  }
+
+  const handleRefresh = () => {
+    loadComparison(period)
+    if (mode !== 'comparison') loadIndividualQuiz(mode)
+  }
+
+  // Data derived from compData
+  const plans        = compData?.plans ?? []
+  const significance = compData?.significance ?? null
+  const selectedPlanData = plans.find(p => p.plan_key === mode) ?? null
+
+  // Quiz analysis data for individual mode
+  const dist             = quizData?.dist             ?? {}
+  const diagDist         = quizData?.diagDist         ?? { red: 0, amber: 0, green: 0 }
+  const diagConversion   = quizData?.diagConversion   ?? {}
+  const convertedAnswers = quizData?.convertedAnswers ?? {}
+  const abandonedAnswers = quizData?.abandonedAnswers ?? {}
   const totalDiag = (diagDist.red ?? 0) + (diagDist.amber ?? 0) + (diagDist.green ?? 0)
+
+  const isLoading = compLoading || (mode !== 'comparison' && quizLoading)
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Respostas do Quiz</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Análise das respostas e comportamento de conversão</p>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {mode === 'comparison' ? 'Comparação dos 4 caminhos de funil' : `Análise individual — ${PLANS.find(p => p.key === mode)?.label}`}
+          </p>
         </div>
         <button
-          onClick={load}
-          disabled={loading}
+          onClick={handleRefresh}
+          disabled={isLoading}
           className="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-all disabled:opacity-40"
         >
-          <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
+          <ArrowClockwise size={16} weight="fill" className={isLoading ? 'animate-spin' : ''} />
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-600 flex-1">{error}</p>
-          <button onClick={load} className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5">
-            <ArrowClockwise size={14} weight="fill" /> Tentar novamente
-          </button>
-        </div>
-      )}
-
-      {/* Overview metrics */}
-      <section>
-        <SectionHeader title="Visão geral" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <MetricCard
-            icon={ClipboardList} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Quiz iniciados"
-            value={loading ? '—' : (data?.totalStarted ?? 0)}
-            loading={loading}
-          />
-          <MetricCard
-            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Quiz completados"
-            value={loading ? '—' : (data?.totalCompleted ?? 0)}
-            loading={loading}
-          />
-          <MetricCard
-            icon={TrendingUp} iconBg="bg-emerald-50" iconColor="text-emerald-500"
-            label="Taxa de conclusão"
-            value={loading ? '—' : `${data?.completionRate ?? 0}%`}
-            sub="Completados ÷ iniciados"
-            loading={loading}
-          />
-        </div>
-      </section>
-
-      {/* Diagnosis distribution */}
-      <section>
-        <SectionHeader title="Diagnóstico recebido" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Distribution bars */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-bold text-gray-800">Distribuição de diagnóstico</p>
-              {!loading && <span className="text-sm text-gray-400">{totalDiag} total</span>}
-            </div>
-            {loading ? <ChartSkeleton h={100} /> : (
-              <div className="space-y-3">
-                {Object.entries(DIAG_CONFIG).map(([key, cfg]) => {
-                  const count = diagDist[key] ?? 0
-                  return (
-                    <div key={key} className="flex items-center gap-3">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text} w-16 text-center flex-shrink-0`}>
-                        {key === 'red' ? 'Verm.' : key === 'amber' ? 'Âmbar' : 'Verde'}
-                      </span>
-                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: totalDiag > 0 ? `${(count / totalDiag) * 100}%` : '0%', background: DIAG_CONFIG[key].bar }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold text-gray-700 w-8 text-right tabular-nums">{count}</span>
-                      <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
-                        {totalDiag > 0 ? `${((count / totalDiag) * 100).toFixed(0)}%` : '—'}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Diagnosis conversion rates */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <p className="font-bold text-gray-800 mb-4">Diagnóstico × taxa de conversão</p>
-            {loading ? <ChartSkeleton h={140} /> : (
-              <div className="space-y-3">
-                {Object.entries(diagConversion).map(([key, val]) => {
-                  const cfg = DIAG_CONFIG[key]
-                  if (!cfg) return null
-                  return (
-                    <div key={key} className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
-                          {key === 'red' ? 'Vermelho' : key === 'amber' ? 'Âmbar' : 'Verde'}
-                        </span>
-                        <span className="text-sm font-bold text-gray-700 tabular-nums">
-                          {val.rate ?? 0}% conversão
-                        </span>
-                      </div>
-                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{ width: `${val.rate ?? 0}%`, background: cfg.bar }}
-                        />
-                      </div>
-                      <p className="text-xs text-gray-400">{val.converted ?? 0} assinaram de {val.total ?? 0}</p>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+      {/* Mode tabs + period filter row */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between flex-wrap">
+        {/* Mode tabs */}
+        <div className="overflow-x-auto">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
+            <button
+              onClick={() => handleMode('comparison')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                mode === 'comparison' ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              Comparação
+            </button>
+            {PLANS.map(p => (
+              <button
+                key={p.key}
+                onClick={() => handleMode(p.key)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
+                  mode === p.key ? 'text-white' : 'text-gray-500 hover:text-gray-800'
+                }`}
+                style={mode === p.key ? { background: p.color } : {}}
+              >
+                {p.short}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Description callouts */}
-        {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-            {Object.entries(DIAG_CONFIG).map(([key, cfg]) => (
-              <div key={key} className={`rounded-xl p-3 ${cfg.bg}`}>
-                <p className={`text-xs font-bold ${cfg.text} mb-0.5`}>
-                  {key === 'red' ? '🔴' : key === 'amber' ? '🟡' : '🟢'} {key === 'red' ? 'Vermelho' : key === 'amber' ? 'Âmbar' : 'Verde'}
-                </p>
-                <p className="text-xs text-gray-600 leading-snug">
-                  {key === 'red' ? 'Score ≥ 8 — cabelo muito danificado por químicos + calor' :
-                   key === 'amber' ? 'Score 4-7 — danos moderados, rotina inconsistente' :
-                   'Score < 4 — bons hábitos, baixa agressão capilar'}
-                </p>
-              </div>
+        {/* Period filter (only in comparison mode) */}
+        {mode === 'comparison' && (
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
+            {PERIODS.map(p => (
+              <button
+                key={p.key}
+                onClick={() => handlePeriod(p.key)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  period === p.key ? 'bg-violet-600 text-white' : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {p.label}
+              </button>
             ))}
           </div>
         )}
-      </section>
+      </div>
 
-      {/* Question distributions */}
-      <section>
-        <SectionHeader title="Distribuição por pergunta" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Object.keys(QUESTION_LABELS).map(field => (
-            <QuestionChart key={field} field={field} dist={dist} loading={loading} />
-          ))}
-        </div>
-      </section>
+      {error && <ErrorBanner message={error} onRetry={handleRefresh} />}
 
-      {/* Converted vs abandoned comparison */}
-      <section>
-        <SectionHeader title="Perfil comparativo — assinaram vs. abandonaram em /Results" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Object.keys(QUESTION_LABELS).filter(f => !['hairType','age'].includes(f)).map(field => (
-            <ComparisonChart
-              key={field}
-              field={field}
-              convertedAnswers={convertedAnswers}
-              abandonedAnswers={abandonedAnswers}
-              loading={loading}
-            />
-          ))}
-        </div>
-        {!loading && (
-          <p className="text-xs text-gray-400 mt-2 text-center">
-            "Assinaram" = mesma sessão do quiz que depois completou pagamento · "Abandonaram" = viram /Results mas não converteram
-          </p>
-        )}
-      </section>
+      {/* ── COMPARISON MODE ── */}
+      {mode === 'comparison' && (
+        <>
+          {/* Winner card */}
+          {!compLoading && significance && (
+            <WinnerCard significance={significance} plans={plans} />
+          )}
+          {compLoading && <div className="h-32 bg-violet-50 rounded-2xl animate-pulse border border-violet-100" />}
+
+          {/* MRR explanation card */}
+          {!compLoading && <MrrTooltip plans={plans} />}
+
+          {/* Comparison table */}
+          <section>
+            <SectionHeader title={`Comparação detalhada — últimos ${period === '7d' ? '7' : period === '30d' ? '30' : '90'} dias`} />
+            <ComparisonTable plans={plans} loading={compLoading} />
+          </section>
+        </>
+      )}
+
+      {/* ── INDIVIDUAL MODE ── */}
+      {mode !== 'comparison' && (
+        <>
+          {/* Individual funnel visual */}
+          <section>
+            <SectionHeader title="Funil de conversão" />
+            {compLoading ? (
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse space-y-4">
+                {[1,2,3,4,5].map(i => <div key={i} className="h-8 bg-gray-100 rounded-xl" style={{ width: `${100 - i*12}%` }} />)}
+              </div>
+            ) : (
+              <IndividualFunnel planData={selectedPlanData} />
+            )}
+          </section>
+
+          {/* Language + country */}
+          <section>
+            <SectionHeader title="Geografia e idioma (histórico completo)" />
+            <LangCountryPanel quizData={quizData} loading={quizLoading} />
+          </section>
+
+          {/* Quiz overview metrics */}
+          <section>
+            <SectionHeader title="Visão geral do quiz" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { icon: ClipboardList, iconBg: 'bg-violet-50', iconColor: 'text-violet-500', label: 'Quiz iniciados (histórico)', value: quizLoading ? '—' : (quizData?.totalStarted ?? 0) },
+                { icon: Users,         iconBg: 'bg-violet-50', iconColor: 'text-violet-500', label: 'Quiz completados',           value: quizLoading ? '—' : (quizData?.totalCompleted ?? 0) },
+                { icon: TrendingUp,    iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500', label: 'Taxa de conclusão',       value: quizLoading ? '—' : `${quizData?.completionRate ?? 0}%` },
+              ].map(({ icon: Icon, iconBg, iconColor, label, value }) => (
+                <div key={label} className={`bg-white rounded-2xl border border-gray-100 p-5 ${quizLoading ? 'animate-pulse' : ''}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
+                    </div>
+                    <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
+                  </div>
+                  <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Diagnosis distribution */}
+          <section>
+            <SectionHeader title="Diagnóstico recebido" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="font-bold text-gray-800">Distribuição de diagnóstico</p>
+                  {!quizLoading && <span className="text-sm text-gray-400">{totalDiag} total</span>}
+                </div>
+                {quizLoading ? <ChartSkeleton h={100} /> : (
+                  <div className="space-y-3">
+                    {Object.entries(DIAG_CONFIG).map(([key, cfg]) => {
+                      const count = diagDist[key] ?? 0
+                      return (
+                        <div key={key} className="flex items-center gap-3">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text} w-16 text-center flex-shrink-0`}>
+                            {key === 'red' ? 'Verm.' : key === 'amber' ? 'Âmbar' : 'Verde'}
+                          </span>
+                          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: totalDiag > 0 ? `${(count / totalDiag) * 100}%` : '0%', background: cfg.bar }} />
+                          </div>
+                          <span className="text-sm font-bold text-gray-700 w-8 text-right tabular-nums">{count}</span>
+                          <span className="text-xs text-gray-400 w-10 text-right tabular-nums">{totalDiag > 0 ? `${((count / totalDiag) * 100).toFixed(0)}%` : '—'}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                <p className="font-bold text-gray-800 mb-4">Diagnóstico × taxa de conversão</p>
+                {quizLoading ? <ChartSkeleton h={120} /> : (
+                  <div className="space-y-3">
+                    {Object.entries(diagConversion).map(([key, val]) => {
+                      const cfg = DIAG_CONFIG[key]
+                      if (!cfg) return null
+                      return (
+                        <div key={key} className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>{key === 'red' ? 'Vermelho' : key === 'amber' ? 'Âmbar' : 'Verde'}</span>
+                            <span className="text-sm font-bold text-gray-700 tabular-nums">{val.rate ?? 0}% conversão</span>
+                          </div>
+                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${val.rate ?? 0}%`, background: cfg.bar }} />
+                          </div>
+                          <p className="text-xs text-gray-400">{val.converted ?? 0} assinaram de {val.total ?? 0}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Question distributions */}
+          <section>
+            <SectionHeader title="Distribuição por pergunta" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.keys(QUESTION_LABELS).map(field => (
+                <QuestionChart key={field} field={field} dist={dist} loading={quizLoading} />
+              ))}
+            </div>
+          </section>
+
+          {/* Converted vs abandoned */}
+          <section>
+            <SectionHeader title="Perfil comparativo — assinaram vs. abandonaram" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.keys(QUESTION_LABELS).map(field => (
+                <ComparisonChart
+                  key={field}
+                  field={field}
+                  convertedAnswers={convertedAnswers}
+                  abandonedAnswers={abandonedAnswers}
+                  loading={quizLoading}
+                />
+              ))}
+            </div>
+            {!quizLoading && (
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                "Assinaram" = mesma sessão que depois completou pagamento · "Abandonaram" = viram /Results mas não converteram
+              </p>
+            )}
+          </section>
+        </>
+      )}
     </div>
   )
 }

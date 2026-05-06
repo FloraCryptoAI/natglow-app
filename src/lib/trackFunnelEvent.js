@@ -15,7 +15,7 @@ export function getFunnelSessionId() {
   return getSessionId()
 }
 
-export async function trackFunnelEvent(event_type, metadata = null) {
+export async function trackFunnelEvent(event_type, metadata = null, pricing_plan = null) {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -31,6 +31,7 @@ export async function trackFunnelEvent(event_type, metadata = null) {
         session_id: getSessionId(),
         idioma: getLang(),
         metadata,
+        pricing_plan,
       }),
     })
   } catch {

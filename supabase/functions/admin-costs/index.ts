@@ -4,7 +4,21 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
-const PLAN_PRICE = 6.99
+const PLAN_MRR: Record<string, number> = {
+  monthly_499:  4.99,
+  monthly_699:  6.99,
+  monthly_1499: 14.99,
+}
+
+const PLAN_LABELS_COSTS: Record<string, string> = {
+  monthly_499:  'Cheap $4.99',
+  monthly_699:  'Control $6.99',
+  monthly_1499: 'Premium $14.99',
+}
+
+function subMrr(planKey: string | null | undefined): number {
+  return PLAN_MRR[planKey ?? 'monthly_699'] ?? 6.99
+}
 
 const dbHeaders = {
   Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -152,6 +166,7 @@ Deno.serve(async (req) => {
           descricao_outros: body.descricao_outros ?? null,
           valor:            Number(body.valor),
           observacao:       body.observacao ?? null,
+          pricing_plan:     body.pricing_plan ?? null,
           criado_por:       'admin',
         }),
       })
@@ -218,9 +233,9 @@ Deno.serve(async (req) => {
       const sixStartDate   = sixMonths[0].startDate
 
       const [periodCostsArr, sixMonthCosts, subs, periodRevenue] = await Promise.all([
-        supabaseGet(`admin_costs?select=categoria,valor&data=gte.${startISO}&data=lte.${endISO}`),
+        supabaseGet(`admin_costs?select=categoria,valor,pricing_plan&data=gte.${startISO}&data=lte.${endISO}`),
         supabaseGet(`admin_costs?select=data,categoria,valor&data=gte.${sixStartDate}&order=data.asc`),
-        supabaseGet(`subscriptions?select=created_at,canceled_at&order=created_at.asc&limit=1000`),
+        supabaseGet(`subscriptions?select=created_at,canceled_at,pricing_plan&order=created_at.asc&limit=1000`),
         fetchStripeRevenueInPeriod(startUnix, endUnix),
       ])
 
@@ -236,12 +251,12 @@ Deno.serve(async (req) => {
 
       // Six-month chart data
       const sixMonthData = sixMonths.map(m => {
-        const active = subs.filter(s => {
+        const activeSubs = subs.filter(s => {
           const created  = s.created_at as string
           const canceled = s.canceled_at as string | null
           return created <= m.endISO && (canceled == null || canceled > m.startISO)
-        }).length
-        const receita = parseFloat((active * PLAN_PRICE).toFixed(2))
+        })
+        const receita = parseFloat(activeSubs.reduce((acc, s) => acc + subMrr(s.pricing_plan), 0).toFixed(2))
         const custos  = sixMonthCosts
           .filter(c => (c.data as string) >= m.startDate && (c.data as string) <= m.endDate)
           .reduce((s, c) => s + Number(c.valor ?? 0), 0)
@@ -266,12 +281,12 @@ Deno.serve(async (req) => {
 
       // Traffic ROI by month (last 6 months)
       const trafficRoiByMonth = sixMonths.map(m => {
-        const active = subs.filter(s => {
+        const activeSubs = subs.filter(s => {
           const created  = s.created_at as string
           const canceled = s.canceled_at as string | null
           return created <= m.endISO && (canceled == null || canceled > m.startISO)
-        }).length
-        const receita = parseFloat((active * PLAN_PRICE).toFixed(2))
+        })
+        const receita = parseFloat(activeSubs.reduce((acc, s) => acc + subMrr(s.pricing_plan), 0).toFixed(2))
         const custo   = sixMonthCosts
           .filter(c => c.categoria === 'trafego_pago' &&
             (c.data as string) >= m.startDate && (c.data as string) <= m.endDate)
@@ -283,6 +298,65 @@ Deno.serve(async (req) => {
           custo:   parseFloat(custo.toFixed(2)),
         }
       })
+
+      // ROI per plan
+      const planRoi = Object.entries(PLAN_MRR).map(([planKey, mrrPerUser]) => {
+        const isDefault = planKey === 'monthly_699'
+        const activeSubs = subs.filter(s => {
+          const p = (s.pricing_plan as string | null) ?? 'monthly_699'
+          if (!(isDefault ? (p === 'monthly_699') : p === planKey)) return false
+          const created  = s.created_at as string
+          const canceled = s.canceled_at as string | null
+          return created <= endDate.toISOString() && (canceled == null || canceled > startDate.toISOString())
+        }).length
+
+        const mrrContribution = parseFloat((activeSubs * mrrPerUser).toFixed(2))
+
+        const planTrafficCosts = parseFloat(
+          periodCostsArr
+            .filter(c => c.categoria === 'trafego_pago' && c.pricing_plan === planKey)
+            .reduce((s, c) => s + Number(c.valor ?? 0), 0)
+            .toFixed(2)
+        )
+
+        const roi = planTrafficCosts > 0
+          ? parseFloat((mrrContribution / planTrafficCosts).toFixed(2))
+          : null
+
+        const confidenceLevel: 'high' | 'medium' | 'low' =
+          activeSubs >= 100 ? 'high' : activeSubs >= 30 ? 'medium' : 'low'
+
+        return {
+          plan_key:         planKey,
+          label:            PLAN_LABELS_COSTS[planKey] ?? planKey,
+          mrr_per_user:     mrrPerUser,
+          active_subs:      activeSubs,
+          mrr_contribution: mrrContribution,
+          traffic_costs:    planTrafficCosts,
+          roi,
+          confidence_level: confidenceLevel,
+        }
+      })
+
+      // Global unlinked traffic costs
+      const globalTrafficCosts = parseFloat(
+        periodCostsArr
+          .filter(c => c.categoria === 'trafego_pago' && !PLAN_MRR[c.pricing_plan as string])
+          .reduce((s, c) => s + Number(c.valor ?? 0), 0)
+          .toFixed(2)
+      )
+      if (globalTrafficCosts > 0) {
+        planRoi.push({
+          plan_key:         'global',
+          label:            'Global (não vinculado)',
+          mrr_per_user:     0,
+          active_subs:      0,
+          mrr_contribution: 0,
+          traffic_costs:    globalTrafficCosts,
+          roi:              null,
+          confidence_level: 'low' as const,
+        })
+      }
 
       return json({
         summary: {
@@ -296,6 +370,7 @@ Deno.serve(async (req) => {
         sixMonthData,
         categoryDistribution,
         trafficRoiByMonth,
+        planRoi,
       })
     }
 

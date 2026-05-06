@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
   TrendingUp, TrendingDown,
-  UserPlus, Percent, AlertCircle,
+  UserPlus, Percent,
   CalendarCheck,
   ArrowUpRight, ArrowDownRight,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
+import ErrorBanner from './components/ErrorBanner'
+import { useAdminFetch } from './hooks/useAdminFetch'
 import {
   ResponsiveContainer,
   AreaChart, Area,
@@ -15,8 +15,6 @@ import {
   BarChart, Bar, Legend,
   PieChart, Pie, Cell,
 } from 'recharts'
-
-const PLAN_PRICE = 6.99
 
 // ── date helpers ───────────────────────────────────────
 function startOfDay()   { const d = new Date(); d.setHours(0,0,0,0); return d }
@@ -129,22 +127,6 @@ function KpiCard({ label, value, badge, badgePositive = true, sparkColor = '#7c3
   )
 }
 
-// ── Error banner ──────────────────────────────────────
-function ErrorBanner({ message, onRetry }) {
-  return (
-    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
-      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-      <p className="text-sm text-red-600 flex-1">{message}</p>
-      <button
-        onClick={onRetry}
-        className="text-sm font-semibold text-red-600 hover:text-red-700 flex items-center gap-1.5 flex-shrink-0"
-      >
-        <ArrowClockwise size={14} weight="fill" /> Tentar novamente
-      </button>
-    </div>
-  )
-}
-
 // ── Chart skeleton ────────────────────────────────────
 function ChartSkeleton({ h = 200 }) {
   return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
@@ -175,27 +157,24 @@ function MetricCard({ icon: Icon, iconColor, bgColor, label, value, sub, loading
 
 // ── Main page ─────────────────────────────────────────
 export default function AdminOverview() {
-  const { adminToken, clearAdminToken } = useAdminAuth()
-  const navigate = useNavigate()
+  const { apiFetch } = useAdminFetch()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
 
   const load = useCallback(async () => {
-    setLoading(true); setError(null)
+    setLoading(true)
+    setError(null)
     try {
-      const url = import.meta.env.VITE_SUPABASE_URL
-      const key = import.meta.env.VITE_SUPABASE_ANON_KEY
-      const res = await fetch(`${url}/functions/v1/admin-data`, {
-        headers: { Authorization: `Bearer ${key}`, apikey: key, 'x-admin-token': adminToken, 'Content-Type': 'application/json' },
-      })
-      if (res.status === 401 || res.status === 403) { clearAdminToken(); navigate('/admin/login', { replace: true }); return }
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
+      const result = await apiFetch('/admin-data')
+      if (!result) return
       setData(result)
-    } catch (e) { setError(e?.message ?? 'Erro ao carregar dados') }
-    finally     { setLoading(false) }
-  }, [adminToken, clearAdminToken, navigate])
+    } catch (e) {
+      setError(e?.message ?? 'Erro ao carregar dados')
+    } finally {
+      setLoading(false)
+    }
+  }, [apiFetch])
 
   useEffect(() => { load() }, [load])
 
@@ -209,7 +188,7 @@ export default function AdminOverview() {
   const canceledThisMonth = data?.canceledThisMonth ?? 0
   const totalRevenue      = data?.totalRevenue   ?? 0
   const mrrHistory12      = data?.mrrHistory12   ?? []
-  const mrr               = activeCount * PLAN_PRICE
+  const mrr               = data?.currentMRR ?? 0
 
   const todayStart   = startOfDay()
   const weekStart    = startOfWeek()
@@ -223,8 +202,9 @@ export default function AdminOverview() {
   const churnRate      = churnRateNum.toFixed(1)
   const conversionRate = totalUsers > 0 ? ((activeCount / totalUsers) * 100).toFixed(1) : '0.0'
 
-  const ltv    = churnRateNum > 0 ? `$${(PLAN_PRICE / (churnRateNum / 100)).toFixed(2)}` : 'Em cálculo'
-  const ltvSub = churnRateNum > 0 ? `$${PLAN_PRICE} ÷ ${churnRate}% churn` : 'Churn rate = 0%'
+  const avgMrr = activeCount > 0 ? mrr / activeCount : 0
+  const ltv    = churnRateNum > 0 ? `$${(avgMrr / (churnRateNum / 100)).toFixed(2)}` : 'Em cálculo'
+  const ltvSub = churnRateNum > 0 ? `$${avgMrr.toFixed(2)} MRR médio ÷ ${churnRate}% churn` : 'Churn rate = 0%'
 
   // Sparkline data
   const mrrNums           = mrrHistory12.map(m => m.mrr ?? 0)
@@ -450,7 +430,7 @@ export default function AdminOverview() {
         <MetricCard
           icon={CalendarCheck} iconColor="text-amber-500" bgColor="bg-amber-50"
           label="Próximas Renovações"
-          value={loading ? '—' : `$${(activeCount * PLAN_PRICE).toFixed(2)}`}
+          value={loading ? '—' : `$${mrr.toFixed(2)}`}
           sub="Se nenhuma cancelar (30d)"
           loading={loading}
         />

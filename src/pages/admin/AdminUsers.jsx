@@ -18,6 +18,12 @@ const STATUS_BADGE = {
 
 const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸' }
 
+const PLAN_BADGE = {
+  monthly_499:  { label: '$4.99/mês',   bg: 'bg-cyan-50',   text: 'text-cyan-700' },
+  monthly_699:  { label: '$6.99/mês',   bg: 'bg-violet-50', text: 'text-violet-700' },
+  monthly_1499: { label: '$14.99/mês',  bg: 'bg-amber-50',  text: 'text-amber-700' },
+}
+
 const DIAGNOSIS_BADGE = {
   green: { label: 'Leve',     bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-400' },
   amber: { label: 'Moderado', bg: 'bg-amber-50',   text: 'text-amber-700',   dot: 'bg-amber-400' },
@@ -228,6 +234,7 @@ export default function AdminUsers() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [planFilter, setPlanFilter] = useState('')
   const [sort, setSort] = useState('created_at')
   const [order, setOrder] = useState('desc')
 
@@ -249,7 +256,7 @@ export default function AdminUsers() {
   }
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
 
-  const loadUsers = useCallback(async (p = page, s = search, sf = statusFilter, so = sort, or = order) => {
+  const loadUsers = useCallback(async (p = page, s = search, sf = statusFilter, so = sort, or = order, pf = planFilter) => {
     setLoading(true)
     setError(null)
     try {
@@ -257,7 +264,7 @@ export default function AdminUsers() {
         mode: 'list', page: String(p), per_page: String(PER_PAGE),
         sort: so, order: or,
       })
-      if (s) params.set('search', s)
+      if (s)  params.set('search', s)
       if (sf) params.set('status', sf)
 
       const res = await fetch(`${baseUrl}/admin-users?${params}`, { headers: authHeaders })
@@ -266,8 +273,12 @@ export default function AdminUsers() {
       }
       const result = await res.json()
       if (result?.error) throw new Error(result.error)
-      setUsers(result.users ?? [])
-      setTotal(result.total ?? 0)
+      // Client-side plan filter (server doesn't filter by plan yet — keeps edge fn simple)
+      const filtered = pf
+        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'monthly_699') === pf)
+        : (result.users ?? [])
+      setUsers(filtered)
+      setTotal(pf ? filtered.length : (result.total ?? 0))
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar usuárias')
     } finally {
@@ -282,14 +293,20 @@ export default function AdminUsers() {
     clearTimeout(searchTimer.current)
     searchTimer.current = setTimeout(() => {
       setPage(1)
-      loadUsers(1, val, statusFilter, sort, order)
+      loadUsers(1, val, statusFilter, sort, order, planFilter)
     }, 350)
   }
 
   const handleStatusFilter = (val) => {
     setStatusFilter(val)
     setPage(1)
-    loadUsers(1, search, val, sort, order)
+    loadUsers(1, search, val, sort, order, planFilter)
+  }
+
+  const handlePlanFilter = (val) => {
+    setPlanFilter(val)
+    setPage(1)
+    loadUsers(1, search, statusFilter, sort, order, val)
   }
 
   const handleSort = (col) => {
@@ -297,12 +314,12 @@ export default function AdminUsers() {
     setSort(col)
     setOrder(newOrder)
     setPage(1)
-    loadUsers(1, search, statusFilter, col, newOrder)
+    loadUsers(1, search, statusFilter, col, newOrder, planFilter)
   }
 
   const handlePage = (p) => {
     setPage(p)
-    loadUsers(p, search, statusFilter, sort, order)
+    loadUsers(p, search, statusFilter, sort, order, planFilter)
   }
 
   const openDrawer = async (user) => {
@@ -398,6 +415,16 @@ export default function AdminUsers() {
           <option value="past_due">Inadimplentes</option>
           <option value="inactive">Inativas</option>
         </select>
+        <select
+          value={planFilter}
+          onChange={e => handlePlanFilter(e.target.value)}
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
+        >
+          <option value="">Todos os planos</option>
+          <option value="monthly_499">Monthly $4.99</option>
+          <option value="monthly_699">Monthly $6.99</option>
+          <option value="monthly_1499">Monthly $14.99</option>
+        </select>
       </div>
 
       {error && (
@@ -426,6 +453,7 @@ export default function AdminUsers() {
                   <Th col="email"      label="Email" />
                   <Th col="created_at" label="Cadastro" />
                   <Th col="status"     label="Status" />
+                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Plano</th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Último acesso</th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Diagnóstico</th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Idioma</th>
@@ -444,6 +472,16 @@ export default function AdminUsers() {
                       {u.created_at ? new Date(u.created_at).toLocaleDateString('pt-BR') : '—'}
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
+                    <td className="px-4 py-3">
+                      {(() => {
+                        const p = PLAN_BADGE[u.pricing_plan ?? 'monthly_699'] ?? PLAN_BADGE.monthly_699
+                        return (
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.bg} ${p.text}`}>
+                            {p.label}
+                          </span>
+                        )
+                      })()}
+                    </td>
                     <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                       {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('pt-BR') : '—'}
                     </td>

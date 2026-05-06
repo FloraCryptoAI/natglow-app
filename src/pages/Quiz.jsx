@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent } from '@/lib/trackFunnelEvent';
+import { PRICING_PLANS } from '@/config/pricing';
 
 const BEFORE_AFTER = [
   { antes: '/images/quiz-v2/antes-1.jpg', depois: '/images/quiz-v2/depois-1.jpg' },
@@ -67,7 +68,11 @@ function QuizOption({ label, desc, emoji, selected, onClick }) {
   );
 }
 
-export default function Quiz() {
+export default function Quiz({ pricingPlan = 'monthly' }) {
+  const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.monthly;
+  const { plan_key, results_path } = planConfig;
+  const QUIZ_STATE_KEY = `glow_quiz_state_${plan_key}`;
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
@@ -98,19 +103,19 @@ export default function Quiz() {
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('glow_quiz_state');
+      const saved = sessionStorage.getItem(QUIZ_STATE_KEY);
       if (saved) {
         const { step: s, answers: a } = JSON.parse(saved);
         if (s < STEPS.LOADING) { setStep(s); setAnswers(a); }
       }
     } catch {}
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (step < STEPS.LOADING) {
-      sessionStorage.setItem('glow_quiz_state', JSON.stringify({ step, answers }));
+      sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify({ step, answers }));
     }
-  }, [step, answers]);
+  }, [step, answers, QUIZ_STATE_KEY]);
 
   useEffect(() => {
     if (user && isSubscribed) navigate('/HairDashboard');
@@ -131,7 +136,7 @@ export default function Quiz() {
 
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
-    trackFunnelEvent('quiz_completed', { answers });
+    trackFunnelEvent('quiz_completed', { answers }, plan_key);
     setLoadingProgress(0);
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),
@@ -139,9 +144,9 @@ export default function Quiz() {
       setTimeout(() => setLoadingProgress(100), 2100),
     ];
     const done = setTimeout(() => {
-      sessionStorage.removeItem('glow_quiz_state');
-      sessionStorage.removeItem('glow_results_timer_end');
-      navigate('/Results', { state: { answers } });
+      sessionStorage.removeItem(QUIZ_STATE_KEY);
+      sessionStorage.removeItem(`glow_results_timer_end_${plan_key}`);
+      navigate(results_path, { state: { answers } });
     }, 2800);
     return () => { timers.forEach(clearTimeout); clearTimeout(done); };
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -196,7 +201,7 @@ export default function Quiz() {
               </div>
 
               <button
-                onClick={() => { trackFunnelEvent('quiz_started'); setStep(STEPS.AGE); }}
+                onClick={() => { trackFunnelEvent('quiz_started', null, plan_key); setStep(STEPS.AGE); }}
                 className="btn-primary btn-pulse w-full py-6 text-base flex items-center justify-center gap-2"
               >
                 {t('quiz.anchor.cta')}

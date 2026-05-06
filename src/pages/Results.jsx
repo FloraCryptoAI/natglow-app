@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, ArrowDown, Shield, Star, Loader2, ChevronDown, ChevronUp,
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
+import { PRICING_PLANS } from '@/config/pricing';
 
 // ── design tokens ──────────────────────────────────────────────────────────
 const P    = '#FB45A9';
@@ -159,13 +160,13 @@ function RecipeCard({ recipe, t }) {
   );
 }
 
-function PricingCard({ onCheckout, loading, error, t, adminConfig = {} }) {
+function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey, periodLabel }) {
   const benefits = t('results.pricing.benefits', { returnObjects: true });
   const timerEnabled = adminConfig.timer_enabled !== 'false';
 
   const [timeLeft, setTimeLeft] = useState(() => {
     if (!timerEnabled) return 0;
-    const stored = sessionStorage.getItem('glow_results_timer_end');
+    const stored = sessionStorage.getItem(timerKey);
     if (stored) {
       const remaining = Math.floor((parseInt(stored) - Date.now()) / 1000);
       if (remaining > 0) return remaining;
@@ -220,7 +221,7 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {} }) {
             <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P }}>
               {adminConfig.displayed_price || t('results.pricing.price')}
             </span>
-            <span className="text-stone-400 text-lg ml-1">{t('results.pricing.period')}</span>
+            <span className="text-stone-400 text-lg ml-1">{periodLabel}</span>
           </div>
           <p className="text-sm text-stone-400 mt-2">{t('results.pricing.cancel')}</p>
         </div>
@@ -278,17 +279,20 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {} }) {
   );
 }
 
-// ── admin config defaults ──────────────────────────────────────────────────
+// ── admin config defaults (plan-aware) ────────────────────────────────────
 
-const CONFIG_DEFAULTS = {
-  displayed_price: '6.99',
-  crossed_price: '$47.99',
-  promo_badge: null,
-  timer_enabled: 'true',
-  timer_minutes: '15',
-  maintenance_mode: 'false',
-  maintenance_text: 'Estamos em manutenção. Voltamos em breve! 🌿',
-};
+function getConfigDefaults(pricingPlan) {
+  const plan = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.monthly;
+  return {
+    displayed_price: plan.display_price.toString(),
+    crossed_price: '$47.99',
+    promo_badge: null,
+    timer_enabled: 'true',
+    timer_minutes: '15',
+    maintenance_mode: 'false',
+    maintenance_text: 'Estamos em manutenção. Voltamos em breve! 🌿',
+  };
+}
 
 function MaintenanceScreen({ message }) {
   return (
@@ -302,15 +306,20 @@ function MaintenanceScreen({ message }) {
 
 // ── main component ─────────────────────────────────────────────────────────
 
-export default function Results() {
-  const { t } = useTranslation();
+export default function Results({ pricingPlan = 'monthly' }) {
+  const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.monthly;
+  const { plan_key, stripe_price_id, results_path, route_path } = planConfig;
+  const TIMER_KEY = `glow_results_timer_end_${plan_key}`;
+
+  const { t, i18n } = useTranslation();
+  const periodLabel = i18n.language.startsWith('es') ? planConfig.period_es : planConfig.period_en;
   const { state } = useLocation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [adminConfig, setAdminConfig] = useState(CONFIG_DEFAULTS);
+  const [adminConfig, setAdminConfig] = useState(() => getConfigDefaults(pricingPlan));
   const pricingRef = useRef(null);
 
   const RECIPES_TEASE = [
@@ -347,7 +356,7 @@ export default function Results() {
   const REASSURANCE = t('results.reassurance', { returnObjects: true });
 
   useEffect(() => {
-    trackFunnelEvent('results_viewed');
+    trackFunnelEvent('results_viewed', null, plan_key);
     // Fetch admin config (non-blocking — failures silently use defaults)
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -358,23 +367,26 @@ export default function Results() {
       },
     })
       .then(r => r.ok ? r.json() : null)
-      .then(cfg => { if (cfg && !cfg.error) setAdminConfig({ ...CONFIG_DEFAULTS, ...cfg }); })
+      .then(cfg => {
+        if (cfg && !cfg.error) {
+          const planDefaults = getConfigDefaults(pricingPlan);
+          // displayed_price always comes from PRICING_PLANS — admin-config is global and cannot override per-plan price
+          setAdminConfig({ ...planDefaults, ...cfg, displayed_price: planDefaults.displayed_price });
+        }
+      })
       .catch(() => {});
   }, []);
 
   // Set urgency timer duration from admin config (runs when config loads)
   useEffect(() => {
     if (adminConfig.timer_enabled !== 'true') return;
-    const stored = sessionStorage.getItem('glow_results_timer_end');
+    const stored = sessionStorage.getItem(TIMER_KEY);
     if (!stored) {
       const minutes = parseInt(adminConfig.timer_minutes) || 15;
-      sessionStorage.setItem('glow_results_timer_end', (Date.now() + minutes * 60 * 1000).toString());
+      sessionStorage.setItem(TIMER_KEY, (Date.now() + minutes * 60 * 1000).toString());
     }
-  }, [adminConfig]);
+  }, [adminConfig, TIMER_KEY]);
 
-  useEffect(() => {
-    if (!state?.answers) navigate('/quiz', { replace: true });
-  }, [state, navigate]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -387,7 +399,7 @@ export default function Results() {
     if (user && isSubscribed) navigate('/HairDashboard', { replace: true });
   }, [user, isSubscribed, navigate]);
 
-  if (!state?.answers) return null;
+  if (!state?.answers) return <Navigate to={route_path} replace />;
 
   // Maintenance mode — block access for everyone (admin bypasses via /admin)
   if (adminConfig.maintenance_mode === 'true') {
@@ -405,13 +417,14 @@ export default function Results() {
   const handleCheckout = async () => {
     setLoading(true);
     setError(null);
-    trackFunnelEvent('cta_clicked');
+    trackFunnelEvent('cta_clicked', null, plan_key);
     try {
       const invokeOptions = {
         body: {
-          priceId: import.meta.env.VITE_STRIPE_PRICE_ID,
+          priceId: stripe_price_id,
+          planKey: plan_key,
           successUrl: window.location.origin + '/success',
-          cancelUrl: window.location.origin + '/Results',
+          cancelUrl: window.location.origin + results_path,
           funnelSessionId: getFunnelSessionId(),
         },
       };
@@ -689,7 +702,7 @@ export default function Results() {
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} />
           </FadeIn>
 
           <FadeIn delay={0.1}>

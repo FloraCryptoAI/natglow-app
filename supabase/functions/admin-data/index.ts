@@ -1,11 +1,20 @@
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { fetchTotalRevenueCents } from '../_shared/stripe-revenue.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 
-const PLAN_PRICE = 6.99
+const PLAN_MRR: Record<string, number> = {
+  monthly_499:  4.99,
+  monthly_699:  6.99,
+  monthly_1499: 14.99,
+}
+
+function subMrr(planKey: string | null | undefined): number {
+  return PLAN_MRR[planKey ?? 'monthly_699'] ?? 6.99
+}
 
 function getMonths12() {
   const months = []
@@ -20,22 +29,6 @@ function getMonths12() {
   return months
 }
 
-async function fetchTotalRevenueCents(): Promise<number> {
-  let total = 0
-  let startingAfter = ''
-  for (let page = 0; page < 10; page++) {
-    const q = new URLSearchParams({ limit: '100', status: 'paid' })
-    if (startingAfter) q.set('starting_after', startingAfter)
-    const res = await fetch(`https://api.stripe.com/v1/invoices?${q}`, {
-      headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` },
-    })
-    const data = await res.json()
-    for (const inv of data.data ?? []) total += Number(inv.amount_paid ?? 0)
-    if (!data.has_more || !data.data?.length) break
-    startingAfter = data.data[data.data.length - 1].id
-  }
-  return total
-}
 
 Deno.serve(async (req) => {
   const cors = corsHeaders(req.headers.get('Origin'))
@@ -87,14 +80,24 @@ Deno.serve(async (req) => {
     const canceledThisMonth: number = eventsData.data?.length ?? 0
     const totalRevenue   = parseFloat((totalRevenueCents / 100).toFixed(2))
 
+    // MRR atual = soma do MRR equivalente de cada assinante ativa (multi-plano)
+    const currentMRR = parseFloat(
+      subscriptions
+        .filter((s: any) => s.status === 'active')
+        .reduce((acc: number, s: any) => acc + subMrr(s.pricing_plan), 0)
+        .toFixed(2)
+    )
+
     const months12 = getMonths12()
     const mrrHistory12 = months12.map(m => {
-      const active = subscriptions.filter((s: any) => {
-        const created  = s.created_at as string
-        const canceled = s.canceled_at as string | null
-        return created <= m.endISO && (canceled == null || canceled > m.startISO)
-      }).length
-      return { label: m.label, mrr: parseFloat((active * PLAN_PRICE).toFixed(2)) }
+      const mrr = subscriptions
+        .filter((s: any) => {
+          const created  = s.created_at as string
+          const canceled = s.canceled_at as string | null
+          return created <= m.endISO && (canceled == null || canceled > m.startISO)
+        })
+        .reduce((acc: number, s: any) => acc + subMrr(s.pricing_plan), 0)
+      return { label: m.label, mrr: parseFloat(mrr.toFixed(2)) }
     })
 
     return new Response(
@@ -106,6 +109,7 @@ Deno.serve(async (req) => {
         pastDueCount,
         canceledThisMonth,
         totalRevenue,
+        currentMRR,
         mrrHistory12,
       }),
       { headers: { ...cors, 'Content-Type': 'application/json' } }

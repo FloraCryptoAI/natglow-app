@@ -86,9 +86,23 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Login" replace />} />
-      <Route path="/quiz" element={<Quiz />} />
+
+      {/* ── Quiz routes — one per pricing plan ── */}
+      <Route path="/quiz"         element={<Quiz pricingPlan="monthly" />} />
+      <Route path="/quiz-cheap"   element={<Quiz pricingPlan="monthly_cheap" />} />
+      <Route path="/quiz-premium" element={<Quiz pricingPlan="monthly_premium" />} />
+      <Route path="/quiz-weekly"  element={<Navigate to="/quiz" replace />} />
+
+      {/* ── Results routes — one per pricing plan ── */}
+      <Route path="/results"         element={<Results pricingPlan="monthly" />} />
+      <Route path="/results-cheap"   element={<Results pricingPlan="monthly_cheap" />} />
+      <Route path="/results-premium" element={<Results pricingPlan="monthly_premium" />} />
+      <Route path="/results-weekly"  element={<Navigate to="/results" replace />} />
+
+      {/* Legacy redirect — keeps old /Results links working (emails, ads, bookmarks) */}
+      <Route path="/Results" element={<Navigate to="/results" replace />} />
+
       <Route path="/Landing" element={<Navigate to="/quiz" replace />} />
-      <Route path="/Results" element={<Results />} />
       <Route path="/Login" element={<Login />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}

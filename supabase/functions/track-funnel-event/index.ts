@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
-    const { event_type, session_id, idioma, metadata, user_id } = body
+    const { event_type, session_id, idioma, metadata, user_id, pricing_plan } = body
 
     if (!event_type || !session_id) {
       return new Response(JSON.stringify({ ok: false }), {
@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
         idioma: idioma ?? null,
         pais,
         metadata: metadata ?? null,
+        pricing_plan: pricing_plan ?? null,
       }),
     })
   } catch {

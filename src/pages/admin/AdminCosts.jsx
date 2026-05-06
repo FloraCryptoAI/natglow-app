@@ -21,6 +21,19 @@ const CATEGORIES = [
   { key: 'outros',       label: 'Outros',         emoji: '📝' },
 ]
 
+const PLAN_OPTIONS = [
+  { value: null,            label: 'Global / não vinculado' },
+  { value: 'monthly_499',   label: 'Cheap $4.99' },
+  { value: 'monthly_699',   label: 'Control $6.99' },
+  { value: 'monthly_1499',  label: 'Premium $14.99' },
+]
+
+const CONFIDENCE_CONFIG = {
+  high:   { label: 'Confiável',        className: 'text-emerald-700 bg-emerald-50' },
+  medium: { label: 'Tendência',        className: 'text-amber-700 bg-amber-50' },
+  low:    { label: 'Aguardando dados', className: 'text-gray-500 bg-gray-100' },
+}
+
 const PERIODS = [
   { key: 'today',         label: 'Hoje' },
   { key: '7d',            label: '7 dias' },
@@ -151,13 +164,14 @@ function CostFormModal({ open, onClose, onSave, initial, saving }) {
     descricao_outros: '',
     valor:            '',
     observacao:       '',
+    pricing_plan:     null,
     ...initial,
   })
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
     if (open) {
-      setForm({ data: TODAY, categoria: 'trafego_pago', descricao_outros: '', valor: '', observacao: '', ...initial })
+      setForm({ data: TODAY, categoria: 'trafego_pago', descricao_outros: '', valor: '', observacao: '', pricing_plan: null, ...initial })
       setErrors({})
     }
   }, [open, JSON.stringify(initial)])  // eslint-disable-line react-hooks/exhaustive-deps
@@ -181,6 +195,7 @@ function CostFormModal({ open, onClose, onSave, initial, saving }) {
       descricao_outros: form.categoria === 'outros' ? form.descricao_outros.trim() : null,
       valor:            Number(form.valor),
       observacao:       form.observacao?.trim() || null,
+      pricing_plan:     form.pricing_plan || null,
     })
   }
 
@@ -259,6 +274,23 @@ function CostFormModal({ open, onClose, onSave, initial, saving }) {
               />
             </div>
             {errors.valor && <p className="text-xs text-red-500 mt-1">{errors.valor}</p>}
+          </div>
+
+          {/* Vincular a plano */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Vincular a plano de preço <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
+            <select
+              value={form.pricing_plan ?? ''}
+              onChange={e => set('pricing_plan', e.target.value || null)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-violet-400 bg-white"
+            >
+              {PLAN_OPTIONS.map(o => (
+                <option key={o.value ?? 'null'} value={o.value ?? ''}>{o.label}</option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">Usado no cálculo de ROI por plano. Recomendado para Tráfego Pago.</p>
           </div>
 
           {/* Observação */}
@@ -504,6 +536,7 @@ export default function AdminCosts() {
       descricao_outros: cost.descricao_outros ?? '',
       valor:            String(cost.valor),
       observacao:       cost.observacao ?? '',
+      pricing_plan:     cost.pricing_plan ?? null,
     })
     setFormOpen(true)
   }
@@ -790,6 +823,68 @@ export default function AdminCosts() {
               loading={loadingRoi}
             />
           </div>
+
+          {/* ROI per plan table */}
+          {!loadingRoi && (roiData?.planRoi?.length ?? 0) > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
+              <div className="px-5 pt-5 pb-3">
+                <p className="font-bold text-gray-800 mb-0.5">ROI por plano de preço</p>
+                <p className="text-xs text-gray-400">MRR equivalente × custo de anúncios vinculado no período</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50">
+                      {['Plano', 'Assinantes ativos', 'MRR equiv.', 'Custo de anúncios', 'ROI', 'Confiabilidade'].map(h => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {(roiData?.planRoi ?? []).map(p => {
+                      const conf = CONFIDENCE_CONFIG[p.confidence_level] ?? CONFIDENCE_CONFIG.low
+                      return (
+                        <tr key={p.plan_key} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-gray-800 whitespace-nowrap">{p.label}</td>
+                          <td className="px-4 py-3 text-gray-600 tabular-nums">{p.active_subs}</td>
+                          <td className="px-4 py-3 font-bold text-gray-900 tabular-nums">{fmt(p.mrr_contribution)}</td>
+                          <td className="px-4 py-3 text-gray-600 tabular-nums">{p.traffic_costs > 0 ? fmt(p.traffic_costs) : <span className="text-gray-300">—</span>}</td>
+                          <td className="px-4 py-3 font-bold tabular-nums">
+                            {p.roi != null
+                              ? <span className={p.roi >= 1 ? 'text-emerald-600' : 'text-red-500'}>{p.roi}×</span>
+                              : <span className="text-gray-300">—</span>
+                            }
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${conf.className}`}>
+                              {conf.label}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    <tr className="border-t border-gray-200 bg-gray-50">
+                      <td className="px-4 py-3 font-bold text-gray-800">Total</td>
+                      <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
+                        {(roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.active_subs, 0)}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
+                        {fmt((roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.mrr_contribution, 0))}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
+                        {fmt((roiData?.planRoi ?? []).reduce((a, p) => a + p.traffic_costs, 0))}
+                      </td>
+                      <td className="px-4 py-3" />
+                      <td className="px-4 py-3" />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">
+                Custos sem plano vinculado não entram no ROI por plano — são exibidos em "Global".
+              </p>
+            </div>
+          )}
 
           {/* Chart 1: Receita vs Custos vs Lucro */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
