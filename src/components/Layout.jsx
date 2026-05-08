@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
 import { updatePushLang } from '@/lib/push';
+import { supabase } from '@/api/supabaseClient';
 import NotificationBell from './NotificationBell';
 import { InstallHeaderButton } from './InstallPrompt';
 
@@ -13,6 +14,24 @@ export default function Layout() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { t, i18n } = useTranslation();
+
+  // Sincroniza idioma do banco ao abrir o app (resolve localStorage isolado do PWA no iOS)
+  useEffect(() => {
+    async function syncLang() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('notification_preferences')
+        .eq('user_id', user.id)
+        .single();
+      const savedLang = data?.notification_preferences?.lang;
+      if (savedLang && savedLang !== i18n.language) {
+        setLang(savedLang);
+      }
+    }
+    syncLang();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const navItems = [
     { path: '/HairDashboard', label: t('layout.myRoutine'), icon: Home },
@@ -29,10 +48,24 @@ export default function Layout() {
 
   const currentLang = i18n.language === 'es' ? 'es' : 'en';
 
-  const toggleLang = (lang) => {
+  const toggleLang = async (lang) => {
     if (lang !== currentLang) {
       setLang(lang);
       updatePushLang(lang);
+      // Persiste no banco para sincronizar no PWA instalado (iOS localStorage isolado)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('subscriptions')
+          .select('notification_preferences')
+          .eq('user_id', user.id)
+          .single();
+        const current = data?.notification_preferences ?? { promotions: true, newsletter: true };
+        await supabase
+          .from('subscriptions')
+          .update({ notification_preferences: { ...current, lang } })
+          .eq('user_id', user.id);
+      }
     }
   };
 
