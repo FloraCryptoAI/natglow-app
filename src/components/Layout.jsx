@@ -28,7 +28,13 @@ export default function Layout() {
       const savedLang = data?.notification_preferences?.lang;
       if (savedLang) {
         if (savedLang !== i18n.language) setLang(savedLang);
-        updatePushLang(savedLang); // garante que a subscription push reflita o idioma do banco
+        // Atualiza lang das subscriptions diretamente por user_id — mais confiável no iOS
+        // onde pushManager.getSubscription() pode falhar silenciosamente durante a inicialização
+        supabase
+          .from('notification_subscriptions')
+          .update({ lang: savedLang })
+          .eq('user_id', user.id)
+          .then(() => {})
       }
     }
     syncLang();
