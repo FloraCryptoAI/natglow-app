@@ -138,6 +138,36 @@ Deno.serve(async (req) => {
       return json({ ok: true, history_id: histId, users_targeted: user_ids.length, ...result })
     }
 
+    // ── PATCH: update notification template ──────────────
+    if (req.method === 'PATCH' && mode === 'update_template') {
+      const { id, ...fields } = await req.json()
+      if (!id) return json({ error: 'id obrigatório' }, 400)
+      const allowed = ['title_en','title_es','body_en','body_es','url','icon_url','interval_days','enabled']
+      const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
+      for (const key of allowed) {
+        if (key in fields) patch[key] = fields[key]
+      }
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/notification_templates?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { ...dbHeaders, Prefer: 'return=representation' },
+        body: JSON.stringify(patch),
+      })
+      const updated = await res.json()
+      return json({ ok: true, template: Array.isArray(updated) ? updated[0] : updated })
+    }
+
+    // ── POST: trigger auto notification manually ──────────
+    if (req.method === 'POST' && mode === 'trigger_auto') {
+      const { type } = await req.json().catch(() => ({}))
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/auto-notifications`, {
+        method: 'POST',
+        headers: { ...authHeaders, 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ type }),
+      })
+      const result = await res.json()
+      return json(result)
+    }
+
     if (req.method !== 'GET') return new Response('Method not allowed', { status: 405, headers: cors })
 
     // ── GET: stats ────────────────────────────────────────
@@ -215,6 +245,17 @@ Deno.serve(async (req) => {
       const history = await histRes.json()
       const total   = parseInt(countRes.headers.get('content-range')?.split('/')[1] ?? '0')
       return json({ history: Array.isArray(history) ? history : [], total, page, pageSize })
+    }
+
+    // ── GET: templates ───────────────────────────────────
+    if (mode === 'templates') {
+      const templates = await supabaseGet('notification_templates?order=type.asc')
+      return json({ templates: Array.isArray(templates) ? templates : [] })
+    }
+
+    // ── PATCH: update template ────────────────────────────
+    if (mode === 'update_template' && req.method === 'PATCH') {
+      // already handled above in POST block — but PATCH arrives as a separate method
     }
 
     // ── GET: lookup ───────────────────────────────────────

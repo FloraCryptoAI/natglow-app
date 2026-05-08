@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import {
   Bell, Send, History, BarChart2,
   ChevronLeft, ChevronRight, Search, Loader2,
-  CheckCheck,
+  CheckCheck, Zap, ChevronDown, Play, Check,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 import {
@@ -20,7 +20,16 @@ const TABS = [
   { key: 'send',    label: 'Enviar Nova',  icon: Send },
   { key: 'history', label: 'Histórico',    icon: History },
   { key: 'stats',   label: 'Estatísticas', icon: BarChart2 },
+  { key: 'auto',    label: 'Automáticas',  icon: Zap },
 ]
+
+const TEMPLATE_LABELS = {
+  routine_reminder: { title: 'Lembrete de Rotina', desc: 'Enviado quando a usuária não atualiza o plano em X dias' },
+  daily_tip:        { title: 'Dica Diária',         desc: 'Enviado a cada X dias para todas as assinantes com push' },
+  reactivation_7:   { title: 'Reativação — 7 dias', desc: 'Usuárias sem acesso há 7+ dias' },
+  reactivation_14:  { title: 'Reativação — 14 dias',desc: 'Usuárias sem acesso há 14+ dias' },
+  reactivation_30:  { title: 'Reativação — 30 dias',desc: 'Usuárias sem acesso há 30+ dias' },
+}
 
 const SEGMENTS = [
   { key: 'all_active',    label: 'Todas ativas' },
@@ -493,6 +502,191 @@ function StatsTab({ apiFetch }) {
   )
 }
 
+// ─── Sub-tab: Automáticas ─────────────────────────────────────────────────────
+function TemplateCard({ tmpl, apiFetch, onUpdated }) {
+  const [expanded, setExpanded] = useState(false)
+  const [saving, setSaving]     = useState(false)
+  const [firing, setFiring]     = useState(false)
+  const [firedMsg, setFiredMsg] = useState(null)
+
+  const [form, setForm] = useState({
+    title_en:      tmpl.title_en,
+    title_es:      tmpl.title_es,
+    body_en:       tmpl.body_en,
+    body_es:       tmpl.body_es,
+    url:           tmpl.url ?? '/HairDashboard',
+    interval_days: tmpl.interval_days,
+    enabled:       tmpl.enabled,
+  })
+
+  const handleToggle = async () => {
+    const next = !form.enabled
+    setForm(f => ({ ...f, enabled: next }))
+    await apiFetch('/admin-notifications?mode=update_template', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: tmpl.id, enabled: next }),
+    })
+    onUpdated?.()
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    await apiFetch('/admin-notifications?mode=update_template', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: tmpl.id, ...form }),
+    })
+    setSaving(false)
+    setExpanded(false)
+    onUpdated?.()
+  }
+
+  const handleFire = async () => {
+    setFiring(true)
+    setFiredMsg(null)
+    const res = await apiFetch('/admin-notifications?mode=trigger_auto', {
+      method: 'POST',
+      body: JSON.stringify({ type: tmpl.type }),
+    })
+    setFiredMsg(res?.results?.[tmpl.type]
+      ? `Enviado: ${res.results[tmpl.type].sent} · Falhas: ${res.results[tmpl.type].failed}`
+      : res?.message ?? 'Disparado'
+    )
+    setFiring(false)
+  }
+
+  const meta = TEMPLATE_LABELS[tmpl.type] ?? { title: tmpl.type, desc: '' }
+  const inputCls = 'w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all'
+  const labelCls = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide'
+
+  return (
+    <div className={`bg-white rounded-2xl border transition-all ${form.enabled ? 'border-gray-100' : 'border-gray-100 opacity-60'}`}>
+      <div className="flex items-center gap-3 p-4">
+        {/* Enable toggle */}
+        <button
+          role="switch"
+          aria-checked={form.enabled}
+          onClick={handleToggle}
+          className={`flex-shrink-0 relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+            form.enabled ? 'bg-violet-600' : 'bg-gray-200'
+          }`}
+        >
+          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+            form.enabled ? 'translate-x-4' : 'translate-x-0.5'
+          }`} />
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-800">{meta.title}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{meta.desc} · a cada {form.interval_days} dia(s)</p>
+        </div>
+
+        {firedMsg && (
+          <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+            <Check className="w-3 h-3" />{firedMsg}
+          </span>
+        )}
+
+        <button
+          onClick={handleFire}
+          disabled={firing || !form.enabled}
+          title="Disparar agora (teste)"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 disabled:opacity-40 transition-colors"
+        >
+          {firing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+          Disparar
+        </button>
+
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400"
+        >
+          <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      {expanded && (
+        <div className="border-t border-gray-100 p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Título EN</label>
+              <input className={inputCls} value={form.title_en} onChange={e => setForm(f => ({ ...f, title_en: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Título ES</label>
+              <input className={inputCls} value={form.title_es} onChange={e => setForm(f => ({ ...f, title_es: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Mensagem EN</label>
+              <textarea rows={3} className={inputCls} value={form.body_en} onChange={e => setForm(f => ({ ...f, body_en: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Mensagem ES</label>
+              <textarea rows={3} className={inputCls} value={form.body_es} onChange={e => setForm(f => ({ ...f, body_es: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>URL destino</label>
+              <input className={inputCls} value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Intervalo (dias)</label>
+              <input type="number" min={1} max={365} className={inputCls} value={form.interval_days}
+                onChange={e => setForm(f => ({ ...f, interval_days: parseInt(e.target.value) || 1 }))} />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-colors"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              Salvar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AutoTab({ apiFetch }) {
+  const [templates, setTemplates] = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [error, setError]         = useState(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    const data = await apiFetch('/admin-notifications?mode=templates')
+    if (data?.templates) setTemplates(data.templates)
+    else setError('Erro ao carregar templates')
+    setLoading(false)
+  }, [apiFetch])
+
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-gray-300" /></div>
+  if (error)   return <ErrorBanner message={error} onRetry={load} />
+
+  return (
+    <div className="space-y-3">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+        <p className="text-xs text-amber-700 font-medium">
+          As notificações automáticas são disparadas diariamente às 10h UTC pelo cron job.
+          Use "Disparar" para testar manualmente. O intervalo define a frequência por usuária.
+        </p>
+      </div>
+      {templates.map(tmpl => (
+        <TemplateCard key={tmpl.id} tmpl={tmpl} apiFetch={apiFetch} onUpdated={load} />
+      ))}
+    </div>
+  )
+}
+
 // ─── AdminNotifications (root) ────────────────────────────────────────────────
 export default function AdminNotifications() {
   const { apiFetch } = useAdminFetch()
@@ -536,6 +730,7 @@ export default function AdminNotifications() {
       )}
       {tab === 'history' && <HistoryTab key={historyKey} apiFetch={apiFetch} />}
       {tab === 'stats'   && <StatsTab apiFetch={apiFetch} />}
+      {tab === 'auto'    && <AutoTab apiFetch={apiFetch} />}
     </div>
   )
 }
