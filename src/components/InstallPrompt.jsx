@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Download, Share, X } from 'lucide-react'
 
@@ -75,8 +76,8 @@ export function InstallHeaderButton() {
         {t('installPrompt.headerBtn')}
       </button>
 
-      {iosModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
+      {iosModalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-sm bg-white rounded-3xl p-6 pb-8 space-y-4">
             <div className="flex items-center justify-between">
               <p className="font-semibold text-stone-800">{t('installPrompt.ios.title')}</p>
@@ -105,7 +106,8 @@ export function InstallHeaderButton() {
               {t('common.close')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
@@ -233,8 +235,8 @@ export default function InstallPrompt({ onResolved }) {
       </div>
 
       {/* Modal de instruções iOS */}
-      {iosModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
+      {iosModalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-sm bg-white rounded-3xl p-6 pb-8 space-y-4">
             <div className="flex items-center justify-between">
               <p className="font-semibold text-stone-800">{t('installPrompt.ios.title')}</p>
@@ -274,7 +276,8 @@ export default function InstallPrompt({ onResolved }) {
               {t('common.close')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
