@@ -26,8 +26,9 @@ export default function Layout() {
         .eq('user_id', user.id)
         .single();
       const savedLang = data?.notification_preferences?.lang;
-      if (savedLang && savedLang !== i18n.language) {
-        setLang(savedLang);
+      if (savedLang) {
+        if (savedLang !== i18n.language) setLang(savedLang);
+        updatePushLang(savedLang); // garante que a subscription push reflita o idioma do banco
       }
     }
     syncLang();
