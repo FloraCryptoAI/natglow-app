@@ -27,6 +27,7 @@ export function InstallHeaderButton() {
   const { t } = useTranslation()
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [visible, setVisible] = useState(false)
+  const [iosModalOpen, setIosModalOpen] = useState(false)
 
   useEffect(() => {
     if (isStandalone() || (!isAndroid() && !isIOS())) return
@@ -53,6 +54,10 @@ export function InstallHeaderButton() {
   if (!visible) return null
 
   const handleClick = async () => {
+    if (isIOS()) {
+      setIosModalOpen(true)
+      return
+    }
     if (deferredPrompt) {
       deferredPrompt.prompt()
       await deferredPrompt.userChoice
@@ -61,13 +66,48 @@ export function InstallHeaderButton() {
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand border border-brand/30 rounded-full hover:bg-brand/5 transition-colors"
-    >
-      <Download className="w-3.5 h-3.5" />
-      {t('installPrompt.headerBtn')}
-    </button>
+    <>
+      <button
+        onClick={handleClick}
+        className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand border border-brand/30 rounded-full hover:bg-brand/5 transition-colors"
+      >
+        <Download className="w-3.5 h-3.5" />
+        {t('installPrompt.headerBtn')}
+      </button>
+
+      {iosModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 pb-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-stone-800">{t('installPrompt.ios.title')}</p>
+              <button onClick={() => setIosModalOpen(false)} className="p-1 text-stone-400 hover:text-stone-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm text-stone-600">
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">1</span>
+                <p>{t('installPrompt.ios.step1')} <Share className="w-4 h-4 text-blue-500 inline" /> {t('installPrompt.ios.step1b')}</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">2</span>
+                <p>{t('installPrompt.ios.step2')} <strong className="text-stone-800">{t('installPrompt.ios.step2b')}</strong></p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">3</span>
+                <p>{t('installPrompt.ios.step3')}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIosModalOpen(false)}
+              className="w-full py-3 bg-brand text-white font-semibold rounded-xl text-sm"
+            >
+              {t('common.close')}
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
