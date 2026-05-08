@@ -78,9 +78,37 @@ Deno.serve(async (req) => {
     const url  = new URL(req.url)
     const mode = url.searchParams.get('mode')
 
-    // ── POST: dispatch notification ───────────────────────
+    // ── POST: dispatch notification or special actions ────
     if (req.method === 'POST') {
       const body = await req.json()
+
+      // Trigger auto-notification manually (teste no admin)
+      if (mode === 'trigger_auto') {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/auto-notifications`, {
+          method: 'POST',
+          headers: { ...authHeaders, 'Content-Type': 'application/json', 'x-admin-token': token },
+          body: JSON.stringify({ type: body.type }),
+        })
+        const result = await res.json()
+        return json(result)
+      }
+
+      // Update template via POST (fallback for clients that don't support PATCH)
+      if (mode === 'update_template') {
+        const { id, ...fields } = body
+        if (!id) return json({ error: 'id obrigatório' }, 400)
+        const allowed = ['title_en','title_es','body_en','body_es','url','icon_url','interval_days','enabled']
+        const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
+        for (const key of allowed) { if (key in fields) patch[key] = fields[key] }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/notification_templates?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: { ...dbHeaders, Prefer: 'return=representation' },
+          body: JSON.stringify(patch),
+        })
+        const updated = await res.json()
+        return json({ ok: true, template: Array.isArray(updated) ? updated[0] : updated })
+      }
+
       const { segmentation, title_en, title_es, body_en, body_es, url: notifUrl, icon_url, channels } = body
 
       if (!segmentation || !title_en || !body_en || !channels?.length) {

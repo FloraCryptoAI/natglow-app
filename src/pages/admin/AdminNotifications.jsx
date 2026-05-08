@@ -523,7 +523,7 @@ function TemplateCard({ tmpl, apiFetch, onUpdated }) {
     const next = !form.enabled
     setForm(f => ({ ...f, enabled: next }))
     await apiFetch('/admin-notifications?mode=update_template', {
-      method: 'PATCH',
+      method: 'POST',
       body: JSON.stringify({ id: tmpl.id, enabled: next }),
     })
     onUpdated?.()
@@ -531,27 +531,36 @@ function TemplateCard({ tmpl, apiFetch, onUpdated }) {
 
   const handleSave = async () => {
     setSaving(true)
-    await apiFetch('/admin-notifications?mode=update_template', {
-      method: 'PATCH',
-      body: JSON.stringify({ id: tmpl.id, ...form }),
-    })
-    setSaving(false)
-    setExpanded(false)
-    onUpdated?.()
+    try {
+      await apiFetch('/admin-notifications?mode=update_template', {
+        method: 'POST',
+        body: JSON.stringify({ id: tmpl.id, ...form }),
+      })
+      setExpanded(false)
+      onUpdated?.()
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleFire = async () => {
     setFiring(true)
     setFiredMsg(null)
-    const res = await apiFetch('/admin-notifications?mode=trigger_auto', {
-      method: 'POST',
-      body: JSON.stringify({ type: tmpl.type }),
-    })
-    setFiredMsg(res?.results?.[tmpl.type]
-      ? `Enviado: ${res.results[tmpl.type].sent} · Falhas: ${res.results[tmpl.type].failed}`
-      : res?.message ?? 'Disparado'
-    )
-    setFiring(false)
+    try {
+      const res = await apiFetch('/admin-notifications?mode=trigger_auto', {
+        method: 'POST',
+        body: JSON.stringify({ type: tmpl.type }),
+      })
+      const typeResult = res?.results?.[tmpl.type]
+      setFiredMsg(typeResult
+        ? `Enviado: ${typeResult.sent} · Falhas: ${typeResult.failed}`
+        : res?.message ?? 'Disparado'
+      )
+    } catch (err) {
+      setFiredMsg('Erro ao disparar')
+    } finally {
+      setFiring(false)
+    }
   }
 
   const meta = TEMPLATE_LABELS[tmpl.type] ?? { title: tmpl.type, desc: '' }
