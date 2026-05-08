@@ -12,6 +12,7 @@
 
   "layout": {
     "myRoutine": "My Routine",
+    "feed": "Feed",
     "recipes": "Recipes",
     "plan": "Plan",
     "progress": "Progress",
@@ -646,6 +647,8 @@
 
   "settings": {
     "title": "Settings",
+    "languageSection": "App Language",
+    "languageDesc": "Choose the language for the entire app and notifications.",
     "notificationsSection": "Notification Preferences",
     "promotions": "News & promotions",
     "promotionsDesc": "Receive tips and exclusive offers",
@@ -658,5 +661,10 @@
     "disablePushConfirm": "Push notifications disabled on this device",
     "saving": "Saving...",
     "saved": "Saved"
+  },
+
+  "feed": {
+    "comingSoonTitle": "Feed coming soon",
+    "comingSoonDesc": "Tips, updates, and hair care content will appear here."
   }
 }

@@ -27,6 +27,7 @@ import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
 import HairDashboard from './pages/HairDashboard';
+import HairFeed from './pages/HairFeed';
 import HairRecipes from './pages/HairRecipes';
 import HairPlan from './pages/HairPlan';
 import HairProgress from './pages/HairProgress';
@@ -158,6 +159,7 @@ const AppRoutes = () => {
         <ProtectedRoute><Layout /></ProtectedRoute>
       }>
         <Route path="/HairDashboard" element={<HairDashboard />} />
+        <Route path="/HairFeed" element={<HairFeed />} />
         <Route path="/HairRecipes" element={<HairRecipes />} />
         <Route path="/HairPlan" element={<HairPlan />} />
         <Route path="/HairProgress" element={<HairProgress />} />

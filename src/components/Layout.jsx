@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings } from 'lucide-react';
+import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings, Newspaper } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
-import { updatePushLang } from '@/lib/push';
 import { supabase } from '@/api/supabaseClient';
 import NotificationBell from './NotificationBell';
 import { InstallHeaderButton } from './InstallPrompt';
@@ -42,38 +41,15 @@ export default function Layout() {
 
   const navItems = [
     { path: '/HairDashboard', label: t('layout.myRoutine'), icon: Home },
+    { path: '/HairFeed', label: t('layout.feed'), icon: Newspaper },
     { path: '/HairRecipes', label: t('layout.recipes'), icon: BookOpen },
     { path: '/HairPlan', label: t('layout.plan'), icon: Calendar },
     { path: '/HairProgress', label: t('layout.progress'), icon: BarChart3 },
-    { path: '/HairSettings', label: t('layout.settings'), icon: Settings },
   ];
 
   const handleLogout = async () => {
     await signOut();
     navigate('/Landing');
-  };
-
-  const currentLang = i18n.language === 'es' ? 'es' : 'en';
-
-  const toggleLang = async (lang) => {
-    if (lang !== currentLang) {
-      setLang(lang);
-      updatePushLang(lang);
-      // Persiste no banco para sincronizar no PWA instalado (iOS localStorage isolado)
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('subscriptions')
-          .select('notification_preferences')
-          .eq('user_id', user.id)
-          .single();
-        const current = data?.notification_preferences ?? { promotions: true, newsletter: true };
-        await supabase
-          .from('subscriptions')
-          .update({ notification_preferences: { ...current, lang } })
-          .eq('user_id', user.id);
-      }
-    }
   };
 
   return (
@@ -108,25 +84,15 @@ export default function Layout() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <NotificationBell />
             <InstallHeaderButton />
-            {/* Language selector */}
-            <div className="flex items-center gap-0.5 text-xs font-semibold">
-              <button
-                onClick={() => toggleLang('es')}
-                className={`px-2 py-1 rounded-l-full transition-colors ${currentLang === 'es' ? 'bg-brand text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
-              >
-                ES
-              </button>
-              <button
-                onClick={() => toggleLang('en')}
-                className={`px-2 py-1 rounded-r-full transition-colors ${currentLang === 'en' ? 'bg-brand text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
-              >
-                EN
-              </button>
-            </div>
-
+            <Link
+              to="/HairSettings"
+              className="p-2 text-stone-400 hover:text-stone-700 transition-colors rounded-full hover:bg-stone-100"
+            >
+              <Settings className="w-5 h-5" />
+            </Link>
             <button
               onClick={handleLogout}
               className="hidden md:flex items-center gap-2 px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"

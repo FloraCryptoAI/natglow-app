@@ -28,7 +28,6 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon || '/pwa-192x192.png',
-      badge: '/pwa-64x64.png',
       data: {
         url: data.url || '/HairDashboard',
         history_id: data.history_id || null,

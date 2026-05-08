@@ -12,6 +12,7 @@
 
   "layout": {
     "myRoutine": "Mi Rutina",
+    "feed": "Feed",
     "recipes": "Recetas",
     "plan": "Plan",
     "progress": "Progreso",
@@ -646,6 +647,8 @@
 
   "settings": {
     "title": "Configuración",
+    "languageSection": "Idioma del App",
+    "languageDesc": "Elige el idioma de toda la aplicación y las notificaciones.",
     "notificationsSection": "Preferencias de Notificación",
     "promotions": "Novedades y promociones",
     "promotionsDesc": "Recibe consejos y ofertas exclusivas",
@@ -658,5 +661,10 @@
     "disablePushConfirm": "Notificaciones push desactivadas en este dispositivo",
     "saving": "Guardando...",
     "saved": "Guardado"
+  },
+
+  "feed": {
+    "comingSoonTitle": "Feed próximamente",
+    "comingSoonDesc": "Consejos, novedades y contenido de cuidado capilar aparecerán aquí."
   }
 }

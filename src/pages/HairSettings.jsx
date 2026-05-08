@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, ShieldCheck, Loader2 } from 'lucide-react'
+import { Bell, ShieldCheck, Loader2, Languages, Check } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
-import { unsubscribeFromPush, isPushSupported, isSubscribedToPush } from '@/lib/push'
+import { unsubscribeFromPush, isPushSupported, isSubscribedToPush, updatePushLang } from '@/lib/push'
+import { setLang } from '@/lib/i18n'
 import { InstallSettingsSection } from '@/components/InstallPrompt'
 import { toast } from 'sonner'
 
@@ -35,8 +36,9 @@ function ToggleRow({ label, description, checked, onChange, disabled = false }) 
 }
 
 export default function HairSettings() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [prefs, setPrefs] = useState({ promotions: true, newsletter: true })
+  const currentLang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [pushSubscribed, setPushSubscribed] = useState(false)
@@ -89,6 +91,25 @@ export default function HairSettings() {
     toast.success(t('settings.disablePushConfirm'))
   }
 
+  async function toggleLang(lang) {
+    if (lang === currentLang) return
+    setLang(lang)
+    updatePushLang(lang)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('notification_preferences')
+        .eq('user_id', user.id)
+        .single()
+      const current = data?.notification_preferences ?? { promotions: true, newsletter: true }
+      await supabase
+        .from('subscriptions')
+        .update({ notification_preferences: { ...current, lang } })
+        .eq('user_id', user.id)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -101,6 +122,45 @@ export default function HairSettings() {
     <div className="space-y-6 pb-8 max-w-lg mx-auto">
       <div>
         <h1 className="text-xl font-bold text-stone-800">{t('settings.title')}</h1>
+      </div>
+
+      {/* Language selector */}
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="px-5 pt-5 pb-3 border-b border-stone-100 flex items-center gap-2">
+          <Languages className="w-4 h-4 text-brand" />
+          <h2 className="text-sm font-semibold text-stone-800">{t('settings.languageSection')}</h2>
+        </div>
+        <div className="px-5 py-4">
+          <p className="text-xs text-stone-400 mb-3">{t('settings.languageDesc')}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => toggleLang('es')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
+                currentLang === 'es' ? 'border-brand bg-brand/5' : 'border-stone-200 hover:border-stone-300'
+              }`}
+            >
+              <span className="text-2xl leading-none">🇪🇸</span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${currentLang === 'es' ? 'text-brand' : 'text-stone-700'}`}>Español</p>
+                <p className="text-xs text-stone-400">Spanish</p>
+              </div>
+              {currentLang === 'es' && <Check className="w-4 h-4 text-brand flex-shrink-0" />}
+            </button>
+            <button
+              onClick={() => toggleLang('en')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
+                currentLang === 'en' ? 'border-brand bg-brand/5' : 'border-stone-200 hover:border-stone-300'
+              }`}
+            >
+              <span className="text-2xl leading-none">🇺🇸</span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${currentLang === 'en' ? 'text-brand' : 'text-stone-700'}`}>English</p>
+                <p className="text-xs text-stone-400">Inglés</p>
+              </div>
+              {currentLang === 'en' && <Check className="w-4 h-4 text-brand flex-shrink-0" />}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Notification preferences */}
