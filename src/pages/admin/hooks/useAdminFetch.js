@@ -15,8 +15,8 @@ export function useAdminFetch() {
 
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
 
-  const apiFetch = useCallback(async (path) => {
-    const res = await fetch(`${baseUrl}${path}`, { headers })
+  const apiFetch = useCallback(async (path, options = {}) => {
+    const res = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...headers, ...(options.headers ?? {}) } })
     if (res.status === 401 || res.status === 403) {
       clearAdminToken()
       navigate('/admin/login', { replace: true })

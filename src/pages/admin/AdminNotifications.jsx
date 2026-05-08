@@ -98,19 +98,35 @@ function SendTab({ apiFetch, onSent }) {
     if (!canSend()) return
     setSending(true)
     setResult(null)
-    const channels = channelInapp && channelPush ? ['both']
-      : channelInapp ? ['inapp'] : ['push']
-    const body = {
-      segmentation: { type: segment, value: segmentValue },
-      title_en: titleEn, title_es: titleEs,
-      body_en: bodyEn, body_es: bodyEs,
-      url: url || null,
-      channels,
+
+    const channels = []
+    if (channelInapp) channels.push('inapp')
+    if (channelPush)  channels.push('push')
+
+    let segmentation = segment
+    if (segment === 'by_plan')       segmentation = `by_plan:${segmentValue}`
+    else if (segment === 'by_status')      segmentation = `by_status:${segmentValue}`
+    else if (segment === 'inactive_days')  segmentation = `inactive_days:${segmentValue}`
+    else if (segment === 'user_email')     segmentation = `user_email:${segmentValue}`
+
+    try {
+      const data = await apiFetch('/admin-notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          segmentation,
+          title_en: titleEn, title_es: titleEs,
+          body_en: bodyEn,   body_es: bodyEs,
+          url: url || null,
+          channels,
+        }),
+      })
+      setResult(data)
+      if (data?.ok) onSent?.()
+    } catch (err) {
+      setResult({ ok: false, error: err.message ?? 'Erro no envio' })
+    } finally {
+      setSending(false)
     }
-    const data = await apiFetch('/admin-notifications', { method: 'POST', body: JSON.stringify(body) })
-    setSending(false)
-    setResult(data)
-    if (data?.ok) onSent?.()
   }
 
   const inputCls = 'w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all'
