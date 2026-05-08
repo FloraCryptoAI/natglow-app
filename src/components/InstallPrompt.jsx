@@ -113,6 +113,98 @@ export function InstallHeaderButton() {
   )
 }
 
+// Seção de instalação para HairSettings — permanente, detecta plataforma
+export function InstallSettingsSection() {
+  const { t } = useTranslation()
+  const [deferredPrompt, setDeferredPrompt] = useState(() => window.deferredInstallPrompt ?? null)
+  const [iosModalOpen, setIosModalOpen] = useState(false)
+  const [installed, setInstalled] = useState(isStandalone)
+
+  useEffect(() => {
+    if (isAndroid() && !window.deferredInstallPrompt) {
+      const handler = (e) => {
+        e.preventDefault()
+        window.deferredInstallPrompt = e
+        setDeferredPrompt(e)
+      }
+      window.addEventListener('beforeinstallprompt', handler)
+      return () => window.removeEventListener('beforeinstallprompt', handler)
+    }
+  }, [])
+
+  if (installed) return null
+  if (!isIOS() && !isAndroid()) return null
+  if (isAndroid() && !deferredPrompt) return null
+
+  const handleInstall = async () => {
+    if (isIOS()) { setIosModalOpen(true); return }
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      window.deferredInstallPrompt = null
+      setDeferredPrompt(null)
+      if (outcome === 'accepted') setInstalled(true)
+    }
+  }
+
+  return (
+    <>
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="px-5 pt-5 pb-3 border-b border-stone-100 flex items-center gap-2">
+          <Download className="w-4 h-4 text-brand" />
+          <h2 className="text-sm font-semibold text-stone-800">{t('installPrompt.settingsTitle')}</h2>
+        </div>
+        <div className="px-5 py-4">
+          <p className="text-xs text-stone-400 mb-4 leading-relaxed">
+            {isIOS() ? t('installPrompt.settingsDescIos') : t('installPrompt.settingsDescAndroid')}
+          </p>
+          <button
+            onClick={handleInstall}
+            className="flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            {t('installPrompt.installBtn')}
+          </button>
+        </div>
+      </div>
+
+      {iosModalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 pb-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-stone-800">{t('installPrompt.ios.title')}</p>
+              <button onClick={() => setIosModalOpen(false)} className="p-1 text-stone-400 hover:text-stone-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm text-stone-600">
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">1</span>
+                <p>{t('installPrompt.ios.step1')} <Share className="w-4 h-4 text-blue-500 inline" /> {t('installPrompt.ios.step1b')}</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">2</span>
+                <p>{t('installPrompt.ios.step2')} <strong className="text-stone-800">{t('installPrompt.ios.step2b')}</strong></p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-brand font-bold text-base">3</span>
+                <p>{t('installPrompt.ios.step3')}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIosModalOpen(false)}
+              className="w-full py-3 bg-brand text-white font-semibold rounded-xl text-sm"
+            >
+              {t('common.close')}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
 // Modal automático — aparece no HairDashboard no primeiro acesso
 export default function InstallPrompt({ onResolved }) {
   const { t } = useTranslation()

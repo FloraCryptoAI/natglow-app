@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Bell, ShieldCheck, Loader2 } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
 import { unsubscribeFromPush, isPushSupported, isSubscribedToPush } from '@/lib/push'
+import { InstallSettingsSection } from '@/components/InstallPrompt'
 import { toast } from 'sonner'
 
 function ToggleRow({ label, description, checked, onChange, disabled = false }) {
@@ -142,6 +143,9 @@ export default function HairSettings() {
           />
         </div>
       </div>
+
+      {/* Install app */}
+      <InstallSettingsSection />
 
       {/* Push device control */}
       {isPushSupported() && pushSubscribed && (

@@ -611,6 +611,9 @@
     "installBtn": "Install app",
     "dismiss": "Not now",
     "headerBtn": "Install",
+    "settingsTitle": "Install App",
+    "settingsDescAndroid": "Add NatGlow to your home screen for faster access and a better experience.",
+    "settingsDescIos": "Add NatGlow to your home screen via Safari to access it like a native app.",
     "ios": {
       "title": "Add NatGlow to your home screen",
       "step1": "1. Tap the",
