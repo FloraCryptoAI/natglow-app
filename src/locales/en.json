@@ -14,7 +14,8 @@
     "myRoutine": "My Routine",
     "recipes": "Recipes",
     "plan": "Plan",
-    "progress": "Progress"
+    "progress": "Progress",
+    "settings": "Settings"
   },
 
   "login": {
@@ -247,7 +248,7 @@
       "promoBadge": "🔥 Special Launch Offer",
       "offerExpires": "This offer expires in",
       "originalPrice": "$47.99/month",
-      "savings": "You save $41/month",
+      "savings": "You save ${{amount}}/month",
       "price": "6.99",
       "period": "/month",
       "cancel": "Cancel anytime. No commitment.",
@@ -602,5 +603,57 @@
     ],
     "motivational": "Keep marking weeks in the plan to advance through phases.",
     "goToPlan": "Go to plan"
+  },
+
+  "installPrompt": {
+    "title": "Install NatGlow",
+    "subtitle": "Add to your home screen for quick access to your routine",
+    "installBtn": "Install app",
+    "dismiss": "Not now",
+    "headerBtn": "Install",
+    "ios": {
+      "title": "Add NatGlow to your home screen",
+      "step1": "1. Tap the",
+      "step1b": "Share button at the bottom of your browser",
+      "step2": "2. Scroll down and tap",
+      "step2b": "\"Add to Home Screen\"",
+      "step3": "3. Tap \"Add\" to confirm"
+    }
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "emptySubtitle": "We'll let you know when there's news about your routine",
+    "markAllRead": "Mark all as read",
+    "settingsLink": "Notification settings",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}}h ago",
+    "bell": {
+      "tooltip": "Notifications"
+    },
+    "pushBanner": {
+      "title": "Stay on track",
+      "body": "Enable notifications to receive tips and reminders for your hair routine",
+      "enable": "Enable",
+      "dismiss": "No thanks"
+    }
+  },
+
+  "settings": {
+    "title": "Settings",
+    "notificationsSection": "Notification Preferences",
+    "promotions": "News & promotions",
+    "promotionsDesc": "Receive tips and exclusive offers",
+    "newsletter": "Newsletter",
+    "newsletterDesc": "Weekly hair care content",
+    "importantMessages": "Important account messages",
+    "importantMessagesDesc": "Always on — required for account security",
+    "disablePush": "Disable push notifications",
+    "disablePushDesc": "Stop receiving push notifications on this device",
+    "disablePushConfirm": "Push notifications disabled on this device",
+    "saving": "Saving...",
+    "saved": "Saved"
   }
 }

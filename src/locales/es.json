@@ -14,7 +14,8 @@
     "myRoutine": "Mi Rutina",
     "recipes": "Recetas",
     "plan": "Plan",
-    "progress": "Progreso"
+    "progress": "Progreso",
+    "settings": "Configuración"
   },
 
   "login": {
@@ -247,7 +248,7 @@
       "promoBadge": "🔥 Oferta Especial de Lanzamiento",
       "offerExpires": "Esta oferta expira en",
       "originalPrice": "$47.99/mes",
-      "savings": "Ahorras $41/mes",
+      "savings": "Ahorras ${{amount}}/mes",
       "price": "6.99",
       "period": "/mes",
       "cancel": "Cancela cuando quieras. Sin compromiso.",
@@ -414,8 +415,8 @@
       "Usa agua tibia o fría para lavar el cabello",
       "Protege tu cabello con protector térmico antes de usar calor",
       "Duerme con funda de satén o seda para reducir la fricción",
-      "Mantenerte bien hidratada — el cabello refleja la salud interna del cuerpo",
-      "Peina con cuidado, siempre de abajo hacia arriba, sin jalar",
+      "Mantente bien hidratada — el cabello refleja la salud interna del cuerpo",
+      "Peina con cuidado, siempre de abajo hacia arriba, sin tirar",
       "Evita recoger el cabello mojado — causa rotura"
     ],
     "habitsToAvoid": [
@@ -423,7 +424,7 @@
       "Uso diario de secador o plancha sin protección térmica",
       "Cepillar el cabello mojado con fuerza — es cuando está más débil",
       "Exceso de productos químicos sin hidratación compensatoria",
-      "Recoger muy apretado con ligas de hule"
+      "Recoger muy apretado con bandas elásticas para el cabello"
     ],
     "essentialRecipes": {
       "babosa-mel": {
@@ -533,7 +534,7 @@
         "description": "El primer paso es restaurar lo que se perdió. Hidrataremos, cerraremos cutículas y crearemos hábitos que detengan el daño.",
         "goals": ["Hidratación profunda", "Cierre de cutículas", "Reducción del frizz", "Eliminar hábitos perjudiciales"],
         "weeks": {
-          "1": { "focus": "Hidratación inicial", "desc": "El primer paso es restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Usa agua tibia o fría para lavar el cabello", "Mantenerte bien hidratada — el cabello refleja la salud interna del cuerpo", "Evita recoger el cabello mojado", "Evita el uso excesivo de calor"] },
+          "1": { "focus": "Hidratación inicial", "desc": "El primer paso es restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Usa agua tibia o fría para lavar el cabello", "Mantente bien hidratada — el cabello refleja la salud interna del cuerpo", "Evita recoger el cabello mojado", "Evita el uso excesivo de calor"] },
           "2": { "focus": "Consolidación", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente.", "habits": ["Termina la ducha con 30 segundos de agua fría", "Evita el secador — deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto", "Sigue bebiendo bastante agua"] },
           "3": { "focus": "Sellado", "desc": "Sella los resultados logrados y prepárate para la fase de fortalecimiento.", "habits": ["Mantén los hábitos de las semanas anteriores", "Observa la diferencia en brillo y suavidad", "Evita herramientas de calor y ligas con metal", "Tómate una foto para comparar con el inicio 📸"] }
         }
@@ -544,7 +545,7 @@
         "description": "Con la hidratación restablecida, es hora de fortalecer la fibra capilar y reducir la rotura sistemáticamente.",
         "goals": ["Aporte proteico", "Reducción de rotura", "Fortalecimiento de la fibra", "Elasticidad restaurada"],
         "weeks": {
-          "1": { "focus": "Inicio proteico", "desc": "Empieza a agregar proteína a tu rutina para reconstruir los cabellos dañados.", "habits": ["Sigue usando agua tibia o fría", "Evita ligas que jalen el cabello", "Córtate las puntas abiertas si las hay", "Evita el calor excesivo"] },
+          "1": { "focus": "Inicio proteico", "desc": "Empieza a agregar proteína a tu rutina para reconstruir los cabellos dañados.", "habits": ["Sigue usando agua tibia o fría", "Evita ligas que tiren del cabello", "Córtate las puntas abiertas si las hay", "Evita el calor excesivo"] },
           "2": { "focus": "Consolidación", "desc": "Balancea proteína e hidratación para cabellos sanos y fuertes.", "habits": ["Duerme con trenza suelta para reducir la rotura nocturna", "Aplica aceite de coco en las puntas antes de dormir", "Bebe 2L de agua al día", "Evita la plancha o el secador esta semana"] },
           "3": { "focus": "Fortalecimiento", "desc": "Termina la fase con cabellos más fuertes y resistentes.", "habits": ["Observa la reducción en la rotura al cepillar", "Mantén los hábitos de las semanas anteriores", "Sigue evitando el calor", "Mantente bien hidratada internamente"] }
         }
@@ -557,7 +558,7 @@
         "weeks": {
           "1": { "focus": "Activación del cuero cabelludo", "desc": "Empieza a estimular el cuero cabelludo con tratamientos específicos.", "habits": ["Masajea el cuero cabelludo por 5 min antes de dormir", "Bebe 2L de agua al día", "Evita recoger el cabello con tensión", "Aliméntate bien — las vitaminas hacen diferencia"] },
           "2": { "focus": "Tónicos de crecimiento", "desc": "Aplica tónicos anticaída regularmente para resultados consistentes.", "habits": ["Continúa con el masaje capilar diario", "Evita recoger muy apretado", "Usa agua fría al final de la ducha", "Duerme con el cabello suelto"] },
-          "3": { "focus": "Consolidación", "desc": "Consolida los resultados de crecimiento y prepárate para la fase de mantenimiento.", "habits": ["Masajea el cuero cabelludo con las yemas de los dedos por 5 min", "Bebe 2L de agua al día", "Evita ligas que jalen", "Continúa con los tratamientos semanales"] }
+          "3": { "focus": "Consolidación", "desc": "Consolida los resultados de crecimiento y prepárate para la fase de mantenimiento.", "habits": ["Masajea el cuero cabelludo con las yemas de los dedos por 5 min", "Bebe 2L de agua al día", "Evita ligas que tiren", "Continúa con los tratamientos semanales"] }
         }
       },
       "4": {
@@ -574,7 +575,7 @@
     },
     "habits": [
       "Usa agua tibia o fría para lavar el cabello",
-      "Mantenerte bien hidratada — bebe 2L de agua",
+      "Mantente bien hidratada — bebe 2L de agua",
       "Evita recoger el cabello mojado",
       "Evita el uso excesivo de calor"
     ]
@@ -602,5 +603,57 @@
     ],
     "motivational": "Sigue marcando las semanas en el plan para avanzar en las fases.",
     "goToPlan": "Ir al plan"
+  },
+
+  "installPrompt": {
+    "title": "Instalar NatGlow",
+    "subtitle": "Agrega a tu pantalla de inicio para acceder a tu rutina rápidamente",
+    "installBtn": "Instalar app",
+    "dismiss": "Ahora no",
+    "headerBtn": "Instalar",
+    "ios": {
+      "title": "Agrega NatGlow a tu pantalla de inicio",
+      "step1": "1. Toca el botón",
+      "step1b": "Compartir en la parte inferior del navegador",
+      "step2": "2. Desplázate y toca",
+      "step2b": "\"Agregar a pantalla de inicio\"",
+      "step3": "3. Toca \"Agregar\" para confirmar"
+    }
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Todavía no hay notificaciones",
+    "emptySubtitle": "Te avisaremos cuando haya novedades sobre tu rutina",
+    "markAllRead": "Marcar todas como leídas",
+    "settingsLink": "Configuración de notificaciones",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "Hace {{count}} min",
+    "hoursAgo": "Hace {{count}}h",
+    "bell": {
+      "tooltip": "Notificaciones"
+    },
+    "pushBanner": {
+      "title": "Mantente al día",
+      "body": "Activa las notificaciones para recibir consejos y recordatorios para tu rutina capilar",
+      "enable": "Activar",
+      "dismiss": "No gracias"
+    }
+  },
+
+  "settings": {
+    "title": "Configuración",
+    "notificationsSection": "Preferencias de Notificación",
+    "promotions": "Novedades y promociones",
+    "promotionsDesc": "Recibe consejos y ofertas exclusivas",
+    "newsletter": "Newsletter",
+    "newsletterDesc": "Contenido de cuidado capilar semanal",
+    "importantMessages": "Mensajes importantes de la cuenta",
+    "importantMessagesDesc": "Siempre activo — necesario para la seguridad de la cuenta",
+    "disablePush": "Desactivar notificaciones push",
+    "disablePushDesc": "Dejar de recibir notificaciones push en este dispositivo",
+    "disablePushConfirm": "Notificaciones push desactivadas en este dispositivo",
+    "saving": "Guardando...",
+    "saved": "Guardado"
   }
 }

@@ -231,7 +231,7 @@ export default function AdminOverview() {
   ].filter(s => s.value > 0)
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
 
       {/* ── Header ── */}
       <div className="flex items-start justify-between">

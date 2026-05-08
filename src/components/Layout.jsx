@@ -1,9 +1,11 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
+import NotificationBell from './NotificationBell';
+import { InstallHeaderButton } from './InstallPrompt';
 
 export default function Layout() {
   const location = useLocation();
@@ -16,6 +18,7 @@ export default function Layout() {
     { path: '/HairRecipes', label: t('layout.recipes'), icon: BookOpen },
     { path: '/HairPlan', label: t('layout.plan'), icon: Calendar },
     { path: '/HairProgress', label: t('layout.progress'), icon: BarChart3 },
+    { path: '/HairSettings', label: t('layout.settings'), icon: Settings },
   ];
 
   const handleLogout = async () => {
@@ -62,6 +65,8 @@ export default function Layout() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
+            <InstallHeaderButton />
             {/* Language selector */}
             <div className="flex items-center gap-0.5 text-xs font-semibold">
               <button
@@ -95,7 +100,7 @@ export default function Layout() {
 
       {/* Bottom navigation — mobile only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 safe-area-bottom">
-        <div className="grid grid-cols-4 h-16">
+        <div className="grid grid-cols-5 h-16">
           {navItems.map(item => {
             const active = location.pathname === item.path;
             return (

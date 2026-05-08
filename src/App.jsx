@@ -22,6 +22,7 @@ import AdminGeography from './pages/admin/AdminGeography';
 import AdminQuizAnswers from './pages/admin/AdminQuizAnswers';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminCosts from './pages/admin/AdminCosts';
+import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
@@ -29,6 +30,7 @@ import HairDashboard from './pages/HairDashboard';
 import HairRecipes from './pages/HairRecipes';
 import HairPlan from './pages/HairPlan';
 import HairProgress from './pages/HairProgress';
+import HairSettings from './pages/HairSettings';
 
 import Dashboard from './pages/Dashboard';
 import Recipes from './pages/Recipes';
@@ -125,9 +127,10 @@ const AppRoutes = () => {
         <Route path="financial" element={<AdminFinancial />} />
         <Route path="retention" element={<AdminRetention />} />
         <Route path="geography" element={<AdminGeography />} />
-        <Route path="quiz"      element={<AdminQuizAnswers />} />
-        <Route path="costs"     element={<AdminCosts />} />
-        <Route path="settings"  element={<AdminSettings />} />
+        <Route path="quiz"          element={<AdminQuizAnswers />} />
+        <Route path="costs"         element={<AdminCosts />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="settings"      element={<AdminSettings />} />
       </Route>
 
       {/* Skin care — página standalone */}
@@ -158,6 +161,7 @@ const AppRoutes = () => {
         <Route path="/HairRecipes" element={<HairRecipes />} />
         <Route path="/HairPlan" element={<HairPlan />} />
         <Route path="/HairProgress" element={<HairProgress />} />
+        <Route path="/HairSettings" element={<HairSettings />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

@@ -518,6 +518,8 @@ export default function AdminCosts() {
     try {
       const res = await fetch(`${baseUrl}?id=${deleteTarget.id}`, { method: 'DELETE', headers: authHeaders() })
       if (handleUnauth(res.status)) return
+      const result = await res.json()
+      if (!res.ok || result?.error) throw new Error(result?.error ?? 'Erro ao excluir custo')
       setDeleteTarget(null)
       loadList(page, categoryFilter, listPeriod)
       loadRoi(roiPeriod, roiCustomStart, roiCustomEnd)
@@ -568,7 +570,7 @@ export default function AdminCosts() {
         deleting={deleting}
       />
 
-      <div className="flex flex-col gap-8 max-w-5xl">
+      <div className="flex flex-col gap-8 max-w-5xl mx-auto">
 
         {/* ── Page header ─────────────────────────────── */}
         <div className="flex items-center justify-between flex-wrap gap-3">

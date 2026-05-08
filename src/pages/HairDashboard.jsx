@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Calendar, AlertTriangle, CheckCircle, Star } from 'lucide-react';
+import { Sparkles, Calendar, AlertTriangle, CheckCircle, Star, Bell, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import HairSpecialRecipe from '../components/hair/HairSpecialRecipe';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 import { supabase } from '@/api/supabaseClient';
+import InstallPrompt from '../components/InstallPrompt';
+import {
+  shouldShowPushBanner,
+  requestPushPermission,
+  subscribeToPush,
+  recordPushDeclined,
+  recordPushBannerDismissed,
+} from '@/lib/push';
 
 const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'maizena-acucar'];
 const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🥥', 'maizena-acucar': '🍋' };
@@ -17,21 +25,86 @@ function TagBadge({ tag, tagLabels }) {
   return <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${data.color}`}>{data.label}</span>;
 }
 
+function PushBanner({ onEnable, onDismiss }) {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-start gap-3 bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
+      <div className="w-9 h-9 rounded-xl bg-brand/10 flex items-center justify-center flex-shrink-0">
+        <Bell className="w-4 h-4 text-brand" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-stone-800">{t('notifications.pushBanner.title')}</p>
+        <p className="text-xs text-stone-500 mt-0.5 leading-snug">{t('notifications.pushBanner.body')}</p>
+        <div className="flex gap-2 mt-3">
+          <button
+            onClick={onEnable}
+            className="px-3 py-1.5 bg-brand text-white text-xs font-semibold rounded-lg hover:bg-brand-dark transition-colors"
+          >
+            {t('notifications.pushBanner.enable')}
+          </button>
+          <button
+            onClick={onDismiss}
+            className="px-3 py-1.5 text-xs font-medium text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            {t('notifications.pushBanner.dismiss')}
+          </button>
+        </div>
+      </div>
+      <button onClick={onDismiss} className="p-1 text-stone-400 hover:text-stone-600 flex-shrink-0">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export default function HairDashboard() {
   const { t } = useTranslation();
   const { getRecipeById, tagLabels } = useTranslatedHairData();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [showPushBanner, setShowPushBanner] = useState(false);
+  const pushTimerRef = useRef(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
+      if (!user) return;
       supabase
         .from('subscriptions')
         .update({ last_access: new Date().toISOString() })
         .eq('user_id', user.id)
-        .then(() => {})
-    })
+        .then(() => {});
+    });
+
+    // Mostrar install prompt na primeira visita (se aplicável)
+    setShowInstallPrompt(true);
   }, []);
+
+  // Chamado quando o InstallPrompt é resolvido (aceito ou dispensado)
+  const handleInstallResolved = () => {
+    setShowInstallPrompt(false);
+    if (shouldShowPushBanner()) {
+      pushTimerRef.current = setTimeout(() => setShowPushBanner(true), 3000);
+    }
+  };
+
+  useEffect(() => {
+    return () => { if (pushTimerRef.current) clearTimeout(pushTimerRef.current); };
+  }, []);
+
+  const handlePushEnable = async () => {
+    setShowPushBanner(false);
+    const granted = await requestPushPermission();
+    if (granted) {
+      await subscribeToPush();
+    } else {
+      recordPushDeclined();
+    }
+  };
+
+  const handlePushDismiss = () => {
+    setShowPushBanner(false);
+    recordPushBannerDismissed();
+  };
 
   const essentialRecipes = ESSENTIAL_IDS.map(id => getRecipeById(id)).filter(Boolean);
   const essentialDisplay = t('hairDashboard.essentialRecipes', { returnObjects: true });
@@ -44,7 +117,17 @@ export default function HairDashboard() {
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-4 pb-8">
+      {/* Install prompt — aparece condicionalmente baseado em localStorage */}
+      {showInstallPrompt && (
+        <InstallPrompt onResolved={handleInstallResolved} />
+      )}
+
+      {/* Push notification banner — aparece 3s após install prompt ser resolvido */}
+      {showPushBanner && (
+        <PushBanner onEnable={handlePushEnable} onDismiss={handlePushDismiss} />
+      )}
+
       <div className="bg-gradient-to-br from-brand to-brand-light rounded-3xl p-6 text-white">
         <p className="text-white/80 text-sm font-medium">{t('hairDashboard.planLabel')}</p>
         <h1 className="text-2xl font-bold mt-1">{t('hairDashboard.title')}</h1>

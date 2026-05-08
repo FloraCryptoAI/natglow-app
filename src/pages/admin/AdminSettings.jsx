@@ -8,14 +8,22 @@ import {
 import { ArrowClockwise } from '@phosphor-icons/react'
 
 const DEFAULTS = {
-  displayed_price: '6.99',
   crossed_price: '$47.99',
+  savings_monthly_699:  '',
+  savings_monthly_499:  '',
+  savings_monthly_1499: '',
   promo_badge: 'Oferta Especial de Lançamento',
   timer_enabled: 'true',
   timer_minutes: '15',
   maintenance_mode: 'false',
   maintenance_text: 'Estamos em manutenção. Voltamos em breve! 🌿',
 }
+
+const PER_PLAN = [
+  { key: 'monthly_699',  label: 'Control $6.99',  placeholder: 'ex: You save $41/month' },
+  { key: 'monthly_499',  label: 'Cheap $4.99',    placeholder: 'ex: You save $25/month' },
+  { key: 'monthly_1499', label: 'Premium $14.99', placeholder: 'ex: You save $60/month' },
+]
 
 function Toggle({ checked, onChange, disabled }) {
   return (
@@ -157,7 +165,7 @@ export default function AdminSettings() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-6 max-w-3xl">
+      <div className="flex flex-col gap-6 max-w-3xl mx-auto">
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Configurações do Produto</h1>
           <p className="text-sm text-gray-400 mt-0.5">Parâmetros dinâmicos do NatGlow</p>
@@ -173,7 +181,7 @@ export default function AdminSettings() {
   const maintenanceMode = config.maintenance_mode === 'true'
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
+    <div className="flex flex-col gap-6 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -199,33 +207,11 @@ export default function AdminSettings() {
         </div>
       )}
 
-      {/* Displayed price */}
-      <ConfigCard
-        icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
-        title="Preço exibido na /Results"
-        desc="Valor que aparece em destaque no card de preço"
-        saveState={saveStates.displayed_price}
-      >
-        <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">$</span>
-          <input
-            type="text"
-            value={config.displayed_price}
-            onChange={e => handleText('displayed_price', e.target.value)}
-            className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
-            placeholder="6.99"
-          />
-        </div>
-        <p className="text-xs text-gray-400 mt-2">
-          Preview: <span className="font-bold text-gray-700 text-base">${config.displayed_price}</span>/mês
-        </p>
-      </ConfigCard>
-
-      {/* Crossed price */}
+      {/* Global crossed price + badge */}
       <ConfigCard
         icon={Tag} iconBg="bg-red-50" iconColor="text-red-400"
-        title='Preço riscado ("de")'
-        desc="Preço original exibido riscado para criar percepção de desconto"
+        title='Preço riscado global ("de")'
+        desc="Fallback usado quando não há configuração específica por plano"
         saveState={saveStates.crossed_price}
       >
         <input
@@ -236,16 +222,43 @@ export default function AdminSettings() {
           placeholder="$47.99"
         />
         <p className="text-xs text-gray-400 mt-2">
-          Preview: <span className="line-through text-gray-400">{config.crossed_price}</span>{' '}
-          <span className="font-bold text-gray-700">${config.displayed_price}</span>
+          Preview: <span className="line-through text-gray-400">{config.crossed_price}</span>
         </p>
       </ConfigCard>
 
-      {/* Promo badge */}
+      {/* Per-plan savings text */}
+      <ConfigCard
+        icon={DollarSign} iconBg="bg-blue-50" iconColor="text-blue-500"
+        title='Texto "você economiza" por plano'
+        desc="Sobrescreve o cálculo automático — deixe vazio para usar o valor calculado"
+        saveState={
+          saveStates.savings_monthly_699 ??
+          saveStates.savings_monthly_499 ??
+          saveStates.savings_monthly_1499
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {PER_PLAN.map(plan => (
+            <div key={plan.key}>
+              <label className="text-xs font-semibold text-gray-600 mb-1.5 block">{plan.label}</label>
+              <input
+                type="text"
+                value={config[`savings_${plan.key}`] || ''}
+                onChange={e => handleText(`savings_${plan.key}`, e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-violet-400 transition-colors"
+                placeholder={plan.placeholder}
+              />
+            </div>
+          ))}
+          <p className="text-xs text-gray-400">Se vazio, calcula automaticamente: preço riscado − preço do plano.</p>
+        </div>
+      </ConfigCard>
+
+      {/* Global promo badge */}
       <ConfigCard
         icon={Tag} iconBg="bg-violet-50" iconColor="text-violet-500"
-        title="Texto do badge de promoção"
-        desc="Badge exibido no topo do card de preço"
+        title="Badge de promoção global"
+        desc="Badge padrão usado quando não há configuração específica por plano"
         saveState={saveStates.promo_badge}
       >
         <input

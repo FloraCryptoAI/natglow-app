@@ -558,7 +558,7 @@ export default function AdminQuizAnswers() {
   const isLoading = compLoading || (mode !== 'comparison' && quizLoading)
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>

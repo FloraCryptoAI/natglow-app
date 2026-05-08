@@ -12,6 +12,7 @@ import {
   Globe,
   ClipboardText,
   Gear,
+  Bell,
   SignOut,
   Lightning,
 } from '@phosphor-icons/react'
@@ -24,8 +25,9 @@ const NAV_ITEMS = [
   { to: '/admin/costs',      icon: Receipt,          label: 'Custos & ROI' },
   { to: '/admin/retention',  icon: TrendDown,        label: 'Retenção' },
   { to: '/admin/geography',  icon: Globe,            label: 'Idioma & Geografia' },
-  { to: '/admin/quiz',       icon: ClipboardText,    label: 'Respostas do Quiz' },
-  { to: '/admin/settings',   icon: Gear,             label: 'Configurações' },
+  { to: '/admin/quiz',           icon: ClipboardText,    label: 'Respostas do Quiz' },
+  { to: '/admin/notifications',  icon: Bell,             label: 'Notificações' },
+  { to: '/admin/settings',       icon: Gear,             label: 'Configurações' },
 ]
 
 function SidebarContent({ onNavClick, onLogout }) {

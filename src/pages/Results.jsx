@@ -160,9 +160,15 @@ function RecipeCard({ recipe, t }) {
   );
 }
 
-function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey, periodLabel }) {
+function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey, periodLabel, planDisplayPrice = 6.99 }) {
   const benefits = t('results.pricing.benefits', { returnObjects: true });
   const timerEnabled = adminConfig.timer_enabled !== 'false';
+
+  const savingsBadge = adminConfig.savings_text || (() => {
+    const crossed = parseFloat((adminConfig.crossed_price || '').replace(/[^0-9.]/g, '')) || 0;
+    if (!crossed || crossed <= planDisplayPrice) return null;
+    return t('results.pricing.savings', { amount: (crossed - planDisplayPrice).toFixed(2) });
+  })();
 
   const [timeLeft, setTimeLeft] = useState(() => {
     if (!timerEnabled) return 0;
@@ -209,12 +215,14 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey
             <p className="text-stone-400 line-through text-base">
               {adminConfig.crossed_price || t('results.pricing.originalPrice')}
             </p>
-            <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full"
-              style={{ background: '#FEF2F2', color: '#DC2626' }}
-            >
-              {t('results.pricing.savings')}
-            </span>
+            {savingsBadge && (
+              <span
+                className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{ background: '#FEF2F2', color: '#DC2626' }}
+              >
+                {savingsBadge}
+              </span>
+            )}
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold" style={{ color: P }}>$</span>
@@ -287,6 +295,7 @@ function getConfigDefaults(pricingPlan) {
     displayed_price: plan.display_price.toString(),
     crossed_price: '$47.99',
     promo_badge: null,
+    savings_text: null,
     timer_enabled: 'true',
     timer_minutes: '15',
     maintenance_mode: 'false',
@@ -370,8 +379,12 @@ export default function Results({ pricingPlan = 'monthly' }) {
       .then(cfg => {
         if (cfg && !cfg.error) {
           const planDefaults = getConfigDefaults(pricingPlan);
-          // displayed_price always comes from PRICING_PLANS — admin-config is global and cannot override per-plan price
-          setAdminConfig({ ...planDefaults, ...cfg, displayed_price: planDefaults.displayed_price });
+          setAdminConfig({
+            ...planDefaults,
+            ...cfg,
+            displayed_price: planDefaults.displayed_price,
+            savings_text: cfg[`savings_${plan_key}`] || null,
+          });
         }
       })
       .catch(() => {});
@@ -702,7 +715,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} planDisplayPrice={planConfig.display_price} />
           </FadeIn>
 
           <FadeIn delay={0.1}>
