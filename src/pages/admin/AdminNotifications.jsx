@@ -307,7 +307,7 @@ function HistoryTab({ apiFetch }) {
     setLoading(true)
     setError(null)
     const data = await apiFetch(`/admin-notifications?mode=history&page=${p}`)
-    if (data) { setRows(data.rows ?? []); setTotal(data.total ?? 0) }
+    if (data) { setRows(data.history ?? []); setTotal(data.total ?? 0) }
     else setError('Erro ao carregar histórico')
     setLoading(false)
   }, [apiFetch, page])
@@ -446,7 +446,7 @@ function StatsTab({ apiFetch }) {
         <MetricCard
           icon={Bell} iconBg="bg-violet-50" iconColor="text-violet-500"
           label="Assinantes push opt-in"
-          value={loading ? '—' : (data?.pushOptInCount ?? 0)}
+          value={loading ? '—' : (data?.optInCount ?? 0)}
           loading={loading}
         />
         <MetricCard
@@ -458,7 +458,7 @@ function StatsTab({ apiFetch }) {
         <MetricCard
           icon={Send} iconBg="bg-emerald-50" iconColor="text-emerald-500"
           label="Enviadas este mês"
-          value={loading ? '—' : (data?.sentThisMonth ?? 0)}
+          value={loading ? '—' : (data?.monthSent ?? 0)}
           loading={loading}
         />
         <MetricCard
