@@ -51,11 +51,11 @@ async function resolveUserIds(segmentation: string): Promise<string[]> {
   if (segmentation.startsWith('user_email:')) {
     const email   = segmentation.replace('user_email:', '')
     const authRes = await fetch(
-      `${SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}&limit=1`,
+      `${SUPABASE_URL}/auth/v1/admin/users?filter=${encodeURIComponent(email)}&per_page=50`,
       { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } },
     )
     const data = await authRes.json()
-    const user = data?.users?.[0]
+    const user = (data?.users ?? []).find((u: any) => u.email === email)
     return user ? [user.id] : []
   }
 
@@ -223,11 +223,11 @@ Deno.serve(async (req) => {
       if (!email) return json({ found: false, error: 'email obrigatório' }, 400)
 
       const authRes = await fetch(
-        `${SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}&limit=1`,
+        `${SUPABASE_URL}/auth/v1/admin/users?filter=${encodeURIComponent(email)}&per_page=50`,
         { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } },
       )
       const authData = await authRes.json()
-      const user     = authData?.users?.[0]
+      const user     = (authData?.users ?? []).find((u: any) => u.email === email)
       if (!user) return json({ found: false })
 
       const subs = await supabaseGet(
