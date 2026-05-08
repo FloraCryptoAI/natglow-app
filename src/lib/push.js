@@ -46,6 +46,7 @@ export async function subscribeToPush() {
     })
 
     const { endpoint, keys } = subscription.toJSON()
+    const lang = localStorage.getItem('i18nextLng')?.startsWith('es') ? 'es' : 'en'
     await supabase.from('notification_subscriptions').upsert(
       {
         user_id: user.id,
@@ -53,6 +54,7 @@ export async function subscribeToPush() {
         keys: { p256dh: keys.p256dh, auth: keys.auth },
         user_agent: navigator.userAgent,
         last_used_at: new Date().toISOString(),
+        lang,
       },
       { onConflict: 'endpoint' }
     )
@@ -61,6 +63,21 @@ export async function subscribeToPush() {
   } catch (err) {
     console.error('Push subscription failed:', err)
     return null
+  }
+}
+
+export async function updatePushLang(lang) {
+  if (!isPushSupported()) return
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    if (!subscription) return
+    await supabase
+      .from('notification_subscriptions')
+      .update({ lang })
+      .eq('endpoint', subscription.endpoint)
+  } catch {
+    // silencioso — não crítico
   }
 }
 

@@ -4,6 +4,7 @@ import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings } from 'lucide-re
 import { useTranslation } from 'react-i18next';
 import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
+import { updatePushLang } from '@/lib/push';
 import NotificationBell from './NotificationBell';
 import { InstallHeaderButton } from './InstallPrompt';
 
@@ -29,7 +30,10 @@ export default function Layout() {
   const currentLang = i18n.language === 'es' ? 'es' : 'en';
 
   const toggleLang = (lang) => {
-    if (lang !== currentLang) setLang(lang);
+    if (lang !== currentLang) {
+      setLang(lang);
+      updatePushLang(lang);
+    }
   };
 
   return (

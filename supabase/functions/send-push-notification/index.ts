@@ -97,19 +97,20 @@ Deno.serve(async (req) => {
       const batch     = user_ids.slice(0, 500)
       const idsParam  = batch.join(',')
       const subsRes   = await fetch(
-        `${SUPABASE_URL}/rest/v1/notification_subscriptions?select=id,user_id,endpoint,keys&user_id=in.(${idsParam})`,
+        `${SUPABASE_URL}/rest/v1/notification_subscriptions?select=id,user_id,endpoint,keys,lang&user_id=in.(${idsParam})`,
         { headers: authHeaders },
       )
-      const subs: Array<{ id: string; user_id: string; endpoint: string; keys: { p256dh: string; auth: string } }> =
+      const subs: Array<{ id: string; user_id: string; endpoint: string; keys: { p256dh: string; auth: string }; lang: string }> =
         await subsRes.json()
 
       const staleIds: string[] = []
 
       await Promise.all(
         subs.map(async (sub) => {
+          const lang = sub.lang ?? 'en'
           const payload = JSON.stringify({
-            title:      title_en,
-            body:       body_en,
+            title:      lang === 'es' ? title_es : title_en,
+            body:       lang === 'es' ? body_es  : body_en,
             icon:       icon_url ?? '/pwa-192x192.png',
             url:        notifUrl ?? '/HairDashboard',
             history_id: history_id ?? null,
