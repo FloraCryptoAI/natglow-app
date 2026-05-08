@@ -21,6 +21,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Captura beforeinstallprompt antes do React montar para evitar race condition -->
+    <script>
+      window.deferredInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.deferredInstallPrompt = e;
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

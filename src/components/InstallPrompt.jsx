@@ -32,8 +32,14 @@ export function InstallHeaderButton() {
     if (isStandalone() || (!isAndroid() && !isIOS())) return
 
     if (isAndroid()) {
+      if (window.deferredInstallPrompt) {
+        setDeferredPrompt(window.deferredInstallPrompt)
+        setVisible(true)
+        return
+      }
       const handler = (e) => {
         e.preventDefault()
+        window.deferredInstallPrompt = e
         setDeferredPrompt(e)
         setVisible(true)
       }
@@ -86,8 +92,17 @@ export default function InstallPrompt({ onResolved }) {
     }
 
     if (isAndroid()) {
+      // Usa o evento capturado cedo em index.html (evita race condition)
+      if (window.deferredInstallPrompt) {
+        setDeferredPrompt(window.deferredInstallPrompt)
+        setPlatform('android')
+        setShow(true)
+        return
+      }
+      // Fallback: evento ainda não disparou — ouve normalmente
       const handler = (e) => {
         e.preventDefault()
+        window.deferredInstallPrompt = e
         setDeferredPrompt(e)
         setPlatform('android')
         setShow(true)
