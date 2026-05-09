@@ -280,7 +280,7 @@ function StatusTab({ apiFetch }) {
             <p className="text-sm text-gray-400">Nenhum evento nas últimas 24h</p>
           </div>
         )
-        const events = s.events as Record<string, { browser: number; server: number }> ?? {}
+        const events = s.events ?? {}
         return (
           <div key={platform} className="bg-white border border-gray-200 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
