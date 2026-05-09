@@ -4,8 +4,9 @@ import { Bell, Camera, Check, Languages, Loader2, Pencil, ShieldCheck, X } from 
 import { supabase } from '@/api/supabaseClient'
 import { unsubscribeFromPush, isPushSupported, isSubscribedToPush, updatePushLang } from '@/lib/push'
 import { setLang } from '@/lib/i18n'
-import { profileCache, updateProfileCache } from '@/lib/profileCache'
+import { updateProfileCache } from '@/lib/profileCache'
 import { InstallSettingsSection } from '@/components/InstallPrompt'
+import { useAuth } from '@/lib/AuthContext'
 import { toast } from 'sonner'
 
 function ToggleRow({ label, description, checked, onChange, disabled = false }) {
@@ -38,66 +39,39 @@ function ToggleRow({ label, description, checked, onChange, disabled = false }) 
 
 export default function HairSettings() {
   const { t, i18n } = useTranslation()
+  const { user, subscription, fetchSubscription } = useAuth()
   const currentLang = i18n.language?.startsWith('es') ? 'es' : 'en'
 
-  // Show spinner only on very first load (no localStorage data at all)
-  const hasCache = Boolean(profileCache.uid)
-  const [loading, setLoading] = useState(!hasCache)
-  const [saving, setSaving]   = useState(false)
+  const [saving, setSaving]             = useState(false)
   const [pushSubscribed, setPushSubscribed] = useState(false)
-  const [userId, setUserId]   = useState(profileCache.uid)
-
-  // Initialize from localStorage-backed cache — instant on page reload
-  const [prefs, setPrefs]               = useState(profileCache.prefs ?? { promotions: true, newsletter: true })
-  const [displayName, setDisplayName]   = useState(profileCache.displayName ?? '')
-  const [avatarUrl, setAvatarUrl]       = useState(profileCache.avatarUrl ?? null)
+  const [prefs, setPrefs]               = useState({ promotions: true, newsletter: true })
+  const [displayName, setDisplayName]   = useState('')
+  const [avatarUrl, setAvatarUrl]       = useState(null)
   const [editingName, setEditingName]   = useState(false)
   const [nameInput, setNameInput]       = useState('')
   const [savingName, setSavingName]     = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const avatarInputRef = useRef()
 
+  // Sync state from AuthContext subscription (works on every device, even PWA)
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
-      setUserId(user.id)
+    if (!subscription || !user) return
+    const fetchedPrefs  = subscription.notification_preferences ?? { promotions: true, newsletter: true }
+    const fetchedName   = subscription.display_name  ?? ''
+    const fetchedAvatar = subscription.avatar_url    ?? null
+    setPrefs(fetchedPrefs)
+    setDisplayName(fetchedName)
+    setAvatarUrl(fetchedAvatar)
+    updateProfileCache({ uid: user.id, displayName: fetchedName, avatarUrl: fetchedAvatar, prefs: fetchedPrefs })
+  }, [subscription, user])
 
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('notification_preferences, display_name, avatar_url')
-        .eq('user_id', user.id)
-        .single()
-
-      // Only update if the DB returned valid data — never overwrite cache with nulls on error
-      if (data && !error) {
-        const fetchedPrefs  = data.notification_preferences ?? { promotions: true, newsletter: true }
-        const fetchedName   = data.display_name  ?? profileCache.displayName ?? ''
-        const fetchedAvatar = data.avatar_url    ?? profileCache.avatarUrl   ?? null
-
-        setPrefs(fetchedPrefs)
-        setDisplayName(fetchedName)
-        setAvatarUrl(fetchedAvatar)
-        updateProfileCache({ uid: user.id, displayName: fetchedName, avatarUrl: fetchedAvatar, prefs: fetchedPrefs })
-      }
-
-      if (isPushSupported()) {
-        const subscribed = await isSubscribedToPush()
-        setPushSubscribed(subscribed)
-      }
-
-      setLoading(false)
+  // Push subscription status check
+  useEffect(() => {
+    if (!user) return
+    if (isPushSupported()) {
+      isSubscribedToPush().then(setPushSubscribed)
     }
-
-    load()
-
-    // PWA: refetch when app comes back to foreground (component stays mounted in standalone mode)
-    function onVisible() {
-      if (document.visibilityState === 'visible') load()
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [])
+  }, [user])
 
   async function handleSaveName() {
     const trimmed = nameInput.trim()
@@ -106,7 +80,7 @@ export default function HairSettings() {
     const { error } = await supabase
       .from('subscriptions')
       .update({ display_name: trimmed })
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
     setSavingName(false)
     if (error) {
       toast.error(t('communityProfile.nameError'))
@@ -114,6 +88,7 @@ export default function HairSettings() {
       setDisplayName(trimmed)
       setEditingName(false)
       updateProfileCache({ displayName: trimmed })
+      fetchSubscription(user.id)
       toast.success(t('communityProfile.nameSaved'))
     }
   }
@@ -128,7 +103,7 @@ export default function HairSettings() {
     setUploadingAvatar(true)
     try {
       const ext  = file.name.split('.').pop()
-      const path = `${userId}/avatar_${Date.now()}.${ext}`
+      const path = `${user.id}/avatar_${Date.now()}.${ext}`
       const { error: uploadError } = await supabase.storage
         .from('feed-images')
         .upload(path, file, { upsert: false })
@@ -137,10 +112,11 @@ export default function HairSettings() {
       const { error: updateError } = await supabase
         .from('subscriptions')
         .update({ avatar_url: publicUrl })
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
       if (updateError) throw updateError
       setAvatarUrl(publicUrl)
       updateProfileCache({ avatarUrl: publicUrl })
+      fetchSubscription(user.id)
       toast.success(t('communityProfile.avatarSaved'))
     } catch {
       toast.error(t('communityProfile.avatarError'))
@@ -156,13 +132,14 @@ export default function HairSettings() {
     const { error } = await supabase
       .from('subscriptions')
       .update({ notification_preferences: next })
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
     setSaving(false)
     if (error) {
       toast.error('Error saving preferences')
       setPrefs(prefs)
     } else {
       updateProfileCache({ prefs: next })
+      fetchSubscription(user.id)
     }
   }
 
@@ -176,22 +153,17 @@ export default function HairSettings() {
     if (lang === currentLang) return
     setLang(lang)
     updatePushLang(lang)
-    const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { data } = await supabase
-        .from('subscriptions')
-        .select('notification_preferences')
-        .eq('user_id', user.id)
-        .single()
-      const current = data?.notification_preferences ?? { promotions: true, newsletter: true }
+      const current = prefs
       await supabase
         .from('subscriptions')
         .update({ notification_preferences: { ...current, lang } })
         .eq('user_id', user.id)
+      fetchSubscription(user.id)
     }
   }
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="w-5 h-5 animate-spin text-stone-400" />
