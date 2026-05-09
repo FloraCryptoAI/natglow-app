@@ -2,14 +2,14 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2 } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
 
 const TABS = [
-  { key: 'queue',   label: 'Fila de Moderação' },
-  { key: 'post',    label: 'Publicar' },
-  { key: 'list',    label: 'Todos os Posts' },
+  { key: 'queue', label: 'Fila de Moderação', icon: Clock },
+  { key: 'post',  label: 'Publicar',          icon: PenLine },
+  { key: 'list',  label: 'Todos os Posts',    icon: LayoutList },
 ]
 
 function timeAgo(d) {
@@ -77,77 +77,105 @@ function QueueTab({ apiFetch }) {
   )
 
   return (
-    <div className="space-y-4">
-      {posts.map(post => (
-        <div key={post.id} className="bg-white rounded-2xl border border-stone-100 p-5 shadow-sm">
-          {/* Author + time */}
-          <div className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
-              <span className="text-xs font-bold text-brand">{(post.display_name ?? 'U')[0].toUpperCase()}</span>
+    <div className="max-w-lg mx-auto space-y-6">
+      {posts.map(post => {
+        const authorName = post.display_name ?? 'Usuária'
+        const initials   = authorName[0].toUpperCase()
+        const hasDual    = post.image_url && post.image_url_2
+
+        return (
+          <div key={post.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+            {/* Label do preview */}
+            <div className="px-4 pt-3 pb-2 border-b border-stone-100 flex items-center gap-2">
+              <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wide">Prévia do post</span>
+              <span className="text-[10px] text-stone-300">· {timeAgo(post.created_at)}</span>
             </div>
+
+            {/* Post preview — idêntico ao feed real */}
             <div>
-              <p className="text-sm font-semibold text-stone-800">{post.display_name ?? 'Usuária'}</p>
-              <p className="text-xs text-stone-400">{timeAgo(post.created_at)}</p>
+              {/* Header */}
+              <div className="flex items-start gap-3 px-4 pt-4 pb-2">
+                <div className={`w-10 h-10 rounded-full flex-shrink-0 overflow-hidden ${post.author_avatar_url ? '' : 'bg-brand/10'}`}>
+                  {post.author_avatar_url
+                    ? <img src={post.author_avatar_url} alt="" className="w-full h-full object-cover" />
+                    : <span className="w-full h-full flex items-center justify-center text-sm font-bold text-brand">{initials}</span>
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-stone-800">{authorName}</p>
+                  <p className="text-[11px] text-stone-400">{timeAgo(post.created_at)}</p>
+                </div>
+              </div>
+
+              {/* Texto */}
+              <p className="text-sm text-stone-700 leading-relaxed px-4 pb-3 whitespace-pre-wrap">{post.content}</p>
+
+              {/* Imagens — full-width */}
+              {post.image_url && (
+                <div className={hasDual ? 'grid grid-cols-2 gap-px mb-0' : 'mb-0'}>
+                  <img
+                    src={post.image_url}
+                    alt=""
+                    className={`w-full object-cover ${hasDual ? 'aspect-square' : 'max-h-[420px]'}`}
+                  />
+                  {post.image_url_2 && (
+                    <img src={post.image_url_2} alt="" className="w-full aspect-square object-cover" />
+                  )}
+                </div>
+              )}
             </div>
-          </div>
 
-          <p className="text-sm text-stone-700 whitespace-pre-wrap mb-3">{post.content}</p>
-
-          {post.image_url && (
-            <img src={post.image_url} alt="" className="w-full rounded-xl max-h-48 object-cover mb-3" />
-          )}
-
-          {/* Rejection reason input */}
-          {rejecting === post.id && (
-            <div className="mb-3">
-              <input
-                type="text"
-                value={reason}
-                onChange={e => setReason(e.target.value)}
-                placeholder="Motivo (opcional)"
-                className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-200"
-              />
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => approve(post.id)}
-              disabled={acting === post.id}
-              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
-            >
-              {acting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-              Aprovar
-            </button>
-            {rejecting === post.id ? (
-              <>
+            {/* Ações */}
+            <div className="px-4 py-4 border-t border-stone-100 bg-stone-50 space-y-3">
+              {rejecting === post.id && (
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                  placeholder="Motivo da rejeição (opcional)"
+                  className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-200 bg-white"
+                />
+              )}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => reject(post.id)}
+                  onClick={() => approve(post.id)}
                   disabled={acting === post.id}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
                 >
-                  {acting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                  Confirmar rejeição
+                  {acting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                  Aprovar
                 </button>
-                <button
-                  onClick={() => { setRejecting(null); setReason('') }}
-                  className="px-3 py-2 border border-stone-200 rounded-xl text-sm text-stone-500"
-                >
-                  Cancelar
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setRejecting(post.id)}
-                className="flex items-center gap-1.5 px-4 py-2 border border-stone-200 text-stone-600 text-sm font-semibold rounded-xl hover:bg-stone-50"
-              >
-                <XCircle className="w-4 h-4" />
-                Rejeitar
-              </button>
-            )}
+                {rejecting === post.id ? (
+                  <>
+                    <button
+                      onClick={() => reject(post.id)}
+                      disabled={acting === post.id}
+                      className="flex items-center gap-1.5 px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
+                    >
+                      {acting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                      Confirmar
+                    </button>
+                    <button
+                      onClick={() => { setRejecting(null); setReason('') }}
+                      className="px-3 py-2 border border-stone-200 rounded-xl text-sm text-stone-500 bg-white"
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setRejecting(post.id)}
+                    className="flex items-center gap-1.5 px-5 py-2 border border-stone-200 text-stone-600 text-sm font-semibold rounded-xl hover:bg-white bg-white"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Rejeitar
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -366,30 +394,34 @@ export default function AdminFeed() {
   const [tab, setTab] = useState('queue')
 
   return (
-    <div>
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Feed</h1>
-        <p className="text-sm text-gray-500 mt-1">Moderação e publicação de conteúdo da comunidade</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-extrabold text-gray-900">Feed</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Moderação e publicação de conteúdo da comunidade</p>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-stone-100 rounded-xl p-1 w-fit mb-6">
-        {TABS.map(({ key, label }) => (
+      {/* Sub-tabs */}
+      <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 w-fit">
+        {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               tab === key
-                ? 'bg-white text-stone-900 shadow-sm'
-                : 'text-stone-500 hover:text-stone-700'
+                ? 'bg-violet-600 text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
             }`}
           >
+            <Icon className="w-3.5 h-3.5" />
             {label}
           </button>
         ))}
       </div>
 
+      {/* Content */}
       {tab === 'queue' && <QueueTab apiFetch={apiFetch} />}
       {tab === 'post'  && <PostTab  apiFetch={apiFetch} />}
       {tab === 'list'  && <ListTab  apiFetch={apiFetch} />}

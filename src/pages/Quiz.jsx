@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent } from '@/lib/trackFunnelEvent';
+import { captureAttribution } from '@/lib/tracking/attribution';
+import { trackFbEvent }       from '@/lib/tracking/facebook-pixel';
+import { trackTtEvent }       from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
 
 const BEFORE_AFTER = [
@@ -102,6 +105,12 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
   ];
 
   useEffect(() => {
+    // Capture UTM/fbclid from URL on landing — persists 30 days in localStorage
+    captureAttribution();
+    // ViewContent: user arrived at the quiz page
+    trackFbEvent('ViewContent', { content_name: 'quiz', content_category: plan_key });
+    trackTtEvent('ViewContent', { content_name: 'quiz', content_category: plan_key });
+
     try {
       const saved = sessionStorage.getItem(QUIZ_STATE_KEY);
       if (saved) {
@@ -137,6 +146,9 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
   useEffect(() => {
     if (step !== STEPS.LOADING) return;
     trackFunnelEvent('quiz_completed', { answers }, plan_key);
+    // Lead event: user completed the quiz (intent signal)
+    trackFbEvent('Lead', { content_name: 'quiz_completed', content_category: plan_key });
+    trackTtEvent('SubmitForm', { content_name: 'quiz_completed', content_category: plan_key });
     setLoadingProgress(0);
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),

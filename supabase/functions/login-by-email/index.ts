@@ -53,13 +53,13 @@ Deno.serve(async (req) => {
     })
     const linkData = await linkRes.json()
 
-    if (!linkData?.action_link) {
+    if (!linkData?.hashed_token) {
       return new Response(JSON.stringify({ error: 'Erro ao gerar link de acesso' }), {
         status: 500, headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }
 
-    return new Response(JSON.stringify({ url: linkData.action_link }), {
+    return new Response(JSON.stringify({ token: linkData.hashed_token }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {

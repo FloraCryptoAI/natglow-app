@@ -20,6 +20,15 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
   const [showComments, setShowComments] = useState(false)
   const [reactions, setReactions]       = useState(post.reactions ?? { heart: 0, love: 0, clap: 0, wow: 0 })
   const [userReaction, setUserReaction] = useState(post.user_reaction ?? null)
+  const [expanded, setExpanded]         = useState(false)
+
+  const contentLines = post.content.split('\n')
+  const isLong = contentLines.length > 3 || post.content.length > 130
+  const truncated = isLong
+    ? contentLines.length > 3
+      ? contentLines.slice(0, 3).join('\n')
+      : post.content.slice(0, 120).replace(/\s\S*$/, '')
+    : post.content
 
   const authorName = post.is_admin ? 'NatGlow' : (post.author_name ?? post.display_name ?? 'Usuária')
   const initials   = authorName[0].toUpperCase()
@@ -46,6 +55,15 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
 
   async function handleDeleteOwn() {
     try {
+      // Remove images from Storage before deleting the row
+      const paths = [post.image_url, post.image_url_2]
+        .filter(Boolean)
+        .map(url => url.split('/feed-images/')[1])
+        .filter(Boolean)
+      if (paths.length > 0) {
+        await supabase.storage.from('feed-images').remove(paths)
+      }
+
       const { error } = await supabase
         .from('feed_posts')
         .delete()
@@ -62,11 +80,11 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
   const hasDualImages = post.image_url && post.image_url_2
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-4 shadow-sm">
+    <article className="bg-white border-b border-stone-100 mb-2">
       {/* Header */}
-      <div className="flex items-start gap-3 mb-3">
+      <div className="flex items-start gap-3 px-4 pt-4 pb-2">
         {/* Avatar */}
-        <div className={`w-9 h-9 rounded-full flex-shrink-0 overflow-hidden ${!post.author_avatar_url ? (post.is_admin ? 'bg-brand' : 'bg-brand/10') : ''}`}>
+        <div className={`w-10 h-10 rounded-full flex-shrink-0 overflow-hidden ${!post.author_avatar_url ? (post.is_admin ? 'bg-brand' : 'bg-brand/10') : ''}`}>
           {post.author_avatar_url ? (
             <img src={post.author_avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -109,24 +127,44 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
       </div>
 
       {/* Content */}
-      <p className="text-sm text-stone-700 leading-relaxed mb-3 whitespace-pre-wrap">{post.content}</p>
+      <div className="px-4 pb-3">
+        <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
+          {expanded ? post.content : truncated}
+          {isLong && !expanded && (
+            <span>{'... '}
+              <button
+                onClick={() => setExpanded(true)}
+                className="text-sm text-stone-400 hover:text-stone-500 font-normal"
+              >
+                ler mais
+              </button>
+            </span>
+          )}
+        </p>
+      </div>
 
-      {/* Images */}
+      {/* Images — full bleed, sem padding horizontal */}
       {post.image_url && (
-        <div className={`mb-3 rounded-xl overflow-hidden ${hasDualImages ? 'grid grid-cols-2 gap-1' : ''}`}>
-          <div className={`${hasDualImages ? '' : 'w-full'} aspect-square overflow-hidden`}>
-            <img src={post.image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-          </div>
+        <div className={hasDualImages ? 'grid grid-cols-2 gap-px mb-0' : 'mb-0'}>
+          <img
+            src={post.image_url}
+            alt=""
+            className={`w-full object-cover ${hasDualImages ? 'aspect-square' : 'max-h-[520px]'}`}
+            loading="lazy"
+          />
           {post.image_url_2 && (
-            <div className="aspect-square overflow-hidden">
-              <img src={post.image_url_2} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </div>
+            <img
+              src={post.image_url_2}
+              alt=""
+              className="w-full aspect-square object-cover"
+              loading="lazy"
+            />
           )}
         </div>
       )}
 
       {/* Reactions + comments toggle */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-3 flex-wrap px-4 py-2.5">
         <ReactionBar
           postId={post.id}
           reactions={reactions}
@@ -144,8 +182,10 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
 
       {/* Comments */}
       {showComments && (
-        <CommentList postId={post.id} currentUserId={currentUserId} lang={lang} />
+        <div className="px-4 pb-3">
+          <CommentList postId={post.id} currentUserId={currentUserId} lang={lang} />
+        </div>
       )}
-    </div>
+    </article>
   )
 }

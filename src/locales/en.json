@@ -716,5 +716,13 @@
     "avatarSaved": "Photo saved",
     "avatarError": "Error saving photo",
     "avatarTooLarge": "Photo max 5MB"
+  },
+
+  "consent": {
+    "bannerLabel": "Cookie consent banner",
+    "text": "We use cookies and similar technologies for analytics and advertising to improve our service.",
+    "privacyLink": "Privacy Policy",
+    "accept": "Accept all",
+    "reject": "Reject non-essential"
   }
 }

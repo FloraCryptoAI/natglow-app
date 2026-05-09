@@ -85,10 +85,32 @@ Deno.serve(async (req) => {
         return json({ ok: true, post: Array.isArray(created) ? created[0] : created })
       }
 
-      // Delete any post (admin moderation)
+      // Delete any post (admin moderation) — also removes images from Storage
       if (mode === 'delete') {
         const { id } = body
         if (!id) return json({ error: 'id obrigatório' }, 400)
+
+        // Fetch image URLs before deleting the row
+        const rows = await supabaseGet(`feed_posts?id=eq.${id}&select=image_url,image_url_2`)
+        const post  = rows[0]
+        const storagePaths: string[] = []
+        for (const field of ['image_url', 'image_url_2'] as const) {
+          const url = post?.[field]
+          if (url) {
+            const part = url.split('/feed-images/')
+            if (part[1]) storagePaths.push(part[1])
+          }
+        }
+
+        // Delete images from Storage
+        if (storagePaths.length > 0) {
+          await fetch(`${SUPABASE_URL}/storage/v1/object/feed-images`, {
+            method: 'DELETE',
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prefixes: storagePaths }),
+          })
+        }
+
         await fetch(`${SUPABASE_URL}/rest/v1/feed_posts?id=eq.${id}`, {
           method: 'DELETE', headers: dbHeaders,
         })

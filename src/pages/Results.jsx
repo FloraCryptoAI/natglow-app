@@ -9,6 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
+import { getAttribution, getFbp, getFbc } from '@/lib/tracking/attribution';
+import { trackFbEvent }  from '@/lib/tracking/facebook-pixel';
+import { trackTtEvent }  from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
 
 // ── design tokens ──────────────────────────────────────────────────────────
@@ -366,6 +369,9 @@ export default function Results({ pricingPlan = 'monthly' }) {
 
   useEffect(() => {
     trackFunnelEvent('results_viewed', null, plan_key);
+    // ViewContent — fired once on mount, no event_id needed for deduplication
+    trackFbEvent('ViewContent', { content_name: plan_key, currency: 'USD' });
+    trackTtEvent('ViewContent', { content_name: plan_key });
     // Fetch admin config (non-blocking — failures silently use defaults)
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -430,7 +436,20 @@ export default function Results({ pricingPlan = 'monthly' }) {
   const handleCheckout = async () => {
     setLoading(true);
     setError(null);
-    trackFunnelEvent('cta_clicked', null, plan_key);
+
+    // Generate a single event_id used by BOTH the browser Pixel and the server-side CAPI
+    // so Facebook deduplicates them. Capture fbp/fbc NOW (at click time), not at mount.
+    const fbEventId = crypto.randomUUID();
+    const fbp       = getFbp();
+    const fbc       = getFbc();
+    const attribution = getAttribution();
+
+    trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId }, plan_key);
+
+    // Fire InitiateCheckout on the browser Pixel with the same event_id
+    trackFbEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key }, fbEventId);
+    trackTtEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key }, fbEventId);
+
     try {
       const invokeOptions = {
         body: {
@@ -439,6 +458,12 @@ export default function Results({ pricingPlan = 'monthly' }) {
           successUrl: window.location.origin + '/success',
           cancelUrl: window.location.origin + results_path,
           funnelSessionId: getFunnelSessionId(),
+          // Tracking — stored in Stripe Session metadata so the webhook can send server-side Purchase
+          fbEventId,
+          fbp:             fbp  ?? undefined,
+          fbc:             fbc  ?? undefined,
+          attribution:     attribution ?? undefined,
+          clientUserAgent: navigator.userAgent,
         },
       };
       if (user) {

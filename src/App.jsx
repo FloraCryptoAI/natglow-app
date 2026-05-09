@@ -24,7 +24,9 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminFeed from './pages/admin/AdminFeed';
+import AdminTracking from './pages/admin/AdminTracking';
 import AdminLogin from './pages/AdminLogin';
+import Privacy from './pages/Privacy';
 
 import HairDiagnosis from './pages/HairDiagnosis';
 import HairDashboard from './pages/HairDashboard';
@@ -137,6 +139,7 @@ const AppRoutes = () => {
         <Route path="costs"         element={<AdminCosts />} />
         <Route path="notifications" element={<AdminNotifications />} />
         <Route path="feed"          element={<AdminFeed />} />
+        <Route path="tracking"      element={<AdminTracking />} />
         <Route path="settings"      element={<AdminSettings />} />
       </Route>
 
@@ -172,6 +175,7 @@ const AppRoutes = () => {
         <Route path="/HairSettings" element={<HairSettings />} />
       </Route>
 
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

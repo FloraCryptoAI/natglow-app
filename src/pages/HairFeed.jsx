@@ -108,7 +108,7 @@ export default function HairFeed() {
         _cache = { posts: enriched, offset: newOffset, hasMore: moreAvailable, uid: currentUserId, ts: Date.now() }
       } else {
         setPosts(prev => {
-          const merged = [...prev, ...enriched]
+          const merged = [...prev, ...enriched].slice(0, MAX_POSTS)
           _cache = { posts: merged, offset: newOffset, hasMore: moreAvailable, uid: currentUserId, ts: Date.now() }
           return merged
         })
@@ -134,9 +134,9 @@ export default function HairFeed() {
   }
 
   return (
-    <div className="max-w-xl mx-auto pb-10">
+    <div className="-mx-4 pb-10 md:mx-auto md:max-w-xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5 pt-2">
+      <div className="flex items-center justify-between mb-3 pt-2 px-4">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold text-stone-800">{t('feed.title')}</h1>
           <button
@@ -166,7 +166,7 @@ export default function HairFeed() {
 
       {/* Empty */}
       {!loading && posts.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="flex flex-col items-center justify-center py-20 text-center px-4">
           <div className="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center mb-4">
             <Newspaper className="w-7 h-7 text-brand" />
           </div>
@@ -176,7 +176,7 @@ export default function HairFeed() {
 
       {/* Posts */}
       {!loading && (
-        <div className="space-y-4">
+        <div className="border-t border-stone-100">
           {posts.map(post => (
             <PostCard
               key={post.id}
@@ -191,7 +191,7 @@ export default function HairFeed() {
 
       {/* Load more — only if under MAX_POSTS cap */}
       {hasMore && !loading && posts.length < MAX_POSTS && (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6 px-4">
           <button
             onClick={() => loadPosts(false)}
             disabled={loadingMore}
@@ -205,7 +205,7 @@ export default function HairFeed() {
 
       {/* End of feed message when cap reached */}
       {!hasMore && !loading && posts.length >= PAGE_SIZE && (
-        <p className="text-center text-xs text-stone-300 mt-8">{t('feed.endOfFeed') || '— fim do feed —'}</p>
+        <p className="text-center text-xs text-stone-300 mt-8 px-4">{t('feed.endOfFeed') || '— fim do feed —'}</p>
       )}
 
       {/* Create post modal */}

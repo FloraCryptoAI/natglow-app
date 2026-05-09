@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/api/supabaseClient';
 import NotificationBell from './NotificationBell';
 import { InstallHeaderButton } from './InstallPrompt';
+import CookieConsentBanner from './CookieConsentBanner';
 
 export default function Layout() {
   const location = useLocation();
@@ -107,6 +108,8 @@ export default function Layout() {
       <main className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6">
         <Outlet />
       </main>
+
+      <CookieConsentBanner />
 
       {/* Bottom navigation — mobile only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 safe-area-bottom">

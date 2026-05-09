@@ -16,6 +16,7 @@ import {
   SignOut,
   Lightning,
   Newspaper,
+  ChartBar,
 } from '@phosphor-icons/react'
 
 const NAV_ITEMS = [
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { to: '/admin/quiz',           icon: ClipboardText,    label: 'Respostas do Quiz' },
   { to: '/admin/notifications',  icon: Bell,             label: 'Notificações' },
   { to: '/admin/feed',           icon: Newspaper,        label: 'Feed' },
+  { to: '/admin/tracking',       icon: ChartBar,         label: 'Tracking & Marketing' },
   { to: '/admin/settings',       icon: Gear,             label: 'Configurações' },
 ]
 

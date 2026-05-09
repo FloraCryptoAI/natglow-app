@@ -33,10 +33,15 @@ export default function Login() {
     setError(null);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('login-by-email', {
-        body: { email: email.trim().toLowerCase(), origin: window.location.origin },
+        body: { email: email.trim().toLowerCase() },
       });
-      if (fnErr || !data?.url) throw new Error('not_found');
-      window.location.href = data.url;
+      if (fnErr || !data?.token) throw new Error('not_found');
+      const { error: verifyErr } = await supabase.auth.verifyOtp({
+        token_hash: data.token,
+        type: 'magiclink',
+      });
+      if (verifyErr) throw verifyErr;
+      // navegação tratada pelo useEffect acima quando user muda
     } catch {
       setError(t('login.errorNotFound'));
       setLoading(false);

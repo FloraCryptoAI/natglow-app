@@ -40,7 +40,20 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { priceId, planKey, successUrl, cancelUrl, funnelSessionId } = await req.json()
+    const {
+      priceId,
+      planKey,
+      successUrl,
+      cancelUrl,
+      funnelSessionId,
+      // Tracking fields — all optional
+      fbEventId,
+      fbp,
+      fbc,
+      attribution,
+      clientUserAgent,
+      clientIp,
+    } = await req.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return new Response(JSON.stringify({ error: 'Parâmetros obrigatórios ausentes' }), {
@@ -60,13 +73,16 @@ Deno.serve(async (req) => {
       cancel_url: cancelUrl,
     }
 
-    if (funnelSessionId) {
-      sessionParams['metadata[funnel_session_id]'] = funnelSessionId
-    }
+    if (funnelSessionId) sessionParams['metadata[funnel_session_id]'] = funnelSessionId
+    if (planKey)         sessionParams['metadata[plan_key]']          = planKey
 
-    if (planKey) {
-      sessionParams['metadata[plan_key]'] = planKey
-    }
+    // Tracking metadata — stored so stripe-webhook can retrieve and send server-side events
+    if (fbEventId)      sessionParams['metadata[fb_event_id]']        = fbEventId
+    if (fbp)            sessionParams['metadata[fbp]']                = fbp
+    if (fbc)            sessionParams['metadata[fbc]']                = fbc
+    if (clientUserAgent) sessionParams['metadata[client_user_agent]'] = clientUserAgent.slice(0, 500)
+    if (clientIp)       sessionParams['metadata[client_ip]']         = clientIp
+    if (attribution)    sessionParams['metadata[attribution]']        = JSON.stringify(attribution).slice(0, 500)
 
     if (user?.id) {
       let customerId = await getCustomerId(user.id)

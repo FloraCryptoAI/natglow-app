@@ -1,3 +1,6 @@
+import { sendFacebookCAPIEvent } from '../_shared/facebook-capi.ts'
+import { sendTikTokEvent }       from '../_shared/tiktok-events-api.ts'
+
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
@@ -14,6 +17,13 @@ const _envPrices: [string, string][] = [
 for (const [envKey, planKey] of _envPrices) {
   const id = Deno.env.get(envKey)
   if (id) PRICE_TO_PLAN[id] = planKey
+}
+
+// Plan → USD price (for CAPI value field)
+const PLAN_VALUE: Record<string, number> = {
+  monthly_499:  4.99,
+  monthly_699:  6.99,
+  monthly_1499: 14.99,
 }
 
 function resolvePlanKey(priceId: string | null, metaPlanKey: string | null): string | null {
@@ -80,7 +90,6 @@ async function dbInsert(table: string, data: Record<string, unknown>) {
   })
 }
 
-// Busca user_id existente pelo email na tabela subscriptions
 async function getUserIdByEmail(email: string): Promise<string | null> {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/subscriptions?email=eq.${encodeURIComponent(email)}&select=user_id&limit=1`,
@@ -90,7 +99,6 @@ async function getUserIdByEmail(email: string): Promise<string | null> {
   return rows[0]?.user_id ?? null
 }
 
-// Cria usuário Supabase via admin API
 async function adminCreateUser(email: string): Promise<string | null> {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
     method: 'POST',
@@ -105,7 +113,6 @@ async function adminCreateUser(email: string): Promise<string | null> {
   return data?.id ?? null
 }
 
-// Envia magic link por email via admin API
 async function adminSendMagicLink(email: string): Promise<void> {
   await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
     method: 'POST',
@@ -147,25 +154,32 @@ Deno.serve(async (req) => {
         const email = session.customer_details?.email ?? ''
         const sub = await stripeGet(`/subscriptions/${session.subscription}`)
 
-        // Resolve user_id: usa metadata se usuária estava logada, senão busca/cria
         let userId: string | null = session.metadata?.supabase_uid ?? null
 
         if (!userId && email) {
-          // Busca pelo email em assinaturas existentes
           userId = await getUserIdByEmail(email)
-
-          if (!userId) {
-            // Cria nova conta Supabase para a compradora
-            userId = await adminCreateUser(email)
-          }
+          if (!userId) userId = await adminCreateUser(email)
         }
 
         const funnelSessionId: string | null = session.metadata?.funnel_session_id ?? null
         const rawPriceId: string | null = sub.items?.data?.[0]?.price?.id ?? null
         const planKey = resolvePlanKey(rawPriceId, session.metadata?.plan_key ?? null)
 
+        // Tracking metadata from checkout session
+        const fbEventId:       string | null = session.metadata?.fb_event_id       ?? null
+        const fbp:             string | null = session.metadata?.fbp               ?? null
+        const fbc:             string | null = session.metadata?.fbc               ?? null
+        const clientUserAgent: string | null = session.metadata?.client_user_agent ?? null
+        const clientIp:        string | null = session.metadata?.client_ip         ?? null
+        const attributionRaw:  string | null = session.metadata?.attribution       ?? null
+
+        let attribution: Record<string, string> | null = null
+        if (attributionRaw) {
+          try { attribution = JSON.parse(attributionRaw) } catch { /* ignore */ }
+        }
+
         if (userId) {
-          await dbUpsert('subscriptions', {
+          const subData: Record<string, unknown> = {
             user_id: userId,
             email,
             stripe_customer_id: session.customer,
@@ -174,12 +188,13 @@ Deno.serve(async (req) => {
             price_id: rawPriceId,
             pricing_plan: planKey,
             current_period_end: toISO(sub.current_period_end),
-          })
+          }
+          if (attribution) subData.attribution = attribution
 
-          // Envia magic link para a compradora acessar o app
+          await dbUpsert('subscriptions', subData)
+
           if (email) await adminSendMagicLink(email)
 
-          // Link funnel events to the new user and record payment
           if (funnelSessionId) {
             await Promise.all([
               dbUpdate('funnel_events', { user_id: userId }, `session_id=eq.${funnelSessionId}`),
@@ -188,10 +203,51 @@ Deno.serve(async (req) => {
                 session_id: funnelSessionId,
                 user_id: userId,
                 pricing_plan: planKey,
+                metadata: attribution ? { attribution } : null,
               }),
             ])
           }
         }
+
+        // Send Purchase event server-side — fire and forget, must not block the 200 response
+        const planValue = planKey ? (PLAN_VALUE[planKey] ?? null) : null
+        const purchaseEventId = fbEventId ?? `purchase_${session.id}`
+
+        Promise.allSettled([
+          sendFacebookCAPIEvent({
+            event_name: 'Purchase',
+            event_id:   purchaseEventId,
+            user_data: {
+              email:             email || undefined,
+              fbp:               fbp   || undefined,
+              fbc:               fbc   || undefined,
+              client_user_agent: clientUserAgent || undefined,
+              client_ip_address: clientIp        || undefined,
+              external_id:       userId           || undefined,
+            },
+            custom_data: {
+              value:        planValue ?? undefined,
+              currency:     'USD',
+              content_name: planKey   ?? undefined,
+            },
+          }),
+          sendTikTokEvent({
+            event:    'CompletePayment',
+            event_id: purchaseEventId,
+            user_data: {
+              email:       email  || undefined,
+              external_id: userId || undefined,
+              ip:          clientIp       || undefined,
+              user_agent:  clientUserAgent || undefined,
+            },
+            properties: {
+              value:        planValue ?? undefined,
+              currency:     'USD',
+              content_name: planKey   ?? undefined,
+            },
+          }),
+        ]).catch(() => { /* never throws */ })
+
         break
       }
       case 'customer.subscription.updated': {
