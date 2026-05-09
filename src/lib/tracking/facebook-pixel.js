@@ -1,4 +1,3 @@
-const CONSENT_KEY   = 'natglow_consent'
 const CONFIG_CACHE_KEY = '_fb_pixel_cfg'
 let initialized = false
 let pixelId     = null
@@ -26,16 +25,6 @@ async function fetchPublicConfig() {
   }
 }
 
-function hasConsent() {
-  try {
-    const raw = localStorage.getItem(CONSENT_KEY)
-    if (!raw) return false
-    return JSON.parse(raw).accepted === true
-  } catch {
-    return false
-  }
-}
-
 export async function initFacebookPixel() {
   if (initialized) return
 
@@ -43,7 +32,6 @@ export async function initFacebookPixel() {
   if (!config) return
   if (!config['tracking.facebook.enabled']) return
   if (!config['tracking.facebook.pixel_id']) return
-  if (config['tracking.consent.required'] && !hasConsent()) return
 
   pixelId = config['tracking.facebook.pixel_id']
 

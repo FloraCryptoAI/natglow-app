@@ -1,4 +1,3 @@
-const CONSENT_KEY      = 'natglow_consent'
 const CONFIG_CACHE_KEY = '_tt_pixel_cfg'
 let initialized = false
 
@@ -24,16 +23,6 @@ async function fetchPublicConfig() {
   }
 }
 
-function hasConsent() {
-  try {
-    const raw = localStorage.getItem(CONSENT_KEY)
-    if (!raw) return false
-    return JSON.parse(raw).accepted === true
-  } catch {
-    return false
-  }
-}
-
 export async function initTikTokPixel() {
   if (initialized) return
 
@@ -41,7 +30,6 @@ export async function initTikTokPixel() {
   if (!config) return
   if (!config['tracking.tiktok.enabled']) return
   if (!config['tracking.tiktok.pixel_id']) return
-  if (config['tracking.consent.required'] && !hasConsent()) return
 
   const pixelId = config['tracking.tiktok.pixel_id']
 
