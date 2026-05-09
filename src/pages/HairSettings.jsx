@@ -88,7 +88,15 @@ export default function HairSettings() {
 
       setLoading(false)
     }
+
     load()
+
+    // PWA: refetch when app comes back to foreground (component stays mounted in standalone mode)
+    function onVisible() {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
 
   async function handleSaveName() {
