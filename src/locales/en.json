@@ -664,7 +664,57 @@
   },
 
   "feed": {
-    "comingSoonTitle": "Feed coming soon",
-    "comingSoonDesc": "Tips, updates, and hair care content will appear here."
+    "title": "Community Feed",
+    "publish": "Post",
+    "publishPlaceholder": "Share a tip or your transformation...",
+    "imageOptional": "Add photo (optional)",
+    "imageTooLarge": "Image max 5MB",
+    "awaitingApproval": "Post sent for review!",
+    "noPostsYet": "No posts yet. Be the first!",
+    "loadMore": "Load more",
+    "comments": "Comments",
+    "reply": "Reply",
+    "commentPlaceholder": "Write a comment...",
+    "replyPlaceholder": "Write a reply...",
+    "setDisplayName": "Choose your community name",
+    "displayNameLabel": "Your name in the feed",
+    "displayNameHint": "Choose a name (3–30 characters) to show your posts in the community.",
+    "errorSavingName": "Error saving name",
+    "adminBadge": "NatGlow",
+    "pendingBadge": "Pending",
+    "createPost": "New Post",
+    "submittedTitle": "Post submitted!",
+    "submittedDesc": "Your post is in the approval queue and will be published shortly if it follows community guidelines.",
+    "submittedOk": "Got it",
+    "dailyLimitReached": "Daily limit reached",
+    "dailyLimitDesc": "You can post up to 20 times per day. Try again tomorrow!",
+    "errorSubmitting": "Error submitting post",
+    "refresh": "Refresh",
+    "endOfFeed": "— end of feed —",
+    "addFeeling": "How are you feeling?",
+    "feelingPrefix": "is feeling",
+    "feelings": {
+      "happy_results": "happy with the results 😍",
+      "sad_hair": "sad about current hair state 😭",
+      "surprised_recipes": "surprised by recipe effectiveness ✨",
+      "loving_journey": "loving the hair journey 💕",
+      "excited_progress": "excited about progress 🎉",
+      "motivated": "feeling motivated 💪",
+      "hopeful": "hopeful about the results 🌟"
+    },
+    "addSecondPhoto": "2nd photo",
+    "imageSecondLabel": "Add 2nd photo (before/after)"
+  },
+
+  "communityProfile": {
+    "section": "Community Profile",
+    "desc": "Your name and photo visible to other members in the Feed.",
+    "editName": "Edit name",
+    "nameSaved": "Name saved",
+    "nameError": "Error saving name",
+    "changeAvatar": "Change photo",
+    "avatarSaved": "Photo saved",
+    "avatarError": "Error saving photo",
+    "avatarTooLarge": "Photo max 5MB"
   }
 }

@@ -33,7 +33,7 @@ export default function Login() {
     setError(null);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('login-by-email', {
-        body: { email: email.trim().toLowerCase() },
+        body: { email: email.trim().toLowerCase(), origin: window.location.origin },
       });
       if (fnErr || !data?.url) throw new Error('not_found');
       window.location.href = data.url;

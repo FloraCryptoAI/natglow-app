@@ -4,6 +4,10 @@ import { useAuth } from '@/lib/AuthContext'
 
 const LS_KEY = 'hairPlanState'
 const DEFAULT = { phase: 1, completedWeeks: [] }
+const CACHE_TTL = 5 * 60 * 1000
+
+// Module-level cache — persists across React remounts within the same browser session
+let _cache = { state: null, uid: null, ts: 0 }
 
 function fromLS() {
   try { return JSON.parse(localStorage.getItem(LS_KEY)) ?? DEFAULT }
@@ -25,11 +29,15 @@ async function saveToSupabase(userId, state) {
 
 export function useHairPlan() {
   const { user } = useAuth()
-  const [planState, setPlanState] = useState(fromLS)
-  const [loading, setLoading] = useState(!!user)
+
+  const hasFreshCache = _cache.uid === user?.id && _cache.state !== null && (Date.now() - _cache.ts) < CACHE_TTL
+
+  const [planState, setPlanState] = useState(() => _cache.state ?? fromLS())
+  const [loading, setLoading] = useState(!!user && !hasFreshCache)
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
+    if (hasFreshCache) return
 
     setLoading(true)
     supabase
@@ -43,20 +51,22 @@ export function useHairPlan() {
           const state = { phase: data.phase, completedWeeks: data.completed_weeks ?? [] }
           setPlanState(state)
           toLS(state)
+          _cache = { state, uid: user.id, ts: Date.now() }
         } else {
-          // Migração: se localStorage tem progresso, sobe para o Supabase
           const local = fromLS()
           if (local.phase > 1 || local.completedWeeks.length > 0) {
             saveToSupabase(user.id, local)
           }
+          _cache = { state: local, uid: user.id, ts: Date.now() }
         }
       })
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const updatePlanState = useCallback((newState) => {
     setPlanState(newState)
     toLS(newState)
+    _cache = { state: newState, uid: user?.id ?? null, ts: Date.now() }
     if (user) saveToSupabase(user.id, newState)
   }, [user])
 

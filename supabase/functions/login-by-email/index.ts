@@ -4,12 +4,20 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://app.natglow.app'
 
+const ALLOWED_ORIGINS = [
+  'https://app.natglow.app',
+  'https://natglow.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+]
+
 Deno.serve(async (req) => {
   const cors = corsHeaders(req.headers.get('Origin'))
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { email } = await req.json()
+    const { email, origin } = await req.json()
+    const redirectBase = (origin && ALLOWED_ORIGINS.includes(origin)) ? origin : SITE_URL
     if (!email || typeof email !== 'string') {
       return new Response(JSON.stringify({ error: 'email obrigatório' }), {
         status: 400, headers: { ...cors, 'Content-Type': 'application/json' },
@@ -40,7 +48,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         type: 'magiclink',
         email: normalizedEmail,
-        options: { redirect_to: `${SITE_URL}/HairDashboard` },
+        options: { redirect_to: `${redirectBase}/HairDashboard` },
       }),
     })
     const linkData = await linkRes.json()

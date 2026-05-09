@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, ShieldCheck, Loader2, Languages, Check } from 'lucide-react'
+import { Bell, Camera, Check, Languages, Loader2, Pencil, ShieldCheck, X } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
 import { unsubscribeFromPush, isPushSupported, isSubscribedToPush, updatePushLang } from '@/lib/push'
 import { setLang } from '@/lib/i18n'
+import { profileCache, updateProfileCache } from '@/lib/profileCache'
 import { InstallSettingsSection } from '@/components/InstallPrompt'
 import { toast } from 'sonner'
 
@@ -37,27 +38,47 @@ function ToggleRow({ label, description, checked, onChange, disabled = false }) 
 
 export default function HairSettings() {
   const { t, i18n } = useTranslation()
-  const [prefs, setPrefs] = useState({ promotions: true, newsletter: true })
   const currentLang = i18n.language?.startsWith('es') ? 'es' : 'en'
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+
+  // Show spinner only on very first load (no localStorage data at all)
+  const hasCache = Boolean(profileCache.uid)
+  const [loading, setLoading] = useState(!hasCache)
+  const [saving, setSaving]   = useState(false)
   const [pushSubscribed, setPushSubscribed] = useState(false)
-  const [userId, setUserId] = useState(null)
+  const [userId, setUserId]   = useState(profileCache.uid)
+
+  // Initialize from localStorage-backed cache — instant on page reload
+  const [prefs, setPrefs]               = useState(profileCache.prefs ?? { promotions: true, newsletter: true })
+  const [displayName, setDisplayName]   = useState(profileCache.displayName ?? '')
+  const [avatarUrl, setAvatarUrl]       = useState(profileCache.avatarUrl ?? null)
+  const [editingName, setEditingName]   = useState(false)
+  const [nameInput, setNameInput]       = useState('')
+  const [savingName, setSavingName]     = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef()
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) { setLoading(false); return }
       setUserId(user.id)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('subscriptions')
-        .select('notification_preferences')
+        .select('notification_preferences, display_name, avatar_url')
         .eq('user_id', user.id)
         .single()
 
-      if (data?.notification_preferences) {
-        setPrefs(data.notification_preferences)
+      // Only update if the DB returned valid data — never overwrite cache with nulls on error
+      if (data && !error) {
+        const fetchedPrefs  = data.notification_preferences ?? { promotions: true, newsletter: true }
+        const fetchedName   = data.display_name  ?? profileCache.displayName ?? ''
+        const fetchedAvatar = data.avatar_url    ?? profileCache.avatarUrl   ?? null
+
+        setPrefs(fetchedPrefs)
+        setDisplayName(fetchedName)
+        setAvatarUrl(fetchedAvatar)
+        updateProfileCache({ uid: user.id, displayName: fetchedName, avatarUrl: fetchedAvatar, prefs: fetchedPrefs })
       }
 
       if (isPushSupported()) {
@@ -69,6 +90,56 @@ export default function HairSettings() {
     }
     load()
   }, [])
+
+  async function handleSaveName() {
+    const trimmed = nameInput.trim()
+    if (trimmed.length < 3 || trimmed.length > 30) return
+    setSavingName(true)
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ display_name: trimmed })
+      .eq('user_id', userId)
+    setSavingName(false)
+    if (error) {
+      toast.error(t('communityProfile.nameError'))
+    } else {
+      setDisplayName(trimmed)
+      setEditingName(false)
+      updateProfileCache({ displayName: trimmed })
+      toast.success(t('communityProfile.nameSaved'))
+    }
+  }
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t('communityProfile.avatarTooLarge'))
+      return
+    }
+    setUploadingAvatar(true)
+    try {
+      const ext  = file.name.split('.').pop()
+      const path = `${userId}/avatar_${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('feed-images')
+        .upload(path, file, { upsert: false })
+      if (uploadError) throw uploadError
+      const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', userId)
+      if (updateError) throw updateError
+      setAvatarUrl(publicUrl)
+      updateProfileCache({ avatarUrl: publicUrl })
+      toast.success(t('communityProfile.avatarSaved'))
+    } catch {
+      toast.error(t('communityProfile.avatarError'))
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   async function updatePref(key, value) {
     const next = { ...prefs, [key]: value }
@@ -82,6 +153,8 @@ export default function HairSettings() {
     if (error) {
       toast.error('Error saving preferences')
       setPrefs(prefs)
+    } else {
+      updateProfileCache({ prefs: next })
     }
   }
 
@@ -122,6 +195,85 @@ export default function HairSettings() {
     <div className="space-y-6 pb-8 max-w-lg mx-auto">
       <div>
         <h1 className="text-xl font-bold text-stone-800">{t('settings.title')}</h1>
+      </div>
+
+      {/* Community profile */}
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="px-5 pt-5 pb-3 border-b border-stone-100 flex items-center gap-2">
+          <Camera className="w-4 h-4 text-brand" />
+          <h2 className="text-sm font-semibold text-stone-800">{t('communityProfile.section')}</h2>
+        </div>
+        <div className="px-5 py-4 flex items-center gap-4">
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="w-16 h-16 rounded-full overflow-hidden bg-brand/10 flex items-center justify-center relative group"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xl font-bold text-brand">
+                  {displayName?.[0]?.toUpperCase() ?? '?'}
+                </span>
+              )}
+              <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                {uploadingAvatar
+                  ? <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  : <Camera className="w-5 h-5 text-white" />}
+              </div>
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </div>
+
+          {/* Name */}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-stone-400 mb-1">{t('communityProfile.section')}</p>
+            {editingName ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  maxLength={30}
+                  autoFocus
+                  onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false) }}
+                  className="flex-1 min-w-0 border border-stone-200 rounded-lg px-3 py-1.5 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
+                />
+                <button
+                  onClick={handleSaveName}
+                  disabled={savingName || nameInput.trim().length < 3}
+                  className="p-1.5 rounded-lg bg-brand text-white disabled:opacity-50"
+                >
+                  {savingName ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                </button>
+                <button onClick={() => setEditingName(false)} className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-stone-800 truncate">
+                  {displayName || <span className="text-stone-400 font-normal">{t('feed.displayNameLabel')}</span>}
+                </span>
+                <button
+                  onClick={() => { setNameInput(displayName); setEditingName(true) }}
+                  className="p-1 rounded-lg text-stone-400 hover:text-brand hover:bg-stone-100 flex-shrink-0"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-stone-400 mt-0.5">{t('communityProfile.desc')}</p>
+          </div>
+        </div>
       </div>
 
       {/* Language selector */}

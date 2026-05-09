@@ -23,6 +23,7 @@ import AdminQuizAnswers from './pages/admin/AdminQuizAnswers';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminFeed from './pages/admin/AdminFeed';
 import AdminLogin from './pages/AdminLogin';
 
 import HairDiagnosis from './pages/HairDiagnosis';
@@ -55,9 +56,13 @@ function Spinner() {
 
 // Rota que exige login E assinatura ativa
 const ProtectedRoute = ({ children }) => {
-  const { user, loading, subscriptionLoading, isSubscribed } = useAuth();
+  const { user, loading, subscriptionLoading, isSubscribed, subscription } = useAuth();
 
-  if (loading || subscriptionLoading) return <Spinner />;
+  if (loading) return <Spinner />;
+  // Show spinner on subscription load only when we have no cached data yet.
+  // On token refreshes, subscription is already populated — skip the spinner
+  // to prevent unnecessary unmount/remount of child pages.
+  if (subscriptionLoading && subscription === null) return <Spinner />;
   if (!user) return <Navigate to="/Login" replace />;
   if (!isSubscribed) return <Navigate to="/Upgrade" replace />;
 
@@ -131,6 +136,7 @@ const AppRoutes = () => {
         <Route path="quiz"          element={<AdminQuizAnswers />} />
         <Route path="costs"         element={<AdminCosts />} />
         <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="feed"          element={<AdminFeed />} />
         <Route path="settings"      element={<AdminSettings />} />
       </Route>
 

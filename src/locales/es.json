@@ -664,7 +664,57 @@
   },
 
   "feed": {
-    "comingSoonTitle": "Feed próximamente",
-    "comingSoonDesc": "Consejos, novedades y contenido de cuidado capilar aparecerán aquí."
+    "title": "Feed de la Comunidad",
+    "publish": "Publicar",
+    "publishPlaceholder": "Comparte un consejo o tu transformación...",
+    "imageOptional": "Agregar foto (opcional)",
+    "imageTooLarge": "Imagen máx 5MB",
+    "awaitingApproval": "¡Post enviado para revisión!",
+    "noPostsYet": "Aún no hay posts. ¡Sé la primera!",
+    "loadMore": "Cargar más",
+    "comments": "Comentarios",
+    "reply": "Responder",
+    "commentPlaceholder": "Escribe un comentario...",
+    "replyPlaceholder": "Escribe una respuesta...",
+    "setDisplayName": "Elige tu nombre en la comunidad",
+    "displayNameLabel": "Tu nombre en el feed",
+    "displayNameHint": "Elige un nombre (3–30 caracteres) para mostrar tus posts en la comunidad.",
+    "errorSavingName": "Error al guardar el nombre",
+    "adminBadge": "NatGlow",
+    "pendingBadge": "Pendiente",
+    "createPost": "Nuevo Post",
+    "submittedTitle": "¡Post enviado!",
+    "submittedDesc": "Tu post está en la cola de aprobación y será publicado pronto si sigue las normas de la comunidad.",
+    "submittedOk": "Entendido",
+    "dailyLimitReached": "Límite diario alcanzado",
+    "dailyLimitDesc": "Puedes publicar hasta 20 veces por día. ¡Inténtalo mañana!",
+    "errorSubmitting": "Error al enviar el post",
+    "refresh": "Actualizar",
+    "endOfFeed": "— fin del feed —",
+    "addFeeling": "¿Cómo te sientes?",
+    "feelingPrefix": "se siente",
+    "feelings": {
+      "happy_results": "feliz con los resultados 😍",
+      "sad_hair": "triste con el estado actual de su cabello 😭",
+      "surprised_recipes": "sorprendida con la eficacia de las recetas ✨",
+      "loving_journey": "enamorada del proceso capilar 💕",
+      "excited_progress": "emocionada con el progreso 🎉",
+      "motivated": "sintiéndose motivada 💪",
+      "hopeful": "esperanzada con los resultados 🌟"
+    },
+    "addSecondPhoto": "2ª foto",
+    "imageSecondLabel": "Agregar 2ª foto (antes/después)"
+  },
+
+  "communityProfile": {
+    "section": "Perfil de la Comunidad",
+    "desc": "Tu nombre y foto visibles para otros miembros en el Feed.",
+    "editName": "Editar nombre",
+    "nameSaved": "Nombre guardado",
+    "nameError": "Error al guardar el nombre",
+    "changeAvatar": "Cambiar foto",
+    "avatarSaved": "Foto guardada",
+    "avatarError": "Error al guardar la foto",
+    "avatarTooLarge": "Foto máx 5MB"
   }
 }

@@ -102,7 +102,12 @@ export async function unsubscribeFromPush() {
 export async function isSubscribedToPush() {
   if (!isPushSupported()) return false
   try {
-    const registration = await navigator.serviceWorker.ready
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    if (!registrations.length) return false
+    const registration = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('sw timeout')), 3000)),
+    ])
     const subscription = await registration.pushManager.getSubscription()
     return !!subscription
   } catch {

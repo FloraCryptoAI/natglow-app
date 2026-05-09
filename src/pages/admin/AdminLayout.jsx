@@ -15,6 +15,7 @@ import {
   Bell,
   SignOut,
   Lightning,
+  Newspaper,
 } from '@phosphor-icons/react'
 
 const NAV_ITEMS = [
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { to: '/admin/geography',  icon: Globe,            label: 'Idioma & Geografia' },
   { to: '/admin/quiz',           icon: ClipboardText,    label: 'Respostas do Quiz' },
   { to: '/admin/notifications',  icon: Bell,             label: 'Notificações' },
+  { to: '/admin/feed',           icon: Newspaper,        label: 'Feed' },
   { to: '/admin/settings',       icon: Gear,             label: 'Configurações' },
 ]
 
