@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, Camera, Check, Languages, Loader2, Pencil, RefreshCw, ShieldCheck, X } from 'lucide-react'
+import { Bell, Camera, Check, Languages, Loader2, Pencil, ShieldCheck, X } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
 import { unsubscribeFromPush, isPushSupported, isSubscribedToPush, updatePushLang } from '@/lib/push'
 import { setLang } from '@/lib/i18n'
@@ -183,15 +183,8 @@ export default function HairSettings() {
 
   return (
     <div className="space-y-6 pb-8 max-w-lg mx-auto">
-      <div className="flex items-center justify-between">
+      <div>
         <h1 className="text-xl font-bold text-stone-800">{t('settings.title')}</h1>
-        <button
-          onClick={() => fetchSubscription(user.id)}
-          className="p-1.5 rounded-lg text-stone-400 hover:text-brand hover:bg-brand/5"
-          title="Atualizar"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
       </div>
 
       {/* Community profile */}
