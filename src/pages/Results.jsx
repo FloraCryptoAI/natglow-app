@@ -10,8 +10,8 @@ import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
 import { getAttribution, getFbp, getFbc } from '@/lib/tracking/attribution';
-import { trackFbEvent }  from '@/lib/tracking/facebook-pixel';
-import { trackTtEvent }  from '@/lib/tracking/tiktok-pixel';
+import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel';
+import { initTikTokPixel, trackTtEvent }   from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
 
 // ── design tokens ──────────────────────────────────────────────────────────
@@ -369,9 +369,11 @@ export default function Results({ pricingPlan = 'monthly' }) {
 
   useEffect(() => {
     trackFunnelEvent('results_viewed', null, plan_key);
-    // ViewContent — fired once on mount, no event_id needed for deduplication
-    trackFbEvent('ViewContent', { content_name: plan_key, currency: 'USD' });
-    trackTtEvent('ViewContent', { content_name: plan_key });
+    // Init pixels (may already be initialized if coming from quiz) then fire ViewContent
+    Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
+      trackFbEvent('ViewContent', { content_name: plan_key, currency: 'USD' });
+      trackTtEvent('ViewContent', { content_name: plan_key });
+    });
     // Fetch admin config (non-blocking — failures silently use defaults)
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
