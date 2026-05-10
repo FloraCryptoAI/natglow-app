@@ -29,10 +29,11 @@ export interface TikTokEventParams {
 }
 
 export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skipped?: boolean; ok?: boolean; error?: string }> {
-  const [pixelId, enabled, accessToken] = await Promise.all([
+  const [pixelId, enabled, accessToken, testCode] = await Promise.all([
     getConfig('tracking.tiktok.pixel_id'),
     getConfig('tracking.tiktok.enabled'),
     getSecret('tracking.tiktok.access_token'),
+    getConfig('tracking.tiktok.test_event_code'),
   ])
 
   const pixelCode = pixelId != null ? String(pixelId) : null
@@ -59,7 +60,7 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
   if (ud.email)       hashedUserData.email       = await sha256(ud.email)
   if (ud.external_id) hashedUserData.external_id = await sha256(ud.external_id)
 
-  const body = {
+  const body: Record<string, unknown> = {
     event_source:    'web',
     event_source_id: pixelCode,
     data: [
@@ -72,6 +73,9 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
         properties: params.properties ?? {},
       },
     ],
+  }
+  if (testCode && typeof testCode === 'string' && testCode.trim()) {
+    body.test_event_code = testCode.trim()
   }
 
   let result: unknown

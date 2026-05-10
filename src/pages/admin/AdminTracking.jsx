@@ -10,12 +10,13 @@ const TABS = [
 ]
 
 const PUBLIC_DEFAULTS = {
-  'tracking.facebook.pixel_id':        '',
-  'tracking.facebook.enabled':         false,
-  'tracking.facebook.test_event_code': '',
-  'tracking.tiktok.pixel_id':          '',
-  'tracking.tiktok.enabled':           false,
-  'tracking.consent.required':         true,
+  'tracking.facebook.pixel_id':         '',
+  'tracking.facebook.enabled':          false,
+  'tracking.facebook.test_event_code':  '',
+  'tracking.tiktok.pixel_id':           '',
+  'tracking.tiktok.enabled':            false,
+  'tracking.tiktok.test_event_code':    '',
+  'tracking.consent.required':          true,
 }
 const SECRET_DEFAULTS = {
   'tracking.facebook.capi_token':  '',
@@ -115,8 +116,9 @@ function ConfigTab({ apiFetch }) {
         logo="T"
         logoColor="bg-black"
         fields={[
-          { key: 'tracking.tiktok.pixel_id',      label: 'Pixel ID',     type: 'text',   hint: 'ID do Web Pixel TikTok' },
-          { key: 'tracking.tiktok.access_token',   label: 'Access Token', type: 'secret', hint: 'Events API Access Token' },
+          { key: 'tracking.tiktok.pixel_id',         label: 'Pixel ID',        type: 'text',   hint: 'ID do Web Pixel TikTok' },
+          { key: 'tracking.tiktok.access_token',    label: 'Access Token',    type: 'secret', hint: 'Events API Access Token' },
+          { key: 'tracking.tiktok.test_event_code', label: 'Test Event Code', type: 'text',   hint: 'Ex: TEST73936 — remover em produção' },
         ]}
         enabledKey="tracking.tiktok.enabled"
         cfg={cfg}

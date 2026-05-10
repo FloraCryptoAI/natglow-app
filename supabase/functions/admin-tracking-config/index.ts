@@ -18,6 +18,7 @@ const PUBLIC_KEYS = [
   'tracking.facebook.test_event_code',
   'tracking.tiktok.pixel_id',
   'tracking.tiktok.enabled',
+  'tracking.tiktok.test_event_code',
   'tracking.consent.required',
 ]
 
