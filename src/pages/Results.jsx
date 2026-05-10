@@ -441,10 +441,16 @@ export default function Results({ pricingPlan = 'monthly' }) {
 
     // Generate a single event_id used by BOTH the browser Pixel and the server-side CAPI
     // so Facebook deduplicates them. Capture fbp/fbc NOW (at click time), not at mount.
-    const fbEventId = crypto.randomUUID();
-    const fbp       = getFbp();
-    const fbc       = getFbc();
-    const attribution = getAttribution();
+    const fbEventId   = crypto.randomUUID();
+    // Separate event_id for CompletePayment deduplication (browser /success + server webhook)
+    const ttCompleteId = crypto.randomUUID();
+    const fbp          = getFbp();
+    const fbc          = getFbc();
+    const attribution  = getAttribution();
+
+    // Persist for /success page so browser-side CompletePayment can use the same event_id
+    sessionStorage.setItem('tt_complete_payment_id', ttCompleteId);
+    sessionStorage.setItem('tt_complete_plan_key',   plan_key);
 
     trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId }, plan_key);
 
@@ -460,8 +466,9 @@ export default function Results({ pricingPlan = 'monthly' }) {
           successUrl: window.location.origin + '/success',
           cancelUrl: window.location.origin + results_path,
           funnelSessionId: getFunnelSessionId(),
-          // Tracking — stored in Stripe Session metadata so the webhook can send server-side Purchase
+          // Tracking — stored in Stripe Session metadata so the webhook can send server-side events
           fbEventId,
+          ttCompleteId,
           fbp:             fbp  ?? undefined,
           fbc:             fbc  ?? undefined,
           attribution:     attribution ?? undefined,

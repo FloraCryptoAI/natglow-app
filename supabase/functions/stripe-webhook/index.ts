@@ -167,6 +167,7 @@ Deno.serve(async (req) => {
 
         // Tracking metadata from checkout session
         const fbEventId:       string | null = session.metadata?.fb_event_id       ?? null
+        const ttCompleteId:    string | null = session.metadata?.tt_complete_id    ?? null
         const fbp:             string | null = session.metadata?.fbp               ?? null
         const fbc:             string | null = session.metadata?.fbc               ?? null
         const clientUserAgent: string | null = session.metadata?.client_user_agent ?? null
@@ -211,7 +212,8 @@ Deno.serve(async (req) => {
 
         // Send Purchase event server-side — fire and forget, must not block the 200 response
         const planValue = planKey ? (PLAN_VALUE[planKey] ?? null) : null
-        const purchaseEventId = fbEventId ?? `purchase_${session.id}`
+        const purchaseEventId  = fbEventId   ?? `purchase_${session.id}`
+        const ttCompleteEventId = ttCompleteId ?? `complete_${session.id}`
 
         Promise.allSettled([
           sendFacebookCAPIEvent({
@@ -233,7 +235,7 @@ Deno.serve(async (req) => {
           }),
           sendTikTokEvent({
             event:    'CompletePayment',
-            event_id: purchaseEventId,
+            event_id: ttCompleteEventId,
             user_data: {
               email:       email  || undefined,
               external_id: userId || undefined,
@@ -244,6 +246,8 @@ Deno.serve(async (req) => {
               value:        planValue ?? undefined,
               currency:     'USD',
               content_name: planKey   ?? undefined,
+              content_id:   planKey   ?? undefined,
+              content_type: 'product',
             },
           }),
         ]).catch(() => { /* never throws */ })

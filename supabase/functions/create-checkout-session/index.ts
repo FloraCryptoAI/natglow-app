@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
       funnelSessionId,
       // Tracking fields — all optional
       fbEventId,
+      ttCompleteId,
       fbp,
       fbc,
       attribution,
@@ -78,6 +79,7 @@ Deno.serve(async (req) => {
 
     // Tracking metadata — stored so stripe-webhook can retrieve and send server-side events
     if (fbEventId)      sessionParams['metadata[fb_event_id]']        = fbEventId
+    if (ttCompleteId)   sessionParams['metadata[tt_complete_id]']     = ttCompleteId
     if (fbp)            sessionParams['metadata[fbp]']                = fbp
     if (fbc)            sessionParams['metadata[fbc]']                = fbc
     if (clientUserAgent) sessionParams['metadata[client_user_agent]'] = clientUserAgent.slice(0, 500)

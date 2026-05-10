@@ -4,6 +4,7 @@ import { CheckCircle, Loader2, Mail, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel';
 
 
 export default function SubscriptionSuccess() {
@@ -24,6 +25,22 @@ export default function SubscriptionSuccess() {
       return () => clearTimeout(timer);
     }
   }, [user, isSubscribed, navigate]);
+
+  // Fire browser-side CompletePayment for TikTok deduplication with the server-side Events API event
+  useEffect(() => {
+    const ttCompleteId = sessionStorage.getItem('tt_complete_payment_id');
+    const planKey      = sessionStorage.getItem('tt_complete_plan_key');
+    if (!ttCompleteId) return;
+    initTikTokPixel().then(() => {
+      trackTtEvent('CompletePayment', {
+        content_id:   planKey || 'natglow_subscription',
+        content_type: 'product',
+        currency:     'USD',
+      }, ttCompleteId);
+      sessionStorage.removeItem('tt_complete_payment_id');
+      sessionStorage.removeItem('tt_complete_plan_key');
+    });
+  }, []);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
