@@ -36,7 +36,10 @@ export async function sendFacebookCAPIEvent(params: FBCAPIParams): Promise<{ ski
     getConfig('tracking.facebook.test_event_code'),
   ])
 
-  if (!enabled || !pixelId || !accessToken) return { skipped: true }
+  const pixelCode = pixelId != null ? String(pixelId) : null
+  const token     = accessToken != null ? String(accessToken) : null
+
+  if (!enabled || !pixelCode || !token) return { skipped: true }
 
   const ud = params.user_data
   const hashedUserData: Record<string, unknown> = {
@@ -67,7 +70,7 @@ export async function sendFacebookCAPIEvent(params: FBCAPIParams): Promise<{ ski
   let success = false
   try {
     const res = await fetch(
-      `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
+      `https://graph.facebook.com/v18.0/${pixelCode}/events?access_token=${token}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     )
     result  = await res.json()

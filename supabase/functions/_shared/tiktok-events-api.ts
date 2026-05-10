@@ -35,8 +35,10 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
     getSecret('tracking.tiktok.access_token'),
   ])
 
-  if (!enabled || !pixelId || !accessToken) {
-    const reason = !enabled ? 'tiktok_disabled' : !pixelId ? 'no_pixel_id' : 'no_access_token'
+  const pixelCode = pixelId != null ? String(pixelId) : null
+
+  if (!enabled || !pixelCode || !accessToken) {
+    const reason = !enabled ? 'tiktok_disabled' : !pixelCode ? 'no_pixel_id' : 'no_access_token'
     await logTrackingEvent({
       platform:   'tiktok',
       event_name: params.event,
@@ -58,7 +60,7 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
   if (ud.external_id) hashedUserData.external_id = await sha256(ud.external_id)
 
   const body = {
-    pixel_code: pixelId,
+    pixel_code: pixelCode,
     event:      params.event,
     event_id:   params.event_id,
     timestamp:  new Date((params.event_time ?? Math.floor(Date.now() / 1000)) * 1000).toISOString(),
