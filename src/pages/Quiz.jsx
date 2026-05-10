@@ -196,7 +196,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
                 <p className="text-base text-stone-500">{t('quiz.anchor.subtitle')}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start content-start">
                 {HAIR_PROBLEMS.map((opt, i) => (
                   <div key={i} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
                     <div className="w-full overflow-hidden" style={{ aspectRatio: '3/2', background: PL2 }}>
@@ -264,7 +264,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
                   {t('quiz.hairType.title')}
                 </h2>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start content-start">
                 {HAIR_TYPES.map(opt => (
                   <div
                     key={opt.value}
