@@ -67,8 +67,8 @@ function ConfigTab({ apiFetch }) {
       } else {
         toast.error(`Erro: ${data?.error ?? 'resposta inesperada'}`)
       }
-    } catch {
-      toast.error('Erro ao testar')
+    } catch (err) {
+      toast.error(`Erro: ${err?.message ?? 'desconhecido'}`)
     } finally {
       setTesting(null)
     }
