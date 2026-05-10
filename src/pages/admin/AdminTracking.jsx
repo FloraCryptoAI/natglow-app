@@ -65,7 +65,7 @@ function ConfigTab({ apiFetch }) {
       } else if (data?.ok) {
         toast.success(`Evento de teste ${platform === 'facebook' ? 'CAPI' : 'Events API'} enviado com sucesso`)
       } else {
-        toast.error(`Erro: ${data?.error ?? 'resposta inesperada'}`)
+        toast.error(`Erro: ${data?.error ?? JSON.stringify(data)}`)
       }
     } catch (err) {
       toast.error(`Erro: ${err?.message ?? 'desconhecido'}`)
