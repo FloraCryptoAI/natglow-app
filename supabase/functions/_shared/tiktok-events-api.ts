@@ -35,7 +35,18 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
     getSecret('tracking.tiktok.access_token'),
   ])
 
-  if (!enabled || !pixelId || !accessToken) return { skipped: true }
+  if (!enabled || !pixelId || !accessToken) {
+    const reason = !enabled ? 'tiktok_disabled' : !pixelId ? 'no_pixel_id' : 'no_access_token'
+    await logTrackingEvent({
+      platform:   'tiktok',
+      event_name: params.event,
+      event_id:   params.event_id,
+      source:     'server',
+      success:    false,
+      response:   { skipped: true, reason },
+    })
+    return { skipped: true }
+  }
 
   const ud = params.user_data
   const hashedUserData: Record<string, string | undefined> = {

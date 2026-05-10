@@ -148,6 +148,16 @@ Deno.serve(async (req) => {
 
       // Test TikTok Events API
       if (mode === 'test_tiktok') {
+        // Pre-check so we can return a clear error before even calling sendTikTokEvent
+        const [pixelId, enabled, accessToken] = await Promise.all([
+          getConfig('tracking.tiktok.pixel_id'),
+          getConfig('tracking.tiktok.enabled'),
+          getSecret('tracking.tiktok.access_token'),
+        ])
+        if (!enabled)     return json({ skipped: true, reason: 'TikTok desativado — ative o toggle' })
+        if (!pixelId)     return json({ skipped: true, reason: 'Pixel ID não configurado' })
+        if (!accessToken) return json({ skipped: true, reason: 'Events API Access Token não configurado — salve o token primeiro' })
+
         const result = await sendTikTokEvent({
           event:    'ViewContent',
           event_id: `test_${Date.now()}`,

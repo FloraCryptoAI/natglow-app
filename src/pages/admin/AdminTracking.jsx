@@ -61,7 +61,7 @@ function ConfigTab({ apiFetch }) {
     try {
       const data = await apiFetch(`/admin-tracking-config?mode=test_${platform}`, { method: 'POST', body: '{}' })
       if (data?.skipped) {
-        toast.info('Pixel não configurado ou desativado')
+        toast.warning(data.reason ?? 'Pixel não configurado ou desativado')
       } else if (data?.ok) {
         toast.success(`Evento de teste ${platform === 'facebook' ? 'CAPI' : 'Events API'} enviado com sucesso`)
       } else {
