@@ -243,11 +243,15 @@ Deno.serve(async (req) => {
               user_agent:  clientUserAgent || undefined,
             },
             properties: {
-              value:        planValue ?? undefined,
-              currency:     'USD',
-              content_name: planKey   ?? undefined,
-              content_id:   planKey   ?? undefined,
-              content_type: 'product',
+              value:    planValue ?? undefined,
+              currency: 'USD',
+              contents: [{
+                content_id:   planKey ?? 'natglow_subscription',
+                content_type: 'product',
+                content_name: planKey ?? 'natglow_subscription',
+                quantity:     1,
+                price:        planValue ?? undefined,
+              }],
             },
           }),
         ]).catch(() => { /* never throws */ })

@@ -169,7 +169,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
   const ans = (field, value) => setAnswers(a => ({ ...a, [field]: value }));
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col" style={{ fontFamily: 'system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
       <style>{`
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
@@ -184,8 +184,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
 
-      <div className="flex-1 flex flex-col">
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
 
           {/* ═══ ANCHOR ═══ */}
           {step === STEPS.ANCHOR && (
@@ -498,7 +497,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
             <motion.div
               key="before-after"
               {...slide}
-              className="w-full flex-1"
+              className="w-full"
               style={{ background: PL, minHeight: '100vh' }}
             >
               <div className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-6">
@@ -621,7 +620,6 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
           )}
 
         </AnimatePresence>
-      </div>
     </div>
   );
 }

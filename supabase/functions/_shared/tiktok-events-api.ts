@@ -20,11 +20,15 @@ export interface TikTokEventParams {
     user_agent?:  string
   }
   properties?: {
-    value?:         number
-    currency?:      string
-    content_name?:  string
-    content_type?:  string
-    content_id?:    string
+    value?:    number
+    currency?: string
+    contents?: Array<{
+      content_id:    string
+      content_type?: string
+      content_name?: string
+      quantity?:     number
+      price?:        number
+    }>
   }
 }
 
