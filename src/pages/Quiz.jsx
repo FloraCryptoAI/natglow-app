@@ -110,7 +110,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
     // Init pixels (loads fbq/ttq scripts from config) then fire ViewContent
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
       trackFbEvent('ViewContent', { content_name: 'quiz', content_category: plan_key });
-      trackTtEvent('ViewContent', { content_name: 'quiz', content_category: plan_key });
+      trackTtEvent('ViewContent', { content_name: 'quiz', content_category: plan_key, content_id: plan_key, content_type: 'product' });
     });
 
     try {
@@ -150,7 +150,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
     trackFunnelEvent('quiz_completed', { answers }, plan_key);
     // Lead event: user completed the quiz (intent signal)
     trackFbEvent('Lead', { content_name: 'quiz_completed', content_category: plan_key });
-    trackTtEvent('SubmitForm', { content_name: 'quiz_completed', content_category: plan_key });
+    trackTtEvent('SubmitForm', { content_name: 'quiz_completed', content_category: plan_key, content_id: plan_key, content_type: 'product' });
     setLoadingProgress(0);
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),

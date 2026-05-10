@@ -378,7 +378,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
     // Init pixels (may already be initialized if coming from quiz) then fire ViewContent
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
       trackFbEvent('ViewContent', { content_name: plan_key, currency: 'USD' });
-      trackTtEvent('ViewContent', { content_name: plan_key });
+      trackTtEvent('ViewContent', { content_name: plan_key, content_id: plan_key, content_type: 'product' });
     });
     // Fetch admin config (non-blocking — failures silently use defaults)
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -450,7 +450,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
 
     // Fire InitiateCheckout on the browser Pixel with the same event_id
     trackFbEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key }, fbEventId);
-    trackTtEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key }, fbEventId);
+    trackTtEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId);
 
     try {
       const invokeOptions = {
