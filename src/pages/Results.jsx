@@ -451,6 +451,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
     // Persist for /success page so browser-side CompletePayment can use the same event_id
     sessionStorage.setItem('tt_complete_payment_id', ttCompleteId);
     sessionStorage.setItem('tt_complete_plan_key',   plan_key);
+    sessionStorage.setItem('tt_complete_value',      String(planConfig.display_price));
 
     trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId }, plan_key);
 

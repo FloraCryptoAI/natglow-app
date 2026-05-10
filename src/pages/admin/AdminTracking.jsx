@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Settings2, Activity, BarChart2, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, RefreshCw, Loader2 } from 'lucide-react'
+import { Settings2, Activity, BarChart2, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, RefreshCw, Loader2, CheckCircle } from 'lucide-react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { toast } from 'sonner'
 
@@ -148,11 +148,13 @@ function ConfigTab({ apiFetch }) {
 }
 
 function PlatformCard({ title, logo, logoColor, fields, enabledKey, cfg, saving, testing, showSecrets, onUpdate, onSave, onToggleSecret, onTest }) {
-  const isEnabled = !!cfg[enabledKey]
+  const isEnabled  = !!cfg[enabledKey]
   const hasPixelId = !!cfg[fields[0].key]
+  const hasSecret  = fields.filter(f => f.type === 'secret').every(f => !!cfg[f.key])
 
   const status = !hasPixelId ? 'unconfigured'
                : !isEnabled  ? 'disabled'
+               : !hasSecret  ? 'partial'
                : 'active'
 
   return (
@@ -197,14 +199,19 @@ function PlatformCard({ title, logo, logoColor, fields, enabledKey, cfg, saving,
 }
 
 function ConfigField({ field, value, saving, showSecret, onUpdate, onSave, onToggleSecret }) {
-  const isSecret = field.type === 'secret'
+  const isSecret   = field.type === 'secret'
+  const isSaved    = isSecret && !!value  // server returned a non-empty masked value
   const displayValue = isSecret && !showSecret && value && !value.startsWith('*')
     ? value.replace(/./g, '*')
     : value
 
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{field.label}</label>
+      <div className="flex items-center gap-1.5 mb-1">
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">{field.label}</label>
+        {isSecret && isSaved && <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
+        {isSecret && !isSaved && <span className="text-xs text-orange-500 font-medium">— não configurado</span>}
+      </div>
       <div className="flex gap-2">
         <div className="relative flex-1">
           <input
@@ -407,6 +414,7 @@ function Toggle({ checked, onChange }) {
 function StatusBadge({ status }) {
   if (status === 'active')        return <span className="text-xs font-medium px-2 py-0.5 bg-green-100 text-green-700 rounded-full">● Ativo</span>
   if (status === 'disabled')      return <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">● Desativado</span>
+  if (status === 'partial')       return <span className="text-xs font-medium px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full">⚠ Token ausente</span>
   return <span className="text-xs font-medium px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">● Não configurado</span>
 }
 

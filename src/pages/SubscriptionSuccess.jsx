@@ -30,15 +30,18 @@ export default function SubscriptionSuccess() {
   useEffect(() => {
     const ttCompleteId = sessionStorage.getItem('tt_complete_payment_id');
     const planKey      = sessionStorage.getItem('tt_complete_plan_key');
+    const planValue    = parseFloat(sessionStorage.getItem('tt_complete_value') || '0') || undefined;
     if (!ttCompleteId) return;
     initTikTokPixel().then(() => {
       trackTtEvent('CompletePayment', {
         content_id:   planKey || 'natglow_subscription',
         content_type: 'product',
         currency:     'USD',
+        value:        planValue,
       }, ttCompleteId);
       sessionStorage.removeItem('tt_complete_payment_id');
       sessionStorage.removeItem('tt_complete_plan_key');
+      sessionStorage.removeItem('tt_complete_value');
     });
   }, []);
 

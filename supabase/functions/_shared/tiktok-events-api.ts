@@ -24,6 +24,7 @@ export interface TikTokEventParams {
     currency?:      string
     content_name?:  string
     content_type?:  string
+    content_id?:    string
   }
 }
 

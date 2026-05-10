@@ -25,19 +25,27 @@ export async function getSecret(key: string): Promise<string | null> {
 }
 
 export async function setConfig(key: string, value: unknown): Promise<void> {
-  await fetch(`${SUPABASE_URL}/rest/v1/app_config`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/app_config`, {
     method:  'POST',
     headers: { ...serviceHeaders, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
     body:    JSON.stringify({ key, value, updated_at: new Date().toISOString() }),
   })
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.status.toString())
+    throw new Error(`setConfig failed (${res.status}): ${text}`)
+  }
 }
 
 export async function setSecret(key: string, value: string): Promise<void> {
-  await fetch(`${SUPABASE_URL}/rest/v1/app_config_secrets`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/app_config_secrets`, {
     method:  'POST',
     headers: { ...serviceHeaders, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
     body:    JSON.stringify({ key, value, updated_at: new Date().toISOString() }),
   })
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.status.toString())
+    throw new Error(`setSecret failed (${res.status}): ${text}`)
+  }
 }
 
 export async function logTrackingEvent(params: {
