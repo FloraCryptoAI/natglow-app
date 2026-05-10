@@ -322,6 +322,12 @@ export default function Results({ pricingPlan = 'monthly' }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.monthly;
   const { plan_key, stripe_price_id, results_path, route_path } = planConfig;
   const TIMER_KEY = `glow_results_timer_end_${plan_key}`;
+  // Synchronously initialize the urgency timer before PricingCard mounts and reads sessionStorage.
+  // Quiz clears this key on completion, so it's always fresh on each results visit.
+  if (!sessionStorage.getItem(TIMER_KEY)) {
+    const minutes = parseInt(getConfigDefaults(pricingPlan).timer_minutes) || 15;
+    sessionStorage.setItem(TIMER_KEY, (Date.now() + minutes * 60 * 1000).toString());
+  }
 
   const { t, i18n } = useTranslation();
   const periodLabel = i18n.language.startsWith('es') ? planConfig.period_es : planConfig.period_en;
@@ -398,15 +404,6 @@ export default function Results({ pricingPlan = 'monthly' }) {
       .catch(() => {});
   }, []);
 
-  // Set urgency timer duration from admin config (runs when config loads)
-  useEffect(() => {
-    if (adminConfig.timer_enabled !== 'true') return;
-    const stored = sessionStorage.getItem(TIMER_KEY);
-    if (!stored) {
-      const minutes = parseInt(adminConfig.timer_minutes) || 15;
-      sessionStorage.setItem(TIMER_KEY, (Date.now() + minutes * 60 * 1000).toString());
-    }
-  }, [adminConfig, TIMER_KEY]);
 
 
   useEffect(() => {
@@ -420,14 +417,17 @@ export default function Results({ pricingPlan = 'monthly' }) {
     if (user && isSubscribed) navigate('/HairDashboard', { replace: true });
   }, [user, isSubscribed, navigate]);
 
-  if (!state?.answers) return <Navigate to={route_path} replace />;
+  const storedAnswers = (() => {
+    try { return JSON.parse(sessionStorage.getItem(`glow_results_answers_${plan_key}`) ?? '') } catch { return null }
+  })();
+  const answers = state?.answers ?? storedAnswers;
+  if (!answers) return <Navigate to={route_path} replace />;
 
   // Maintenance mode — block access for everyone (admin bypasses via /admin)
   if (adminConfig.maintenance_mode === 'true') {
     return <MaintenanceScreen message={adminConfig.maintenance_text} />;
   }
 
-  const { answers } = state;
   const { signs, causes } = getDiagnosis(answers, t);
   const name = answers.name?.trim();
 

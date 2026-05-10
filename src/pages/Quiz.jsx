@@ -160,6 +160,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
     const done = setTimeout(() => {
       sessionStorage.removeItem(QUIZ_STATE_KEY);
       sessionStorage.removeItem(`glow_results_timer_end_${plan_key}`);
+      sessionStorage.setItem(`glow_results_answers_${plan_key}`, JSON.stringify(answers));
       navigate(results_path, { state: { answers } });
     }, 2800);
     return () => { timers.forEach(clearTimeout); clearTimeout(done); };

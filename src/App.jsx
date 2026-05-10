@@ -48,6 +48,11 @@ function ScrollToTop() {
   return null;
 }
 
+function LandingRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/quiz${search}`} replace />;
+}
+
 function Spinner() {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
@@ -112,7 +117,7 @@ const AppRoutes = () => {
       {/* Legacy redirect — keeps old /Results links working (emails, ads, bookmarks) */}
       <Route path="/Results" element={<Navigate to="/results" replace />} />
 
-      <Route path="/Landing" element={<Navigate to="/quiz" replace />} />
+      <Route path="/Landing" element={<LandingRedirect />} />
       <Route path="/Login" element={<Login />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}

@@ -35,19 +35,26 @@ Deno.serve(async (req) => {
       status, headers: { ...cors, 'Content-Type': 'application/json' },
     })
 
+  const url  = new URL(req.url)
+  const mode = url.searchParams.get('mode') ?? ''
+
+  // Public endpoint — no admin JWT required, returns only pixel IDs and enabled flags
+  if (req.method === 'GET' && mode === 'public') {
+    try {
+      const pairs = await Promise.all(PUBLIC_KEYS.map(async k => [k, await getConfig(k)]))
+      return json(Object.fromEntries(pairs))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro interno'
+      return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+  }
+
   try {
     const token = req.headers.get('x-admin-token') ?? ''
     if (!(await verifyAdminJWT(token))) return json({ error: 'Não autorizado' }, 401)
 
-    const url  = new URL(req.url)
-    const mode = url.searchParams.get('mode') ?? ''
-
     // ── GET ──────────────────────────────────────────────────────────────────
     if (req.method === 'GET') {
-      if (mode === 'public') {
-        const pairs = await Promise.all(PUBLIC_KEYS.map(async k => [k, await getConfig(k)]))
-        return json(Object.fromEntries(pairs))
-      }
 
       if (mode === 'full') {
         const [pubPairs, secPairs] = await Promise.all([
