@@ -187,7 +187,7 @@ function PlatformCard({ title, logo, logoColor, fields, enabledKey, cfg, saving,
       <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
         <button
           onClick={onTest}
-          disabled={testing || !isEnabled}
+          disabled={!!testing}
           className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {testing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
