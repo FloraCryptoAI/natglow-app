@@ -95,5 +95,5 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
     response:   result,
   })
 
-  return success ? { ok: true } : { error: JSON.stringify(result) }
+  return success ? { ok: true } : { error: JSON.stringify({ tiktok: result, sentPixelCode: pixelCode, pixelCodeType: typeof pixelCode }) }
 }
