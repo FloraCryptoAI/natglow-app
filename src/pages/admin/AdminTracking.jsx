@@ -33,7 +33,7 @@ function ConfigTab({ apiFetch }) {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await apiFetch('/functions/v1/admin-tracking-config?mode=full')
+      const data = await apiFetch('/admin-tracking-config?mode=full')
       setCfg(prev => ({ ...prev, ...data }))
     } finally {
       setLoading(false)
@@ -45,7 +45,7 @@ function ConfigTab({ apiFetch }) {
   async function saveField(key, value) {
     setSaving(key)
     try {
-      await apiFetch('/functions/v1/admin-tracking-config?mode=save', {
+      await apiFetch('/admin-tracking-config?mode=save', {
         method: 'POST', body: JSON.stringify({ key, value }),
       })
       toast.success('Salvo')
@@ -59,7 +59,7 @@ function ConfigTab({ apiFetch }) {
   async function testPlatform(platform) {
     setTesting(platform)
     try {
-      const data = await apiFetch(`/functions/v1/admin-tracking-config?mode=test_${platform}`, { method: 'POST', body: '{}' })
+      const data = await apiFetch(`/admin-tracking-config?mode=test_${platform}`, { method: 'POST', body: '{}' })
       if (data?.skipped) {
         toast.info('Pixel não configurado ou desativado')
       } else if (data?.ok) {
@@ -245,7 +245,7 @@ function StatusTab({ apiFetch }) {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await apiFetch('/functions/v1/admin-tracking-config?mode=stats')
+      const data = await apiFetch('/admin-tracking-config?mode=stats')
       setStats(data)
     } finally {
       setLoading(false)
@@ -339,7 +339,7 @@ function AttributionTab({ apiFetch }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    apiFetch('/functions/v1/admin-tracking-config?mode=stats')
+    apiFetch('/admin-tracking-config?mode=stats')
       .then(data => setStats(data))
       .finally(() => setLoading(false))
   }, [apiFetch])
