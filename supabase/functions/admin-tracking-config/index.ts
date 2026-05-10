@@ -155,18 +155,15 @@ Deno.serve(async (req) => {
           getSecret('tracking.tiktok.access_token'),
         ])
         if (!enabled)     return json({ skipped: true, reason: 'TikTok desativado — ative o toggle' })
+        if (!pixelId)     return json({ skipped: true, reason: 'Pixel ID não configurado' })
         if (!accessToken) return json({ skipped: true, reason: 'Events API Access Token não configurado — salve o token primeiro' })
-
-        // Debug: return raw values so we can inspect the exact types
-        const pixelDebug = { value: pixelId, type: typeof pixelId, asString: String(pixelId ?? '') }
-        if (!pixelId)     return json({ skipped: true, reason: 'Pixel ID não configurado', debug: pixelDebug })
 
         const result = await sendTikTokEvent({
           event:    'ViewContent',
           event_id: `test_${Date.now()}`,
           user_data: {},
         })
-        return json({ ...result, _debug_pixel: String(pixelId ?? '') })
+        return json(result)
       }
 
       // Save config values (public or secret)

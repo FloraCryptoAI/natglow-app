@@ -60,15 +60,18 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
   if (ud.external_id) hashedUserData.external_id = await sha256(ud.external_id)
 
   const body = {
-    pixel_code: pixelCode,
-    event:      params.event,
-    event_id:   params.event_id,
-    timestamp:  new Date((params.event_time ?? Math.floor(Date.now() / 1000)) * 1000).toISOString(),
-    context: {
-      user: hashedUserData,
-      page: { url: 'https://app.natglow.app' },
-    },
-    properties: params.properties ?? {},
+    event_source:    'web',
+    event_source_id: pixelCode,
+    data: [
+      {
+        event:      params.event,
+        event_time: params.event_time ?? Math.floor(Date.now() / 1000),
+        event_id:   params.event_id,
+        user:       hashedUserData,
+        page:       { url: 'https://app.natglow.app' },
+        properties: params.properties ?? {},
+      },
+    ],
   }
 
   let result: unknown
@@ -95,5 +98,5 @@ export async function sendTikTokEvent(params: TikTokEventParams): Promise<{ skip
     response:   result,
   })
 
-  return success ? { ok: true } : { error: JSON.stringify({ tiktok: result, sentPixelCode: pixelCode, pixelCodeType: typeof pixelCode }) }
+  return success ? { ok: true } : { error: JSON.stringify(result) }
 }
