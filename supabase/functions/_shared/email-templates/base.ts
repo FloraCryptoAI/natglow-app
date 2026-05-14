@@ -30,13 +30,25 @@ export function baseLayout(content: string, preheader = ''): string {
           <p style="font-size:11px;color:#a8a29e;margin:0 0 8px">
             © ${new Date().getFullYear()} NatGlow. All rights reserved.
           </p>
-          <p style="font-size:11px;color:#a8a29e;margin:0">
+          <p style="font-size:11px;color:#a8a29e;margin:0 0 14px">
             <a href="https://app.natglow.app/privacy" style="color:#a8a29e">Privacy Policy</a>
             &nbsp;·&nbsp;
             <a href="https://app.natglow.app/terms" style="color:#a8a29e">Terms</a>
             &nbsp;·&nbsp;
             <a href="https://app.natglow.app/contact" style="color:#a8a29e">Support</a>
           </p>
+          <div style="border-top:1px solid #e5e7eb;padding-top:14px">
+            <p style="font-size:12px;color:#9ca3af;margin:0 0 4px;line-height:1.5">
+              This is an automated message from a no-reply address.<br/>
+              Need help? Visit our contact page:
+              <a href="https://app.natglow.app/contact" style="color:#FB45A9;font-weight:700;text-decoration:none">app.natglow.app/contact</a>
+            </p>
+            <p style="font-size:12px;color:#9ca3af;margin:0;line-height:1.5">
+              Este es un mensaje automatizado desde una dirección sin respuesta.<br/>
+              ¿Necesitas ayuda? Visita:
+              <a href="https://app.natglow.app/contact" style="color:#FB45A9;font-weight:700;text-decoration:none">app.natglow.app/contact</a>
+            </p>
+          </div>
         </td></tr>
 
       </table>

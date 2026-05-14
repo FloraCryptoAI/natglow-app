@@ -3,7 +3,8 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL        = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const RESEND_API_KEY       = Deno.env.get('RESEND_API_KEY')!
-const SUPPORT_EMAIL        = 'support@natglow.app'
+// TODO: Voltar para support@natglow.app quando configurar email forwarding/MX records no Namecheap
+const SUPPORT_EMAIL        = 'natglowhelp@gmail.com'
 const FROM_EMAIL           = 'NatGlow <hello@natglow.app>'
 
 const RATE_LIMIT_PER_HOUR = 3
