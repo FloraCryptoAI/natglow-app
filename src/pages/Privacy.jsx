@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-const CONTACT_EMAIL = 'contact@natglow.app'
+const CONTACT_EMAIL = 'support@natglow.app'
 
 const EN = {
   disclaimer: 'This document is an initial version and may be revised by legal counsel in the future.',
   title: 'Privacy Policy',
-  lastUpdated: 'Last updated: May 2026',
+  lastUpdated: 'Last updated: May 10, 2026',
   sections: [
     {
       heading: '1. Who We Are',
@@ -32,6 +32,7 @@ const EN = {
         'Send transactional emails (login links, subscription updates).',
         'Improve our product through aggregated, anonymised analytics.',
         'Measure the effectiveness of our marketing campaigns (Facebook and TikTok advertising), only if you have consented to analytics cookies.',
+        'Send server-side conversion events to advertising platforms (Facebook Conversions API and TikTok Events API) to improve campaign attribution accuracy. These server-side events are matched against consented browser signals and do not create new tracking beyond what you have already consented to.',
       ],
     },
     {
@@ -43,9 +44,10 @@ const EN = {
       body: [
         'Stripe — payment processing (stripe.com/privacy)',
         'Supabase — database and authentication (supabase.com/privacy)',
-        'Meta (Facebook) — advertising analytics, subject to your consent',
-        'TikTok — advertising analytics, subject to your consent',
+        'Meta (Facebook) — advertising analytics, subject to your consent (including Conversions API for server-side matching)',
+        'TikTok — advertising analytics, subject to your consent (including Events API for server-side matching)',
         'Vercel — application hosting (vercel.com/legal/privacy-policy)',
+        'Resend — transactional email delivery (resend.com/legal/privacy-policy)',
       ],
     },
     {
@@ -80,7 +82,7 @@ const EN = {
 const ES = {
   disclaimer: 'Este documento es una versión inicial y puede ser revisada por asesoría legal en el futuro.',
   title: 'Política de Privacidad',
-  lastUpdated: 'Última actualización: mayo de 2026',
+  lastUpdated: 'Última actualización: 10 de mayo de 2026',
   sections: [
     {
       heading: '1. Quiénes somos',
@@ -104,6 +106,7 @@ const ES = {
         'Enviar correos transaccionales (enlaces de acceso, actualizaciones de suscripción).',
         'Mejorar nuestro producto mediante analítica agregada y anonimizada.',
         'Medir la efectividad de nuestras campañas de marketing (publicidad en Facebook y TikTok), solo si ha dado su consentimiento para cookies de analítica.',
+        'Enviar eventos de conversión del lado del servidor a plataformas publicitarias (Facebook Conversions API y TikTok Events API) para mejorar la precisión de atribución. Estos eventos se comparan con señales del navegador ya consentidas y no generan seguimiento adicional.',
       ],
     },
     {
@@ -115,9 +118,10 @@ const ES = {
       body: [
         'Stripe — procesamiento de pagos (stripe.com/privacy)',
         'Supabase — base de datos y autenticación (supabase.com/privacy)',
-        'Meta (Facebook) — analítica publicitaria, sujeto a su consentimiento',
-        'TikTok — analítica publicitaria, sujeto a su consentimiento',
+        'Meta (Facebook) — analítica publicitaria, sujeto a su consentimiento (incluye Conversions API para coincidencia del lado del servidor)',
+        'TikTok — analítica publicitaria, sujeto a su consentimiento (incluye Events API para coincidencia del lado del servidor)',
         'Vercel — hospedaje de la aplicación (vercel.com/legal/privacy-policy)',
+        'Resend — entrega de correos transaccionales (resend.com/legal/privacy-policy)',
       ],
     },
     {

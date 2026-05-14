@@ -9,6 +9,7 @@ import { captureAttribution } from '@/lib/tracking/attribution';
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel';
 import { initTikTokPixel, trackTtEvent }   from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
+import Footer from '@/components/Footer';
 
 const BEFORE_AFTER = [
   { antes: '/images/quiz-v2/antes-1.jpg', depois: '/images/quiz-v2/depois-1.jpg' },
@@ -620,6 +621,7 @@ export default function Quiz({ pricingPlan = 'monthly' }) {
           )}
 
         </AnimatePresence>
+      <Footer mini />
     </div>
   );
 }

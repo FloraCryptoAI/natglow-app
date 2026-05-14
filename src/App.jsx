@@ -27,7 +27,10 @@ import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminFeed from './pages/admin/AdminFeed';
 import AdminTracking from './pages/admin/AdminTracking';
 import AdminLogin from './pages/AdminLogin';
-import Privacy from './pages/Privacy';
+import Privacy from './pages/Privacy'
+import Terms   from './pages/Terms'
+import Refund  from './pages/Refund'
+import Contact from './pages/Contact';
 
 import HairDiagnosis from './pages/HairDiagnosis';
 import HairDashboard from './pages/HairDashboard';
@@ -182,6 +185,9 @@ const AppRoutes = () => {
       </Route>
 
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms"   element={<Terms />} />
+      <Route path="/refund"  element={<Refund />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

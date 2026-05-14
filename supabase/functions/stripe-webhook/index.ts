@@ -1,5 +1,6 @@
-import { sendFacebookCAPIEvent } from '../_shared/facebook-capi.ts'
-import { sendTikTokEvent }       from '../_shared/tiktok-events-api.ts'
+import { sendFacebookCAPIEvent }   from '../_shared/facebook-capi.ts'
+import { sendTikTokEvent }         from '../_shared/tiktok-events-api.ts'
+import { sendTransactionalEmail }  from '../send-transactional-email/index.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -99,6 +100,24 @@ async function getUserIdByEmail(email: string): Promise<string | null> {
   return rows[0]?.user_id ?? null
 }
 
+async function getSubscriptionRowBySubId(subId: string): Promise<{ email: string | null; user_id: string | null }> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/subscriptions?stripe_subscription_id=eq.${subId}&select=email,user_id&limit=1`,
+    { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } }
+  )
+  const rows = await res.json()
+  return { email: rows[0]?.email ?? null, user_id: rows[0]?.user_id ?? null }
+}
+
+async function hasExistingSubscription(userId: string): Promise<boolean> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${userId}&select=id&limit=1`,
+    { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } }
+  )
+  const rows = await res.json()
+  return Array.isArray(rows) && rows.length > 0
+}
+
 async function adminCreateUser(email: string): Promise<string | null> {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
     method: 'POST',
@@ -155,10 +174,14 @@ Deno.serve(async (req) => {
         const sub = await stripeGet(`/subscriptions/${session.subscription}`)
 
         let userId: string | null = session.metadata?.supabase_uid ?? null
+        let isFirstSubscription = false
 
         if (!userId && email) {
           userId = await getUserIdByEmail(email)
-          if (!userId) userId = await adminCreateUser(email)
+          if (!userId) {
+            userId = await adminCreateUser(email)
+            isFirstSubscription = true
+          }
         }
 
         const funnelSessionId: string | null = session.metadata?.funnel_session_id ?? null
@@ -180,6 +203,11 @@ Deno.serve(async (req) => {
         }
 
         if (userId) {
+          // Detect first subscription if we got userId from supabase_uid metadata
+          if (!isFirstSubscription) {
+            isFirstSubscription = !(await hasExistingSubscription(userId))
+          }
+
           const subData: Record<string, unknown> = {
             user_id: userId,
             email,
@@ -207,6 +235,22 @@ Deno.serve(async (req) => {
                 metadata: attribution ? { attribution } : null,
               }),
             ])
+          }
+
+          // Transactional email — fire and forget
+          if (email) {
+            const planLabel = planKey ?? 'Monthly subscription'
+            const planAmount = planKey ? `$${(PLAN_VALUE[planKey] ?? 0).toFixed(2)}` : undefined
+            const nextDate = sub.current_period_end
+              ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+              : undefined
+            const emailTemplate = isFirstSubscription ? 'welcome' : 'payment_success'
+            sendTransactionalEmail({
+              to: email,
+              template: emailTemplate,
+              locale: 'en',
+              data: { plan: planLabel, amount: planAmount, nextDate },
+            }).catch(() => { /* never blocks 200 response */ })
           }
         }
 
@@ -273,11 +317,36 @@ Deno.serve(async (req) => {
           status: 'canceled',
           canceled_at: toISO(sub.canceled_at) ?? new Date().toISOString(),
         }, `stripe_subscription_id=eq.${sub.id}`)
+
+        // Cancellation email — fire and forget
+        const { email: cancelEmail } = await getSubscriptionRowBySubId(sub.id)
+        if (cancelEmail) {
+          const accessUntil = sub.current_period_end
+            ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            : undefined
+          sendTransactionalEmail({
+            to: cancelEmail,
+            template: 'subscription_canceled',
+            locale: 'en',
+            data: { accessUntil },
+          }).catch(() => {})
+        }
         break
       }
       case 'invoice.payment_failed': {
         const invoice = event.data.object
         await dbUpdate('subscriptions', { status: 'past_due' }, `stripe_subscription_id=eq.${invoice.subscription}`)
+
+        // Payment failed email — fire and forget
+        const { email: failedEmail } = await getSubscriptionRowBySubId(invoice.subscription)
+        if (failedEmail) {
+          sendTransactionalEmail({
+            to: failedEmail,
+            template: 'payment_failed',
+            locale: 'en',
+            data: { updateUrl: 'https://app.natglow.app/HairSettings' },
+          }).catch(() => {})
+        }
         break
       }
     }

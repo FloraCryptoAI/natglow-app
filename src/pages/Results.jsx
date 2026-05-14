@@ -10,6 +10,7 @@ import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
 import { getAttribution, getFbp, getFbc } from '@/lib/tracking/attribution';
+import Footer from '@/components/Footer';
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel';
 import { initTikTokPixel, trackTtEvent }   from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
@@ -819,6 +820,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           {t('results.finePrint')}
         </p>
       </div>
+      <Footer mini />
     </div>
   );
 }
