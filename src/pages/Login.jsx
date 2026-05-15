@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, Loader2, Mail } from 'lucide-react';
-import Footer from '@/components/Footer';
+import LegalLine from '@/components/LegalLine';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/api/supabaseClient';
@@ -156,7 +156,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <Footer mini />
+      <LegalLine />
     </div>
   );
 }

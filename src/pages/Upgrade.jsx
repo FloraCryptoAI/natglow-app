@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles, Shield, ArrowRight, Loader2, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import Footer from '@/components/Footer'
+import LegalLine from '@/components/LegalLine'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/api/supabaseClient'
@@ -266,7 +266,7 @@ export default function Upgrade() {
           {t('upgrade.finePrint')}
         </p>
       </div>
-      <Footer mini />
+      <LegalLine />
     </div>
   )
 }

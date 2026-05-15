@@ -1,4 +1,5 @@
 import { corsHeaders } from '../_shared/cors.ts'
+import { baseLayout  } from '../_shared/email-templates/base.ts'
 
 const SUPABASE_URL        = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -43,27 +44,45 @@ async function saveToDb(data: {
   })
 }
 
+function contactRow(label: string, value: string): string {
+  return `<tr>
+    <td style="padding:8px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top">${label}</td>
+    <td style="padding:8px 0;font-size:14px;color:#1c1917">${value}</td>
+  </tr>`
+}
+
 async function sendEmail(name: string, email: string, category: string, message: string): Promise<void> {
   const subject = `[NatGlow Contact - ${category}] ${name}`
-  const html = `
-    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-      <h2 style="color:#FB45A9;margin-bottom:4px">New Contact Message</h2>
-      <p style="color:#78716c;font-size:14px;margin-bottom:24px">via NatGlow support form</p>
-      <table style="width:100%;border-collapse:collapse">
-        <tr><td style="padding:8px 0;color:#57534e;font-size:13px;font-weight:600;width:100px">From</td>
-            <td style="padding:8px 0;color:#1c1917;font-size:14px">${name}</td></tr>
-        <tr><td style="padding:8px 0;color:#57534e;font-size:13px;font-weight:600">Reply-to</td>
-            <td style="padding:8px 0;color:#1c1917;font-size:14px"><a href="mailto:${email}">${email}</a></td></tr>
-        <tr><td style="padding:8px 0;color:#57534e;font-size:13px;font-weight:600">Category</td>
-            <td style="padding:8px 0;color:#1c1917;font-size:14px">${category}</td></tr>
-      </table>
-      <div style="margin-top:20px;padding:16px;background:#fafaf9;border-radius:8px;border:1px solid #e7e5e4">
-        <p style="color:#57534e;font-size:13px;font-weight:600;margin:0 0 8px">Message</p>
-        <p style="color:#1c1917;font-size:14px;line-height:1.6;margin:0;white-space:pre-wrap">${message}</p>
-      </div>
-      <p style="margin-top:24px;font-size:12px;color:#a8a29e">Reply directly to this email to respond to the user.</p>
+
+  const date = new Date().toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
+
+  const content = `
+    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1c1917">Nova mensagem de contato</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#78716c">Recebida via formulário de suporte NatGlow</p>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+      ${contactRow('Nome', name)}
+      ${contactRow('Email', `<a href="mailto:${email}" style="color:#FB45A9;font-weight:600">${email}</a>`)}
+      ${contactRow('Categoria', `<span style="display:inline-block;padding:2px 10px;background:#FFF5FA;border:1px solid #FBCFE8;border-radius:9999px;font-size:12px;color:#be185d;font-weight:600">${category}</span>`)}
+      ${contactRow('Data', date)}
+    </table>
+
+    <div style="margin:0 0 24px;padding:16px 18px;background:#f5f5f4;border-radius:10px;border-left:3px solid #FB45A9">
+      <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#a8a29e;text-transform:uppercase;letter-spacing:0.06em">Mensagem</p>
+      <p style="margin:0;font-size:14px;color:#1c1917;line-height:1.7;white-space:pre-wrap">${message}</p>
     </div>
+
+    <a href="mailto:${email}?subject=Re%3A%20Sua%20mensagem%20no%20NatGlow" style="display:inline-block;padding:13px 26px;background:linear-gradient(135deg,#FB45A9,#E03594);color:#ffffff;font-weight:700;font-size:14px;border-radius:9999px;text-decoration:none">Responder →</a>
+
+    <p style="margin:16px 0 0;font-size:12px;color:#a8a29e;line-height:1.5">
+      Responda direto a este email — o destinatário (<strong style="color:#78716c">${email}</strong>) será automaticamente preenchido.
+    </p>
   `
+
+  const html = baseLayout(content, `Nova mensagem de ${name}`)
 
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
