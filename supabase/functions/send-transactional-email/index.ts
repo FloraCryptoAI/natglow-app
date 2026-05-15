@@ -72,26 +72,28 @@ export async function sendTransactionalEmail(params: SendEmailParams): Promise<{
 }
 
 // This file is used as an imported module by other edge functions.
-// It also exposes a minimal HTTP endpoint for direct invocation / manual testing.
-Deno.serve(async (req) => {
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
-  }
-  try {
-    const params: SendEmailParams = await req.json()
-    if (!params.to || !params.template) {
-      return new Response(JSON.stringify({ error: 'to and template are required' }), {
-        status: 400, headers: { 'Content-Type': 'application/json' },
+// The HTTP server only starts when run as a standalone function, not when imported.
+if (import.meta.main) {
+  Deno.serve(async (req) => {
+    if (req.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 })
+    }
+    try {
+      const params: SendEmailParams = await req.json()
+      if (!params.to || !params.template) {
+        return new Response(JSON.stringify({ error: 'to and template are required' }), {
+          status: 400, headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      const result = await sendTransactionalEmail(params)
+      return new Response(JSON.stringify(result), {
+        status: result.ok ? 200 : 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'error' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' },
       })
     }
-    const result = await sendTransactionalEmail(params)
-    return new Response(JSON.stringify(result), {
-      status: result.ok ? 200 : 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'error' }), {
-      status: 500, headers: { 'Content-Type': 'application/json' },
-    })
-  }
-})
+  })
+}
