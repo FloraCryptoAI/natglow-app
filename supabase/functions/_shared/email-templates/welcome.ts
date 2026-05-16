@@ -1,4 +1,4 @@
-import { baseLayout, btn, h1, p, divider, small } from './base.ts'
+import { baseLayout, btn, h1, p, divider } from './base.ts'
 
 export function welcomeTemplate(locale: string, data: { email?: string; magic_link?: string }): { subject: string; html: string } {
   const isEs   = locale.startsWith('es')
@@ -20,8 +20,6 @@ export function welcomeTemplate(locale: string, data: { email?: string; magic_li
       ${step('4', 'Sigue tu progreso', 'Registra tus resultados semanalmente para ver tu transformación.')}
     </table>
     ${btn('Ir a NatGlow →', ctaUrl)}
-    ${divider()}
-    ${small('¿Preguntas? Responde este correo o escríbenos a <a href="mailto:support@natglow.app" style="color:#a8a29e">support@natglow.app</a>. Respondemos en menos de 24 horas en días hábiles.')}
   ` : `
     ${h1('Welcome to NatGlow! 🌿')}
     ${p('Your personalised 84-day hair care journey is ready and waiting. Here\'s how to get started:')}
@@ -34,8 +32,6 @@ export function welcomeTemplate(locale: string, data: { email?: string; magic_li
       ${step('4', 'Track your progress', 'Log your results weekly to see your transformation unfold.')}
     </table>
     ${btn('Go to NatGlow →', ctaUrl)}
-    ${divider()}
-    ${small('Questions? Reply to this email or write to <a href="mailto:support@natglow.app" style="color:#a8a29e">support@natglow.app</a>. We respond within 24 hours on business days.')}
   `
 
   return { subject, html: baseLayout(content, isEs ? 'Tu plan personalizado te está esperando' : 'Your personalised plan is ready') }

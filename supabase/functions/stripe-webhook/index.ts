@@ -143,7 +143,7 @@ async function adminGenerateMagicLink(email: string): Promise<string | null> {
     body: JSON.stringify({
       type: 'magiclink',
       email,
-      options: { redirect_to: `${SITE_URL}/HairDashboard` },
+      options: { redirect_to: `${SITE_URL}/auth/callback` },
     }),
   })
   const data = await res.json()
