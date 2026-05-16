@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
       .update({ used_at: new Date().toISOString() })
       .eq('id', sessionId)
 
-    const token = await createAdminJWT(7200)
+    const token = await createAdminJWT(86400)
     await audit(ip, 'step2', 'login_success')
 
     return json(cors, { token })

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Clock, Leaf, Heart, Repeat, Lightbulb } from 'lucide-react';
+import { ArrowLeft, Clock, Leaf, Heart, Repeat, Lightbulb, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
@@ -100,6 +100,17 @@ export default function HairRecipeDetail({ recipe, onBack }) {
       {recipe.hair_types && recipe.hair_types.length > 0 && (
         <p className="text-sm text-stone-400">{t('hairRecipeDetail.indicatedFor')} {recipe.hair_types.join(', ')}</p>
       )}
+
+      {/* Allergy & safety disclaimer */}
+      <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200">
+        <div className="flex items-start gap-3">
+          <ShieldAlert className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-amber-900 text-sm mb-1">{t('hairRecipeDetail.allergyTitle')}</p>
+            <p className="text-xs text-amber-800 leading-relaxed">{t('hairRecipeDetail.allergyBody')}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

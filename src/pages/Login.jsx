@@ -159,18 +159,17 @@ export default function Login() {
     setLoadingML(true)
     setError(null)
     try {
-      const { error: otpErr } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: window.location.origin + '/auth/callback' },
+      const { error: fnErr } = await supabase.functions.invoke('send-magic-link', {
+        body: { email: email.trim().toLowerCase(), locale: i18n.language },
       })
-      if (otpErr) throw otpErr
+      if (fnErr) throw fnErr
       setView('magic-sent')
     } catch (err) {
       setError(err?.message ?? t('login.errorGeneric'))
     } finally {
       setLoadingML(false)
     }
-  }, [email, t])
+  }, [email, i18n.language, t])
 
   const handleMagicLink = async (e) => {
     e.preventDefault()

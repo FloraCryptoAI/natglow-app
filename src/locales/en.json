@@ -510,7 +510,9 @@
     "howToPrepare": "How to Prepare",
     "benefits": "Benefits",
     "importantTip": "Important tip",
-    "indicatedFor": "Indicated for:"
+    "indicatedFor": "Indicated for:",
+    "allergyTitle": "Patch test recommended",
+    "allergyBody": "Some ingredients — such as aloe vera, eggs, honey, essential oils, nuts or citrus — may cause allergic reactions or skin irritation. Before applying any recipe to your scalp, test a small amount on the inside of your wrist or elbow and wait 24 hours. If you experience redness, itching or burning, do not use the recipe. Consult a dermatologist if you have known allergies or a sensitive scalp."
   },
 
   "hairSpecialRecipe": {
