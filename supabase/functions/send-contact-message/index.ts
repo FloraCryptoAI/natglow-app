@@ -1,5 +1,4 @@
 import { corsHeaders } from '../_shared/cors.ts'
-import { baseLayout  } from '../_shared/email-templates/base.ts'
 
 const SUPABASE_URL        = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -12,6 +11,94 @@ const RATE_LIMIT_PER_HOUR = 3
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function buildAdminContactHtml(
+  name: string, email: string, category: string, message: string, date: string,
+): string {
+  const replySubject = encodeURIComponent(`Re: Sua mensagem no NatGlow`)
+  return `<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+  <title>Nova mensagem de contato</title>
+</head>
+<body style="margin:0;padding:0;background:#fafaf9;font-family:system-ui,-apple-system,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafaf9;padding:32px 16px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
+
+        <!-- Pink header band -->
+        <tr><td style="background:linear-gradient(135deg,#FB45A9,#E03594);border-radius:16px 16px 0 0;padding:28px 32px;text-align:center">
+          <p style="margin:0 0 6px;font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.3px">NatGlow</p>
+          <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.92);font-weight:600">Nova mensagem de contato</p>
+        </td></tr>
+
+        <!-- Card body -->
+        <tr><td style="background:#ffffff;border-radius:0 0 16px 16px;border:1px solid #e7e5e4;border-top:none;padding:32px 28px">
+
+          <!-- Metadata table -->
+          <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+            <tr>
+              <td style="padding:9px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top;border-bottom:1px solid #f5f5f4">Nome</td>
+              <td style="padding:9px 0;font-size:14px;color:#1c1917;font-weight:500;border-bottom:1px solid #f5f5f4">${name}</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top;border-bottom:1px solid #f5f5f4">Email</td>
+              <td style="padding:9px 0;font-size:14px;border-bottom:1px solid #f5f5f4">
+                <a href="mailto:${email}" style="color:#FB45A9;font-weight:700;text-decoration:none">${email}</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top;border-bottom:1px solid #f5f5f4">Categoria</td>
+              <td style="padding:9px 0;border-bottom:1px solid #f5f5f4">
+                <span style="display:inline-block;padding:3px 12px;background:#FFF5FA;border:1px solid #FBCFE8;border-radius:9999px;font-size:12px;color:#be185d;font-weight:700">${category}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top">Data</td>
+              <td style="padding:9px 0;font-size:13px;color:#78716c">${date}</td>
+            </tr>
+          </table>
+
+          <!-- Message block -->
+          <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#a8a29e;text-transform:uppercase;letter-spacing:0.07em">Mensagem da cliente</p>
+          <div style="padding:18px 20px;background:#f5f5f4;border-radius:10px;border-left:4px solid #FB45A9">
+            <p style="margin:0;font-size:14px;color:#1c1917;line-height:1.75;white-space:pre-wrap">${message}</p>
+          </div>
+
+          <!-- Reply button -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px">
+            <tr><td align="center">
+              <a href="mailto:${email}?subject=${replySubject}"
+                 style="display:inline-block;width:100%;max-width:340px;text-align:center;padding:16px 28px;background:linear-gradient(135deg,#FB45A9,#E03594);color:#ffffff;font-weight:800;font-size:15px;border-radius:9999px;text-decoration:none;box-sizing:border-box">
+                Responder ao cliente →
+              </a>
+            </td></tr>
+          </table>
+
+          <!-- Reply-to note -->
+          <p style="margin:18px 0 0;font-size:12px;color:#a8a29e;text-align:center;line-height:1.6">
+            Responda direto a este email — o destinatário<br/>
+            (<strong style="color:#78716c">${email}</strong>) será automaticamente preenchido.
+          </p>
+
+        </td></tr>
+
+        <!-- Outer footer -->
+        <tr><td style="padding-top:20px;text-align:center">
+          <p style="font-size:11px;color:#a8a29e;margin:0">
+            © ${new Date().getFullYear()} NatGlow &nbsp;·&nbsp; Notificação interna de suporte
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
 }
 
 async function checkRateLimit(ip: string): Promise<boolean> {
@@ -44,13 +131,6 @@ async function saveToDb(data: {
   })
 }
 
-function contactRow(label: string, value: string): string {
-  return `<tr>
-    <td style="padding:8px 0;font-size:13px;color:#78716c;font-weight:600;width:90px;vertical-align:top">${label}</td>
-    <td style="padding:8px 0;font-size:14px;color:#1c1917">${value}</td>
-  </tr>`
-}
-
 async function sendEmail(name: string, email: string, category: string, message: string): Promise<void> {
   const subject = `[NatGlow Contact - ${category}] ${name}`
 
@@ -59,30 +139,7 @@ async function sendEmail(name: string, email: string, category: string, message:
     hour: '2-digit', minute: '2-digit',
   })
 
-  const content = `
-    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1c1917">Nova mensagem de contato</h2>
-    <p style="margin:0 0 20px;font-size:14px;color:#78716c">Recebida via formulário de suporte NatGlow</p>
-
-    <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-      ${contactRow('Nome', name)}
-      ${contactRow('Email', `<a href="mailto:${email}" style="color:#FB45A9;font-weight:600">${email}</a>`)}
-      ${contactRow('Categoria', `<span style="display:inline-block;padding:2px 10px;background:#FFF5FA;border:1px solid #FBCFE8;border-radius:9999px;font-size:12px;color:#be185d;font-weight:600">${category}</span>`)}
-      ${contactRow('Data', date)}
-    </table>
-
-    <div style="margin:0 0 24px;padding:16px 18px;background:#f5f5f4;border-radius:10px;border-left:3px solid #FB45A9">
-      <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#a8a29e;text-transform:uppercase;letter-spacing:0.06em">Mensagem</p>
-      <p style="margin:0;font-size:14px;color:#1c1917;line-height:1.7;white-space:pre-wrap">${message}</p>
-    </div>
-
-    <a href="mailto:${email}?subject=Re%3A%20Sua%20mensagem%20no%20NatGlow" style="display:inline-block;padding:13px 26px;background:linear-gradient(135deg,#FB45A9,#E03594);color:#ffffff;font-weight:700;font-size:14px;border-radius:9999px;text-decoration:none">Responder →</a>
-
-    <p style="margin:16px 0 0;font-size:12px;color:#a8a29e;line-height:1.5">
-      Responda direto a este email — o destinatário (<strong style="color:#78716c">${email}</strong>) será automaticamente preenchido.
-    </p>
-  `
-
-  const html = baseLayout(content, `Nova mensagem de ${name}`)
+  const html = buildAdminContactHtml(name, email, category, message, date)
 
   await fetch('https://api.resend.com/emails', {
     method: 'POST',

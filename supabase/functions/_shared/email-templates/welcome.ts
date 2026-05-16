@@ -1,7 +1,8 @@
 import { baseLayout, btn, h1, p, divider, small } from './base.ts'
 
-export function welcomeTemplate(locale: string, data: { email?: string }): { subject: string; html: string } {
-  const isEs = locale.startsWith('es')
+export function welcomeTemplate(locale: string, data: { email?: string; magic_link?: string }): { subject: string; html: string } {
+  const isEs   = locale.startsWith('es')
+  const ctaUrl = data.magic_link ?? 'https://app.natglow.app/HairDashboard'
 
   const subject = isEs
     ? '¡Bienvenida a NatGlow! Tu camino hacia un cabello sano comienza ahora 🌿'
@@ -18,7 +19,7 @@ export function welcomeTemplate(locale: string, data: { email?: string }): { sub
       ${step('3', 'Explora tus recetas', 'Encuentra recetas naturales curadas especialmente para tu tipo de cabello.')}
       ${step('4', 'Sigue tu progreso', 'Registra tus resultados semanalmente para ver tu transformación.')}
     </table>
-    ${btn('Ir a NatGlow →', 'https://app.natglow.app/HairDashboard')}
+    ${btn('Ir a NatGlow →', ctaUrl)}
     ${divider()}
     ${small('¿Preguntas? Responde este correo o escríbenos a <a href="mailto:support@natglow.app" style="color:#a8a29e">support@natglow.app</a>. Respondemos en menos de 24 horas en días hábiles.')}
   ` : `
@@ -32,7 +33,7 @@ export function welcomeTemplate(locale: string, data: { email?: string }): { sub
       ${step('3', 'Explore your recipes', 'Browse natural hair care recipes curated for your hair type.')}
       ${step('4', 'Track your progress', 'Log your results weekly to see your transformation unfold.')}
     </table>
-    ${btn('Go to NatGlow →', 'https://app.natglow.app/HairDashboard')}
+    ${btn('Go to NatGlow →', ctaUrl)}
     ${divider()}
     ${small('Questions? Reply to this email or write to <a href="mailto:support@natglow.app" style="color:#a8a29e">support@natglow.app</a>. We respond within 24 hours on business days.')}
   `

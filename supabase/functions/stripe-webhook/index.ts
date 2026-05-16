@@ -132,8 +132,8 @@ async function adminCreateUser(email: string): Promise<string | null> {
   return data?.id ?? null
 }
 
-async function adminSendMagicLink(email: string): Promise<void> {
-  await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+async function adminGenerateMagicLink(email: string): Promise<string | null> {
+  const res  = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -146,6 +146,8 @@ async function adminSendMagicLink(email: string): Promise<void> {
       options: { redirect_to: `${SITE_URL}/HairDashboard` },
     }),
   })
+  const data = await res.json()
+  return data?.action_link ?? null
 }
 
 function toISO(ts: number | null | undefined): string | null {
@@ -231,7 +233,11 @@ Deno.serve(async (req) => {
 
             await dbUpsert('subscriptions', subData)
 
-            if (email) await adminSendMagicLink(email)
+            // Generate magic link for welcome email (fire-and-forget generate, then pass to email)
+            let magicLink: string | null = null
+            if (email) {
+              try { magicLink = await adminGenerateMagicLink(email) } catch { /* non-fatal */ }
+            }
 
             if (funnelSessionId) {
               await Promise.all([
@@ -260,7 +266,7 @@ Deno.serve(async (req) => {
                   to: email.trim(),
                   template: emailTemplate,
                   locale: 'en',
-                  data: { plan: planLabel, amount: planAmount, nextDate },
+                  data: { plan: planLabel, amount: planAmount, nextDate, magic_link: magicLink ?? undefined },
                 }).catch(err => console.error(`${emailTemplate} email failed:`, err))
               } catch (emailErr) {
                 console.error('Email setup threw:', emailErr)
