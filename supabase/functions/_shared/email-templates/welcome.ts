@@ -1,50 +1,76 @@
-import { baseLayout, btn, h1, p, divider } from './base.ts'
+import { baseLayout, btn, h1 } from './base.ts'
 
 export function welcomeTemplate(locale: string, data: { email?: string; magic_link?: string }): { subject: string; html: string } {
   const isEs   = locale.startsWith('es')
   const ctaUrl = data.magic_link ?? 'https://app.natglow.app/HairDashboard'
 
   const subject = isEs
-    ? '¡Bienvenida a NatGlow! Tu camino hacia un cabello sano comienza ahora 🌿'
-    : 'Welcome to NatGlow! Your hair journey starts now 🌿'
+    ? '¡Bienvenida a NatGlow! Tu viaje hacia el cabello natural perfecto comienza hoy 🌿'
+    : 'Welcome to NatGlow — your natural hair journey starts today 🌿'
 
   const content = isEs ? `
     ${h1('¡Bienvenida a NatGlow! 🌿')}
-    ${p('Estás a punto de transformar tu rutina capilar. Tu plan personalizado de 84 días ya te está esperando.')}
-    ${divider()}
-    <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#1c1917">Tus próximos pasos:</p>
-    <table style="width:100%;margin-bottom:8px">
-      ${step('1', 'Instala la app', 'Toca el botón de compartir en Safari o el menú de Chrome → "Agregar a pantalla de inicio" para acceso rápido.')}
-      ${step('2', 'Completa el quiz', 'Si no lo has hecho todavía, responde las preguntas sobre tu cabello para personalizar tu plan.')}
-      ${step('3', 'Explora tus recetas', 'Encuentra recetas naturales curadas especialmente para tu tipo de cabello.')}
-      ${step('4', 'Sigue tu progreso', 'Registra tus resultados semanalmente para ver tu transformación.')}
+    <p style="margin:2px 0 22px;font-size:14px;color:#FB45A9;font-weight:600;letter-spacing:0.01em">Estamos muy felices de tenerte aquí.</p>
+
+    <p style="margin:0 0 18px;font-size:15px;color:#57534e;line-height:1.75">
+      Tu decisión de cuidar tu cabello de forma natural es un gesto de amor propio que merece cada atención. Desde hoy, tienes un <strong style="color:#1c1917">plan personalizado de 84 días</strong> construido especialmente para ti — y estaremos contigo en cada etapa del camino.
+    </p>
+
+    <div style="background:#fdf2f8;border-left:4px solid #FB45A9;border-radius:0 10px 10px 0;padding:18px 20px;margin:0 0 18px">
+      <p style="margin:0;font-size:14px;color:#9d174d;font-weight:700;line-height:1.6">
+        ✨ Tu plan ya está listo y esperándote.
+      </p>
+      <p style="margin:6px 0 0;font-size:13px;color:#be185d;line-height:1.6;font-weight:400">
+        Recetas naturales, rutinas semanales y todo el apoyo que necesitas para transformar tu cabello — en un solo lugar.
+      </p>
+    </div>
+
+    <p style="margin:0 0 26px;font-size:15px;color:#57534e;line-height:1.75">
+      Ya sea que estés comenzando tu jornada natural o reencontrándote con tus raíces, NatGlow estará aquí para guiarte, inspirarte y celebrar cada pequeño progreso contigo. No estás sola en esto.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+      <tr><td align="center">
+        ${btn('Comenzar Mi Viaje →', ctaUrl)}
+      </td></tr>
     </table>
-    ${btn('Ir a NatGlow →', ctaUrl)}
+
+    <p style="margin:0;font-size:13px;color:#a8a29e;line-height:1.7;text-align:center">
+      Con amor y cuidado,<br/>
+      <strong style="color:#78716c;font-size:14px">El equipo NatGlow 🌿</strong>
+    </p>
   ` : `
     ${h1('Welcome to NatGlow! 🌿')}
-    ${p('Your personalised 84-day hair care journey is ready and waiting. Here\'s how to get started:')}
-    ${divider()}
-    <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#1c1917">Your next steps:</p>
-    <table style="width:100%;margin-bottom:8px">
-      ${step('1', 'Install the app', 'Tap the share button in Safari or Chrome\'s menu → "Add to Home Screen" for quick access.')}
-      ${step('2', 'Complete the quiz', 'If you haven\'t already, answer the hair profile questions to personalise your plan.')}
-      ${step('3', 'Explore your recipes', 'Browse natural hair care recipes curated for your hair type.')}
-      ${step('4', 'Track your progress', 'Log your results weekly to see your transformation unfold.')}
+    <p style="margin:2px 0 22px;font-size:14px;color:#FB45A9;font-weight:600;letter-spacing:0.01em">We're so glad you're here.</p>
+
+    <p style="margin:0 0 18px;font-size:15px;color:#57534e;line-height:1.75">
+      Choosing to care for your hair naturally is one of the most loving things you can do for yourself. Starting today, you have a <strong style="color:#1c1917">personalised 84-day plan</strong> built just for you — and we'll be right here with you every step of the way.
+    </p>
+
+    <div style="background:#fdf2f8;border-left:4px solid #FB45A9;border-radius:0 10px 10px 0;padding:18px 20px;margin:0 0 18px">
+      <p style="margin:0;font-size:14px;color:#9d174d;font-weight:700;line-height:1.6">
+        ✨ Your plan is ready and waiting for you.
+      </p>
+      <p style="margin:6px 0 0;font-size:13px;color:#be185d;line-height:1.6;font-weight:400">
+        Natural recipes, weekly routines and all the support you need to transform your hair — all in one place.
+      </p>
+    </div>
+
+    <p style="margin:0 0 26px;font-size:15px;color:#57534e;line-height:1.75">
+      Whether you're just beginning your natural journey or finding your way back to your roots, NatGlow will be here to guide you, inspire you and celebrate every small win along the way. You're not doing this alone.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+      <tr><td align="center">
+        ${btn('Start My Journey →', ctaUrl)}
+      </td></tr>
     </table>
-    ${btn('Go to NatGlow →', ctaUrl)}
+
+    <p style="margin:0;font-size:13px;color:#a8a29e;line-height:1.7;text-align:center">
+      With love and care,<br/>
+      <strong style="color:#78716c;font-size:14px">The NatGlow Team 🌿</strong>
+    </p>
   `
 
-  return { subject, html: baseLayout(content, isEs ? 'Tu plan personalizado te está esperando' : 'Your personalised plan is ready') }
-}
-
-function step(num: string, title: string, desc: string): string {
-  return `<tr>
-    <td style="padding:8px 0;vertical-align:top;width:28px">
-      <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#FB45A9,#E03594);color:#fff;font-size:11px;font-weight:700">${num}</span>
-    </td>
-    <td style="padding:8px 0 8px 10px;vertical-align:top">
-      <p style="margin:0 0 2px;font-size:13px;font-weight:700;color:#1c1917">${title}</p>
-      <p style="margin:0;font-size:13px;color:#78716c;line-height:1.5">${desc}</p>
-    </td>
-  </tr>`
+  return { subject, html: baseLayout(content, isEs ? 'Tu plan personalizado de 84 días te está esperando' : 'Your personalised 84-day plan is ready and waiting') }
 }
