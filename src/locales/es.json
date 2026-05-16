@@ -367,11 +367,9 @@
     "emailError": "No se pudo confirmar el email. Revisa tu bandeja de entrada.",
     "accessAccount": "Acceder a mi cuenta",
     "purchaseConfirmedEmoji": "¡Compra confirmada! 🎉",
-    "magicLinkSent": "Revisa tu correo para acceso instantáneo",
-    "magicLinkSentDesc": "Enviamos un enlace de acceso a esta dirección. Haz clic para acceder a tu plan sin contraseña.",
+    "checkEmail": "¡Tu plan ya está en camino! 🌿",
+    "checkEmailDesc": "Enviamos tu email de bienvenida con un botón de acceso instantáneo a la dirección de arriba. Ábrelo para comenzar tu jornada de 84 días.",
     "spamNote": "¿No lo ves? Revisa tu carpeta de spam.",
-    "resendLink": "Reenviar enlace",
-    "resendIn": "Reenviar en {{s}}s",
     "loginInstead": "Iniciar sesión manualmente →"
   },
 

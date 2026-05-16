@@ -367,11 +367,9 @@
     "emailError": "Could not confirm email. Please check your inbox.",
     "accessAccount": "Access my account",
     "purchaseConfirmedEmoji": "Purchase confirmed! 🎉",
-    "magicLinkSent": "Check your email for instant access",
-    "magicLinkSentDesc": "We sent a login link to this address. Click it to access your plan without a password.",
+    "checkEmail": "Your plan is on its way! 🌿",
+    "checkEmailDesc": "We sent your welcome email with an instant access button to the address above. Open it to start your 84-day journey.",
     "spamNote": "Don't see it? Check your spam folder.",
-    "resendLink": "Resend link",
-    "resendIn": "Resend in {{s}}s",
     "loginInstead": "Log in manually →"
   },
 
