@@ -12,9 +12,9 @@ const dbHeaders = {
 // Build PostgREST plan filter fragment (appended to query string)
 function planFilter(plan: string | null): string {
   if (!plan || plan === 'all') return ''
-  if (plan === 'monthly_699') {
-    // Old events have null pricing_plan — treat them as monthly_699
-    return '&or=(pricing_plan.eq.monthly_699,pricing_plan.is.null)'
+  if (plan === 'one_time_standard') {
+    // Old events with null pricing_plan are treated as one_time_standard
+    return '&or=(pricing_plan.eq.one_time_standard,pricing_plan.is.null)'
   }
   return `&pricing_plan=eq.${encodeURIComponent(plan)}`
 }

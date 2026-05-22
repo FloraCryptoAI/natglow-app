@@ -18,9 +18,9 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 // ── constants ────────────────────────────────────────────────────────────────
 
 const PLANS = [
-  { key: 'monthly_499',  label: 'Monthly $4.99',  short: '$4.99/mês',   color: '#0891b2' },
-  { key: 'monthly_699',  label: 'Monthly $6.99',  short: '$6.99/mês',   color: '#7c3aed' },
-  { key: 'monthly_1499', label: 'Monthly $14.99', short: '$14.99/mês',  color: '#d97706' },
+  { key: 'one_time_basic',    label: 'NatGlow Básico',   short: 'Básico $17.99',   color: '#0891b2' },
+  { key: 'one_time_standard', label: 'NatGlow Completo', short: 'Completo $27.99', color: '#7c3aed' },
+  { key: 'one_time_premium',  label: 'NatGlow VIP',      short: 'VIP $47.99',      color: '#d97706' },
 ]
 
 const PERIODS = [
@@ -45,18 +45,16 @@ const QUESTION_LABELS = {
 
 // Comparison table metric definitions
 const METRICS = [
-  { key: 'quiz_started',    label: 'Visitas únicas no quiz',         fmt: v => v,            higherBetter: true,  group: 'Funil' },
-  { key: 'completion_rate', label: 'Taxa de conclusão do quiz',      fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
-  { key: 'results_viewed',  label: 'Visualizações da Results',       fmt: v => v,            higherBetter: true,  group: 'Funil' },
-  { key: 'cta_clicked',     label: 'Cliques no CTA',                 fmt: v => v,            higherBetter: true,  group: 'Funil' },
-  { key: 'conversions',     label: 'Conversões pagas',               fmt: v => v,            higherBetter: true,  group: 'Funil' },
-  { key: 'conversion_rate', label: 'Taxa de conversão Quiz→Pago',    fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
-  { key: 'revenue_period',  label: 'Receita total no período',       fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
-  { key: 'mrr_added',       label: 'MRR equivalente adicionado',     fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
-  { key: 'churn_7d_pct',    label: 'Churn em 7 dias',                fmt: v => `${v}%`,      higherBetter: false, group: 'Retenção' },
-  { key: 'churn_30d_pct',   label: 'Churn em 30 dias',               fmt: v => `${v}%`,      higherBetter: false, group: 'Retenção' },
-  { key: 'ltv_90d',         label: 'LTV estimado em 90 dias',        fmt: v => v != null ? `$${v}` : '—', higherBetter: true, group: 'Valor', specialNull: true },
-  { key: 'roi_score',       label: 'ROI score (conversão × LTV)',    fmt: v => v.toFixed(4), higherBetter: true,  group: 'ROI', highlight: true },
+  { key: 'quiz_started',    label: 'Visitas únicas no quiz',       fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'completion_rate', label: 'Taxa de conclusão do quiz',    fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
+  { key: 'results_viewed',  label: 'Visualizações da Results',     fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'cta_clicked',     label: 'Cliques no CTA',               fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'conversions',     label: 'Conversões pagas',             fmt: v => v,            higherBetter: true,  group: 'Funil' },
+  { key: 'conversion_rate', label: 'Taxa de conversão Quiz→Pago',  fmt: v => `${v}%`,      higherBetter: true,  group: 'Funil' },
+  { key: 'revenue_period',  label: 'Receita total no período',     fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
+  { key: 'avg_ticket',      label: 'Ticket médio',                 fmt: v => `$${v}`,      higherBetter: true,  group: 'Receita' },
+  { key: 'refund_rate',     label: 'Taxa de reembolso',            fmt: v => `${v}%`,      higherBetter: false, group: 'Receita' },
+  { key: 'roi_score',       label: 'ROI score (conversão × preço)',fmt: v => v.toFixed(4), higherBetter: true,  group: 'ROI', highlight: true },
 ]
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -150,20 +148,14 @@ function WinnerCard({ significance, plans }) {
           )}
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="bg-white/70 rounded-xl p-3 text-center">
           <p className="text-xs text-gray-500 mb-0.5">Conversão</p>
           <p className="text-lg font-extrabold text-violet-800">{winnerData.conversion_rate}%</p>
         </div>
         <div className="bg-white/70 rounded-xl p-3 text-center">
-          <p className="text-xs text-gray-500 mb-0.5">MRR/usuária</p>
-          <p className="text-lg font-extrabold text-violet-800">${winnerData.mrr_per_user}</p>
-        </div>
-        <div className="bg-white/70 rounded-xl p-3 text-center">
-          <p className="text-xs text-gray-500 mb-0.5">LTV 90d</p>
-          <p className="text-lg font-extrabold text-violet-800">
-            {winnerData.ltv_90d != null ? `$${winnerData.ltv_90d}` : '—'}
-          </p>
+          <p className="text-xs text-gray-500 mb-0.5">Ticket médio</p>
+          <p className="text-lg font-extrabold text-violet-800">${winnerData.avg_ticket ?? winnerData.price}</p>
         </div>
       </div>
       {significance.note && (
@@ -219,7 +211,7 @@ function ComparisonTable({ plans, loading }) {
                     className="border-t border-b border-gray-100 bg-gray-50/60 cursor-pointer hover:bg-gray-100/60 transition-colors"
                     onClick={() => setExpanded(e => ({ ...e, [group]: !isOpen }))}
                   >
-                    <td colSpan={5} className="px-4 py-2">
+                    <td colSpan={4} className="px-4 py-2">
                       <span className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
                         {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         {group}
@@ -238,25 +230,11 @@ function ComparisonTable({ plans, loading }) {
                           {metric.highlight && <span className="ml-1 text-violet-400">★</span>}
                         </td>
                         {plans.map(plan => {
-                          const val   = plan[metric.key]
-                          const isLtv = metric.key === 'ltv_90d'
-                          const conf  = isLtv ? plan.ltv_confidence : null
-
-                          if (isLtv && conf === 'insufficient') {
-                            return (
-                              <td key={plan.plan_key} className="px-3 py-3 text-center">
-                                <span className="text-xs text-gray-400 italic">Aguardando</span>
-                              </td>
-                            )
-                          }
-
+                          const val = plan[metric.key]
                           const cls = cellClass(val, allVals, metric.higherBetter, metric.specialNull)
                           return (
                             <td key={plan.plan_key} className={`px-3 py-3 text-center tabular-nums text-xs ${cls}`}>
                               {val != null ? metric.fmt(val) : '—'}
-                              {isLtv && conf === 'trend' && val != null && (
-                                <span className="ml-1 text-amber-400 text-[10px]">~</span>
-                              )}
                             </td>
                           )
                         })}
@@ -271,7 +249,7 @@ function ComparisonTable({ plans, loading }) {
       </div>
       <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <p className="text-xs text-gray-400">
-          🟢 Melhor · 🔴 Pior na métrica · ~ LTV com dados parciais · ★ Métrica principal de ROI
+          🟢 Melhor · 🔴 Pior na métrica · ★ Métrica principal de ROI
         </p>
         <button
           onClick={() => exportCSV(plans, METRICS)}
@@ -285,28 +263,6 @@ function ComparisonTable({ plans, loading }) {
   )
 }
 
-function MrrTooltip({ plans }) {
-  if (!plans?.length) return null
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <p className="font-bold text-gray-800 text-sm mb-1">Receita mensal por assinante</p>
-      <p className="text-xs text-gray-500 leading-relaxed mb-4">
-        Comparação de quanto cada assinante gera por mês em cada plano.
-      </p>
-      <div className="space-y-2">
-        {PLANS.map(p => {
-          const pd = plans.find(x => x.plan_key === p.key)
-          return (
-            <div key={p.key} className="flex items-center justify-between text-xs">
-              <span className="font-semibold" style={{ color: p.color }}>{p.label}</span>
-              <span className="font-bold text-gray-800">${pd?.mrr_per_user ?? '—'}/mês equiv.</span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 // ── Individual mode sub-components ───────────────────────────────────────────
 
@@ -564,7 +520,7 @@ export default function AdminQuizAnswers() {
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Respostas do Quiz</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {mode === 'comparison' ? 'Comparação dos 4 caminhos de funil' : `Análise individual — ${PLANS.find(p => p.key === mode)?.label}`}
+            {mode === 'comparison' ? 'Comparação dos 3 produtos' : `Análise individual — ${PLANS.find(p => p.key === mode)?.label}`}
           </p>
         </div>
         <button
@@ -632,9 +588,6 @@ export default function AdminQuizAnswers() {
             <WinnerCard significance={significance} plans={plans} />
           )}
           {compLoading && <div className="h-32 bg-violet-50 rounded-2xl animate-pulse border border-violet-100" />}
-
-          {/* MRR explanation card */}
-          {!compLoading && <MrrTooltip plans={plans} />}
 
           {/* Comparison table */}
           <section>

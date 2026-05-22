@@ -40,16 +40,16 @@ const SEGMENTS = [
 ]
 
 const PLANS = [
-  { key: 'monthly_499',  label: '$4.99/mês' },
-  { key: 'monthly_699',  label: '$6.99/mês' },
-  { key: 'monthly_1499', label: '$14.99/mês' },
+  { key: 'one_time_basic',    label: 'Básico $17.99' },
+  { key: 'one_time_standard', label: 'Completo $27.99' },
+  { key: 'one_time_premium',  label: 'VIP $47.99' },
 ]
 
 const STATUSES = [
-  { key: 'active',   label: 'Ativa' },
-  { key: 'canceled', label: 'Cancelada' },
-  { key: 'past_due', label: 'Inadimplente' },
-  { key: 'inactive', label: 'Inativa' },
+  { key: 'active',     label: 'Ativa' },
+  { key: 'pending',    label: 'Pendente' },
+  { key: 'refunded',   label: 'Reembolsada' },
+  { key: 'chargeback', label: 'Chargeback' },
 ]
 
 const CHANNEL_BADGE = {

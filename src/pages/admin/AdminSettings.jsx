@@ -8,10 +8,10 @@ import {
 import { ArrowClockwise } from '@phosphor-icons/react'
 
 const DEFAULTS = {
-  crossed_price: '$47.99',
-  savings_monthly_699:  '',
-  savings_monthly_499:  '',
-  savings_monthly_1499: '',
+  crossed_price:              '$97.99',
+  savings_one_time_basic:    '',
+  savings_one_time_standard: '',
+  savings_one_time_premium:  '',
   promo_badge: 'Oferta Especial de Lançamento',
   timer_enabled: 'true',
   timer_minutes: '15',
@@ -20,9 +20,9 @@ const DEFAULTS = {
 }
 
 const PER_PLAN = [
-  { key: 'monthly_699',  label: 'Control $6.99',  placeholder: 'ex: You save $41/month' },
-  { key: 'monthly_499',  label: 'Cheap $4.99',    placeholder: 'ex: You save $25/month' },
-  { key: 'monthly_1499', label: 'Premium $14.99', placeholder: 'ex: You save $60/month' },
+  { key: 'one_time_basic',    label: 'Básico $17.99',   placeholder: 'ex: You save $80' },
+  { key: 'one_time_standard', label: 'Completo $27.99', placeholder: 'ex: You save $70' },
+  { key: 'one_time_premium',  label: 'VIP $47.99',      placeholder: 'ex: You save $50' },
 ]
 
 function Toggle({ checked, onChange, disabled }) {
@@ -232,9 +232,9 @@ export default function AdminSettings() {
         title='Texto "você economiza" por plano'
         desc="Sobrescreve o cálculo automático — deixe vazio para usar o valor calculado"
         saveState={
-          saveStates.savings_monthly_699 ??
-          saveStates.savings_monthly_499 ??
-          saveStates.savings_monthly_1499
+          saveStates.savings_one_time_basic ??
+          saveStates.savings_one_time_standard ??
+          saveStates.savings_one_time_premium
         }
       >
         <div className="flex flex-col gap-3">

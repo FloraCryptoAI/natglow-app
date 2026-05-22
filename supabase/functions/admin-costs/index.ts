@@ -3,21 +3,22 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
-const PLAN_MRR: Record<string, number> = {
-  monthly_499:  4.99,
-  monthly_699:  6.99,
-  monthly_1499: 14.99,
+
+const PLAN_REVENUE: Record<string, number> = {
+  one_time_basic:    17.99,
+  one_time_standard: 27.99,
+  one_time_premium:  47.99,
 }
 
 const PLAN_LABELS_COSTS: Record<string, string> = {
-  monthly_499:  'Cheap $4.99',
-  monthly_699:  'Control $6.99',
-  monthly_1499: 'Premium $14.99',
+  one_time_basic:    'Básico $17.99',
+  one_time_standard: 'Completo $27.99',
+  one_time_premium:  'VIP $47.99',
 }
 
-function subMrr(planKey: string | null | undefined): number {
-  return PLAN_MRR[planKey ?? 'monthly_699'] ?? 6.99
+function subRevenue(s: Record<string, unknown>): number {
+  if (typeof s.purchase_amount === 'number') return s.purchase_amount
+  return PLAN_REVENUE[(s.pricing_plan as string) ?? ''] ?? 0
 }
 
 const dbHeaders = {
@@ -75,25 +76,17 @@ async function supabaseGet(path: string): Promise<any[]> {
   return Array.isArray(d) ? d : []
 }
 
-async function fetchStripeRevenueInPeriod(startUnix: number, endUnix: number): Promise<number> {
-  let total = 0
-  let startingAfter = ''
-  for (let page = 0; page < 5; page++) {
-    const q = new URLSearchParams({
-      limit: '100', status: 'paid',
-      'created[gte]': String(startUnix),
-      'created[lte]': String(endUnix),
-    })
-    if (startingAfter) q.set('starting_after', startingAfter)
-    const res = await fetch(`https://api.stripe.com/v1/invoices?${q}`, {
-      headers: { Authorization: `Bearer ${STRIPE_KEY}` },
-    })
-    const data = await res.json()
-    for (const inv of data.data ?? []) total += Number(inv.amount_paid ?? 0)
-    if (!data.has_more || !data.data?.length) break
-    startingAfter = data.data[data.data.length - 1].id
-  }
-  return total / 100
+async function fetchHotmartRevenueInPeriod(
+  supabase_url: string, service_key: string,
+  startISO: string, endISO: string
+): Promise<number> {
+  const res = await fetch(
+    `${supabase_url}/rest/v1/subscriptions?select=purchase_amount,pricing_plan&status=eq.active&created_at=gte.${startISO}&created_at=lte.${endISO}&limit=2000`,
+    { headers: { Authorization: `Bearer ${service_key}`, apikey: service_key } }
+  )
+  const subs = await res.json()
+  if (!Array.isArray(subs)) return 0
+  return subs.reduce((acc: number, s: Record<string, unknown>) => acc + subRevenue(s), 0)
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -229,15 +222,19 @@ Deno.serve(async (req) => {
       const startISO  = startDate.toISOString().slice(0, 10)
       const endISO    = endDate.toISOString().slice(0, 10)
 
-      const sixMonths      = getSixMonths()
-      const sixStartDate   = sixMonths[0].startDate
+      const sixMonths    = getSixMonths()
+      const sixStartDate = sixMonths[0].startDate
 
-      const [periodCostsArr, sixMonthCosts, subs, periodRevenue] = await Promise.all([
+      const [periodCostsArr, sixMonthCosts, subs] = await Promise.all([
         supabaseGet(`admin_costs?select=categoria,valor,pricing_plan&data=gte.${startISO}&data=lte.${endISO}`),
         supabaseGet(`admin_costs?select=data,categoria,valor&data=gte.${sixStartDate}&order=data.asc`),
-        supabaseGet(`subscriptions?select=created_at,canceled_at,pricing_plan&order=created_at.asc&limit=1000`),
-        fetchStripeRevenueInPeriod(startUnix, endUnix),
+        supabaseGet(`subscriptions?select=created_at,status,pricing_plan,purchase_amount&order=created_at.asc&limit=2000`),
       ])
+
+      const periodRevenue = await fetchHotmartRevenueInPeriod(
+        SUPABASE_URL, SUPABASE_SERVICE_KEY,
+        startDate.toISOString(), endDate.toISOString()
+      )
 
       // Summary
       const totalCosts   = periodCostsArr.reduce((s, c) => s + Number(c.valor ?? 0), 0)
@@ -251,12 +248,11 @@ Deno.serve(async (req) => {
 
       // Six-month chart data
       const sixMonthData = sixMonths.map(m => {
-        const activeSubs = subs.filter(s => {
-          const created  = s.created_at as string
-          const canceled = s.canceled_at as string | null
-          return created <= m.endISO && (canceled == null || canceled > m.startISO)
+        const monthSubs = subs.filter(s => {
+          const c = s.created_at as string
+          return c >= m.startISO && c <= m.endISO && s.status === 'active'
         })
-        const receita = parseFloat(activeSubs.reduce((acc, s) => acc + subMrr(s.pricing_plan), 0).toFixed(2))
+        const receita = parseFloat(monthSubs.reduce((acc, s) => acc + subRevenue(s), 0).toFixed(2))
         const custos  = sixMonthCosts
           .filter(c => (c.data as string) >= m.startDate && (c.data as string) <= m.endDate)
           .reduce((s, c) => s + Number(c.valor ?? 0), 0)
@@ -281,12 +277,11 @@ Deno.serve(async (req) => {
 
       // Traffic ROI by month (last 6 months)
       const trafficRoiByMonth = sixMonths.map(m => {
-        const activeSubs = subs.filter(s => {
-          const created  = s.created_at as string
-          const canceled = s.canceled_at as string | null
-          return created <= m.endISO && (canceled == null || canceled > m.startISO)
+        const monthSubs = subs.filter(s => {
+          const c = s.created_at as string
+          return c >= m.startISO && c <= m.endISO && s.status === 'active'
         })
-        const receita = parseFloat(activeSubs.reduce((acc, s) => acc + subMrr(s.pricing_plan), 0).toFixed(2))
+        const receita = parseFloat(monthSubs.reduce((acc, s) => acc + subRevenue(s), 0).toFixed(2))
         const custo   = sixMonthCosts
           .filter(c => c.categoria === 'trafego_pago' &&
             (c.data as string) >= m.startDate && (c.data as string) <= m.endDate)
@@ -300,17 +295,15 @@ Deno.serve(async (req) => {
       })
 
       // ROI per plan
-      const planRoi = Object.entries(PLAN_MRR).map(([planKey, mrrPerUser]) => {
-        const isDefault = planKey === 'monthly_699'
-        const activeSubs = subs.filter(s => {
-          const p = (s.pricing_plan as string | null) ?? 'monthly_699'
-          if (!(isDefault ? (p === 'monthly_699') : p === planKey)) return false
-          const created  = s.created_at as string
-          const canceled = s.canceled_at as string | null
-          return created <= endDate.toISOString() && (canceled == null || canceled > startDate.toISOString())
-        }).length
+      const planRoi = Object.keys(PLAN_REVENUE).map(planKey => {
+        const planSubs = subs.filter(s => {
+          const p = (s.pricing_plan as string | null) ?? 'one_time_standard'
+          if (p !== planKey) return false
+          const c = s.created_at as string
+          return c >= startDate.toISOString() && c <= endDate.toISOString() && s.status === 'active'
+        })
 
-        const mrrContribution = parseFloat((activeSubs * mrrPerUser).toFixed(2))
+        const revenueContribution = parseFloat(planSubs.reduce((acc, s) => acc + subRevenue(s), 0).toFixed(2))
 
         const planTrafficCosts = parseFloat(
           periodCostsArr
@@ -320,41 +313,41 @@ Deno.serve(async (req) => {
         )
 
         const roi = planTrafficCosts > 0
-          ? parseFloat((mrrContribution / planTrafficCosts).toFixed(2))
+          ? parseFloat((revenueContribution / planTrafficCosts).toFixed(2))
           : null
 
         const confidenceLevel: 'high' | 'medium' | 'low' =
-          activeSubs >= 100 ? 'high' : activeSubs >= 30 ? 'medium' : 'low'
+          planSubs.length >= 100 ? 'high' : planSubs.length >= 30 ? 'medium' : 'low'
 
         return {
-          plan_key:         planKey,
-          label:            PLAN_LABELS_COSTS[planKey] ?? planKey,
-          mrr_per_user:     mrrPerUser,
-          active_subs:      activeSubs,
-          mrr_contribution: mrrContribution,
-          traffic_costs:    planTrafficCosts,
+          plan_key:             planKey,
+          label:                PLAN_LABELS_COSTS[planKey] ?? planKey,
+          price:                PLAN_REVENUE[planKey] ?? 0,
+          active_subs:          planSubs.length,
+          revenue_contribution: revenueContribution,
+          traffic_costs:        planTrafficCosts,
           roi,
-          confidence_level: confidenceLevel,
+          confidence_level:     confidenceLevel,
         }
       })
 
       // Global unlinked traffic costs
       const globalTrafficCosts = parseFloat(
         periodCostsArr
-          .filter(c => c.categoria === 'trafego_pago' && !PLAN_MRR[c.pricing_plan as string])
+          .filter(c => c.categoria === 'trafego_pago' && !PLAN_REVENUE[c.pricing_plan as string])
           .reduce((s, c) => s + Number(c.valor ?? 0), 0)
           .toFixed(2)
       )
       if (globalTrafficCosts > 0) {
         planRoi.push({
-          plan_key:         'global',
-          label:            'Global (não vinculado)',
-          mrr_per_user:     0,
-          active_subs:      0,
-          mrr_contribution: 0,
-          traffic_costs:    globalTrafficCosts,
-          roi:              null,
-          confidence_level: 'low' as const,
+          plan_key:             'global',
+          label:                'Global (não vinculado)',
+          price:                0,
+          active_subs:          0,
+          revenue_contribution: 0,
+          traffic_costs:        globalTrafficCosts,
+          roi:                  null,
+          confidence_level:     'low' as const,
         })
       }
 

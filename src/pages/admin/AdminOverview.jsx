@@ -1,69 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
   TrendingUp, TrendingDown,
-  UserPlus, Percent,
-  CalendarCheck,
-  ArrowUpRight, ArrowDownRight,
+  ShoppingBag, Percent, Activity,
+  ArrowUpRight,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 import ErrorBanner from './components/ErrorBanner'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import {
   ResponsiveContainer,
-  AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, ReferenceDot,
-  BarChart, Bar, Legend,
+  BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell,
 } from 'recharts'
 
 // ── date helpers ───────────────────────────────────────
-function startOfDay()   { const d = new Date(); d.setHours(0,0,0,0); return d }
-function startOfWeek()  { const d = startOfDay(); d.setDate(d.getDate() - d.getDay()); return d }
-function startOfMonth() { const d = startOfDay(); d.setDate(1); return d }
-
-function getMonthlyFlow(subs) {
-  const now = new Date()
-  return Array.from({ length: 6 }, (_, i) => {
-    const d        = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
-    const startISO = new Date(d.getFullYear(), d.getMonth(), 1).toISOString()
-    const endISO   = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).toISOString()
-    const label    = d.toLocaleString('pt-BR', { month: 'short', year: '2-digit' })
-    return {
-      label,
-      novas:      subs.filter(s => s.created_at  >= startISO && s.created_at  <= endISO).length,
-      canceladas: subs.filter(s => s.canceled_at && s.canceled_at >= startISO && s.canceled_at <= endISO).length,
-    }
-  })
-}
-
-// ── Mini sparkline SVG ─────────────────────────────────
-function MiniSparkline({ data = [], color = '#7c3aed' }) {
-  if (!data || data.length < 2) return null
-  const W = 72, H = 36
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = max - min || 1
-  const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * W
-    const y = H - 4 - ((v - min) / range) * (H - 10)
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  const polyPts = pts.join(' ')
-  const areaPts = `0,${H} ${polyPts} ${W},${H}`
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="flex-shrink-0">
-      <polygon points={areaPts} fill={color} fillOpacity="0.12" />
-      <polyline
-        points={polyPts}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+function startOfDay()  { const d = new Date(); d.setHours(0,0,0,0); return d }
+function startOfWeek() { const d = startOfDay(); d.setDate(d.getDate() - d.getDay()); return d }
 
 // ── Dark tooltip ──────────────────────────────────────
 function ChartTooltip({ active, payload, label, prefix = '' }) {
@@ -72,7 +25,7 @@ function ChartTooltip({ active, payload, label, prefix = '' }) {
     <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
       <p className="font-bold text-gray-300 mb-1">{label}</p>
       {payload.map(p => (
-        <p key={p.dataKey} className="font-semibold" style={{ color: p.color === '#7c3aed' ? '#c4b5fd' : p.color }}>
+        <p key={p.dataKey} className="font-semibold" style={{ color: p.color }}>
           {p.name}: {prefix}{typeof p.value === 'number' ? p.value.toFixed(2) : p.value}
         </p>
       ))}
@@ -80,16 +33,17 @@ function ChartTooltip({ active, payload, label, prefix = '' }) {
   )
 }
 
-// ── KPI Card (Kleon style) ────────────────────────────
-const SPARK_COLORS = {
-  '#7c3aed': { iconBg: 'bg-violet-50',  iconColor: 'text-violet-600'  },
-  '#10b981': { iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
-  '#f59e0b': { iconBg: 'bg-amber-50',   iconColor: 'text-amber-500'   },
-  '#3b82f6': { iconBg: 'bg-blue-50',    iconColor: 'text-blue-600'    },
-}
-
-function KpiCard({ label, value, badge, badgePositive = true, sparkColor = '#7c3aed', loading }) {
-  const { iconBg, iconColor } = SPARK_COLORS[sparkColor] ?? SPARK_COLORS['#7c3aed']
+// ── KPI Card ──────────────────────────────────────────
+function KpiCard({ label, value, badge, accentColor = '#7c3aed', loading }) {
+  const colors = {
+    '#7c3aed': 'bg-violet-50 text-violet-600',
+    '#10b981': 'bg-emerald-50 text-emerald-600',
+    '#f59e0b': 'bg-amber-50 text-amber-500',
+    '#3b82f6': 'bg-blue-50 text-blue-600',
+  }
+  const cls = (colors[accentColor] ?? colors['#7c3aed']).split(' ')
+  const bgCls   = cls[0]
+  const textCls = cls[1]
 
   if (loading) {
     return (
@@ -106,20 +60,15 @@ function KpiCard({ label, value, badge, badgePositive = true, sparkColor = '#7c3
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
-          <TrendingUp className={`w-[18px] h-[18px] ${iconColor}`} />
+        <div className={`w-9 h-9 rounded-xl ${bgCls} flex items-center justify-center flex-shrink-0`}>
+          <TrendingUp className={`w-[18px] h-[18px] ${textCls}`} />
         </div>
         <span className="text-sm text-gray-500 font-medium leading-tight">{label}</span>
       </div>
       <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
       {badge != null && (
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap mt-2 ${
-          badgePositive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
-        }`}>
-          {badgePositive
-            ? <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
-            : <ArrowDownRight className="w-3 h-3 flex-shrink-0" />
-          }
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap mt-2 bg-emerald-50 text-emerald-600">
+          <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
           <span className="truncate">{badge}</span>
         </span>
       )}
@@ -132,7 +81,7 @@ function ChartSkeleton({ h = 200 }) {
   return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
-// ── Metric card (small) ───────────────────────────────
+// ── Small metric card ─────────────────────────────────
 function MetricCard({ icon: Icon, iconColor, bgColor, label, value, sub, loading }) {
   if (loading) {
     return (
@@ -155,20 +104,38 @@ function MetricCard({ icon: Icon, iconColor, bgColor, label, value, sub, loading
   )
 }
 
+const STATUS_META = {
+  active:     { name: 'Ativas',       color: '#8b5cf6' },
+  pending:    { name: 'Pendentes',    color: '#fbbf24' },
+  refunded:   { name: 'Reembolsadas', color: '#f87171' },
+  chargeback: { name: 'Chargeback',   color: '#dc2626' },
+}
+
+const STATUS_LABEL = {
+  active:     'Ativa',
+  pending:    'Pendente',
+  refunded:   'Reembolsada',
+  chargeback: 'Chargeback',
+}
+
 // ── Main page ─────────────────────────────────────────
 export default function AdminOverview() {
   const { apiFetch } = useAdminFetch()
-  const [data, setData]       = useState(null)
+  const [data,    setData]    = useState(null)
+  const [retData, setRetData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState(null)
+  const [error,   setError]   = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const result = await apiFetch('/admin-data')
-      if (!result) return
-      setData(result)
+      const [fin, ret] = await Promise.all([
+        apiFetch('/admin-financial'),
+        apiFetch('/admin-retention'),
+      ])
+      if (fin) setData(fin)
+      if (ret) setRetData(ret)
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar dados')
     } finally {
@@ -178,57 +145,35 @@ export default function AdminOverview() {
 
   useEffect(() => { load() }, [load])
 
-  // ── derived ────────────────────────────────────────────
-  const subs              = data?.subscriptions  ?? []
-  const activeCount       = data?.activeCount    ?? 0
-  const totalUsers        = data?.totalUsers     ?? 0
-  const canceledCount     = data?.canceledCount  ?? 0
-  const pastDueCount      = data?.pastDueCount   ?? 0
-  const inactiveCount     = subs.filter(s => s.status === 'inactive').length
-  const canceledThisMonth = data?.canceledThisMonth ?? 0
-  const totalRevenue      = data?.totalRevenue   ?? 0
-  const mrrHistory12      = data?.mrrHistory12   ?? []
-  const mrr               = data?.currentMRR ?? 0
+  const totalRevenue    = data?.totalRevenue    ?? 0
+  const activeCount     = data?.activeCount     ?? 0
+  const pendingCount    = data?.pendingCount    ?? 0
+  const refundedCount   = data?.refundedCount   ?? 0
+  const chargebackCount = data?.chargebackCount ?? 0
+  const refundRate      = data?.refundRate      ?? 0
+  const avgTicket       = data?.avgTicket       ?? 0
+  const salesHistory    = data?.salesHistory    ?? []
+  const planBreakdown   = data?.planBreakdown   ?? []
+  const recentPurchases = data?.recentPurchases ?? []
 
-  const todayStart   = startOfDay()
-  const weekStart    = startOfWeek()
-  const monthStart   = startOfMonth()
-  const newToday     = subs.filter(s => new Date(s.created_at) >= todayStart).length
-  const newThisWeek  = subs.filter(s => new Date(s.created_at) >= weekStart).length
-  const newThisMonth = subs.filter(s => new Date(s.created_at) >= monthStart).length
+  const usageRate          = retData?.usageRate          ?? 0
+  const engagedCount       = retData?.engagedCount       ?? 0
+  const atRiskCount        = retData?.atRiskCount        ?? 0
+  const neverAccessedCount = retData?.neverAccessedCount ?? 0
 
-  const totalTracked   = activeCount + canceledCount + pastDueCount
-  const churnRateNum   = totalTracked > 0 ? (canceledCount / totalTracked) * 100 : 0
-  const churnRate      = churnRateNum.toFixed(1)
-  const conversionRate = totalUsers > 0 ? ((activeCount / totalUsers) * 100).toFixed(1) : '0.0'
+  const todayStart  = startOfDay()
+  const weekStart   = startOfWeek()
+  const newToday    = recentPurchases.filter(p => new Date(p.date) >= todayStart).length
+  const newThisWeek = recentPurchases.filter(p => new Date(p.date) >= weekStart).length
+  const currentMonthEntry = salesHistory[salesHistory.length - 1]
 
-  const avgMrr = activeCount > 0 ? mrr / activeCount : 0
-  const ltv    = churnRateNum > 0 ? `$${(avgMrr / (churnRateNum / 100)).toFixed(2)}` : 'Em cálculo'
-  const ltvSub = churnRateNum > 0 ? `$${avgMrr.toFixed(2)} MRR médio ÷ ${churnRate}% churn` : 'Churn rate = 0%'
-
-  // Sparkline data
-  const mrrNums           = mrrHistory12.map(m => m.mrr ?? 0)
-  const monthlyFlow       = loading ? [] : getMonthlyFlow(subs)
-  const flowNums          = monthlyFlow.map(m => m.novas)
-  const cumulativeRevNums = mrrNums.map((_, i) => mrrNums.slice(0, i + 1).reduce((a, b) => a + b, 0))
-
-  // MRR month-over-month change
-  const prevMonthMrr = mrrHistory12[mrrHistory12.length - 2]?.mrr ?? 0
-  const currMonthMrr = mrrHistory12[mrrHistory12.length - 1]?.mrr ?? 0
-  const mrrChangePct = prevMonthMrr > 0
-    ? `${((currMonthMrr - prevMonthMrr) / prevMonthMrr * 100).toFixed(1)}%`
-    : null
-  const mrrUp = currMonthMrr >= prevMonthMrr
-
-  const currentMonthLabel = mrrHistory12[mrrHistory12.length - 1]?.label
-
-  const totalSubs = activeCount + canceledCount + pastDueCount + inactiveCount
-  const statusPie = [
-    { name: 'Ativos',     value: activeCount,   color: '#8b5cf6' },
-    { name: 'Cancelados', value: canceledCount,  color: '#f87171' },
-    { name: 'Em atraso',  value: pastDueCount,   color: '#fbbf24' },
-    { name: 'Inativos',   value: inactiveCount,  color: '#e5e7eb' },
-  ].filter(s => s.value > 0)
+  const totalSold = activeCount + pendingCount + refundedCount + chargebackCount
+  const statusPie = Object.entries(STATUS_META)
+    .map(([key, { name, color }]) => {
+      const count = { active: activeCount, pending: pendingCount, refunded: refundedCount, chargeback: chargebackCount }[key] ?? 0
+      return { name, value: count, color }
+    })
+    .filter(s => s.value > 0)
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
@@ -254,111 +199,85 @@ export default function AdminOverview() {
       {/* ── Row 1: KPI cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
-          label="Assinantes Ativos"
-          value={loading ? '—' : activeCount}
-          badge={loading ? null : `+${newThisMonth} este mês`}
-          badgePositive={newThisMonth >= 0}
-          sparkNums={flowNums}
-          sparkColor="#7c3aed"
-          loading={loading}
-        />
-        <KpiCard
-          label="MRR"
-          value={loading ? '—' : `$${mrr.toFixed(2)}`}
-          badge={mrrChangePct}
-          badgePositive={mrrUp}
-          sparkNums={mrrNums}
-          sparkColor="#10b981"
-          loading={loading}
-        />
-        <KpiCard
-          label="Faturamento Bruto"
+          label="Faturamento Total"
           value={loading ? '—' : `$${totalRevenue.toFixed(2)}`}
           badge="Total acumulado"
-          badgePositive={true}
-          sparkNums={cumulativeRevNums}
-          sparkColor="#f59e0b"
+          accentColor="#7c3aed"
           loading={loading}
         />
         <KpiCard
-          label="Taxa de Conversão"
-          value={loading ? '—' : `${conversionRate}%`}
-          badge={loading ? null : `${activeCount} de ${totalUsers}`}
-          badgePositive={parseFloat(conversionRate) > 0}
-          sparkNums={flowNums}
-          sparkColor="#3b82f6"
+          label="Compras Ativas"
+          value={loading ? '—' : activeCount}
+          badge={loading ? null : `+${currentMonthEntry?.count ?? 0} este mês`}
+          accentColor="#10b981"
+          loading={loading}
+        />
+        <KpiCard
+          label="Ticket Médio"
+          value={loading ? '—' : `$${avgTicket.toFixed(2)}`}
+          badge="Por compra ativa"
+          accentColor="#f59e0b"
+          loading={loading}
+        />
+        <KpiCard
+          label="Taxa de Reembolso"
+          value={loading ? '—' : `${refundRate}%`}
+          badge={loading ? null : `${refundedCount + chargebackCount} casos`}
+          accentColor="#3b82f6"
           loading={loading}
         />
       </div>
 
-      {/* ── Row 2: MRR Area chart ── */}
+      {/* ── Row 2: Receita por mês ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <p className="font-bold text-gray-900 text-base">Evolução do MRR</p>
-            <p className="text-xs text-gray-400 mt-0.5">Receita recorrente mensal — últimos 12 meses</p>
+            <p className="font-bold text-gray-900 text-base">Receita por mês</p>
+            <p className="text-xs text-gray-400 mt-0.5">Compras confirmadas — histórico mensal</p>
           </div>
-          {!loading && currMonthMrr != null && (
+          {!loading && currentMonthEntry && (
             <div className="text-right">
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Mês atual</p>
-              <p className="text-xl font-extrabold text-violet-600">${currMonthMrr.toFixed(2)}</p>
+              <p className="text-xl font-extrabold text-violet-600">${currentMonthEntry.revenue.toFixed(2)}</p>
             </div>
           )}
         </div>
         {loading ? (
           <ChartSkeleton h={220} />
-        ) : mrrHistory12.length === 0 ? (
+        ) : salesHistory.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-12">Sem dados no período.</p>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={mrrHistory12} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-              <defs>
-                <linearGradient id="mrrAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#7c3aed" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
-                </linearGradient>
-              </defs>
+            <BarChart data={salesHistory} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis tickFormatter={v => `$${v}`} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={52} />
               <Tooltip content={({ active, payload, label }) =>
                 <ChartTooltip active={active} payload={payload} label={label} prefix="$" />
               } />
-              <Area
-                type="monotone"
-                dataKey="mrr"
-                name="MRR"
-                stroke="#7c3aed"
-                strokeWidth={2.5}
-                fill="url(#mrrAreaGrad)"
-                dot={{ r: 3.5, fill: '#7c3aed', strokeWidth: 0 }}
-                activeDot={{ r: 5, fill: '#7c3aed', stroke: '#fff', strokeWidth: 2 }}
-              />
-              {currentMonthLabel && currMonthMrr != null && (
-                <ReferenceDot x={currentMonthLabel} y={currMonthMrr} r={6} fill="#7c3aed" stroke="white" strokeWidth={2} />
-              )}
-            </AreaChart>
+              <Bar dataKey="revenue" name="Receita" fill="#7c3aed" radius={[4,4,0,0]} maxBarSize={40} />
+            </BarChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      {/* ── Row 3: Bar chart + Donut ── */}
+      {/* ── Row 3: Vendas por produto + Distribuição ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 p-6">
-          <p className="font-bold text-gray-900">Novas vs. Canceladas</p>
-          <p className="text-xs text-gray-400 mt-0.5 mb-5">Últimos 6 meses</p>
-          {loading ? <ChartSkeleton h={200} /> : (
+          <p className="font-bold text-gray-900">Vendas por produto</p>
+          <p className="text-xs text-gray-400 mt-0.5 mb-5">Compras ativas por produto</p>
+          {loading ? <ChartSkeleton h={200} /> : planBreakdown.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-12">Sem dados de vendas.</p>
+          ) : (
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={monthlyFlow} barGap={4} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+              <BarChart data={planBreakdown} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
                 <Tooltip content={({ active, payload, label }) =>
                   <ChartTooltip active={active} payload={payload} label={label} />
                 } />
-                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} formatter={v => <span className="text-gray-500">{v}</span>} />
-                <Bar dataKey="novas"      name="Novas"      fill="#7c3aed" radius={[4,4,0,0]} maxBarSize={28} />
-                <Bar dataKey="canceladas" name="Canceladas" fill="#f87171" radius={[4,4,0,0]} maxBarSize={28} />
+                <Bar dataKey="count" name="Compras" fill="#7c3aed" radius={[4,4,0,0]} maxBarSize={48} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -366,9 +285,9 @@ export default function AdminOverview() {
 
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6">
           <p className="font-bold text-gray-900">Distribuição</p>
-          <p className="text-xs text-gray-400 mt-0.5 mb-5">Por status · {totalSubs} total</p>
+          <p className="text-xs text-gray-400 mt-0.5 mb-5">Por status · {totalSold} total</p>
           {loading ? <ChartSkeleton h={200} /> : statusPie.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-12">Sem assinaturas.</p>
+            <p className="text-sm text-gray-400 text-center py-12">Sem compras registradas.</p>
           ) : (
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
@@ -385,7 +304,7 @@ export default function AdminOverview() {
                       content={({ active, payload }) => {
                         if (!active || !payload?.length) return null
                         const d = payload[0]
-                        const pct = totalSubs > 0 ? ((d.value / totalSubs) * 100).toFixed(0) : 0
+                        const pct = totalSold > 0 ? ((d.value / totalSold) * 100).toFixed(0) : 0
                         return (
                           <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl text-xs">
                             <p className="font-bold text-gray-300">{d.name}</p>
@@ -398,7 +317,7 @@ export default function AdminOverview() {
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <span className="text-2xl font-extrabold text-gray-900">{activeCount}</span>
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ativos</span>
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ativas</span>
                 </div>
               </div>
               <div className="w-full space-y-2">
@@ -408,7 +327,7 @@ export default function AdminOverview() {
                     <span className="text-xs text-gray-600 flex-1">{entry.name}</span>
                     <span className="text-xs font-bold text-gray-800">{entry.value}</span>
                     <span className="text-xs text-gray-400 w-8 text-right">
-                      {totalSubs > 0 ? `${((entry.value / totalSubs) * 100).toFixed(0)}%` : '—'}
+                      {totalSold > 0 ? `${((entry.value / totalSold) * 100).toFixed(0)}%` : '—'}
                     </span>
                   </div>
                 ))}
@@ -418,67 +337,91 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {/* ── Row 4: Metric cards ── */}
+      {/* ── Row 4: Engajamento ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          icon={TrendingUp} iconColor="text-violet-600" bgColor="bg-violet-50"
-          label="LTV Estimado"
-          value={loading ? '—' : ltv}
-          sub={loading ? undefined : ltvSub}
+          icon={Activity} iconColor="text-emerald-500" bgColor="bg-emerald-50"
+          label="Taxa de uso (30d)"
+          value={loading ? '—' : `${usageRate}%`}
+          sub="Compradoras com login recente"
           loading={loading}
         />
         <MetricCard
-          icon={CalendarCheck} iconColor="text-amber-500" bgColor="bg-amber-50"
-          label="Próximas Renovações"
-          value={loading ? '—' : `$${mrr.toFixed(2)}`}
-          sub="Se nenhuma cancelar (30d)"
+          icon={TrendingUp} iconColor="text-blue-500" bgColor="bg-blue-50"
+          label="Engajadas (7 dias)"
+          value={loading ? '—' : engagedCount}
+          sub="Acessaram nos últimos 7 dias"
           loading={loading}
         />
         <MetricCard
-          icon={TrendingDown} iconColor="text-red-500" bgColor="bg-red-50"
-          label="Cancelamentos no Mês"
-          value={loading ? '—' : canceledThisMonth}
+          icon={TrendingDown} iconColor="text-amber-500" bgColor="bg-amber-50"
+          label="Em risco (7+ dias)"
+          value={loading ? '—' : atRiskCount}
+          sub="Ativas sem acesso recente"
           loading={loading}
         />
         <MetricCard
-          icon={Percent} iconColor="text-orange-500" bgColor="bg-orange-50"
-          label="Churn Rate Histórico"
-          value={loading ? '—' : `${churnRate}%`}
-          sub="Cancelados ÷ total rastreado"
+          icon={Percent} iconColor="text-red-400" bgColor="bg-red-50"
+          label="Nunca acessaram"
+          value={loading ? '—' : neverAccessedCount}
+          sub="Compraram mas não fizeram login"
           loading={loading}
         />
       </div>
 
-      {/* ── Row 5: New subscriptions ── */}
+      {/* ── Row 5: Compras recentes ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <div className="flex items-center gap-3 mb-5">
           <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
-            <UserPlus className="w-[18px] h-[18px] text-violet-600" />
+            <ShoppingBag className="w-[18px] h-[18px] text-violet-600" />
           </div>
           <div>
-            <p className="font-bold text-gray-900">Novas Assinaturas</p>
-            <p className="text-xs text-gray-400">Período de aquisição</p>
+            <p className="font-bold text-gray-900">Compras recentes</p>
+            <p className="text-xs text-gray-400">
+              {loading ? 'Carregando…' : `Hoje: ${newToday} · Esta semana: ${newThisWeek} · Últimas 20 transações`}
+            </p>
           </div>
         </div>
         {loading ? (
-          <div className="animate-pulse grid grid-cols-3 gap-4">
-            {[1,2,3].map(i => <div key={i} className="h-20 bg-gray-100 rounded-2xl" />)}
+          <div className="animate-pulse space-y-2">
+            {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-gray-100 rounded-xl" />)}
           </div>
+        ) : recentPurchases.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-8">Nenhuma compra registrada.</p>
         ) : (
-          <div className="grid grid-cols-3 gap-2 sm:gap-4">
-            {[
-              { label: 'Hoje',        value: newToday,    gradient: 'from-violet-500 to-purple-700' },
-              { label: 'Esta semana', value: newThisWeek,  gradient: 'from-blue-500 to-indigo-600' },
-              { label: 'Este mês',    value: newThisMonth, gradient: 'from-emerald-500 to-teal-600' },
-            ].map(({ label, value, gradient }) => (
-              <div
-                key={label}
-                className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 sm:p-5 text-center text-white shadow-sm`}
-              >
-                <p className="text-2xl sm:text-4xl font-extrabold leading-none mb-1">{value}</p>
-                <p className="text-[10px] sm:text-xs font-semibold text-white/70 uppercase tracking-wide">{label}</p>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  {['Email', 'Produto', 'Valor', 'Status', 'Data'].map(h => (
+                    <th key={h} className="text-left px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {recentPurchases.map((p, i) => (
+                  <tr key={p.id ?? i} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-3 py-2.5 text-gray-700 max-w-[200px] truncate">{p.email}</td>
+                    <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap text-xs">{p.plan_label}</td>
+                    <td className="px-3 py-2.5 font-bold text-gray-900 tabular-nums">${Number(p.amount ?? 0).toFixed(2)}</td>
+                    <td className="px-3 py-2.5">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        p.status === 'active'     ? 'bg-emerald-50 text-emerald-600' :
+                        p.status === 'pending'    ? 'bg-amber-50 text-amber-600' :
+                        p.status === 'refunded'   ? 'bg-red-50 text-red-600' :
+                        p.status === 'chargeback' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-500'
+                      }`}>
+                        {STATUS_LABEL[p.status] ?? p.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-400 whitespace-nowrap text-xs">
+                      {p.date ? new Date(p.date).toLocaleDateString('pt-BR') : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

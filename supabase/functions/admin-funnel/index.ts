@@ -26,10 +26,10 @@ async function countEvents(
   params.append('created_at', `gte.${since}`)
   if (until) params.append('created_at', `lte.${until}`)
 
-  // Plan filter — old events with null pricing_plan belong to monthly_699
   if (plan && plan !== 'all') {
-    if (plan === 'monthly_699') {
-      params.set('or', '(pricing_plan.eq.monthly_699,pricing_plan.is.null)')
+    if (plan === 'one_time_standard') {
+      // Old events with null pricing_plan are treated as one_time_standard
+      params.set('or', '(pricing_plan.eq.one_time_standard,pricing_plan.is.null)')
     } else {
       params.append('pricing_plan', `eq.${plan}`)
     }

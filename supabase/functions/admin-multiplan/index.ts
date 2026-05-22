@@ -4,19 +4,19 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-const PLAN_CONFIG: Record<string, { label: string; price: number; interval: string; mrr: number }> = {
-  monthly_499:  { label: 'Monthly $4.99',  price: 4.99,  interval: 'month', mrr: 4.99  },
-  monthly_699:  { label: 'Monthly $6.99',  price: 6.99,  interval: 'month', mrr: 6.99  },
-  monthly_1499: { label: 'Monthly $14.99', price: 14.99, interval: 'month', mrr: 14.99 },
+const PLAN_CONFIG: Record<string, { label: string; price: number; product_id: string }> = {
+  one_time_basic:    { label: 'NatGlow Básico · $17.99',   price: 17.99, product_id: '7789064' },
+  one_time_standard: { label: 'NatGlow Completo · $27.99', price: 27.99, product_id: '7789077' },
+  one_time_premium:  { label: 'NatGlow VIP · $47.99',      price: 47.99, product_id: '7789099' },
 }
 
-const PLAN_KEYS = ['monthly_499', 'monthly_699', 'monthly_1499']
+const PLAN_KEYS = ['one_time_basic', 'one_time_standard', 'one_time_premium'] as const
 
 const FUNNEL_STEPS = ['quiz_started', 'quiz_completed', 'results_viewed', 'cta_clicked', 'payment_completed'] as const
 
 function normalizePlan(p: string | null | undefined): string {
-  if (!p || !PLAN_CONFIG[p]) return 'monthly_699'
-  return p
+  if (p && PLAN_CONFIG[p]) return p
+  return 'one_time_standard'
 }
 
 // Two-proportion z-test (returns absolute z value)
@@ -28,7 +28,7 @@ function zScore(p1: number, n1: number, p2: number, n2: number): number {
   return Math.abs((p1 - p2) / se)
 }
 
-type SubRow   = { pricing_plan: string | null; status: string; created_at: string; canceled_at: string | null }
+type SubRow   = { pricing_plan: string | null; status: string; created_at: string; purchase_amount: number | null }
 type EventRow = { session_id: string; event_type: string; pricing_plan: string | null }
 
 const dbH = {
@@ -48,8 +48,8 @@ Deno.serve(async (req) => {
       })
     }
 
-    const url        = new URL(req.url)
-    const period     = url.searchParams.get('period') ?? '30d'
+    const url         = new URL(req.url)
+    const period      = url.searchParams.get('period') ?? '30d'
     const customStart = url.searchParams.get('start')
     const customEnd   = url.searchParams.get('end')
 
@@ -68,14 +68,13 @@ Deno.serve(async (req) => {
       sinceISO = new Date(now.getTime() - 30 * 86400000).toISOString()
     }
 
-    // Parallel fetch: events in period + all subscriptions (for all-time churn)
     const [evRes, subRes] = await Promise.all([
       fetch(
         `${SUPABASE_URL}/rest/v1/funnel_events?select=session_id,event_type,pricing_plan&created_at=gte.${sinceISO}&created_at=lte.${untilISO}&limit=20000`,
         { headers: dbH }
       ),
       fetch(
-        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,canceled_at&limit=5000`,
+        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,purchase_amount&limit=5000`,
         { headers: dbH }
       ),
     ])
@@ -112,68 +111,32 @@ Deno.serve(async (req) => {
 
       const completionRate = started > 0 ? parseFloat(((completed  / started) * 100).toFixed(1)) : 0
       const conversionRate = started > 0 ? parseFloat(((conversions / started) * 100).toFixed(1)) : 0
-      const revenuePeriod  = parseFloat((conversions * cfg.price).toFixed(2))
-      const mrrAdded       = parseFloat((conversions * cfg.mrr).toFixed(2))
 
-      // Churn (all-time for this plan)
+      // Revenue: prefer stored purchase_amount, fall back to plan price
+      const revenuePeriod = parseFloat(
+        [...(counts['payment_completed'] ?? new Set())]
+          .reduce((_acc, _sid) => _acc + cfg.price, 0) // use plan price for period events
+          .toFixed(2)
+      )
+      const avgTicket = conversions > 0 ? parseFloat((revenuePeriod / conversions).toFixed(2)) : 0
+
+      // Refund rate from all-time subscriptions for this plan
       const subs        = planSubs[pk]
       const totalSubs   = subs.length
       const activeSubs  = subs.filter(s => s.status === 'active').length
+      const refundedSubs = subs.filter(s => s.status === 'refunded' || s.status === 'chargeback').length
+      const refundRate   = (activeSubs + refundedSubs) > 0
+        ? parseFloat((refundedSubs / (activeSubs + refundedSubs) * 100).toFixed(1))
+        : 0
 
-      const MS_7D  = 7  * 86400000
-      const MS_30D = 30 * 86400000
-
-      const canceled7d  = subs.filter(s => {
-        if (!s.canceled_at) return false
-        return (new Date(s.canceled_at).getTime() - new Date(s.created_at).getTime()) <= MS_7D
-      }).length
-
-      const canceled30d = subs.filter(s => {
-        if (!s.canceled_at) return false
-        return (new Date(s.canceled_at).getTime() - new Date(s.created_at).getTime()) <= MS_30D
-      }).length
-
-      const churn7dPct  = totalSubs > 0 ? parseFloat(((canceled7d  / totalSubs) * 100).toFixed(1)) : 0
-      const churn30dPct = totalSubs > 0 ? parseFloat(((canceled30d / totalSubs) * 100).toFixed(1)) : 0
-
-      // Average days active before cancellation
-      const canceledWithDates = subs.filter(s => s.canceled_at != null)
-      const avgDaysActive = canceledWithDates.length > 0
-        ? parseFloat((
-            canceledWithDates.reduce((acc, s) =>
-              acc + (new Date(s.canceled_at!).getTime() - new Date(s.created_at).getTime()) / 86400000
-            , 0) / canceledWithDates.length
-          ).toFixed(1))
-        : null
-
-      // LTV 90-day estimate + confidence
-      let ltv90d: number | null = null
-      let ltvConfidence: 'sufficient' | 'trend' | 'insufficient' = 'insufficient'
-
-      if (totalSubs >= 100) ltvConfidence = 'sufficient'
-      else if (totalSubs >= 30) ltvConfidence = 'trend'
-
-      if (ltvConfidence !== 'insufficient') {
-        if (avgDaysActive !== null && avgDaysActive > 0) {
-          const avgMonths     = avgDaysActive / 30
-          const cappedMonths  = Math.min(avgMonths, 3)
-          ltv90d = parseFloat((cappedMonths * cfg.mrr).toFixed(2))
-        } else {
-          // No churned users yet — optimistic: assume 3 months full retention
-          ltv90d = parseFloat((3 * cfg.mrr).toFixed(2))
-        }
-      }
-
-      // ROI score = conversion_rate (fraction) × effective_ltv
-      const effectiveLtv = ltv90d ?? cfg.mrr * 2
-      const roiScore     = parseFloat(((conversionRate / 100) * effectiveLtv).toFixed(4))
+      // ROI score = conversion_rate (fraction) × price
+      const roiScore = parseFloat(((conversionRate / 100) * cfg.price).toFixed(4))
 
       return {
-        plan_key: pk,
-        label: cfg.label,
-        price: cfg.price,
-        mrr_per_user: cfg.mrr,
-        interval: cfg.interval,
+        plan_key:        pk,
+        label:           cfg.label,
+        price:           cfg.price,
+        product_id:      cfg.product_id,
         quiz_started:    started,
         quiz_completed:  completed,
         results_viewed:  viewed,
@@ -182,27 +145,23 @@ Deno.serve(async (req) => {
         completion_rate: completionRate,
         conversion_rate: conversionRate,
         revenue_period:  revenuePeriod,
-        mrr_added:       mrrAdded,
+        avg_ticket:      avgTicket,
+        refund_rate:     refundRate,
         total_subs:      totalSubs,
         active_subs:     activeSubs,
-        churn_7d_pct:    churn7dPct,
-        churn_30d_pct:   churn30dPct,
-        avg_days_active: avgDaysActive,
-        ltv_90d:         ltv90d,
-        ltv_confidence:  ltvConfidence,
         roi_score:       roiScore,
       }
     })
 
     // Winner = highest ROI score
-    const sorted    = [...planMetrics].sort((a, b) => b.roi_score - a.roi_score)
-    const winner    = sorted[0]
-    const runnerUp  = sorted[1]
+    const sorted   = [...planMetrics].sort((a, b) => b.roi_score - a.roi_score)
+    const winner   = sorted[0]
+    const runnerUp = sorted[1]
 
     // Statistical significance via z-test on conversion rates
     let sigLevel: 'significant' | 'trend' | 'insufficient' = 'insufficient'
     let zVal  = 0
-    let note  = 'Dados insuficientes. Mínimo: 50 visitas por caminho.'
+    let note  = 'Dados insuficientes. Mínimo: 50 visitas por produto.'
 
     if (winner && runnerUp) {
       const n1 = winner.quiz_started
@@ -216,13 +175,13 @@ Deno.serve(async (req) => {
           note = `Diferença estatisticamente significativa (p<0.05). ${n1} vs ${n2} visitantes.`
         } else if (zVal >= 1.645 || (zVal >= 1.96 && minN < 100)) {
           sigLevel = 'trend'
-          note = `Tendência detectada mas amostra ainda pequena (${minN} visitas). Mínimo recomendado: 100/caminho.`
+          note = `Tendência detectada mas amostra ainda pequena (${minN} visitas). Mínimo recomendado: 100/produto.`
         } else {
           sigLevel = 'insufficient'
           note = `Diferença não é estatisticamente significativa ainda. Continue coletando dados.`
         }
       } else {
-        note = `Amostra insuficiente (${Math.min(n1 ?? 0, n2 ?? 0)} visitas no menor caminho). Necessário ≥50 por caminho.`
+        note = `Amostra insuficiente (${Math.min(n1 ?? 0, n2 ?? 0)} visitas no menor produto). Necessário ≥50 por produto.`
       }
     }
 

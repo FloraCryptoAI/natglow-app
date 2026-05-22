@@ -21,10 +21,10 @@ const PERIODS = [
 ]
 
 const PLAN_FILTERS = [
-  { key: 'all',          label: 'Todos os caminhos' },
-  { key: 'monthly_499',  label: 'Monthly $4.99' },
-  { key: 'monthly_699',  label: 'Monthly $6.99' },
-  { key: 'monthly_1499', label: 'Monthly $14.99' },
+  { key: 'all',               label: 'Todos os produtos' },
+  { key: 'one_time_basic',    label: 'Básico $17.99' },
+  { key: 'one_time_standard', label: 'Completo $27.99' },
+  { key: 'one_time_premium',  label: 'VIP $47.99' },
 ]
 
 export default function AdminFunnel() {

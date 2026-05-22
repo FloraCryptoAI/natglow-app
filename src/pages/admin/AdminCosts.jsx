@@ -22,10 +22,10 @@ const CATEGORIES = [
 ]
 
 const PLAN_OPTIONS = [
-  { value: null,            label: 'Global / não vinculado' },
-  { value: 'monthly_499',   label: 'Cheap $4.99' },
-  { value: 'monthly_699',   label: 'Control $6.99' },
-  { value: 'monthly_1499',  label: 'Premium $14.99' },
+  { value: null,               label: 'Global / não vinculado' },
+  { value: 'one_time_basic',   label: 'Básico $17.99' },
+  { value: 'one_time_standard',label: 'Completo $27.99' },
+  { value: 'one_time_premium', label: 'VIP $47.99' },
 ]
 
 const CONFIDENCE_CONFIG = {
@@ -800,7 +800,7 @@ export default function AdminCosts() {
               icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
               label="Receita do período"
               value={loadingRoi ? '—' : fmt(summary.totalRevenue)}
-              sub="Via Stripe"
+              sub="Via Hotmart"
               loading={loadingRoi}
             />
             <MetricCard
@@ -831,13 +831,13 @@ export default function AdminCosts() {
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
               <div className="px-5 pt-5 pb-3">
                 <p className="font-bold text-gray-800 mb-0.5">ROI por plano de preço</p>
-                <p className="text-xs text-gray-400">MRR equivalente × custo de anúncios vinculado no período</p>
+                <p className="text-xs text-gray-400">Receita gerada × custo de anúncios vinculado no período</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50">
-                      {['Plano', 'Assinantes ativos', 'MRR equiv.', 'Custo de anúncios', 'ROI', 'Confiabilidade'].map(h => (
+                      {['Plano', 'Compras ativas', 'Receita gerada', 'Custo de anúncios', 'ROI', 'Confiabilidade'].map(h => (
                         <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -849,7 +849,7 @@ export default function AdminCosts() {
                         <tr key={p.plan_key} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3 font-semibold text-gray-800 whitespace-nowrap">{p.label}</td>
                           <td className="px-4 py-3 text-gray-600 tabular-nums">{p.active_subs}</td>
-                          <td className="px-4 py-3 font-bold text-gray-900 tabular-nums">{fmt(p.mrr_contribution)}</td>
+                          <td className="px-4 py-3 font-bold text-gray-900 tabular-nums">{fmt(p.revenue_contribution)}</td>
                           <td className="px-4 py-3 text-gray-600 tabular-nums">{p.traffic_costs > 0 ? fmt(p.traffic_costs) : <span className="text-gray-300">—</span>}</td>
                           <td className="px-4 py-3 font-bold tabular-nums">
                             {p.roi != null
@@ -871,7 +871,7 @@ export default function AdminCosts() {
                         {(roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.active_subs, 0)}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
-                        {fmt((roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.mrr_contribution, 0))}
+                        {fmt((roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.revenue_contribution, 0))}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
                         {fmt((roiData?.planRoi ?? []).reduce((a, p) => a + p.traffic_costs, 0))}
@@ -891,7 +891,7 @@ export default function AdminCosts() {
           {/* Chart 1: Receita vs Custos vs Lucro */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
             <p className="font-bold text-gray-800 mb-1">Receita × Custos × Lucro</p>
-            <p className="text-xs text-gray-400 mb-4">Últimos 6 meses (MRR + custos registrados)</p>
+            <p className="text-xs text-gray-400 mb-4">Últimos 6 meses (receita Hotmart + custos registrados)</p>
             {loadingRoi ? (
               <ChartSkeleton h={220} />
             ) : sixMonthData.length === 0 ? (

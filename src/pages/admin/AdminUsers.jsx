@@ -3,25 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
 import {
   Search, AlertCircle, ChevronLeft, ChevronRight,
-  ChevronUp, ChevronDown, X, ExternalLink, Loader2,
+  ChevronUp, ChevronDown, X,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 
 const PER_PAGE = 20
 
 const STATUS_BADGE = {
-  active:   { label: 'Ativa',        bg: 'bg-emerald-100', text: 'text-emerald-700' },
-  canceled: { label: 'Cancelada',    bg: 'bg-red-100',     text: 'text-red-700' },
-  past_due: { label: 'Inadimplente', bg: 'bg-amber-100',   text: 'text-amber-700' },
-  inactive: { label: 'Inativa',      bg: 'bg-gray-100',    text: 'text-gray-500' },
+  active:     { label: 'Ativa',       bg: 'bg-emerald-100', text: 'text-emerald-700' },
+  pending:    { label: 'Pendente',    bg: 'bg-amber-100',   text: 'text-amber-700' },
+  refunded:   { label: 'Reembolsada', bg: 'bg-red-100',     text: 'text-red-700' },
+  chargeback: { label: 'Chargeback',  bg: 'bg-rose-950/10', text: 'text-rose-800' },
+  inactive:   { label: 'Inativa',     bg: 'bg-gray-100',    text: 'text-gray-500' },
 }
 
 const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸' }
 
 const PLAN_BADGE = {
-  monthly_499:  { label: '$4.99/mês',   bg: 'bg-cyan-50',   text: 'text-cyan-700' },
-  monthly_699:  { label: '$6.99/mês',   bg: 'bg-violet-50', text: 'text-violet-700' },
-  monthly_1499: { label: '$14.99/mês',  bg: 'bg-amber-50',  text: 'text-amber-700' },
+  one_time_basic:    { label: 'Básico $17.99',   bg: 'bg-cyan-50',    text: 'text-cyan-700' },
+  one_time_standard: { label: 'Completo $27.99', bg: 'bg-violet-50',  text: 'text-violet-700' },
+  one_time_premium:  { label: 'VIP $47.99',      bg: 'bg-amber-50',   text: 'text-amber-700' },
 }
 
 const DIAGNOSIS_BADGE = {
@@ -65,36 +66,6 @@ function SortIcon({ col, sort, order }) {
   return order === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
 }
 
-function CancelModal({ user, onConfirm, onCancel, loading }) {
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-        <h3 className="text-lg font-extrabold text-gray-900 mb-2">Cancelar assinatura</h3>
-        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-          Tem certeza que deseja cancelar a assinatura de <strong className="text-gray-800">{user?.email}</strong>?
-          Esta ação não pode ser desfeita.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-40"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
-          >
-            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            Confirmar cancelamento
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function UserDrawer({ user, data, loading, onClose }) {
   const { subscription, quiz, payments } = data ?? {}
@@ -134,14 +105,6 @@ function UserDrawer({ user, data, loading, onClose }) {
                   </div>
                 ))}
               </div>
-              {subscription?.current_period_end && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Próxima cobrança</p>
-                  <p className="text-sm font-semibold text-gray-700">
-                    {new Date(subscription.current_period_end).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-              )}
             </section>
 
             <section className="px-6 py-5">
@@ -174,29 +137,19 @@ function UserDrawer({ user, data, loading, onClose }) {
                     <div key={p.id} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
                       <div>
                         <p className="text-xs font-semibold text-gray-700">
-                          {new Date(p.created * 1000).toLocaleDateString('pt-BR')}
+                          {p.date ? new Date(p.date).toLocaleDateString('pt-BR') : '—'}
                         </p>
                         <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ${
-                          p.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                          p.status === 'active' ? 'bg-emerald-50 text-emerald-600' :
+                          p.status === 'refunded' ? 'bg-red-50 text-red-600' :
+                          'bg-amber-50 text-amber-600'
                         }`}>
-                          {p.status === 'paid' ? 'Pago' : p.status}
+                          {p.status === 'active' ? 'Pago' : p.status === 'refunded' ? 'Reembolsado' : p.status}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900">
-                          ${(p.amount / 100).toFixed(2)}
-                        </span>
-                        {p.hosted_invoice_url && (
-                          <a
-                            href={p.hosted_invoice_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1 text-gray-400 hover:text-gray-600"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
-                      </div>
+                      <span className="text-sm font-bold text-gray-900">
+                        ${Number(p.amount ?? 0).toFixed(2)}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -205,16 +158,6 @@ function UserDrawer({ user, data, loading, onClose }) {
               )}
             </section>
 
-            {user.status === 'active' && subscription?.stripe_subscription_id && (
-              <section className="px-6 py-5">
-                <button
-                  onClick={() => {}}
-                  className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-all"
-                >
-                  Cancelar assinatura
-                </button>
-              </section>
-            )}
           </div>
         )}
       </div>
@@ -242,8 +185,7 @@ export default function AdminUsers() {
   const [drawerData, setDrawerData] = useState(null)
   const [drawerLoading, setDrawerLoading] = useState(false)
 
-  const [cancelTarget, setCancelTarget] = useState(null)
-  const [cancelLoading, setCancelLoading] = useState(false)
+
 
   const searchTimer = useRef(null)
   const totalPages = Math.ceil(total / PER_PAGE)
@@ -275,7 +217,7 @@ export default function AdminUsers() {
       if (result?.error) throw new Error(result.error)
       // Client-side plan filter (server doesn't filter by plan yet — keeps edge fn simple)
       const filtered = pf
-        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'monthly_699') === pf)
+        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'one_time_standard') === pf)
         : (result.users ?? [])
       setUsers(filtered)
       setTotal(pf ? filtered.length : (result.total ?? 0))
@@ -340,26 +282,6 @@ export default function AdminUsers() {
 
   const closeDrawer = () => { setSelectedUser(null); setDrawerData(null) }
 
-  const handleCancelConfirm = async () => {
-    if (!cancelTarget) return
-    setCancelLoading(true)
-    try {
-      const res = await fetch(`${baseUrl}/admin-cancel-subscription`, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify({ stripe_subscription_id: cancelTarget.stripe_subscription_id }),
-      })
-      const result = await res.json()
-      if (result?.error) throw new Error(result.error)
-      setCancelTarget(null)
-      closeDrawer()
-      loadUsers(page, search, statusFilter, sort, order)
-    } catch (e) {
-      alert(`Erro ao cancelar: ${e?.message}`)
-    } finally {
-      setCancelLoading(false)
-    }
-  }
 
   const Th = ({ col, label }) => (
     <th
@@ -411,9 +333,9 @@ export default function AdminUsers() {
         >
           <option value="">Todos os status</option>
           <option value="active">Ativas</option>
-          <option value="canceled">Canceladas</option>
-          <option value="past_due">Inadimplentes</option>
-          <option value="inactive">Inativas</option>
+          <option value="pending">Pendentes</option>
+          <option value="refunded">Reembolsadas</option>
+          <option value="chargeback">Chargeback</option>
         </select>
         <select
           value={planFilter}
@@ -421,9 +343,9 @@ export default function AdminUsers() {
           className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
         >
           <option value="">Todos os planos</option>
-          <option value="monthly_499">Monthly $4.99</option>
-          <option value="monthly_699">Monthly $6.99</option>
-          <option value="monthly_1499">Monthly $14.99</option>
+          <option value="one_time_basic">Básico $17.99</option>
+          <option value="one_time_standard">Completo $27.99</option>
+          <option value="one_time_premium">VIP $47.99</option>
         </select>
       </div>
 
@@ -474,7 +396,7 @@ export default function AdminUsers() {
                     <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
                     <td className="px-4 py-3">
                       {(() => {
-                        const p = PLAN_BADGE[u.pricing_plan ?? 'monthly_699'] ?? PLAN_BADGE.monthly_699
+                        const p = PLAN_BADGE[u.pricing_plan ?? 'one_time_standard'] ?? PLAN_BADGE.one_time_standard
                         return (
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.bg} ${p.text}`}>
                             {p.label}
@@ -542,16 +464,6 @@ export default function AdminUsers() {
           data={drawerData}
           loading={drawerLoading}
           onClose={closeDrawer}
-          onCancel={() => setCancelTarget(selectedUser)}
-        />
-      )}
-
-      {cancelTarget && (
-        <CancelModal
-          user={cancelTarget}
-          onConfirm={handleCancelConfirm}
-          onCancel={() => setCancelTarget(null)}
-          loading={cancelLoading}
         />
       )}
     </div>

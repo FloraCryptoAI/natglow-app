@@ -3,7 +3,6 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 
 type QuizAnswers = Record<string, string>
 
@@ -88,20 +87,15 @@ async function fetchAuthUser(userId: string) {
   return res.ok ? res.json() : null
 }
 
-async function fetchStripeInvoices(customerId: string) {
-  const res = await fetch(
-    `https://api.stripe.com/v1/invoices?customer=${customerId}&limit=10&expand[]=data.charge`,
-    { headers: { Authorization: `Bearer ${STRIPE_KEY}` } }
-  )
-  const data = await res.json()
-  return (data.data ?? []).map((inv: Record<string, unknown>) => ({
-    id: inv.id,
-    amount: inv.amount_paid,
-    currency: inv.currency,
-    status: inv.status,
-    created: inv.created,
-    hosted_invoice_url: inv.hosted_invoice_url,
-  }))
+function buildPaymentHistory(sub: Record<string, unknown> | null) {
+  if (!sub) return []
+  return [{
+    id:       (sub.hotmart_transaction_id as string) ?? (sub.id as string) ?? '—',
+    amount:   typeof sub.purchase_amount === 'number' ? sub.purchase_amount : 0,
+    currency: (sub.purchase_currency as string) ?? 'USD',
+    status:   (sub.status as string) ?? 'active',
+    date:     (sub.created_at as string) ?? null,
+  }]
 }
 
 Deno.serve(async (req) => {
@@ -141,9 +135,7 @@ Deno.serve(async (req) => {
       const funnelData = await fetchFunnelData([userId])
       const quiz = funnelData[userId] ?? null
 
-      const payments = sub?.stripe_customer_id
-        ? await fetchStripeInvoices(sub.stripe_customer_id)
-        : []
+      const payments = buildPaymentHistory(sub)
 
       return new Response(
         JSON.stringify({ subscription: sub, user: authUser, quiz, payments }),
@@ -186,17 +178,17 @@ Deno.serve(async (req) => {
     ])
 
     const users = subs.map((s: Record<string, unknown>) => ({
-      user_id: s.user_id,
-      email: s.email,
-      status: s.status,
-      created_at: s.created_at,
+      user_id:         s.user_id,
+      email:           s.email,
+      status:          s.status,
+      created_at:      s.created_at,
       last_sign_in_at: authDetails[s.user_id as string] ?? null,
-      stripe_customer_id: s.stripe_customer_id,
-      stripe_subscription_id: s.stripe_subscription_id,
-      current_period_end: s.current_period_end,
-      pricing_plan: (s.pricing_plan as string | null) ?? 'monthly_699',
-      idioma: funnelData[s.user_id as string]?.idioma ?? null,
-      pais: funnelData[s.user_id as string]?.pais ?? null,
+      pricing_plan:    (s.pricing_plan as string | null) ?? 'one_time_standard',
+      purchase_amount: s.purchase_amount,
+      purchase_currency: s.purchase_currency,
+      hotmart_transaction_id: s.hotmart_transaction_id,
+      idioma:    funnelData[s.user_id as string]?.idioma    ?? null,
+      pais:      funnelData[s.user_id as string]?.pais      ?? null,
       diagnosis: funnelData[s.user_id as string]?.diagnosis ?? null,
     }))
 
