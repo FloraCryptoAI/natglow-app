@@ -2,9 +2,7 @@ import React, { useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Calendar, BarChart3, LogOut, Settings, Newspaper } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { setLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/api/supabaseClient';
 import NotificationBell from './NotificationBell';
 import { InstallHeaderButton } from './InstallPrompt';
 import Footer from './Footer';
@@ -13,32 +11,7 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { t, i18n } = useTranslation();
-
-  // Sincroniza idioma do banco ao abrir o app (resolve localStorage isolado do PWA no iOS)
-  useEffect(() => {
-    async function syncLang() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from('subscriptions')
-        .select('notification_preferences')
-        .eq('user_id', user.id)
-        .single();
-      const savedLang = data?.notification_preferences?.lang;
-      if (savedLang) {
-        if (savedLang !== i18n.language) setLang(savedLang);
-        // Atualiza lang das subscriptions diretamente por user_id — mais confiável no iOS
-        // onde pushManager.getSubscription() pode falhar silenciosamente durante a inicialização
-        supabase
-          .from('notification_subscriptions')
-          .update({ lang: savedLang })
-          .eq('user_id', user.id)
-          .then(() => {})
-      }
-    }
-    syncLang();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { t } = useTranslation();
 
   const navItems = [
     { path: '/HairDashboard', label: t('layout.myRoutine'), icon: Home },

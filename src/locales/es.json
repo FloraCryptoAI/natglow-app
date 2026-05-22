@@ -47,7 +47,31 @@
     "errorGeneric": "Algo salió mal. Inténtalo de nuevo.",
     "back": "Volver",
     "noAccount": "¿Todavía no tienes un plan?",
-    "noAccountLink": "Haz el diagnóstico gratis →"
+    "noAccountLink": "Haz el diagnóstico gratis →",
+    "withPassword": "Entrar con contraseña",
+    "withPasswordTitle": "Entrar con contraseña",
+    "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
+    "forgotPassword": "¿Olvidaste tu contraseña? Enviarme enlace →",
+    "resetSent": "Listo. Enviamos un enlace a {{email}} para crear tu contraseña. Revisa tu correo.",
+    "invalidCredentials": "Email o contraseña incorrectos. Inténtalo de nuevo.",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+    "noEmailForReset": "Ingresa tu email antes de solicitar el restablecimiento.",
+    "passwordSet": "¡Contraseña creada! Ahora puedes entrar con ella cuando quieras."
+  },
+
+  "resetPassword": {
+    "title": "Crear nueva contraseña",
+    "subtitle": "Elige una contraseña segura para tu cuenta NatGlow",
+    "placeholder": "Nueva contraseña (mín. 8 caracteres)",
+    "confirmPlaceholder": "Confirmar contraseña",
+    "submit": "Guardar contraseña",
+    "saving": "Guardando...",
+    "tooShort": "La contraseña debe tener al menos 8 caracteres.",
+    "mismatch": "Las contraseñas no coinciden. Inténtalo de nuevo.",
+    "success": "¡Contraseña guardada! Ahora puedes entrar.",
+    "errorGeneric": "No se pudo guardar la contraseña. Intenta de nuevo.",
+    "invalidLink": "Este enlace expiró o no es válido. Solicita uno nuevo desde la pantalla de inicio de sesión.",
+    "backToLogin": "Volver al inicio de sesión"
   },
 
   "quiz": {
@@ -263,11 +287,11 @@
       "subtitle": "Accede ahora y comienza la transformación esta semana.",
       "promoBadge": "🔥 Oferta Especial de Lanzamiento",
       "offerExpires": "Esta oferta expira en",
-      "originalPrice": "$47.99/mes",
-      "savings": "Ahorras ${{amount}}/mes",
-      "price": "6.99",
-      "period": "/mes",
-      "cancel": "Cancela cuando quieras. Sin compromiso.",
+      "originalPrice": "$97.00",
+      "savings": "Ahorras ${{amount}}",
+      "price": "27",
+      "period": "pago único",
+      "cancel": "Pago único. Acceso de por vida. Sin suscripción.",
       "benefits": [
         "Las 3 recetas campeonas con resultados en la primera aplicación",
         "Rutina capilar personalizada de 21 días",
@@ -278,9 +302,9 @@
       ],
       "cta": "Quiero mi plan personalizado ahora",
       "ctaLoading": "Espera...",
-      "secure": "Pago seguro vía Stripe. Cancela cuando quieras. Sin cargos ocultos.",
-      "cancelTitle": "Cancela cuando quieras",
-      "cancelText": "Sin preguntas, sin burocracia. Tienes control total de tu suscripción en cualquier momento, a través del portal del cliente, en segundos. Sin cargo de cancelación.",
+      "secure": "Pago seguro vía Hotmart. Compra única, sin cargos recurrentes.",
+      "cancelTitle": "Garantía de 7 días",
+      "cancelText": "Si por cualquier motivo no estás satisfecha, te devolvemos el 100% de tu dinero en los primeros 7 días. Sin preguntas, sin burocracia.",
       "errorCheckout": "Error al iniciar el pago. Inténtalo de nuevo."
     },
     "reassurance": [
@@ -294,7 +318,7 @@
       "items": [
         {
           "q": "¿Y si no me gusta?",
-          "a": "Cancela cuando quieras, directamente desde el portal del cliente. Sin preguntas, sin burocracia, sin cargos. Tienes control total de tu suscripción. Un clic y listo."
+          "a": "Tienes 7 días de garantía total. Si no estás 100% satisfecha con los resultados, te devolvemos el dinero sin preguntas. Solo contáctanos."
         },
         {
           "q": "¿Los ingredientes de las recetas son caros?",
@@ -310,7 +334,7 @@
         }
       ]
     },
-    "finePrint": "Al suscribirte aceptas los términos de uso. Cobro recurrente mensual en dólares americanos. Cancela en cualquier momento a través del portal del cliente sin ningún cargo."
+    "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía de 7 días sin preguntas."
   },
 
   "upgrade": {
@@ -333,14 +357,14 @@
       "Acceso en cualquier dispositivo, en cualquier momento"
     ],
     "accessLabel": "Acceso Completo",
-    "period": "/mes",
-    "cancelNote": "Cancela cuando quieras · Sin compromiso",
+    "period": "pago único",
+    "cancelNote": "Garantía de 7 días · Pago único · Sin suscripción",
     "cta": "Desbloquear mi plan",
     "ctaBottom": "Desbloquear mi plan ahora",
     "ctaLoading": "Espera...",
-    "secure": "Pago seguro vía Stripe · Tarjeta de crédito",
-    "cancelTitle": "Cancela cuando quieras",
-    "cancelText": "Sin preguntas, sin burocracia. Tienes control total de tu suscripción en cualquier momento.",
+    "secure": "Pago seguro vía Hotmart · Compra única, sin cargos recurrentes",
+    "cancelTitle": "Garantía de 7 días",
+    "cancelText": "Si por cualquier motivo no estás satisfecha, te devolvemos el 100% de tu dinero en los primeros 7 días. Sin preguntas, sin burocracia.",
     "testimonialsTitle": "Lo que dicen nuestras usuarias",
     "testimonials": [
       { "name": "Ana Paula R.", "text": "¡En 3 semanas mi cabello dejó de romperse. No podía creer que fuera tan rápido!", "result": "Rotura -70%" },
@@ -351,12 +375,12 @@
     ],
     "faqTitle": "Preguntas frecuentes",
     "faq": [
-      { "q": "¿Y si no me gusta?", "a": "Puedes cancelar en cualquier momento a través del portal del cliente. Sin preguntas, sin burocracia. Control total en tus manos." },
+      { "q": "¿Y si no me gusta?", "a": "Tienes 7 días de garantía total. Si no estás satisfecha, te devolvemos el 100% sin preguntas. Solo contáctanos." },
       { "q": "¿Los ingredientes de las recetas son caros?", "a": "¡No! Todas las recetas usan ingredientes simples como miel, aceite de oliva, huevos y aloe vera — que probablemente ya tienes en casa." },
       { "q": "¿Cuánto tiempo hasta ver resultados?", "a": "La mayoría de las usuarias nota mejora visible en 2 a 3 semanas siguiendo la rutina. Resultados a largo plazo en 60–90 días." },
       { "q": "¿Funciona para cualquier tipo de cabello?", "a": "¡Sí! El plan es personalizado con base en tu diagnóstico para funcionar con tu tipo y problema específico." }
     ],
-    "finePrint": "Al suscribirte aceptas los términos de uso. Cobro recurrente mensual. Cancela en cualquier momento a través del portal del cliente."
+    "finePrint": "Al comprar aceptas los términos de uso. Pago único. Garantía de 7 días sin preguntas."
   },
 
   "success": {

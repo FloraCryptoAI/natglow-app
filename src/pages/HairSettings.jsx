@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, Camera, Check, Languages, Loader2, Pencil, ShieldCheck, X } from 'lucide-react'
+import { Bell, Camera, Check, Loader2, Pencil, ShieldCheck, X } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
-import { unsubscribeFromPush, isPushSupported, isSubscribedToPush, updatePushLang } from '@/lib/push'
-import { setLang } from '@/lib/i18n'
+import { unsubscribeFromPush, isPushSupported, isSubscribedToPush } from '@/lib/push'
 import { updateProfileCache } from '@/lib/profileCache'
 import { InstallSettingsSection } from '@/components/InstallPrompt'
 import { useAuth } from '@/lib/AuthContext'
@@ -38,9 +37,8 @@ function ToggleRow({ label, description, checked, onChange, disabled = false }) 
 }
 
 export default function HairSettings() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { user, subscription, fetchSubscription } = useAuth()
-  const currentLang = i18n.language?.startsWith('es') ? 'es' : 'en'
 
   const [saving, setSaving]             = useState(false)
   const [pushSubscribed, setPushSubscribed] = useState(false)
@@ -159,20 +157,6 @@ export default function HairSettings() {
     toast.success(t('settings.disablePushConfirm'))
   }
 
-  async function toggleLang(lang) {
-    if (lang === currentLang) return
-    setLang(lang)
-    updatePushLang(lang)
-    if (user) {
-      const current = prefs
-      await supabase
-        .from('subscriptions')
-        .update({ notification_preferences: { ...current, lang } })
-        .eq('user_id', user.id)
-      fetchSubscription(user.id)
-    }
-  }
-
   if (!user) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -262,45 +246,6 @@ export default function HairSettings() {
               </div>
             )}
             <p className="text-xs text-stone-400 mt-0.5">{t('communityProfile.desc')}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Language selector */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="px-5 pt-5 pb-3 border-b border-stone-100 flex items-center gap-2">
-          <Languages className="w-4 h-4 text-brand" />
-          <h2 className="text-sm font-semibold text-stone-800">{t('settings.languageSection')}</h2>
-        </div>
-        <div className="px-5 py-4">
-          <p className="text-xs text-stone-400 mb-3">{t('settings.languageDesc')}</p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => toggleLang('es')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                currentLang === 'es' ? 'border-brand bg-brand/5' : 'border-stone-200 hover:border-stone-300'
-              }`}
-            >
-              <span className="text-2xl leading-none">🇪🇸</span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${currentLang === 'es' ? 'text-brand' : 'text-stone-700'}`}>Español</p>
-                <p className="text-xs text-stone-400">Spanish</p>
-              </div>
-              {currentLang === 'es' && <Check className="w-4 h-4 text-brand flex-shrink-0" />}
-            </button>
-            <button
-              onClick={() => toggleLang('en')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                currentLang === 'en' ? 'border-brand bg-brand/5' : 'border-stone-200 hover:border-stone-300'
-              }`}
-            >
-              <span className="text-2xl leading-none">🇺🇸</span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${currentLang === 'en' ? 'text-brand' : 'text-stone-700'}`}>English</p>
-                <p className="text-xs text-stone-400">Inglés</p>
-              </div>
-              {currentLang === 'en' && <Check className="w-4 h-4 text-brand flex-shrink-0" />}
-            </button>
           </div>
         </div>
       </div>

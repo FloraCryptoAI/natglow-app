@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
-  const isSubscribed = ['active', 'trialing', 'past_due'].includes(subscription?.status)
+  const isSubscribed = ['active', 'pending'].includes(subscription?.status)
 
   return (
     <AuthContext.Provider value={{

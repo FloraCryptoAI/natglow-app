@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
-  TrendingDown, Clock,
-  AlertTriangle, Star, Users,
+  Activity, Clock, AlertTriangle, Star, Users,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 import {
@@ -11,40 +10,13 @@ import {
 import MetricCard from './components/MetricCard'
 import SectionHeader from './components/SectionHeader'
 import ChartSkeleton from './components/ChartSkeleton'
+import ChartTooltip from './components/ChartTooltip'
 import ErrorBanner from './components/ErrorBanner'
 import { useAdminFetch } from './hooks/useAdminFetch'
-
-function ChurnTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-gray-900 text-white rounded-xl px-3 py-2.5 shadow-xl text-xs">
-      <p className="font-bold mb-1">{label}</p>
-      {payload.map(p => (
-        <p key={p.dataKey} className="font-medium" style={{ color: p.color }}>
-          {p.name}: {p.value}{typeof p.value === 'number' && p.dataKey === 'churnRate' ? '%' : ''}
-        </p>
-      ))}
-    </div>
-  )
-}
 
 function fmtDate(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('pt-BR')
-}
-
-function fmtNextBilling(val) {
-  if (!val) return '—'
-  const d = new Date(val)
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR')
-}
-
-function cohortCell(val) {
-  if (val === null || val === undefined) return '—'
-  const n = Number(val)
-  if (n >= 80) return { text: `${n}%`, cls: 'text-emerald-600 font-bold' }
-  if (n >= 60) return { text: `${n}%`, cls: 'text-amber-600 font-bold' }
-  return { text: `${n}%`, cls: 'text-red-500 font-bold' }
 }
 
 export default function AdminRetention() {
@@ -61,7 +33,7 @@ export default function AdminRetention() {
       if (!result) return
       setData(result)
     } catch (e) {
-      setError(e?.message ?? 'Erro ao carregar dados de retenção')
+      setError(e?.message ?? 'Erro ao carregar dados de engajamento')
     } finally {
       setLoading(false)
     }
@@ -69,22 +41,17 @@ export default function AdminRetention() {
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const monthlyChurn = data?.monthlyChurn  ?? []
-  const atRiskUsers  = data?.atRiskUsers   ?? []
-  const engagedUsers = data?.engagedUsers  ?? []
-  const cohortData   = data?.cohortData    ?? []
-
-  const avgChurn = monthlyChurn.length > 0
-    ? (monthlyChurn.reduce((s, m) => s + m.churnRate, 0) / monthlyChurn.length).toFixed(1)
-    : null
+  const monthlySales = data?.monthlySales ?? []
+  const atRiskUsers  = data?.atRiskUsers  ?? []
+  const engagedUsers = data?.engagedUsers ?? []
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900">Retenção e Churn</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Engajamento e comportamento das assinantes</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Engajamento</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Uso do app após a compra</p>
         </div>
         <button
           onClick={load}
@@ -99,54 +66,60 @@ export default function AdminRetention() {
 
       {/* Metric cards */}
       <section>
-        <SectionHeader title="Métricas de retenção" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <SectionHeader title="Métricas de uso" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            icon={TrendingDown} iconBg="bg-red-50" iconColor="text-red-400"
-            label="Churn médio mensal"
-            value={loading ? '—' : (avgChurn !== null ? `${avgChurn}%` : '—')}
-            sub="Média dos últimos 6 meses"
+            icon={Activity} iconBg="bg-emerald-50" iconColor="text-emerald-500"
+            label="Taxa de uso (30 dias)"
+            value={loading ? '—' : (data?.usageRate != null ? `${data.usageRate}%` : '—')}
+            sub="Compradoras com acesso nos últimos 30 dias"
             loading={loading}
           />
           <MetricCard
-            icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-500"
-            label="Tempo médio antes de cancelar"
-            value={loading ? '—' : (data?.avgDaysBeforeCancel != null ? `${data.avgDaysBeforeCancel} dias` : '—')}
-            sub="Entre assinar e cancelar"
+            icon={Star} iconBg="bg-blue-50" iconColor="text-blue-500"
+            label="Engajadas (7 dias)"
+            value={loading ? '—' : (data?.engagedCount ?? 0)}
+            sub="Acessaram nos últimos 7 dias"
             loading={loading}
           />
           <MetricCard
-            icon={AlertTriangle} iconBg="bg-orange-50" iconColor="text-orange-400"
-            label="Em risco (7+ dias sem acesso)"
-            value={loading ? '—' : atRiskUsers.length}
-            sub="Ativas mas sem engajamento recente"
+            icon={AlertTriangle} iconBg="bg-amber-50" iconColor="text-amber-500"
+            label="Em risco (7+ dias)"
+            value={loading ? '—' : (data?.atRiskCount ?? 0)}
+            sub="Ativas sem acesso recente"
+            loading={loading}
+          />
+          <MetricCard
+            icon={Clock} iconBg="bg-red-50" iconColor="text-red-400"
+            label="Nunca acessaram"
+            value={loading ? '—' : (data?.neverAccessedCount ?? 0)}
+            sub="Compraram mas não fizeram login"
             loading={loading}
           />
         </div>
       </section>
 
-      {/* Churn chart */}
+      {/* Monthly sales chart */}
       <section className="bg-white rounded-2xl border border-gray-100 p-5">
-        <p className="font-bold text-gray-800 mb-4">Taxa de cancelamento por mês</p>
+        <p className="font-bold text-gray-800 mb-4">Novas compradoras por mês</p>
         {loading ? (
           <ChartSkeleton h={200} />
-        ) : monthlyChurn.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-12">Sem dados de cancelamento.</p>
+        ) : monthlySales.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-12">Sem dados de vendas.</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={monthlyChurn} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <BarChart data={monthlySales} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis
-                tickFormatter={v => `${v}%`}
+                allowDecimals={false}
                 tick={{ fontSize: 11, fill: '#9ca3af' }}
-                axisLine={false} tickLine={false} width={40}
+                axisLine={false} tickLine={false} width={32}
               />
-              <Tooltip content={<ChurnTooltip />} />
-              <Bar
-                dataKey="churnRate" name="Churn rate"
-                fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={40}
-              />
+              <Tooltip content={({ active, payload, label }) => (
+                <ChartTooltip active={active} payload={payload} label={label} />
+              )} />
+              <Bar dataKey="count" name="Compras" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -154,7 +127,7 @@ export default function AdminRetention() {
 
       {/* At-risk users */}
       <section>
-        <SectionHeader title="Usuárias em risco — ativas sem acesso há 7+ dias" />
+        <SectionHeader title="Em risco — ativas sem acesso há 7+ dias" />
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -171,7 +144,7 @@ export default function AdminRetention() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
-                    {['Email', 'Dias sem acesso', 'Último acesso', 'Próxima cobrança'].map(h => (
+                    {['Email', 'Dias sem acesso', 'Último acesso', 'Data da compra'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -192,7 +165,7 @@ export default function AdminRetention() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(u.lastAccess)}</td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtNextBilling(u.nextBilling)}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(u.purchaseDate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -204,7 +177,7 @@ export default function AdminRetention() {
 
       {/* Engaged users */}
       <section>
-        <SectionHeader title="Usuárias engajadas — completaram as 4 fases (84 dias)" />
+        <SectionHeader title="Mais engajadas — acessaram nos últimos 7 dias" />
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -213,15 +186,14 @@ export default function AdminRetention() {
           ) : engagedUsers.length === 0 ? (
             <div className="py-12 text-center">
               <Star className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-              <p className="text-sm text-gray-400 font-medium">Nenhuma usuária completou o plano ainda.</p>
-              <p className="text-xs text-gray-300 mt-0.5">Aparecem aqui após 84 dias ativas.</p>
+              <p className="text-sm text-gray-400 font-medium">Nenhuma usuária engajada recentemente.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
-                    {['Email', 'Data de conclusão das 4 fases'].map(h => (
+                    {['Email', 'Último acesso', 'Dias desde a compra'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -235,69 +207,12 @@ export default function AdminRetention() {
                           {u.email ?? '—'}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(u.completionDate)}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(u.lastAccess)}</td>
+                      <td className="px-4 py-3 text-gray-500 tabular-nums">{u.daysSincePurchase ?? '—'} dias</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Cohort retention */}
-      <section>
-        <SectionHeader title="Cohort de retenção" />
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="w-7 h-7 border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin" />
-            </div>
-          ) : cohortData.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-10">Sem dados de cohort.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Mês de entrada</th>
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Assinantes</th>
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">M0</th>
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">M1</th>
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">M2</th>
-                    <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">M3</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {cohortData.map((row, i) => {
-                    const m0 = cohortCell(row.m0)
-                    const m1 = cohortCell(row.m1)
-                    const m2 = cohortCell(row.m2)
-                    const m3 = cohortCell(row.m3)
-                    return (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-gray-700">{row.label}</td>
-                        <td className="px-4 py-3 text-gray-500 tabular-nums">{row.size}</td>
-                        <td className="px-4 py-3 tabular-nums">
-                          <span className="text-emerald-600 font-bold">{m0.text}</span>
-                        </td>
-                        <td className="px-4 py-3 tabular-nums">
-                          <span className={row.m1 != null ? m1.cls : 'text-gray-300'}>{m1.text}</span>
-                        </td>
-                        <td className="px-4 py-3 tabular-nums">
-                          <span className={row.m2 != null ? m2.cls : 'text-gray-300'}>{m2.text}</span>
-                        </td>
-                        <td className="px-4 py-3 tabular-nums">
-                          <span className={row.m3 != null ? m3.cls : 'text-gray-300'}>{m3.text}</span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-              <p className="text-xs text-gray-400 px-4 py-3 border-t border-gray-50">
-                M0 = mês de entrada · M1/M2/M3 = % ainda ativas 1/2/3 meses depois · "—" = dados futuros
-              </p>
             </div>
           )}
         </div>

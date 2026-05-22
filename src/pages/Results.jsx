@@ -6,10 +6,9 @@ import {
   Clock, Lock, Check, Sparkles,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent';
-import { getAttribution, getFbp, getFbc } from '@/lib/tracking/attribution';
+import { getAttribution } from '@/lib/tracking/attribution';
 import LegalLine from '@/components/LegalLine';
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel';
 import { initTikTokPixel, trackTtEvent }   from '@/lib/tracking/tiktok-pixel';
@@ -321,7 +320,7 @@ function MaintenanceScreen({ message }) {
 
 export default function Results({ pricingPlan = 'monthly' }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.monthly;
-  const { plan_key, stripe_price_id, results_path, route_path } = planConfig;
+  const { plan_key, results_path, route_path } = planConfig;
   const TIMER_KEY = `glow_results_timer_end_${plan_key}`;
   // Synchronously initialize the urgency timer before PricingCard mounts and reads sessionStorage.
   // Quiz clears this key on completion, so it's always fresh on each results visit.
@@ -330,8 +329,8 @@ export default function Results({ pricingPlan = 'monthly' }) {
     sessionStorage.setItem(TIMER_KEY, (Date.now() + minutes * 60 * 1000).toString());
   }
 
-  const { t, i18n } = useTranslation();
-  const periodLabel = i18n.language.startsWith('es') ? planConfig.period_es : planConfig.period_en;
+  const { t } = useTranslation();
+  const periodLabel = planConfig.period_label ?? 'pago único';
   const { state } = useLocation();
   const navigate = useNavigate();
   const { user, isSubscribed } = useAuth();
@@ -436,17 +435,11 @@ export default function Results({ pricingPlan = 'monthly' }) {
     pricingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     setLoading(true);
-    setError(null);
 
-    // Generate a single event_id used by BOTH the browser Pixel and the server-side CAPI
-    // so Facebook deduplicates them. Capture fbp/fbc NOW (at click time), not at mount.
-    const fbEventId   = crypto.randomUUID();
-    // Separate event_id for CompletePayment deduplication (browser /success + server webhook)
+    const fbEventId    = crypto.randomUUID();
     const ttCompleteId = crypto.randomUUID();
-    const fbp          = getFbp();
-    const fbc          = getFbc();
     const attribution  = getAttribution();
 
     // Persist for /success page so browser-side CompletePayment can use the same event_id
@@ -455,43 +448,21 @@ export default function Results({ pricingPlan = 'monthly' }) {
     sessionStorage.setItem('tt_complete_value',      String(planConfig.display_price));
 
     trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId }, plan_key);
-
-    // Fire InitiateCheckout on the browser Pixel with the same event_id
     trackFbEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key }, fbEventId);
     trackTtEvent('InitiateCheckout', { value: planConfig.display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId);
 
-    try {
-      const invokeOptions = {
-        body: {
-          priceId: stripe_price_id,
-          planKey: plan_key,
-          successUrl: window.location.origin + '/success',
-          cancelUrl: window.location.origin + results_path,
-          funnelSessionId: getFunnelSessionId(),
-          // Tracking — stored in Stripe Session metadata so the webhook can send server-side events
-          fbEventId,
-          ttCompleteId,
-          fbp:             fbp  ?? undefined,
-          fbc:             fbc  ?? undefined,
-          attribution:     attribution ?? undefined,
-          clientUserAgent: navigator.userAgent,
-        },
-      };
-      if (user) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          invokeOptions.headers = { Authorization: `Bearer ${session.access_token}` };
-        }
-      }
-      const { data, error: fnError } = await supabase.functions.invoke('create-checkout-session', invokeOptions);
-      if (fnError) throw fnError;
-      if (!data?.url) throw new Error('Checkout URL not returned');
-      window.location.href = data.url;
-    } catch (err) {
-      console.error('Checkout error:', err);
-      setError(t('results.pricing.errorCheckout'));
-      setLoading(false);
-    }
+    // Build Hotmart checkout URL with UTM/tracking params
+    let checkoutUrl = planConfig.hotmart_checkout_url || '/';
+    const params = new URLSearchParams();
+    const funnelSessionId = getFunnelSessionId();
+    if (funnelSessionId)           params.set('src',          funnelSessionId);
+    if (attribution?.utm_source)   params.set('utm_source',   attribution.utm_source);
+    if (attribution?.utm_medium)   params.set('utm_medium',   attribution.utm_medium);
+    if (attribution?.utm_campaign) params.set('utm_campaign', attribution.utm_campaign);
+    const qs = params.toString();
+    if (qs) checkoutUrl += (checkoutUrl.includes('?') ? '&' : '?') + qs;
+
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -509,6 +480,10 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </Link>
         </div>
       </header>
+
+      {/* ── VSL — Video de Ventas ── */}
+      {/* TODO: Adicionar embed do vídeo de vendas aqui (YouTube ou Wistia) */}
+      {/* Exemplo: <section className="bg-black"><div className="max-w-xl mx-auto aspect-video"><iframe ... /></div></section> */}
 
       {/* ── HERO ── */}
       <section className="relative pt-14 pb-6 overflow-hidden bg-white">

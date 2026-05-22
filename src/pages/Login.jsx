@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { ArrowRight, Loader2, Mail, KeyRound, ChevronLeft } from 'lucide-react'
+import { ArrowRight, Loader2, Mail, KeyRound, ChevronLeft, Lock } from 'lucide-react'
 import LegalLine from '@/components/LegalLine'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
@@ -127,12 +127,13 @@ export default function Login() {
   const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL
 
   // Query-param state
-  const expired  = searchParams.get('expired')  === 'true'
-  const invalid  = searchParams.get('invalid')  === 'true'
-  const used     = searchParams.get('used')     === 'true'
-  const paramEmail = searchParams.get('email') ?? ''
+  const expired     = searchParams.get('expired')     === 'true'
+  const invalid     = searchParams.get('invalid')     === 'true'
+  const used        = searchParams.get('used')        === 'true'
+  const passwordSet = searchParams.get('passwordSet') === 'true'
+  const paramEmail  = searchParams.get('email') ?? ''
 
-  // View: 'form' | 'magic-sent' | 'code-input'
+  // View: 'form' | 'magic-sent' | 'code-input' | 'password-form'
   const [view,         setView]         = useState('form')
   const [email,        setEmail]        = useState(paramEmail)
   const [codeDigits,   setCodeDigits]   = useState('')
@@ -140,6 +141,10 @@ export default function Login() {
   const [loadingCode,  setLoadingCode]  = useState(false)   // code sending
   const [loadingVerify,setLoadingVerify]= useState(false)   // code verifying
   const [error,        setError]        = useState(null)
+  // Password login state
+  const [password,     setPassword]     = useState('')
+  const [loadingPwd,   setLoadingPwd]   = useState(false)
+  const [resetSent,    setResetSent]    = useState(false)
 
   // Redirect when already logged in
   useEffect(() => {
@@ -245,6 +250,50 @@ export default function Login() {
     }
   }
 
+  // ── Password login flow ───────────────────────────────────────────────────
+
+  const handlePasswordLogin = async (e) => {
+    e.preventDefault()
+    if (password.length < 8) { setError(t('login.passwordTooShort')); return }
+    setLoadingPwd(true)
+    setError(null)
+    try {
+      const { error: authErr } = await supabase.auth.signInWithPassword({
+        email:    email.trim().toLowerCase(),
+        password,
+      })
+      if (authErr) throw authErr
+      // AuthContext onAuthStateChange fires → useEffect above redirects
+    } catch (err) {
+      const msg = (err?.message ?? '').toLowerCase()
+      if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('wrong')) {
+        setError(t('login.invalidCredentials'))
+      } else {
+        setError(err?.message || t('login.errorGeneric'))
+      }
+    } finally {
+      setLoadingPwd(false)
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) { setError(t('login.noEmailForReset')); return }
+    setLoadingPwd(true)
+    setError(null)
+    try {
+      const { error: authErr } = await supabase.auth.resetPasswordForEmail(
+        email.trim().toLowerCase(),
+        { redirectTo: `${window.location.origin}/reset-password` },
+      )
+      if (authErr) throw authErr
+      setResetSent(true)
+    } catch (err) {
+      setError(err?.message ?? t('login.errorGeneric'))
+    } finally {
+      setLoadingPwd(false)
+    }
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   const emailTrimmed = email.trim()
@@ -277,7 +326,12 @@ export default function Login() {
           {view === 'form' && (
             <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 flex flex-col gap-5">
 
-              {/* Error banners from query params */}
+              {/* Error / info banners from query params */}
+              {passwordSet && (
+                <Banner type="green">
+                  {t('login.passwordSet')}
+                </Banner>
+              )}
               {expired && (
                 <Banner type="yellow">
                   {t('login.expiredBanner')}
@@ -382,6 +436,14 @@ export default function Login() {
                 </>
               )}
 
+              <button
+                type="button"
+                onClick={() => { setView('password-form'); setError(null); setPassword(''); setResetSent(false) }}
+                className="flex items-center justify-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 mx-auto"
+              >
+                <Lock className="w-3 h-3" /> {t('login.withPassword')}
+              </button>
+
               <p className="text-center text-xs text-stone-400">
                 {t('login.noAccount')}{' '}
                 <Link to="/Landing" className="underline text-stone-600 hover:text-stone-800">
@@ -483,6 +545,79 @@ export default function Login() {
 
               <button
                 onClick={() => { setView('form'); setError(null) }}
+                className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 mx-auto"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> {t('login.back')}
+              </button>
+            </div>
+          )}
+
+          {/* ── VIEW: Password login ── */}
+          {view === 'password-form' && (
+            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 flex flex-col gap-5">
+              <div className="text-center">
+                <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3" style={{ background: 'linear-gradient(135deg,#FB45A9,#E03594)' }}>
+                  <Lock className="w-7 h-7 text-white" />
+                </div>
+                <h1 className="text-2xl font-extrabold text-stone-900 mb-1">{t('login.withPasswordTitle')}</h1>
+                <p className="text-stone-500 text-sm">{t('login.subtitle')}</p>
+              </div>
+
+              {resetSent ? (
+                <Banner type="green">{t('login.resetSent', { email: emailTrimmed })}</Banner>
+              ) : (
+                <>
+                  {error && <Banner type="red">{error}</Banner>}
+
+                  <form onSubmit={handlePasswordLogin} className="flex flex-col gap-3">
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                      <input
+                        type="email"
+                        required
+                        placeholder={t('login.placeholder')}
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="w-full border-2 border-stone-200 rounded-2xl pl-10 pr-4 py-3.5 text-stone-800 outline-none focus:border-pink-400 transition-colors text-sm"
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                      <input
+                        type="password"
+                        required
+                        placeholder={t('login.passwordPlaceholder')}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        className="w-full border-2 border-stone-200 rounded-2xl pl-10 pr-4 py-3.5 text-stone-800 outline-none focus:border-pink-400 transition-colors text-sm"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loadingPwd || !emailTrimmed || !password}
+                      className="btn-primary w-full py-4 text-sm flex items-center justify-center gap-2"
+                    >
+                      {loadingPwd
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('login.sending')}</>
+                        : <><Lock className="w-4 h-4" /> {t('login.withPassword')} <ArrowRight className="w-4 h-4" /></>}
+                    </button>
+                  </form>
+
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={loadingPwd}
+                    className="text-center text-xs text-pink-600 hover:text-pink-700 font-semibold disabled:opacity-50"
+                  >
+                    {t('login.forgotPassword')}
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() => { setView('form'); setError(null); setResetSent(false) }}
                 className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 mx-auto"
               >
                 <ChevronLeft className="w-3.5 h-3.5" /> {t('login.back')}

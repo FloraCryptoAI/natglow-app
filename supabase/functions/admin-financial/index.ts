@@ -1,46 +1,26 @@
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
-import { fetchTotalRevenueCents } from '../_shared/stripe-revenue.ts'
 
-const SUPABASE_URL        = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const STRIPE_KEY          = Deno.env.get('STRIPE_SECRET_KEY')!
-
-const PLAN_MRR: Record<string, number> = {
-  monthly_499:  4.99,
-  monthly_699:  6.99,
-  monthly_1499: 14.99,
-}
 
 const PLAN_LABELS: Record<string, string> = {
-  monthly_499:  'Monthly $4.99',
-  monthly_699:  'Monthly $6.99',
-  monthly_1499: 'Monthly $14.99',
+  one_time_basic:    'NatGlow Básico · $17',
+  one_time_standard: 'NatGlow Completo · $27',
+  one_time_premium:  'NatGlow VIP · $47',
+  monthly_499:       'Monthly $4.99',
+  monthly_699:       'Monthly $6.99',
+  monthly_1499:      'Monthly $14.99',
 }
 
-function subMrr(planKey: string | null | undefined): number {
-  const key = planKey ?? 'monthly_699'
-  return PLAN_MRR[key] ?? 6.99
+const PLAN_PRICE: Record<string, number> = {
+  one_time_basic:    17,
+  one_time_standard: 27,
+  one_time_premium:  47,
+  monthly_499:       4.99,
+  monthly_699:       6.99,
+  monthly_1499:      14.99,
 }
-
-async function stripeGet(path: string) {
-  const res = await fetch(`https://api.stripe.com/v1${path}`, {
-    headers: { Authorization: `Bearer ${STRIPE_KEY}` },
-  })
-  const data = await res.json()
-  if (data.error) throw new Error(data.error.message ?? 'Stripe error')
-  return data
-}
-
-async function fetchAllSupabaseSubs(): Promise<Record<string, unknown>[]> {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/subscriptions?select=*&order=created_at.asc&limit=1000`,
-    { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } }
-  )
-  const data = await res.json()
-  return Array.isArray(data) ? data : []
-}
-
 
 function getMonths(n: number) {
   const months = []
@@ -54,6 +34,20 @@ function getMonths(n: number) {
     })
   }
   return months
+}
+
+async function fetchAllSubs(): Promise<Record<string, unknown>[]> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/subscriptions?select=*&order=created_at.desc&limit=2000`,
+    { headers: { Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, apikey: SUPABASE_SERVICE_KEY } }
+  )
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
+}
+
+function subAmount(s: Record<string, unknown>): number {
+  if (typeof s.purchase_amount === 'number') return s.purchase_amount
+  return PLAN_PRICE[(s.pricing_plan as string) ?? ''] ?? 0
 }
 
 Deno.serve(async (req) => {
@@ -72,107 +66,81 @@ Deno.serve(async (req) => {
     const monthCount = Math.min(Math.max(parseInt(url.searchParams.get('months') ?? '6'), 3), 12)
     const months     = getMonths(monthCount)
 
-    const [supabaseSubs, recentPaidData, failedData, totalRevenueCents] = await Promise.all([
-      fetchAllSupabaseSubs(),
-      stripeGet('/invoices?limit=20&status=paid&expand[]=data.customer'),
-      stripeGet('/invoices?limit=20&status=open&collection_method=charge_automatically&expand[]=data.customer'),
-      fetchTotalRevenueCents(),
-    ])
+    const subs = await fetchAllSubs()
 
-    // Counts from Supabase (source of truth for subscribers)
-    const activeCount   = supabaseSubs.filter(s => s.status === 'active').length
-    const canceledCount = supabaseSubs.filter(s => s.status === 'canceled').length
-    const pastDueCount  = supabaseSubs.filter(s => s.status === 'past_due').length
+    const activeCount     = subs.filter(s => s.status === 'active').length
+    const pendingCount    = subs.filter(s => s.status === 'pending').length
+    const refundedCount   = subs.filter(s => s.status === 'refunded').length
+    const chargebackCount = subs.filter(s => s.status === 'chargeback').length
+    const totalSold       = activeCount + refundedCount + chargebackCount
 
-    // MRR = sum of per-subscription MRR equivalent (multi-plan aware)
-    const currentMRR = parseFloat(
-      supabaseSubs
+    const totalRevenue = parseFloat(
+      subs
         .filter(s => s.status === 'active')
-        .reduce((acc, s) => acc + subMrr(s.pricing_plan as string | null), 0)
+        .reduce((acc, s) => acc + subAmount(s), 0)
         .toFixed(2)
     )
-    const projectedARR = parseFloat((currentMRR * 12).toFixed(2))
-    const totalRevenue = parseFloat((totalRevenueCents / 100).toFixed(2))
-    const delinquencyRate = (activeCount + pastDueCount) > 0
-      ? parseFloat(((pastDueCount / (activeCount + pastDueCount)) * 100).toFixed(1))
+
+    const avgTicket  = activeCount > 0 ? parseFloat((totalRevenue / activeCount).toFixed(2)) : 0
+    const refundRate = totalSold > 0
+      ? parseFloat(((refundedCount + chargebackCount) / totalSold * 100).toFixed(1))
       : 0
 
-    // Historical MRR — per-subscription MRR accumulated per month
-    const mrrHistory = months.map(m => {
-      const mrr = supabaseSubs
-        .filter(s => {
-          const created  = s.created_at as string
-          const canceled = s.canceled_at as string | null
-          return created <= m.endISO && (canceled == null || canceled > m.startISO)
-        })
-        .reduce((acc, s) => acc + subMrr(s.pricing_plan as string | null), 0)
-      return { label: m.label, mrr: parseFloat(mrr.toFixed(2)) }
-    })
-
-    // Monthly flow (new vs canceled)
-    const monthlyFlow = months.map(m => ({
-      label:    m.label,
-      new:      supabaseSubs.filter(s =>
-        (s.created_at as string) >= m.startISO && (s.created_at as string) <= m.endISO
-      ).length,
-      canceled: supabaseSubs.filter(s =>
-        s.canceled_at != null &&
-        (s.canceled_at as string) >= m.startISO && (s.canceled_at as string) <= m.endISO
-      ).length,
-    }))
-
-    // Per-plan breakdown (for the new section in Financial)
-    const planBreakdown = Object.entries(PLAN_MRR).map(([key, mrr]) => {
-      const isDefault = key === 'monthly_699'
-      const planSubs  = supabaseSubs.filter(s => {
-        const p = (s.pricing_plan as string | null) ?? 'monthly_699'
-        return isDefault ? (p === 'monthly_699' || !s.pricing_plan) : p === key
+    // Sales history grouped by month
+    const salesHistory = months.map(m => {
+      const monthSubs = subs.filter(s => {
+        const c = s.created_at as string
+        return c >= m.startISO && c <= m.endISO
       })
-      const activePlan   = planSubs.filter(s => s.status === 'active').length
-      const canceledPlan = planSubs.filter(s => s.status === 'canceled').length
+      const revenue = monthSubs
+        .filter(s => s.status === 'active')
+        .reduce((acc, s) => acc + subAmount(s), 0)
       return {
-        plan_key:         key,
-        label:            PLAN_LABELS[key] ?? key,
-        mrr_per_user:     mrr,
-        active_count:     activePlan,
-        canceled_count:   canceledPlan,
-        mrr_contribution: parseFloat((activePlan * mrr).toFixed(2)),
+        label:   m.label,
+        revenue: parseFloat(revenue.toFixed(2)),
+        count:   monthSubs.filter(s => s.status === 'active' || s.status === 'pending').length,
       }
     })
 
-    const recentPayments = (recentPaidData.data ?? []).map((inv: any) => ({
-      id:         inv.id,
-      email:      inv.customer_email ?? inv.customer?.email ?? '—',
-      amount:     parseFloat((inv.amount_paid / 100).toFixed(2)),
-      currency:   (inv.currency ?? 'usd').toUpperCase(),
-      date:       inv.status_transitions?.paid_at ?? inv.created,
-      status:     'paid' as const,
-      hostedUrl:  inv.hosted_invoice_url ?? null,
+    // Per-plan breakdown (active only for revenue)
+    const planKeys = [...new Set(subs.map(s => (s.pricing_plan as string) ?? '').filter(Boolean))]
+    const planBreakdown = planKeys.map(key => {
+      const planSubs = subs.filter(s => (s.pricing_plan as string) === key && s.status === 'active')
+      const revenue  = planSubs.reduce((acc, s) => acc + subAmount(s), 0)
+      const pct      = totalRevenue > 0 ? parseFloat(((revenue / totalRevenue) * 100).toFixed(1)) : 0
+      return {
+        plan_key: key,
+        label:    PLAN_LABELS[key] ?? key,
+        price:    PLAN_PRICE[key]  ?? 0,
+        count:    planSubs.length,
+        revenue:  parseFloat(revenue.toFixed(2)),
+        pct,
+      }
+    }).sort((a, b) => b.revenue - a.revenue)
+
+    // Recent purchases (last 20, all statuses)
+    const recentPurchases = subs.slice(0, 20).map(s => ({
+      id:         s.id,
+      email:      s.email ?? '—',
+      plan:       s.pricing_plan ?? '—',
+      plan_label: PLAN_LABELS[(s.pricing_plan as string) ?? ''] ?? ((s.pricing_plan as string) ?? '—'),
+      amount:     subAmount(s),
+      currency:   (s.purchase_currency as string) ?? 'USD',
+      date:       s.created_at,
+      status:     (s.status as string) ?? 'active',
     }))
 
-    const failedPayments = (failedData.data ?? [])
-      .filter((inv: any) => inv.attempt_count > 0)
-      .map((inv: any) => ({
-        id:     inv.id,
-        email:  inv.customer_email ?? inv.customer?.email ?? '—',
-        amount: parseFloat((inv.amount_due / 100).toFixed(2)),
-        date:   inv.created,
-        error:  inv.last_payment_error?.message ?? 'Falha no pagamento',
-      }))
-
     return new Response(JSON.stringify({
-      currentMRR,
-      projectedARR,
       totalRevenue,
       activeCount,
-      canceledCount,
-      pastDueCount,
-      delinquencyRate,
-      mrrHistory,
-      monthlyFlow,
+      pendingCount,
+      refundedCount,
+      chargebackCount,
+      refundRate,
+      avgTicket,
+      salesHistory,
       planBreakdown,
-      recentPayments,
-      failedPayments,
+      recentPurchases,
     }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Erro interno'

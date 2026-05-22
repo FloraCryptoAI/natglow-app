@@ -7,12 +7,11 @@ import {
   TAG_LABELS as BASE_TAG_LABELS,
   DAY_TYPE_LABELS as BASE_DAY_TYPE_LABELS,
 } from '../lib/hairData';
-import * as enText from '../locales/hairDataText.en';
 import * as esText from '../locales/hairDataText.es';
 
 export function useTranslatedHairData() {
-  const { i18n } = useTranslation();
-  const lang = i18n.language === 'es' ? esText : enText;
+  useTranslation(); // keeps i18next context subscribed for re-renders
+  const lang = esText;
 
   const recipes = BASE_RECIPES.map(r => ({
     ...r,

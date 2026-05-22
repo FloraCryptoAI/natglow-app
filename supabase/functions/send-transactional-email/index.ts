@@ -1,7 +1,6 @@
-import { welcomeTemplate }             from '../_shared/email-templates/welcome.ts'
-import { paymentSuccessTemplate }       from '../_shared/email-templates/payment_success.ts'
-import { paymentFailedTemplate }        from '../_shared/email-templates/payment_failed.ts'
-import { subscriptionCanceledTemplate } from '../_shared/email-templates/subscription_canceled.ts'
+import { welcomeTemplate }           from '../_shared/email-templates/welcome.ts'
+import { paymentSuccessTemplate }     from '../_shared/email-templates/payment_success.ts'
+import { purchaseRefundedTemplate }   from '../_shared/email-templates/purchase_refunded.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const FROM_EMAIL     = 'NatGlow <hello@natglow.app>'
@@ -9,8 +8,7 @@ const FROM_EMAIL     = 'NatGlow <hello@natglow.app>'
 export type EmailTemplate =
   | 'welcome'
   | 'payment_success'
-  | 'payment_failed'
-  | 'subscription_canceled'
+  | 'purchase_refunded'
 
 export interface SendEmailParams {
   to:       string
@@ -22,7 +20,7 @@ export interface SendEmailParams {
 export async function sendTransactionalEmail(params: SendEmailParams): Promise<{ ok: boolean; error?: string }> {
   if (!RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
-  const locale = params.locale ?? 'en'
+  const locale = params.locale ?? 'es'
   const data   = params.data   ?? {}
 
   let subject: string
@@ -35,11 +33,8 @@ export async function sendTransactionalEmail(params: SendEmailParams): Promise<{
     case 'payment_success':
       ;({ subject, html } = paymentSuccessTemplate(locale, data))
       break
-    case 'payment_failed':
-      ;({ subject, html } = paymentFailedTemplate(locale, data))
-      break
-    case 'subscription_canceled':
-      ;({ subject, html } = subscriptionCanceledTemplate(locale, data))
+    case 'purchase_refunded':
+      ;({ subject, html } = purchaseRefundedTemplate(locale, data))
       break
     default:
       return { ok: false, error: `Unknown template: ${params.template}` }
@@ -71,8 +66,7 @@ export async function sendTransactionalEmail(params: SendEmailParams): Promise<{
   }
 }
 
-// This file is used as an imported module by other edge functions.
-// The HTTP server only starts when run as a standalone function, not when imported.
+// HTTP entry point when deployed as a standalone function
 if (import.meta.main) {
   Deno.serve(async (req) => {
     if (req.method !== 'POST') {

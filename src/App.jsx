@@ -31,7 +31,8 @@ import Privacy from './pages/Privacy'
 import Terms   from './pages/Terms'
 import Refund  from './pages/Refund'
 import Contact from './pages/Contact';
-import AuthCallback from './pages/AuthCallback';
+import AuthCallback    from './pages/AuthCallback';
+import ResetPassword  from './pages/ResetPassword';
 
 import HairDiagnosis from './pages/HairDiagnosis';
 import HairDashboard from './pages/HairDashboard';
@@ -123,8 +124,9 @@ const AppRoutes = () => {
       <Route path="/Results" element={<Navigate to="/results" replace />} />
 
       <Route path="/Landing" element={<LandingRedirect />} />
-      <Route path="/Login" element={<Login />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/Login"          element={<Login />} />
+      <Route path="/auth/callback"  element={<AuthCallback />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Página de assinatura — acessível para quem está logado mas não assinou */}
       <Route path="/Upgrade" element={
