@@ -222,9 +222,9 @@ Deno.serve(async (req) => {
           data:     { magic_link: magicLink ?? undefined, name },
         }).catch(err => console.error('Welcome email failed:', err))
 
-        // CAPI + TikTok — fire-and-forget
+        // CAPI + TikTok — awaited so the function doesn't shut down before the HTTP calls complete
         const eventId = `hp_${txId || Date.now()}`
-        Promise.allSettled([
+        await Promise.allSettled([
           sendFacebookCAPIEvent({
             event_name:  'Purchase',
             event_id:    eventId,
@@ -250,7 +250,7 @@ Deno.serve(async (req) => {
               }],
             },
           }),
-        ]).catch(() => { /* never throws */ })
+        ])
 
         break
       }

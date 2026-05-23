@@ -19,22 +19,31 @@ export default function SubscriptionSuccess() {
     }
   }, [user, isSubscribed, navigate]);
 
-  // TikTok browser-side CompletePayment (deduplication with server-side event)
+  // TikTok browser-side CompletePayment
+  // Uses stored event_id from /results for deduplication; falls back to a fresh ID
+  // if the user arrives at /success without going through /results first (e.g. Hotmart redirect)
   useEffect(() => {
-    const ttCompleteId = sessionStorage.getItem('tt_complete_payment_id');
-    const planKey      = sessionStorage.getItem('tt_complete_plan_key');
-    const planValue    = parseFloat(sessionStorage.getItem('tt_complete_value') || '0') || undefined;
-    if (!ttCompleteId) return;
+    const storedId  = sessionStorage.getItem('tt_complete_payment_id');
+    const planKey   = sessionStorage.getItem('tt_complete_plan_key');
+    const planValue = parseFloat(sessionStorage.getItem('tt_complete_value') || '0') || undefined;
+
+    // Prevent double-firing on page refresh when no stored ID exists
+    if (!storedId && sessionStorage.getItem('tt_complete_fired')) return;
+
+    const eventId = storedId || crypto.randomUUID();
+
+    sessionStorage.setItem('tt_complete_fired', '1');
+    sessionStorage.removeItem('tt_complete_payment_id');
+    sessionStorage.removeItem('tt_complete_plan_key');
+    sessionStorage.removeItem('tt_complete_value');
+
     initTikTokPixel().then(() => {
       trackTtEvent('CompletePayment', {
         content_id:   planKey || 'natglow_purchase',
         content_type: 'product',
         currency:     'USD',
         value:        planValue,
-      }, ttCompleteId);
-      sessionStorage.removeItem('tt_complete_payment_id');
-      sessionStorage.removeItem('tt_complete_plan_key');
-      sessionStorage.removeItem('tt_complete_value');
+      }, eventId);
     });
   }, []);
 
