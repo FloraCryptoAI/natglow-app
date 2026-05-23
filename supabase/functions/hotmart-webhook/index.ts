@@ -182,14 +182,16 @@ Deno.serve(async (req) => {
     // Derive the effective action from BOTH the event name and purchase.status.
     // Event name takes precedence for refund/cancel events because Hotmart sometimes
     // sends PURCHASE_REFUNDED with purchase.status = "CANCELLED" or even empty.
-    const REFUND_EVENTS   = ['PURCHASE_REFUNDED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELLATION', 'PURCHASE_REFUND_REQUEST']
-    const APPROVED_EVENTS = ['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_BILLET_PRINTED']
-    const PENDING_EVENTS  = ['PURCHASE_WAITING_PAYMENT', 'PURCHASE_UNDER_ANALYSIS', 'PURCHASE_PRE_ORDER']
+    const REFUND_EVENTS     = ['PURCHASE_REFUNDED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELLATION', 'PURCHASE_REFUND_REQUEST']
+    const CHARGEBACK_EVENTS = ['PURCHASE_CHARGEBACK', 'PURCHASE_PROTEST']
+    const APPROVED_EVENTS   = ['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_BILLET_PRINTED']
+    const PENDING_EVENTS    = ['PURCHASE_WAITING_PAYMENT', 'PURCHASE_UNDER_ANALYSIS', 'PURCHASE_PRE_ORDER']
 
     let effectiveStatus = purchaseStatus
-    if (REFUND_EVENTS.includes(event))   effectiveStatus = 'REFUNDED'
-    if (APPROVED_EVENTS.includes(event) && !purchaseStatus) effectiveStatus = 'APPROVED'
-    if (PENDING_EVENTS.includes(event)  && !purchaseStatus) effectiveStatus = 'WAITING_PAYMENT'
+    if (REFUND_EVENTS.includes(event))                       effectiveStatus = 'REFUNDED'
+    if (CHARGEBACK_EVENTS.includes(event))                   effectiveStatus = 'CHARGEBACK'
+    if (APPROVED_EVENTS.includes(event) && !purchaseStatus)  effectiveStatus = 'APPROVED'
+    if (PENDING_EVENTS.includes(event)  && !purchaseStatus)  effectiveStatus = 'WAITING_PAYMENT'
 
     console.log('Hotmart event:', event, 'status:', purchaseStatus, '→ effective:', effectiveStatus, {
       txId, email: email ? '***' : '(empty)', planKey, productId,
@@ -308,7 +310,8 @@ Deno.serve(async (req) => {
 
       // ---- Chargeback / dispute ----
       case 'CHARGEBACK':
-      case 'PROTESTED': {
+      case 'PROTESTED':
+      case 'DISPUTE': {
         if (txId) await updateSubByTxId(txId, { status: 'chargeback' })
         break
       }
