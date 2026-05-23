@@ -182,7 +182,7 @@ Deno.serve(async (req) => {
     // Derive the effective action from BOTH the event name and purchase.status.
     // Event name takes precedence for refund/cancel events because Hotmart sometimes
     // sends PURCHASE_REFUNDED with purchase.status = "CANCELLED" or even empty.
-    const REFUND_EVENTS   = ['PURCHASE_REFUNDED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELLATION']
+    const REFUND_EVENTS   = ['PURCHASE_REFUNDED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELLATION', 'PURCHASE_REFUND_REQUEST']
     const APPROVED_EVENTS = ['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_BILLET_PRINTED']
     const PENDING_EVENTS  = ['PURCHASE_WAITING_PAYMENT', 'PURCHASE_UNDER_ANALYSIS', 'PURCHASE_PRE_ORDER']
 
