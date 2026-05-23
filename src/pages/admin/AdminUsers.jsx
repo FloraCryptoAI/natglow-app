@@ -67,8 +67,18 @@ function SortIcon({ col, sort, order }) {
 }
 
 
-function UserDrawer({ user, data, loading, onClose }) {
+function UserDrawer({ user, data, loading, onClose, onSetStatus }) {
   const { subscription, quiz, payments } = data ?? {}
+  const [confirmRevoke, setConfirmRevoke] = useState(false)
+  const [revoking, setRevoking] = useState(false)
+
+  const handleRevoke = async () => {
+    setRevoking(true)
+    await onSetStatus(user.user_id, 'refunded')
+    setRevoking(false)
+    setConfirmRevoke(false)
+    onClose()
+  }
 
   return (
     <div className="fixed inset-0 z-40 flex">
@@ -105,6 +115,40 @@ function UserDrawer({ user, data, loading, onClose }) {
                   </div>
                 ))}
               </div>
+
+              {(user.status === 'active' || user.status === 'pending') && (
+                <div className="pt-1">
+                  {!confirmRevoke ? (
+                    <button
+                      onClick={() => setConfirmRevoke(true)}
+                      className="w-full py-2 rounded-xl border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors"
+                    >
+                      Revogar acesso
+                    </button>
+                  ) : (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-2">
+                      <p className="text-xs font-semibold text-red-700">
+                        Marcar como reembolsada e revogar acesso imediatamente?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleRevoke}
+                          disabled={revoking}
+                          className="flex-1 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {revoking ? 'Revogando…' : 'Confirmar'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmRevoke(false)}
+                          className="flex-1 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
 
             <section className="px-6 py-5">
@@ -281,6 +325,18 @@ export default function AdminUsers() {
   }
 
   const closeDrawer = () => { setSelectedUser(null); setDrawerData(null) }
+
+  const handleSetStatus = async (userId, newStatus) => {
+    try {
+      await fetch(`${baseUrl}/admin-users?mode=set_status`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ user_id: userId, status: newStatus }),
+      })
+      // Update list optimistically
+      setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, status: newStatus } : u))
+    } catch { /* non-fatal */ }
+  }
 
 
   const Th = ({ col, label }) => (
@@ -464,6 +520,7 @@ export default function AdminUsers() {
           data={drawerData}
           loading={drawerLoading}
           onClose={closeDrawer}
+          onSetStatus={handleSetStatus}
         />
       )}
     </div>

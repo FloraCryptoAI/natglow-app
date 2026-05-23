@@ -113,6 +113,39 @@ Deno.serve(async (req) => {
     const url = new URL(req.url)
     const mode = url.searchParams.get('mode') ?? 'list'
 
+    // ── SET STATUS MODE (POST) ──
+    if (req.method === 'POST' && mode === 'set_status') {
+      const { user_id, status: newStatus } = await req.json()
+      const VALID = ['active', 'pending', 'refunded', 'chargeback']
+      if (!user_id || !VALID.includes(newStatus)) {
+        return new Response(JSON.stringify({ error: 'user_id e status válido obrigatórios' }), {
+          status: 400, headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${user_id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+            apikey: SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      )
+      if (!res.ok) {
+        const text = await res.text()
+        return new Response(JSON.stringify({ error: text }), {
+          status: 500, headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...cors, 'Content-Type': 'application/json' },
+      })
+    }
+
     // ── DETAIL MODE ──
     if (mode === 'detail') {
       const userId = url.searchParams.get('user_id')
