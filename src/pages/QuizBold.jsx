@@ -57,11 +57,31 @@ function ProgressBar({ current, total }) {
     <div className="w-full bg-stone-200 rounded-full h-1.5">
       <motion.div
         className="h-1.5 rounded-full"
-        style={{ background: 'linear-gradient(90deg, #FB45A9, #E03594)' }}
+        style={{ background: 'linear-gradient(90deg, #C0392B, #FB45A9)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4 }}
       />
+    </div>
+  )
+}
+
+function PersuasiveStepHeader({ current, total, title, context, subtitle, t }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="self-center inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-[10px] font-extrabold tracking-wider" style={{ background: '#C0392B' }}>
+        {t('quizBold.stepBadge', { current, total })}
+      </span>
+      <ProgressBar current={current} total={total} />
+      <div className="text-center flex flex-col gap-1.5">
+        <h2 className="text-2xl font-extrabold text-stone-900 leading-tight">{title}</h2>
+        {subtitle && <p className="text-sm text-stone-400">{subtitle}</p>}
+        {context && (
+          <p className="text-xs font-bold uppercase tracking-wider mt-1" style={{ color: '#C0392B' }}>
+            ⚠ {context}
+          </p>
+        )}
+      </div>
     </div>
   )
 }
@@ -400,8 +420,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ AGE ═══ */}
         {step === STEPS.AGE && (
           <motion.div key="age" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={2} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.age.title')}</h2>
+            <PersuasiveStepHeader
+              current={2} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.age.title')}
+              context={t('quizBold.questions.age.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: '18_29',   label: t('quiz.options.age18'), emoji: '🌸' },
@@ -423,8 +446,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ HAIR TYPE ═══ */}
         {step === STEPS.HAIR_TYPE && (
           <motion.div key="hair-type" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={3} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.hairType.title')}</h2>
+            <PersuasiveStepHeader
+              current={3} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.hairType.title')}
+              context={t('quizBold.questions.hairType.context')}
+            />
             <div className="grid grid-cols-2 gap-3">
               {HAIR_TYPES.map(opt => (
                 <div
@@ -448,8 +474,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q1 — WASH FREQ ═══ */}
         {step === STEPS.Q1 && (
           <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={4} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.washFreq.title')}</h2>
+            <PersuasiveStepHeader
+              current={4} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.washFreq.title')}
+              context={t('quizBold.questions.washFreq.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: 'daily', label: t('quiz.options.washDaily'), emoji: '🚿', desc: t('quiz.options.washDailyDesc') },
@@ -470,8 +499,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q2 — WATER TEMP ═══ */}
         {step === STEPS.Q2 && (
           <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={5} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.waterTemp.title')}</h2>
+            <PersuasiveStepHeader
+              current={5} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.waterTemp.title')}
+              context={t('quizBold.questions.waterTemp.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: 'hot',  label: t('quiz.options.waterHot'),  emoji: '🔥', desc: t('quiz.options.waterHotDesc') },
@@ -492,8 +524,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q3 — HEAT TOOLS ═══ */}
         {step === STEPS.Q3 && (
           <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.heatTools.title')}</h2>
+            <PersuasiveStepHeader
+              current={6} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.heatTools.title')}
+              context={t('quizBold.questions.heatTools.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: 'daily',  label: t('quiz.options.heatDaily'),  emoji: '🔌', desc: t('quiz.options.heatDailyDesc') },
@@ -514,8 +549,11 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q4 — HYDRATION ═══ */}
         {step === STEPS.Q4 && (
           <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={7} total={TOTAL_QUIZ_STEPS} />
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">{t('quiz.hydration.title')}</h2>
+            <PersuasiveStepHeader
+              current={7} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.hydration.title')}
+              context={t('quizBold.questions.hydration.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: 'regularly', label: t('quiz.options.hydroRegularly'), emoji: '✅', desc: t('quiz.options.hydroRegularlyDesc') },
@@ -536,11 +574,12 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q5 — CHEM PRODUCTS ═══ */}
         {step === STEPS.Q5 && (
           <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={8} total={TOTAL_QUIZ_STEPS} />
-            <div className="text-center">
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">{t('quiz.chemProducts.title')}</h2>
-              <p className="text-sm text-stone-400 mt-2">{t('quiz.chemProducts.subtitle')}</p>
-            </div>
+            <PersuasiveStepHeader
+              current={8} total={TOTAL_QUIZ_STEPS} t={t}
+              title={t('quizBold.questions.chemProducts.title')}
+              subtitle={t('quizBold.questions.chemProducts.subtitle')}
+              context={t('quizBold.questions.chemProducts.context')}
+            />
             <div className="flex flex-col gap-3">
               {[
                 { value: 'yes_heavy', label: t('quiz.options.chemHeavy'), emoji: '⚗️', desc: t('quiz.options.chemHeavyDesc') },

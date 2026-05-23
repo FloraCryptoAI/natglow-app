@@ -163,9 +163,10 @@ function RecipeCard({ recipe, t }) {
   );
 }
 
-function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey, periodLabel, planDisplayPrice = 6.99 }) {
+function PricingCard({ onCheckout, loading, error, t, rt, adminConfig = {}, timerKey, periodLabel, planDisplayPrice = 6.99, isBold = false }) {
   const benefits = t('results.pricing.benefits', { returnObjects: true });
   const timerEnabled = adminConfig.timer_enabled !== 'false';
+  const trans = rt || ((key) => t(`results.${key}`));
 
   const savingsBadge = adminConfig.savings_text || (() => {
     const crossed = parseFloat((adminConfig.crossed_price || '').replace(/[^0-9.]/g, '')) || 0;
@@ -197,9 +198,11 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey
       <div className="px-7 pt-7 pb-5">
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
-          style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+          style={isBold
+            ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+            : { background: PL, color: PD, border: `1px solid ${PL2}` }}
         >
-          {adminConfig.promo_badge || t('results.pricing.promoBadge')}
+          {adminConfig.promo_badge || trans('pricing.promoBadge')}
         </div>
 
         {timerEnabled && timeLeft > 0 && (
@@ -264,8 +267,8 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full"
           style={{
-            background: GRAD,
-            boxShadow: '0 4px 24px rgba(251,69,169,0.4)',
+            background: isBold ? 'linear-gradient(135deg, #27AE60, #1E8449)' : GRAD,
+            boxShadow: isBold ? '0 4px 24px rgba(39,174,96,0.4)' : '0 4px 24px rgba(251,69,169,0.4)',
             opacity: loading ? 0.75 : 1,
             cursor: loading ? 'not-allowed' : 'pointer',
           }}
@@ -276,7 +279,7 @@ function PricingCard({ onCheckout, loading, error, t, adminConfig = {}, timerKey
             ? <><Loader2 className="w-5 h-5 animate-spin" /> {t('results.pricing.ctaLoading')}</>
             : (
               <span className="text-center leading-snug uppercase tracking-wide">
-                {t('results.pricing.cta')}
+                {trans('pricing.cta')}
               </span>
             )}
         </motion.button>
@@ -330,6 +333,13 @@ export default function Results({ pricingPlan = 'monthly' }) {
   }
 
   const { t } = useTranslation();
+  const isBold = pricingPlan === 'bold';
+  // Picks bold copy when running /results-bold, falls back to default `results.*` keys
+  const rt = (key) => {
+    if (!isBold) return t(`results.${key}`);
+    const boldVal = t(`resultsBold.${key}`, { defaultValue: '__missing__' });
+    return boldVal === '__missing__' ? t(`results.${key}`) : boldVal;
+  };
   const periodLabel = planConfig.period_label ?? 'pago único';
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -498,14 +508,28 @@ export default function Results({ pricingPlan = 'monthly' }) {
           }}
         />
         <div className="max-w-xl mx-auto px-6 relative text-center">
+          {isBold && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full rounded-2xl px-4 py-3 mb-6 flex items-center justify-center gap-2 text-white font-extrabold text-sm tracking-wide"
+              style={{ background: '#C0392B' }}
+            >
+              {t('resultsBold.hero.urgencyBanner')}
+            </motion.div>
+          )}
+
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-7"
-            style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+            style={isBold
+              ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+              : { background: PL, color: PD, border: `1px solid ${PL2}` }}
           >
-            {t('results.hero.badge')}
+            {rt('hero.badge')}
           </motion.div>
 
           <motion.h1
@@ -515,8 +539,8 @@ export default function Results({ pricingPlan = 'monthly' }) {
             className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
           >
             {name
-              ? <>{t('results.hero.titleWithName', { name })}{' '}<span style={{ color: P }}>{t('results.hero.titleHighlight')}</span></>
-              : <>{t('results.hero.titleNoName')}{' '}<span style={{ color: P }}>{t('results.hero.titleHighlight')}</span></>}
+              ? <>{rt('hero.titleWithName').replace('{{name}}', name)}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>
+              : <>{rt('hero.titleNoName')}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>}
           </motion.h1>
 
           <motion.p
@@ -525,7 +549,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
             transition={{ duration: 0.65, delay: 0.13, ease }}
             className="text-base text-stone-500 leading-relaxed mb-8"
           >
-            {t('results.hero.subtitle')}
+            {rt('hero.subtitle')}
           </motion.p>
 
           <motion.div
@@ -544,7 +568,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           <FadeIn>
             <div className="rounded-2xl p-6" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                {t('results.diagnosis.signs')}
+                {rt('diagnosis.signs')}
               </p>
               <ul className="space-y-3">
                 {signs.map((s, i) => (
@@ -560,7 +584,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           <FadeIn delay={0.06}>
             <div className="rounded-2xl p-6" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
               <p className="text-lg font-extrabold text-stone-800 mb-4 flex items-center gap-2">
-                {t('results.diagnosis.causes')}
+                {rt('diagnosis.causes')}
               </p>
               <ul className="space-y-3">
                 {causes.map((c, i) => (
@@ -576,10 +600,10 @@ export default function Results({ pricingPlan = 'monthly' }) {
           <FadeIn delay={0.12}>
             <div className="rounded-2xl p-6" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
               <p className="text-lg font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
-                {t('results.diagnosis.goodNews')}
+                {rt('diagnosis.goodNews')}
               </p>
               <p className="text-base text-stone-600 leading-relaxed">
-                {t('results.diagnosis.goodNewsText')}
+                {rt('diagnosis.goodNewsText')}
               </p>
             </div>
           </FadeIn>
@@ -602,16 +626,18 @@ export default function Results({ pricingPlan = 'monthly' }) {
             <div className="text-center mb-10">
               <div
                 className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold mb-4"
-                style={{ background: PL2, color: PD }}
+                style={isBold
+                  ? { background: '#FDEDEC', color: '#C0392B' }
+                  : { background: PL2, color: PD }}
               >
-                <Sparkles className="w-3.5 h-3.5" /> {t('results.recipes.badge')}
+                <Sparkles className="w-3.5 h-3.5" /> {rt('recipes.badge')}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
-                <span className="text-stone-900">{t('results.recipes.title1')}</span>
-                <span style={{ color: P }}>{t('results.recipes.title2')}</span>
+                <span className="text-stone-900">{rt('recipes.title1')}</span>
+                <span style={{ color: isBold ? '#C0392B' : P }}>{rt('recipes.title2')}</span>
               </h2>
               <p className="text-stone-500 text-sm leading-relaxed max-w-sm mx-auto">
-                {t('results.recipes.subtitle')}
+                {rt('recipes.subtitle')}
               </p>
             </div>
           </FadeIn>
@@ -650,9 +676,9 @@ export default function Results({ pricingPlan = 'monthly' }) {
                 ))}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-2">
-                {t('results.social.title1')}<span style={{ color: P }}>{t('results.social.title2')}</span>
+                {rt('social.title1')}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('social.title2')}</span>
               </h2>
-              <p className="text-stone-400 text-sm">{t('results.social.stars')}</p>
+              <p className="text-stone-400 text-sm">{rt('social.stars')}</p>
             </div>
           </FadeIn>
 
@@ -712,21 +738,23 @@ export default function Results({ pricingPlan = 'monthly' }) {
             <div className="text-center mb-4">
               <div
                 className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-5"
-                style={{ background: PL, color: PD, border: `1px solid ${PL2}` }}
+                style={isBold
+                  ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+                  : { background: PL, color: PD, border: `1px solid ${PL2}` }}
               >
-                {t('results.pricing.badge')}
+                {rt('pricing.badge')}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
-                {t('results.pricing.title')}{' '}<span style={{ color: P }}>{t('results.pricing.titleHighlight')}</span>
+                {rt('pricing.title')}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('pricing.titleHighlight')}</span>
               </h2>
               <p className="text-stone-500 text-sm">
-                {t('results.pricing.subtitle')}
+                {rt('pricing.subtitle')}
               </p>
             </div>
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} planDisplayPrice={planConfig.display_price} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} rt={rt} isBold={isBold} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} planDisplayPrice={planConfig.display_price} />
           </FadeIn>
 
           <FadeIn delay={0.1}>
@@ -792,7 +820,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
       {/* ── FINE PRINT ── */}
       <div className="bg-stone-50 py-6 px-6 text-center">
         <p className="text-xs text-stone-400 max-w-sm mx-auto leading-relaxed">
-          {t('results.finePrint')}
+          {rt('finePrint')}
         </p>
       </div>
       <LegalLine />

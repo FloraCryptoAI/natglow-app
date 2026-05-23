@@ -156,7 +156,75 @@
       "headline3": "con brillo, fuerza y crecimiento natural?",
       "ctaYes": "¡Sí, lo quiero ya!",
       "ctaDoubts": "Tengo interés pero dudas"
+    },
+    "stepBadge": "PASO {{current}} DE {{total}} · No te detengas ahora",
+    "questions": {
+      "age": {
+        "title": "¿Cuántos años tienes?",
+        "context": "Tu edad influye en cómo el daño capilar se acumula"
+      },
+      "hairType": {
+        "title": "¿Cuál es tu tipo de cabello?",
+        "context": "Cada tipo requiere una desintoxicación diferente"
+      },
+      "washFreq": {
+        "title": "¿Con qué frecuencia lavas tu cabello?",
+        "context": "La frecuencia incorrecta puede acelerar la caída"
+      },
+      "waterTemp": {
+        "title": "¿A qué temperatura usas el agua?",
+        "context": "El agua caliente sofoca el folículo capilar"
+      },
+      "heatTools": {
+        "title": "¿Usas plancha, secador o rizador?",
+        "context": "El calor frecuente destruye la cutícula y debilita la raíz"
+      },
+      "hydration": {
+        "title": "¿Haces hidratación capilar profunda?",
+        "context": "Sin hidratación, el folículo se debilita rápido"
+      },
+      "chemProducts": {
+        "title": "¿Usas alisado, decoloración o tintes?",
+        "subtitle": "Los químicos son la causa #1 de caída irreversible",
+        "context": "Sé honesta — esto define qué tan urgente es tu protocolo"
+      }
     }
+  },
+  "resultsBold": {
+    "hero": {
+      "urgencyBanner": "⚠ DIAGNÓSTICO COMPLETADO — LEE CON ATENCIÓN",
+      "badge": "🚨 Tu cabello está en estado crítico",
+      "titleWithName": "{{name}}, tus folículos están siendo",
+      "titleHighlight": "SABOTEADOS",
+      "titleNoName": "Tus folículos están siendo",
+      "subtitle": "Analizamos tus respuestas y encontramos exactamente qué está destruyendo tu cabello. Lee hasta el final — tu protocolo personalizado te espera."
+    },
+    "diagnosis": {
+      "signs": "🚨 Tu cabello está pidiendo SOCORRO:",
+      "causes": "⚠️ Y aquí está la VERDAD que nadie te dice:",
+      "goodNews": "✅ Pero todavía estás a tiempo de revertirlo.",
+      "goodNewsText": "El daño capilar es reversible cuando se aplica el protocolo correcto. Miles de mujeres como tú ya recuperaron su cabello en 21 días con las recetas naturales correctas — sin químicos, sin tratamientos caros, sin depender de salones."
+    },
+    "recipes": {
+      "badge": "🔓 Solo para tu protocolo personalizado",
+      "title1": "Las 3 recetas que están REVIRTIENDO la caída de pelo de ",
+      "title2": "miles de mujeres latinas",
+      "subtitle": "Resultados visibles desde la primera aplicación. Con ingredientes naturales que sofocan los químicos acumulados en tu cuero cabelludo."
+    },
+    "social": {
+      "title1": "+12.480 mujeres ya ",
+      "title2": "recuperaron su cabello",
+      "stars": "4,9 de 5 estrellas · Verificado"
+    },
+    "pricing": {
+      "badge": "🔥 ÚLTIMA OPORTUNIDAD — Precio especial",
+      "title": "Tu protocolo de 21 días",
+      "titleHighlight": "empieza HOY",
+      "subtitle": "Cada día sin actuar es un día más de daño irreversible en tus folículos.",
+      "promoBadge": "🔥 OFERTA ESPECIAL — Solo Hoy",
+      "cta": "¡SÍ, QUIERO RESTAURAR MI CABELLO!"
+    },
+    "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
   },
   "quiz": {
     "step": "Paso {{current}} de {{total}}",
