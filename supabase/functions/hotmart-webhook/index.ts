@@ -318,12 +318,19 @@ Deno.serve(async (req) => {
       }
 
       default: {
-        // Fallback: if purchaseStatus is empty, try routing by event name (older API versions)
+        // Fallback: route by event name when purchase.status is absent (older API versions)
         if (!purchaseStatus) {
-          if (event === 'PURCHASE_APPROVED' || event === 'PURCHASE_COMPLETE') {
-            console.warn('No purchase.status — falling back to event routing for', event)
-            // Re-entry not possible in a switch; log and let it fall through to the 200 response.
-            // This case should not occur with v2 payloads.
+          if (event === 'PURCHASE_REFUNDED' || event === 'PURCHASE_CANCELLED') {
+            console.warn(`No purchase.status — falling back to event routing for "${event}"`)
+            if (txId) {
+              await updateSubByTxId(txId, { status: 'refunded' })
+              const refundEmail = email || (await getEmailByTxId(txId))
+              if (refundEmail) {
+                sendTransactionalEmail({
+                  to: refundEmail, template: 'purchase_refunded', locale: 'es', data: {},
+                }).catch(err => console.error('Refund email failed:', err))
+              }
+            }
           }
         }
         console.log('Unhandled Hotmart status/event:', purchaseStatus, event)

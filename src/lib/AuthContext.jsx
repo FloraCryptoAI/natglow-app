@@ -51,6 +51,25 @@ export function AuthProvider({ children }) {
     return () => authListener.unsubscribe()
   }, [fetchSubscription])
 
+  // Realtime: revoga acesso imediatamente quando o webhook muda o status da subscription
+  useEffect(() => {
+    if (!user?.id) return
+
+    const channel = supabase
+      .channel(`sub-status-${user.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'subscriptions',
+        filter: `user_id=eq.${user.id}`,
+      }, (payload) => {
+        setSubscription(payload.new)
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [user?.id])
+
   const signInWithGoogle = async (returnPath = '/Landing') => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
