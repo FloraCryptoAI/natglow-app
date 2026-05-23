@@ -177,16 +177,25 @@ Deno.serve(async (req) => {
     const purchaseCurrency = (priceData.currency_value as string) ?? 'USD'
     const purchaseType     = (paymentData.type as string) ?? null
 
-    // data.purchase.status carries the transaction status (APPROVED, WAITING_PAYMENT, etc.)
-    // The top-level "event" field carries the event name (PURCHASE_APPROVED, PURCHASE_COMPLETE, etc.)
-    // We switch on purchase.status as the authoritative source of truth for the transaction state.
     const purchaseStatus = ((purchase.status as string) ?? '').toUpperCase()
 
-    console.log('Hotmart event:', event, 'status:', purchaseStatus, {
+    // Derive the effective action from BOTH the event name and purchase.status.
+    // Event name takes precedence for refund/cancel events because Hotmart sometimes
+    // sends PURCHASE_REFUNDED with purchase.status = "CANCELLED" or even empty.
+    const REFUND_EVENTS   = ['PURCHASE_REFUNDED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELLATION']
+    const APPROVED_EVENTS = ['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_BILLET_PRINTED']
+    const PENDING_EVENTS  = ['PURCHASE_WAITING_PAYMENT', 'PURCHASE_UNDER_ANALYSIS', 'PURCHASE_PRE_ORDER']
+
+    let effectiveStatus = purchaseStatus
+    if (REFUND_EVENTS.includes(event))   effectiveStatus = 'REFUNDED'
+    if (APPROVED_EVENTS.includes(event) && !purchaseStatus) effectiveStatus = 'APPROVED'
+    if (PENDING_EVENTS.includes(event)  && !purchaseStatus) effectiveStatus = 'WAITING_PAYMENT'
+
+    console.log('Hotmart event:', event, 'status:', purchaseStatus, '→ effective:', effectiveStatus, {
       txId, email: email ? '***' : '(empty)', planKey, productId,
     })
 
-    switch (purchaseStatus) {
+    switch (effectiveStatus) {
 
       // ---- Access granted ----
       case 'APPROVED':
@@ -318,22 +327,7 @@ Deno.serve(async (req) => {
       }
 
       default: {
-        // Fallback: route by event name when purchase.status is absent (older API versions)
-        if (!purchaseStatus) {
-          if (event === 'PURCHASE_REFUNDED' || event === 'PURCHASE_CANCELLED') {
-            console.warn(`No purchase.status — falling back to event routing for "${event}"`)
-            if (txId) {
-              await updateSubByTxId(txId, { status: 'refunded' })
-              const refundEmail = email || (await getEmailByTxId(txId))
-              if (refundEmail) {
-                sendTransactionalEmail({
-                  to: refundEmail, template: 'purchase_refunded', locale: 'es', data: {},
-                }).catch(err => console.error('Refund email failed:', err))
-              }
-            }
-          }
-        }
-        console.log('Unhandled Hotmart status/event:', purchaseStatus, event)
+        console.log('Unhandled Hotmart effective/status/event:', effectiveStatus, purchaseStatus, event)
       }
     }
 
