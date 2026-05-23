@@ -4,7 +4,7 @@ import { sendTransactionalEmail } from '../send-transactional-email/index.ts'
 
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const SITE_URL             = Deno.env.get('SITE_URL') ?? 'https://natglow.app'
+const SITE_URL             = Deno.env.get('SITE_URL') ?? 'https://app.natglow.app'
 const WEBHOOK_TOKEN        = Deno.env.get('HOTMART_WEBHOOK_TOKEN') ?? ''
 
 // Map Hotmart product IDs → plan keys
