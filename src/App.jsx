@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
 import Quiz from './pages/Quiz';
+import QuizBold from './pages/QuizBold';
 import Results from './pages/Results';
 import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
@@ -112,12 +113,14 @@ const AppRoutes = () => {
       <Route path="/quiz"         element={<Quiz pricingPlan="monthly" />} />
       <Route path="/quiz-cheap"   element={<Quiz pricingPlan="monthly_cheap" />} />
       <Route path="/quiz-premium" element={<Quiz pricingPlan="monthly_premium" />} />
+      <Route path="/quiz-bold"    element={<QuizBold pricingPlan="bold" />} />
       <Route path="/quiz-weekly"  element={<Navigate to="/quiz" replace />} />
 
       {/* ── Results routes — one per pricing plan ── */}
       <Route path="/results"         element={<Results pricingPlan="monthly" />} />
       <Route path="/results-cheap"   element={<Results pricingPlan="monthly_cheap" />} />
       <Route path="/results-premium" element={<Results pricingPlan="monthly_premium" />} />
+      <Route path="/results-bold"    element={<Results pricingPlan="bold" />} />
       <Route path="/results-weekly"  element={<Navigate to="/results" replace />} />
 
       {/* Legacy redirect — keeps old /Results links working (emails, ads, bookmarks) */}

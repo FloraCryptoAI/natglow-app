@@ -74,6 +74,90 @@
     "backToLogin": "Volver al inicio de sesión"
   },
 
+  "quizBold": {
+    "intro": {
+      "urgencyBanner": "URGENTE — LEE ANTES DE CONTINUAR",
+      "title": "EL PROTOCOLO NATURAL DE 21 DÍAS",
+      "titleHighlight1": "RESTAURANDO",
+      "titleMiddle": "el cabello dañado y",
+      "titleHighlight2": "DEVOLVIENDO EL BRILLO",
+      "titleEnd": "a mujeres latinas",
+      "subtitle": "Descubre por qué tu pelo se cae, no crece, no brilla — aun usando los mejores productos.",
+      "beforeLabel": "ANTES",
+      "beforeCaption": "Folículos sofocados por químicos",
+      "afterLabel": "DESPUÉS — 21 DÍAS",
+      "afterCaption": "Cabello respirando y creciendo",
+      "scientificBadge": "DATO CIENTÍFICO — OMS",
+      "scientificBody": "70% de las mujeres tienen sus folículos capilares dañados por la acumulación de químicos cosméticos. Atacan la raíz, sofocan el crecimiento y debilitan el cabello.",
+      "cta": "HACER EL TEST GRATUITO AHORA"
+    },
+    "symptoms": {
+      "title": "¿Sientes alguno de estos síntomas hace más de 30 días?",
+      "pills": {
+        "hairLoss": "CAÍDA DE PELO",
+        "dryness": "RESEQUEDAD",
+        "frizz": "FRIZZ",
+        "splitEnds": "PUNTAS QUEBRADAS",
+        "noShine": "POCO BRILLO",
+        "grease": "GRASA",
+        "noVolume": "POCO VOLUMEN",
+        "itch": "PICAZÓN",
+        "weakRoot": "RAÍZ DÉBIL"
+      },
+      "ctaShort": "Lo siento hace más de 30 días",
+      "ctaLong": "Lo siento hace más de 1 año"
+    },
+    "scientificFear": {
+      "urgencyBanner": "CUIDADO — LEE ESTO AHORA",
+      "headline": "Si nunca has hecho una",
+      "headlineHighlight": "DESINTOXICACIÓN CAPILAR NATURAL,",
+      "headlineMiddle": "los químicos pueden acumularse en tu cuero cabelludo y",
+      "headlineDanger": "DESTRUIR los folículos permanentemente,",
+      "headlineEnd": "causando CALVICIE IRREVERSIBLE.",
+      "warningBox": "No ignores este riesgo. Es esencial desintoxicar tu cabello al menos una vez al año.",
+      "healthyLabel": "FOLÍCULO SANO",
+      "damagedLabel": "FOLÍCULO DAÑADO",
+      "caption": "Folículo sofocado por químicos de productos comerciales",
+      "cta": "continuar"
+    },
+    "news": {
+      "logoLabel": "G1 · Salud",
+      "headline": "Mujer queda calva a los 28 años tras uso prolongado de alisado con formol",
+      "subheadline": "Dermatólogos alertan: químicos comerciales pueden causar daño permanente al folículo",
+      "credit": "G1 · Salud · Junio 2024",
+      "cta": "continuar"
+    },
+    "reframing": {
+      "headline1": "La caída de tu pelo",
+      "headline2": "NO es culpa tuya.",
+      "explanation": "Son los químicos de tus productos diarios que se acumulan en el folículo, sofocan la raíz y bloquean el crecimiento natural.",
+      "denial1": "No es genética",
+      "denial2": "No es falta de cuidado",
+      "denial3": "No es estrés",
+      "affirmation": "Son los químicos sabotando tu pelo",
+      "cta": "continuar"
+    },
+    "socialProof": {
+      "banner": "LOS RESULTADOS NO MIENTEN",
+      "bannerSub": "Tus síntomas indican folículos dañados. Pero hay esperanza.",
+      "testimonialName": "Maria Santos",
+      "testimonialLocation": "Bogotá, Colombia",
+      "testimonialText": "Llevaba 3 años perdiendo pelo. Probé de todo: vitaminas, tratamientos caros, dermatólogo. Nada funcionaba. En 21 días con el protocolo NatGlow mi caída paró y volvió el brillo natural. Pensé que era imposible. 😍",
+      "beforeLabel": "ANTES",
+      "afterLabel": "DESPUÉS",
+      "caption": "Cabello restaurado sin químicos",
+      "cta": "Continuar"
+    },
+    "finalQuestion": {
+      "headline1": "¿Te gustaría recibir un",
+      "headlineHighlight1": "protocolo personalizado",
+      "headline2": "para restaurar tu cabello en",
+      "headlineHighlight2": "21 días,",
+      "headline3": "con brillo, fuerza y crecimiento natural?",
+      "ctaYes": "¡Sí, lo quiero ya!",
+      "ctaDoubts": "Tengo interés pero dudas"
+    }
+  },
   "quiz": {
     "step": "Paso {{current}} de {{total}}",
     "anchor": {

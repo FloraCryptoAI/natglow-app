@@ -29,4 +29,14 @@ export const PRICING_PLANS = {
     route_path: '/quiz-premium',
     results_path: '/results-premium',
   },
+  bold: {
+    hotmart_checkout_url: import.meta.env.VITE_HOTMART_CHECKOUT_URL_BASIC,
+    display_price: 17,
+    period_label: 'pago único',
+    label_es: '$17 USD',
+    cta_es: '¡Sí, lo quiero ya!',
+    plan_key: 'one_time_basic',
+    route_path: '/quiz-bold',
+    results_path: '/results-bold',
+  },
 }
