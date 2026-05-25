@@ -39,4 +39,14 @@ export const PRICING_PLANS = {
     route_path: '/quiz-bold',
     results_path: '/results-bold',
   },
+  detox: {
+    hotmart_checkout_url: import.meta.env.VITE_HOTMART_CHECKOUT_URL_PREMIUM,
+    display_price: 47,
+    period_label: 'pago único',
+    label_es: '$47 USD',
+    cta_es: '¡Sí, quiero desintoxicar ahora!',
+    plan_key: 'one_time_premium',
+    route_path: '/quiz-detox',
+    results_path: '/results-detox',
+  },
 }

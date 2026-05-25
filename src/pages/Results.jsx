@@ -13,6 +13,7 @@ import LegalLine from '@/components/LegalLine';
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel';
 import { initTikTokPixel, trackTtEvent }   from '@/lib/tracking/tiktok-pixel';
 import { PRICING_PLANS } from '@/config/pricing';
+import BeforeAfterTestimonialCarousel from '@/components/BeforeAfterTestimonialCarousel';
 
 // ── design tokens ──────────────────────────────────────────────────────────
 const P    = '#FB45A9';
@@ -163,7 +164,8 @@ function RecipeCard({ recipe, t }) {
   );
 }
 
-function PricingCard({ onCheckout, loading, error, t, rt, adminConfig = {}, timerKey, periodLabel, planDisplayPrice = 6.99, isBold = false }) {
+function PricingCard({ onCheckout, loading, error, t, rt, adminConfig = {}, timerKey, periodLabel, planDisplayPrice = 6.99, isBold = false, isDetox = false }) {
+  const isPersuasive = isBold || isDetox;
   const benefits = t('results.pricing.benefits', { returnObjects: true });
   const timerEnabled = adminConfig.timer_enabled !== 'false';
   const trans = rt || ((key) => t(`results.${key}`));
@@ -198,9 +200,11 @@ function PricingCard({ onCheckout, loading, error, t, rt, adminConfig = {}, time
       <div className="px-7 pt-7 pb-5">
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
-          style={isBold
-            ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
-            : { background: PL, color: PD, border: `1px solid ${PL2}` }}
+          style={isDetox
+            ? { background: '#E8F8F0', color: '#1E8449', border: '1px solid #A9DFBF' }
+            : isBold
+              ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+              : { background: PL, color: PD, border: `1px solid ${PL2}` }}
         >
           {adminConfig.promo_badge || trans('pricing.promoBadge')}
         </div>
@@ -267,8 +271,8 @@ function PricingCard({ onCheckout, loading, error, t, rt, adminConfig = {}, time
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           className="w-full py-5 text-base font-extrabold text-white flex items-center justify-center gap-2.5 rounded-full"
           style={{
-            background: isBold ? 'linear-gradient(135deg, #27AE60, #1E8449)' : GRAD,
-            boxShadow: isBold ? '0 4px 24px rgba(39,174,96,0.4)' : '0 4px 24px rgba(251,69,169,0.4)',
+            background: isPersuasive ? 'linear-gradient(135deg, #27AE60, #1E8449)' : GRAD,
+            boxShadow: isPersuasive ? '0 4px 24px rgba(39,174,96,0.4)' : '0 4px 24px rgba(251,69,169,0.4)',
             opacity: loading ? 0.75 : 1,
             cursor: loading ? 'not-allowed' : 'pointer',
           }}
@@ -333,13 +337,23 @@ export default function Results({ pricingPlan = 'monthly' }) {
   }
 
   const { t } = useTranslation();
+  const isDetox = pricingPlan === 'detox';
   const isBold = pricingPlan === 'bold';
-  // Picks bold copy when running /results-bold, falls back to default `results.*` keys
+  const isPersuasive = isDetox || isBold;
+  // Translation override chain: detox → bold → results
   const rt = (key) => {
-    if (!isBold) return t(`results.${key}`);
-    const boldVal = t(`resultsBold.${key}`, { defaultValue: '__missing__' });
-    return boldVal === '__missing__' ? t(`results.${key}`) : boldVal;
+    if (isDetox) {
+      const v = t(`resultsDetox.${key}`, { defaultValue: '__missing__' });
+      if (v !== '__missing__') return v;
+    }
+    if (isBold || isDetox) {
+      const v = t(`resultsBold.${key}`, { defaultValue: '__missing__' });
+      if (v !== '__missing__') return v;
+    }
+    return t(`results.${key}`);
   };
+  const detoxTestimonials = isDetox ? t('resultsDetox.testimonials', { returnObjects: true }) : [];
+  const verifiedBadgeTemplate = isDetox ? t('resultsDetox.verifiedBadge') : '';
   const periodLabel = planConfig.period_label ?? 'pago único';
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -508,15 +522,15 @@ export default function Results({ pricingPlan = 'monthly' }) {
           }}
         />
         <div className="max-w-xl mx-auto px-6 relative text-center">
-          {isBold && (
+          {isPersuasive && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
               className="w-full rounded-2xl px-4 py-3 mb-6 flex items-center justify-center gap-2 text-white font-extrabold text-sm tracking-wide"
-              style={{ background: '#C0392B' }}
+              style={{ background: isDetox ? '#1E8449' : '#C0392B' }}
             >
-              {t('resultsBold.hero.urgencyBanner')}
+              {rt('hero.urgencyBanner')}
             </motion.div>
           )}
 
@@ -525,8 +539,8 @@ export default function Results({ pricingPlan = 'monthly' }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-7"
-            style={isBold
-              ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+            style={isPersuasive
+              ? { background: isDetox ? '#E8F8F0' : '#FDEDEC', color: isDetox ? '#1E8449' : '#C0392B', border: `1px solid ${isDetox ? '#A9DFBF' : '#FADBD8'}` }
               : { background: PL, color: PD, border: `1px solid ${PL2}` }}
           >
             {rt('hero.badge')}
@@ -539,8 +553,8 @@ export default function Results({ pricingPlan = 'monthly' }) {
             className="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-[1.1] tracking-tight mb-6"
           >
             {name
-              ? <>{rt('hero.titleWithName').replace('{{name}}', name)}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>
-              : <>{rt('hero.titleNoName')}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>}
+              ? <>{rt('hero.titleWithName').replace('{{name}}', name)}{' '}<span style={{ color: isPersuasive ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>
+              : <>{rt('hero.titleNoName')}{' '}<span style={{ color: isPersuasive ? '#C0392B' : P }}>{rt('hero.titleHighlight')}</span></>}
           </motion.h1>
 
           <motion.p
@@ -620,6 +634,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
       </section>
 
       {/* ── RECIPE TEASE ── */}
+      {!isDetox && (
       <section style={{ background: PL }}>
         <div className="max-w-xl mx-auto px-6 py-14">
           <FadeIn>
@@ -664,8 +679,10 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </FadeIn>
         </div>
       </section>
+      )}
 
       {/* ── SOCIAL PROOF ── */}
+      {!isDetox && (
       <section style={{ background: '#F8F8F8' }}>
         <div className="max-w-xl mx-auto px-6 py-14">
           <FadeIn>
@@ -730,6 +747,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </FadeIn>
         </div>
       </section>
+      )}
 
       {/* ── PRICING ── */}
       <section ref={pricingRef} style={{ background: PL }}>
@@ -738,14 +756,16 @@ export default function Results({ pricingPlan = 'monthly' }) {
             <div className="text-center mb-4">
               <div
                 className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-5"
-                style={isBold
-                  ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
-                  : { background: PL, color: PD, border: `1px solid ${PL2}` }}
+                style={isDetox
+                  ? { background: '#E8F8F0', color: '#1E8449', border: '1px solid #A9DFBF' }
+                  : isBold
+                    ? { background: '#FDEDEC', color: '#C0392B', border: '1px solid #FADBD8' }
+                    : { background: PL, color: PD, border: `1px solid ${PL2}` }}
               >
                 {rt('pricing.badge')}
               </div>
               <h2 className="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight mb-3">
-                {rt('pricing.title')}{' '}<span style={{ color: isBold ? '#C0392B' : P }}>{rt('pricing.titleHighlight')}</span>
+                {rt('pricing.title')}{' '}<span style={{ color: isDetox ? '#1E8449' : isBold ? '#C0392B' : P }}>{rt('pricing.titleHighlight')}</span>
               </h2>
               <p className="text-stone-500 text-sm">
                 {rt('pricing.subtitle')}
@@ -754,7 +774,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </FadeIn>
 
           <FadeIn delay={0.06}>
-            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} rt={rt} isBold={isBold} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} planDisplayPrice={planConfig.display_price} />
+            <PricingCard onCheckout={handleCheckout} loading={loading} error={error} t={t} rt={rt} isBold={isBold} isDetox={isDetox} adminConfig={adminConfig} timerKey={TIMER_KEY} periodLabel={periodLabel} planDisplayPrice={planConfig.display_price} />
           </FadeIn>
 
           <FadeIn delay={0.1}>
@@ -774,7 +794,38 @@ export default function Results({ pricingPlan = 'monthly' }) {
         </div>
       </section>
 
+      {/* ── DETOX BEFORE/AFTER TESTIMONIALS CAROUSEL ── */}
+      {isDetox && Array.isArray(detoxTestimonials) && detoxTestimonials.length > 0 && (
+        <section className="bg-white">
+          <div className="max-w-xl mx-auto px-6 py-14 flex flex-col gap-6">
+            <FadeIn>
+              <div className="text-center">
+                <div
+                  className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full mb-4"
+                  style={{ background: '#E8F8F0', color: '#1E8449', border: '1px solid #A9DFBF' }}
+                >
+                  {t('resultsDetox.testimonialsSection.badge')}
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight mb-3">
+                  <span className="text-stone-900">{t('resultsDetox.testimonialsSection.title')}</span>{' '}
+                  <span style={{ color: '#1E8449' }}>{t('resultsDetox.testimonialsSection.titleHighlight')}</span>
+                </h2>
+                <p className="text-stone-500 text-sm">{t('resultsDetox.testimonialsSection.subtitle')}</p>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.08}>
+              <BeforeAfterTestimonialCarousel
+                testimonials={detoxTestimonials}
+                verifiedBadgeTemplate={verifiedBadgeTemplate}
+              />
+            </FadeIn>
+          </div>
+        </section>
+      )}
+
       {/* ── REASSURANCE ── */}
+      {!isDetox && (
       <section style={{ background: PL }}>
         <div className="max-w-xl mx-auto px-6 py-12">
           <FadeIn>
@@ -793,8 +844,10 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </FadeIn>
         </div>
       </section>
+      )}
 
       {/* ── FAQ ── */}
+      {!isDetox && (
       <section className="bg-white">
         <div className="max-w-xl mx-auto px-6 py-14">
           <FadeIn>
@@ -816,6 +869,7 @@ export default function Results({ pricingPlan = 'monthly' }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── FINE PRINT ── */}
       <div className="bg-stone-50 py-6 px-6 text-center">

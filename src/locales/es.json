@@ -190,6 +190,204 @@
       }
     }
   },
+  "quizDetox": {
+    "intro": {
+      "urgencyBanner": "🌿 IMPORTANTE — LEE ANTES DE CONTINUAR",
+      "title": "EL PROTOCOLO DE DESINTOXICACIÓN CAPILAR DE 21 DÍAS",
+      "titleHighlight1": "LIMPIANDO",
+      "titleMiddle": "los folículos y devolviendo la",
+      "titleHighlight2": "SALUD AL CUERO CABELLUDO",
+      "titleEnd": "de mujeres latinas",
+      "subtitle": "Descubre por qué tu cabello no responde — aun usando tratamientos caros y productos de farmacia.",
+      "beforeLabel": "INTOXICADO",
+      "beforeCaption": "Cuero cabelludo sofocado por químicos",
+      "afterLabel": "LIMPIO — 21 DÍAS",
+      "afterCaption": "Folículos respirando y saludables",
+      "scientificBadge": "DATO CIENTÍFICO — DERMATOLOGÍA",
+      "scientificBody": "Después de años usando productos comerciales, el cuero cabelludo acumula una capa invisible de sulfatos, parabenos y silicones que sofoca los folículos y bloquea la respiración natural.",
+      "cta": "DESCUBRIR MI NIVEL DE TOXICIDAD"
+    },
+    "symptoms": {
+      "title": "¿Tienes alguno de estos signos de intoxicación capilar?",
+      "pills": {
+        "dandruff": "CASPA",
+        "itch": "PICAZÓN",
+        "grease": "GRASA EXCESIVA",
+        "hairLoss": "CAÍDA",
+        "redness": "ENROJECIMIENTO",
+        "smell": "OLOR FUERTE",
+        "nightItch": "COMEZÓN NOCTURNA",
+        "weakHair": "CABELLO DÉBIL",
+        "sensitive": "CUERO SENSIBLE"
+      },
+      "ctaShort": "Tengo estos síntomas hace meses",
+      "ctaLong": "Llevo años sufriendo esto"
+    },
+    "scientificFear": {
+      "urgencyBanner": "⚠ ALERTA — LO QUE NADIE TE CUENTA",
+      "headline": "Cada vez que te lavas el cabello con productos comerciales, depositas una",
+      "headlineHighlight": "CAPA DE QUÍMICOS",
+      "headlineMiddle": "que se acumula y NO se elimina con el lavado normal. Después de años, tu cuero cabelludo está literalmente",
+      "headlineDanger": "SOFOCADO",
+      "headlineEnd": "por toxinas invisibles.",
+      "warningBox": "Estos químicos no salen solos. Sin una desintoxicación específica, siguen acumulándose mes tras mes, año tras año.",
+      "healthyLabel": "CUERO LIMPIO",
+      "damagedLabel": "CUERO INTOXICADO",
+      "caption": "Capa tóxica invisible acumulada por productos comerciales",
+      "cta": "continuar"
+    },
+    "news": {
+      "logoLabel": "BBC · Salud",
+      "headline": "Estudio revela que productos comerciales para el cabello dejan residuos químicos detectables en el cuero cabelludo aun después de múltiples lavados",
+      "subheadline": "Dermatólogos advierten sobre la acumulación de sulfatos, parabenos y silicones en tejidos del cuero cabelludo",
+      "credit": "BBC · Salud · Marzo 2024",
+      "cta": "continuar"
+    },
+    "reframing": {
+      "headline1": "Tu cabello no está dañado.",
+      "headline2": "Tu cuero cabelludo está INTOXICADO.",
+      "explanation": "Años de productos comerciales depositaron una capa invisible de químicos en tu cuero cabelludo. Esa capa sofoca los folículos, atrae caspa y provoca caída — sin que tú lo veas.",
+      "denial1": "No es falta de higiene",
+      "denial2": "No es genética",
+      "denial3": "No es tu tipo de cuero cabelludo",
+      "affirmation": "Es acumulación tóxica que NUNCA fue limpiada",
+      "cta": "continuar"
+    },
+    "socialProof": {
+      "banner": "TU CUERO CABELLUDO TE PIDE AYUDA",
+      "bannerSub": "Tus síntomas indican alta toxicidad. Pero la desintoxicación es posible.",
+      "testimonialName": "Maria González",
+      "testimonialLocation": "São Paulo, Brasil",
+      "testimonialText": "Llevaba 5 años con caspa crónica. Probé champús anti-caspa, cremas, dermatólogo. En 21 días con la desintoxicación NatGlow desapareció por completo. Mi cuero cabelludo respira de nuevo 🌿",
+      "beforeLabel": "ANTES",
+      "afterLabel": "DESPUÉS",
+      "caption": "Cuero cabelludo desintoxicado naturalmente",
+      "cta": "Continuar"
+    },
+    "finalQuestion": {
+      "headline1": "¿Te gustaría empezar la",
+      "headlineHighlight1": "desintoxicación capilar",
+      "headline2": "de",
+      "headlineHighlight2": "21 días",
+      "headline3": "y recuperar el control natural de tu cabello?",
+      "ctaYes": "¡Sí, quiero desintoxicar ahora!",
+      "ctaDoubts": "Tengo interés pero dudas"
+    },
+    "stepBadge": "PASO {{current}} DE {{total}} · Cada respuesta importa",
+    "questions": {
+      "age": {
+        "title": "¿Cuántos años tienes?",
+        "context": "Tu edad indica cuántos años de acumulación tóxica hay"
+      },
+      "hairType": {
+        "title": "¿Cuál es tu tipo de cabello?",
+        "context": "Cada tipo necesita desintoxicación específica"
+      },
+      "washFreq": {
+        "title": "¿Con qué frecuencia lavas tu cabello?",
+        "context": "El lavado frecuente con productos comerciales acelera la acumulación tóxica"
+      },
+      "waterTemp": {
+        "title": "¿A qué temperatura usas el agua?",
+        "context": "El agua caliente abre las cutículas y deja entrar más químicos"
+      },
+      "heatTools": {
+        "title": "¿Usas plancha, secador o rizador?",
+        "context": "El calor sella los químicos dentro del folículo"
+      },
+      "hydration": {
+        "title": "¿Haces hidratación capilar profunda?",
+        "context": "Sin hidratación natural, los químicos no salen del folículo"
+      },
+      "chemProducts": {
+        "title": "¿Usas alisado, decoloración o tintes?",
+        "subtitle": "Estos son los químicos más tóxicos para el cuero cabelludo",
+        "context": "Sé honesta — define qué tan urgente es tu desintoxicación"
+      }
+    }
+  },
+  "resultsDetox": {
+    "hero": {
+      "urgencyBanner": "🌿 DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
+      "badge": "⚠ Cuero cabelludo con alta toxicidad",
+      "titleWithName": "{{name}}, tu cuero cabelludo tiene un",
+      "titleHighlight": "NIVEL ALTO de toxicidad",
+      "titleNoName": "Tu cuero cabelludo tiene un",
+      "subtitle": "Analizamos tus respuestas. Tu cuero cabelludo lleva años acumulando químicos sin saberlo. Aquí está tu protocolo de desintoxicación personalizado."
+    },
+    "diagnosis": {
+      "signs": "🚨 Signos de intoxicación capilar:",
+      "causes": "⚠️ Causas de la acumulación tóxica:",
+      "goodNews": "🌿 La desintoxicación es posible.",
+      "goodNewsText": "La acumulación tóxica del cuero cabelludo es 100% reversible con el protocolo correcto. Miles de mujeres como tú ya desintoxicaron su cabello en 21 días con ingredientes naturales que limpian sin agredir."
+    },
+    "pricing": {
+      "badge": "🔓 Protocolo personalizado disponible",
+      "title": "Tu desintoxicación de 21 días",
+      "titleHighlight": "empieza HOY",
+      "subtitle": "Cada día sin desintoxicar es un día más de acumulación tóxica en tu cuero cabelludo.",
+      "promoBadge": "🌿 OFERTA ESPECIAL — Solo Hoy",
+      "cta": "¡QUIERO DESINTOXICAR MI CABELLO!"
+    },
+    "testimonialsSection": {
+      "badge": "Resultados reales · Verificados",
+      "title": "+12.480 mujeres ya desintoxicaron",
+      "titleHighlight": "su cabello",
+      "subtitle": "Estos son resultados reales de mujeres que aplicaron el protocolo. Cada testimonial fue verificado."
+    },
+    "testimonials": [
+      {
+        "name": "Maria González",
+        "location": "São Paulo, Brasil",
+        "duration": "21 días",
+        "text": "Llevaba 5 años con caspa. Desapareció en 3 semanas. Mi cuero cabelludo respira de nuevo.",
+        "antes": "/images/quiz-v2/antes-1.jpg",
+        "depois": "/images/quiz-v2/depois-1.jpg"
+      },
+      {
+        "name": "Carolina Mendoza",
+        "location": "Bogotá, Colombia",
+        "duration": "28 días",
+        "text": "Después de la desintoxicación, mi pelo volvió a crecer fuerte. No volveré a productos comerciales.",
+        "antes": "/images/quiz-v2/antes-2.jpg",
+        "depois": "/images/quiz-v2/depois-2.jpg"
+      },
+      {
+        "name": "Lucía Hernández",
+        "location": "Ciudad de México, MX",
+        "duration": "21 días",
+        "text": "Mi cuero cabelludo dejó de picar y mi pelo dejó de caer. Increíble la diferencia.",
+        "antes": "/images/quiz-v2/antes-3.jpg",
+        "depois": "/images/quiz-v2/depois-3.jpg"
+      },
+      {
+        "name": "Ana Rodríguez",
+        "location": "Buenos Aires, Argentina",
+        "duration": "30 días",
+        "text": "Pensé que era genética. Era acumulación tóxica. Hoy mi pelo brilla como hace 10 años.",
+        "antes": "/images/quiz-v2/antes-4.jpg",
+        "depois": "/images/quiz-v2/depois-4.jpg"
+      },
+      {
+        "name": "Sofía Castro",
+        "location": "Lima, Perú",
+        "duration": "21 días",
+        "text": "Adiós caspa, adiós picazón, adiós grasa. El protocolo es simple y funciona.",
+        "antes": "/images/quiz-v2/antes-5.jpg",
+        "depois": "/images/quiz-v2/depois-5.jpg"
+      },
+      {
+        "name": "Isabella Silva",
+        "location": "Quito, Ecuador",
+        "duration": "25 días",
+        "text": "Probé de todo. Solo la desintoxicación natural funcionó. Mi cabello volvió a la vida.",
+        "antes": "/images/quiz-v2/antes-6.jpg",
+        "depois": "/images/quiz-v2/depois-6.jpg"
+      }
+    ],
+    "verifiedBadge": "🌿 RESULTADO EN {{duration}} · VERIFICADO",
+    "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
+  },
   "resultsBold": {
     "hero": {
       "urgencyBanner": "⚠ DIAGNÓSTICO COMPLETADO — LEE CON ATENCIÓN",

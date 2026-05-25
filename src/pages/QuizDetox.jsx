@@ -38,7 +38,6 @@ const STEPS = {
 const TOTAL_QUIZ_STEPS = 9
 
 const P = '#FB45A9'
-const PD = '#E03594'
 const PL2 = '#FFE4F2'
 const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 const GREEN = '#27AE60'
@@ -50,21 +49,6 @@ const slide = {
   animate: { opacity: 1, x: 0 },
   exit:    { opacity: 0, x: -40 },
   transition: { duration: 0.3 },
-}
-
-function ProgressBar({ current, total }) {
-  const pct = Math.round((current / total) * 100)
-  return (
-    <div className="w-full bg-stone-200 rounded-full h-1.5">
-      <motion.div
-        className="h-1.5 rounded-full"
-        style={{ background: 'linear-gradient(90deg, #C0392B, #FB45A9)' }}
-        initial={{ width: 0 }}
-        animate={{ width: `${pct}%` }}
-        transition={{ duration: 0.4 }}
-      />
-    </div>
-  )
 }
 
 function QuizOption({ label, desc, emoji, selected, onClick }) {
@@ -97,8 +81,8 @@ function GreenButton({ children, onClick, pulse = true }) {
   )
 }
 
-export default function QuizBold({ pricingPlan = 'bold' }) {
-  const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.bold
+export default function QuizDetox({ pricingPlan = 'detox' }) {
+  const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.detox
   const { plan_key, results_path } = planConfig
   const QUIZ_STATE_KEY = `glow_quiz_state_${plan_key}`
 
@@ -123,22 +107,25 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
   ]
 
   const SYMPTOM_PILLS = [
-    t('quizBold.symptoms.pills.hairLoss'),
-    t('quizBold.symptoms.pills.dryness'),
-    t('quizBold.symptoms.pills.frizz'),
-    t('quizBold.symptoms.pills.splitEnds'),
-    t('quizBold.symptoms.pills.noShine'),
-    t('quizBold.symptoms.pills.grease'),
-    t('quizBold.symptoms.pills.noVolume'),
-    t('quizBold.symptoms.pills.itch'),
-    t('quizBold.symptoms.pills.weakRoot'),
+    t('quizDetox.symptoms.pills.dandruff'),
+    t('quizDetox.symptoms.pills.itch'),
+    t('quizDetox.symptoms.pills.grease'),
+    t('quizDetox.symptoms.pills.hairLoss'),
+    t('quizDetox.symptoms.pills.redness'),
+    t('quizDetox.symptoms.pills.smell'),
+    t('quizDetox.symptoms.pills.nightItch'),
+    t('quizDetox.symptoms.pills.weakHair'),
+    t('quizDetox.symptoms.pills.sensitive'),
   ]
+
+  // Detox uses green accent for headers (lighter "wellness/cleansing" vibe vs bold's red)
+  const stepBadge = (current) => t('quizDetox.stepBadge', { current, total: TOTAL_QUIZ_STEPS })
 
   useEffect(() => {
     captureAttribution()
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
-      trackFbEvent('ViewContent', { content_name: 'quiz_bold', content_category: plan_key })
-      trackTtEvent('ViewContent', { content_name: 'quiz_bold', content_category: plan_key, content_id: plan_key, content_type: 'product' })
+      trackFbEvent('ViewContent', { content_name: 'quiz_detox', content_category: plan_key })
+      trackTtEvent('ViewContent', { content_name: 'quiz_detox', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     })
     try {
       const saved = sessionStorage.getItem(QUIZ_STATE_KEY)
@@ -166,9 +153,9 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
 
   useEffect(() => {
     if (step !== STEPS.LOADING) return
-    trackFunnelEvent('quiz_bold_completed', { answers }, plan_key)
-    trackFbEvent('Lead', { content_name: 'quiz_bold_completed', content_category: plan_key })
-    trackTtEvent('SubmitForm', { content_name: 'quiz_bold_completed', content_category: plan_key, content_id: plan_key, content_type: 'product' })
+    trackFunnelEvent('quiz_detox_completed', { answers }, plan_key)
+    trackFbEvent('Lead', { content_name: 'quiz_detox_completed', content_category: plan_key })
+    trackTtEvent('SubmitForm', { content_name: 'quiz_detox_completed', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     setLoadingProgress(0)
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),
@@ -187,23 +174,35 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
   const ans = (field, value) => setAnswers(a => ({ ...a, [field]: value }))
 
   const handleStartIntro = () => {
-    trackFunnelEvent('quiz_bold_started', null, plan_key)
+    trackFunnelEvent('quiz_detox_started', null, plan_key)
     setStep(STEPS.SYMPTOMS)
   }
 
   const handleSymptomsAnswer = (intensity) => {
     ans('symptomsIntensity', intensity)
-    if (intensity === '1year') {
-      trackFunnelEvent('quiz_bold_symptom_intense', { intensity }, plan_key)
+    if (intensity === 'years') {
+      trackFunnelEvent('quiz_detox_symptom_intense', { intensity }, plan_key)
     }
     setStep(STEPS.SCIENTIFIC)
   }
 
   const handleFinalAnswer = (choice) => {
     ans('finalChoice', choice)
-    trackFunnelEvent(choice === 'yes' ? 'quiz_bold_final_yes' : 'quiz_bold_final_doubts', null, plan_key)
+    trackFunnelEvent(choice === 'yes' ? 'quiz_detox_final_yes' : 'quiz_detox_final_doubts', null, plan_key)
     setStep(STEPS.LOADING)
   }
+
+  // Override progress bar color to green for detox vibe
+  const stepHeader = (current, title, context, subtitle) => (
+    <PersuasiveStepHeader
+      current={current} total={TOTAL_QUIZ_STEPS} t={t}
+      title={title}
+      context={context}
+      subtitle={subtitle}
+      accentColor={GREEN_DARK}
+      badgeText={stepBadge(current)}
+    />
+  )
 
   return (
     <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
@@ -219,53 +218,55 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         .img-card { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
         .img-card:hover { border-color:#FB45A9; }
         .img-card.selected { border-color:#FB45A9; }
-        .pill { background:#27AE60; color:#fff; border-radius:9999px; padding:6px 14px; font-size:0.75rem; font-weight:800; text-align:center; line-height:1.1; box-shadow:0 2px 8px rgba(39,174,96,0.2); }
+        .pill-green { background:#27AE60; color:#fff; border-radius:9999px; padding:6px 14px; font-size:0.75rem; font-weight:800; text-align:center; line-height:1.1; box-shadow:0 2px 8px rgba(39,174,96,0.2); }
       `}</style>
 
       <AnimatePresence mode="wait">
 
-        {/* ═══ INTRO PERSUASIVO ═══ */}
+        {/* ═══ INTRO ═══ */}
         {step === STEPS.INTRO && (
           <motion.div key="intro" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
-            <UrgencyBanner text={t('quizBold.intro.urgencyBanner')} />
+            <div className="w-full rounded-2xl px-4 py-3 flex items-center justify-center gap-2 text-white font-extrabold text-sm tracking-wide" style={{ background: GREEN_DARK }}>
+              {t('quizDetox.intro.urgencyBanner')}
+            </div>
 
             <div className="text-center flex flex-col gap-2">
               <h1 className="text-2xl font-extrabold text-stone-900 leading-tight">
-                {t('quizBold.intro.title')}
+                {t('quizDetox.intro.title')}
                 <br />
                 que está{' '}
-                <span style={{ background: '#E8F8F0', padding: '0 6px', color: GREEN_DARK }}>{t('quizBold.intro.titleHighlight1')}</span>{' '}
-                {t('quizBold.intro.titleMiddle')}{' '}
-                <span style={{ background: '#FEF9C3', padding: '0 6px' }}>{t('quizBold.intro.titleHighlight2')}</span>{' '}
-                {t('quizBold.intro.titleEnd')}
+                <span style={{ background: '#E8F8F0', padding: '0 6px', color: GREEN_DARK }}>{t('quizDetox.intro.titleHighlight1')}</span>{' '}
+                {t('quizDetox.intro.titleMiddle')}{' '}
+                <span style={{ background: '#FEF9C3', padding: '0 6px' }}>{t('quizDetox.intro.titleHighlight2')}</span>{' '}
+                {t('quizDetox.intro.titleEnd')}
               </h1>
-              <p className="text-sm text-stone-500 leading-snug">{t('quizBold.intro.subtitle')}</p>
+              <p className="text-sm text-stone-500 leading-snug">{t('quizDetox.intro.subtitle')}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizBold.intro.beforeLabel')}</span>
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizDetox.intro.beforeLabel')}</span>
                 <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
                   <img src="/images/quiz-v2/antes-1.jpg" alt="antes" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
-                <p className="text-xs text-stone-500 text-center leading-tight">{t('quizBold.intro.beforeCaption')}</p>
+                <p className="text-xs text-stone-500 text-center leading-tight">{t('quizDetox.intro.beforeCaption')}</p>
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizBold.intro.afterLabel')}</span>
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizDetox.intro.afterLabel')}</span>
                 <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
                   <img src="/images/quiz-v2/depois-1.jpg" alt="después" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
-                <p className="text-xs text-stone-500 text-center leading-tight">{t('quizBold.intro.afterCaption')}</p>
+                <p className="text-xs text-stone-500 text-center leading-tight">{t('quizDetox.intro.afterCaption')}</p>
               </div>
             </div>
 
             <ScientificCard
-              badge={t('quizBold.intro.scientificBadge')}
-              body={t('quizBold.intro.scientificBody')}
+              badge={t('quizDetox.intro.scientificBadge')}
+              body={t('quizDetox.intro.scientificBody')}
             />
 
             <GreenButton onClick={handleStartIntro}>
-              {t('quizBold.intro.cta')}
+              {t('quizDetox.intro.cta')}
             </GreenButton>
           </motion.div>
         )}
@@ -273,11 +274,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ SYMPTOMS ═══ */}
         {step === STEPS.SYMPTOMS && (
           <motion.div key="symptoms" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
-            <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
-
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">
-              {t('quizBold.symptoms.title')}
-            </h2>
+            {stepHeader(1, t('quizDetox.symptoms.title'))}
 
             <div className="relative w-full rounded-2xl overflow-hidden bg-stone-100" style={{ aspectRatio: '1/1' }}>
               <img
@@ -288,25 +285,25 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               />
               <div className="absolute inset-0 p-3 flex flex-wrap items-start gap-2 content-between">
                 {SYMPTOM_PILLS.slice(0, 3).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
+                  <span key={i} className="pill-green">{p}</span>
                 ))}
                 <div className="w-full"></div>
                 {SYMPTOM_PILLS.slice(3, 6).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
+                  <span key={i} className="pill-green">{p}</span>
                 ))}
                 <div className="w-full"></div>
                 {SYMPTOM_PILLS.slice(6).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
+                  <span key={i} className="pill-green">{p}</span>
                 ))}
               </div>
             </div>
 
             <div className="flex flex-col gap-3">
-              <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('30days')}>
-                {t('quizBold.symptoms.ctaShort')} 😩
+              <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('months')}>
+                {t('quizDetox.symptoms.ctaShort')} 😟
               </GreenButton>
-              <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('1year')}>
-                {t('quizBold.symptoms.ctaLong')} 😨
+              <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('years')}>
+                {t('quizDetox.symptoms.ctaLong')} 😱
               </GreenButton>
             </div>
           </motion.div>
@@ -315,39 +312,39 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ SCIENTIFIC FEAR ═══ */}
         {step === STEPS.SCIENTIFIC && (
           <motion.div key="scientific" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
-            <UrgencyBanner text={t('quizBold.scientificFear.urgencyBanner')} />
+            <UrgencyBanner text={t('quizDetox.scientificFear.urgencyBanner')} />
 
             <h2 className="text-xl font-extrabold text-stone-900 leading-snug text-center">
-              {t('quizBold.scientificFear.headline')}{' '}
-              <span style={{ background: '#FDEDEC', color: '#C0392B', padding: '0 6px' }}>{t('quizBold.scientificFear.headlineHighlight')}</span>{' '}
-              {t('quizBold.scientificFear.headlineMiddle')}{' '}
-              <span style={{ background: '#FDEDEC', color: '#C0392B', padding: '0 6px' }}>{t('quizBold.scientificFear.headlineDanger')}</span>{' '}
-              {t('quizBold.scientificFear.headlineEnd')}
+              {t('quizDetox.scientificFear.headline')}{' '}
+              <span style={{ background: '#FDEDEC', color: '#C0392B', padding: '0 6px' }}>{t('quizDetox.scientificFear.headlineHighlight')}</span>{' '}
+              {t('quizDetox.scientificFear.headlineMiddle')}{' '}
+              <span style={{ background: '#FDEDEC', color: '#C0392B', padding: '0 6px' }}>{t('quizDetox.scientificFear.headlineDanger')}</span>{' '}
+              {t('quizDetox.scientificFear.headlineEnd')}
             </h2>
 
             <div className="rounded-2xl p-4 text-center text-white font-bold text-sm" style={{ background: '#1c1917' }}>
-              {t('quizBold.scientificFear.warningBox')}
+              {t('quizDetox.scientificFear.warningBox')}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizBold.scientificFear.healthyLabel')}</span>
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizDetox.scientificFear.healthyLabel')}</span>
                 <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
                   <img src="/images/quiz-bold/follicle-healthy.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizBold.scientificFear.damagedLabel')}</span>
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizDetox.scientificFear.damagedLabel')}</span>
                 <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
                   <img src="/images/quiz-bold/follicle-damaged.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
               </div>
             </div>
 
-            <p className="text-xs text-stone-500 text-center italic">{t('quizBold.scientificFear.caption')}</p>
+            <p className="text-xs text-stone-500 text-center italic">{t('quizDetox.scientificFear.caption')}</p>
 
             <GreenButton onClick={() => setStep(STEPS.NEWS)}>
-              {t('quizBold.scientificFear.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizDetox.scientificFear.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
@@ -356,15 +353,15 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {step === STEPS.NEWS && (
           <motion.div key="news" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
             <FakeNewsCard
-              logoLabel={t('quizBold.news.logoLabel')}
-              headline={t('quizBold.news.headline')}
-              subheadline={t('quizBold.news.subheadline')}
-              credit={t('quizBold.news.credit')}
+              logoLabel={t('quizDetox.news.logoLabel')}
+              headline={t('quizDetox.news.headline')}
+              subheadline={t('quizDetox.news.subheadline')}
+              credit={t('quizDetox.news.credit')}
               imageUrl="/images/quiz-bold/news-screenshot.jpg"
             />
 
             <GreenButton onClick={() => setStep(STEPS.REFRAMING)}>
-              {t('quizBold.news.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizDetox.news.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
@@ -377,23 +374,23 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             </div>
 
             <h2 className="text-3xl font-extrabold text-stone-900 leading-tight text-center">
-              {t('quizBold.reframing.headline1')}
+              {t('quizDetox.reframing.headline1')}
               <br />
-              <span style={{ color: '#C0392B' }}>{t('quizBold.reframing.headline2')}</span>
+              <span style={{ color: '#C0392B' }}>{t('quizDetox.reframing.headline2')}</span>
             </h2>
 
             <ReframingCard
-              explanation={t('quizBold.reframing.explanation')}
+              explanation={t('quizDetox.reframing.explanation')}
               denials={[
-                t('quizBold.reframing.denial1'),
-                t('quizBold.reframing.denial2'),
-                t('quizBold.reframing.denial3'),
+                t('quizDetox.reframing.denial1'),
+                t('quizDetox.reframing.denial2'),
+                t('quizDetox.reframing.denial3'),
               ]}
-              affirmation={t('quizBold.reframing.affirmation')}
+              affirmation={t('quizDetox.reframing.affirmation')}
             />
 
             <GreenButton onClick={() => setStep(STEPS.AGE)}>
-              {t('quizBold.reframing.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizDetox.reframing.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
@@ -401,11 +398,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ AGE ═══ */}
         {step === STEPS.AGE && (
           <motion.div key="age" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={2} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.age.title')}
-              context={t('quizBold.questions.age.context')}
-            />
+            {stepHeader(2, t('quizDetox.questions.age.title'), t('quizDetox.questions.age.context'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: '18_29',   label: t('quiz.options.age18'), emoji: '🌸' },
@@ -427,11 +420,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ HAIR TYPE ═══ */}
         {step === STEPS.HAIR_TYPE && (
           <motion.div key="hair-type" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={3} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.hairType.title')}
-              context={t('quizBold.questions.hairType.context')}
-            />
+            {stepHeader(3, t('quizDetox.questions.hairType.title'), t('quizDetox.questions.hairType.context'))}
             <div className="grid grid-cols-2 gap-3">
               {HAIR_TYPES.map(opt => (
                 <div
@@ -455,11 +444,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q1 — WASH FREQ ═══ */}
         {step === STEPS.Q1 && (
           <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={4} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.washFreq.title')}
-              context={t('quizBold.questions.washFreq.context')}
-            />
+            {stepHeader(4, t('quizDetox.questions.washFreq.title'), t('quizDetox.questions.washFreq.context'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: 'daily', label: t('quiz.options.washDaily'), emoji: '🚿', desc: t('quiz.options.washDailyDesc') },
@@ -480,11 +465,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q2 — WATER TEMP ═══ */}
         {step === STEPS.Q2 && (
           <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={5} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.waterTemp.title')}
-              context={t('quizBold.questions.waterTemp.context')}
-            />
+            {stepHeader(5, t('quizDetox.questions.waterTemp.title'), t('quizDetox.questions.waterTemp.context'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: 'hot',  label: t('quiz.options.waterHot'),  emoji: '🔥', desc: t('quiz.options.waterHotDesc') },
@@ -505,11 +486,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q3 — HEAT TOOLS ═══ */}
         {step === STEPS.Q3 && (
           <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={6} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.heatTools.title')}
-              context={t('quizBold.questions.heatTools.context')}
-            />
+            {stepHeader(6, t('quizDetox.questions.heatTools.title'), t('quizDetox.questions.heatTools.context'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: 'daily',  label: t('quiz.options.heatDaily'),  emoji: '🔌', desc: t('quiz.options.heatDailyDesc') },
@@ -530,11 +507,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q4 — HYDRATION ═══ */}
         {step === STEPS.Q4 && (
           <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={7} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.hydration.title')}
-              context={t('quizBold.questions.hydration.context')}
-            />
+            {stepHeader(7, t('quizDetox.questions.hydration.title'), t('quizDetox.questions.hydration.context'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: 'regularly', label: t('quiz.options.hydroRegularly'), emoji: '✅', desc: t('quiz.options.hydroRegularlyDesc') },
@@ -555,12 +528,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ Q5 — CHEM PRODUCTS ═══ */}
         {step === STEPS.Q5 && (
           <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={8} total={TOTAL_QUIZ_STEPS} t={t}
-              title={t('quizBold.questions.chemProducts.title')}
-              subtitle={t('quizBold.questions.chemProducts.subtitle')}
-              context={t('quizBold.questions.chemProducts.context')}
-            />
+            {stepHeader(8, t('quizDetox.questions.chemProducts.title'), t('quizDetox.questions.chemProducts.context'), t('quizDetox.questions.chemProducts.subtitle'))}
             <div className="flex flex-col gap-3">
               {[
                 { value: 'yes_heavy', label: t('quiz.options.chemHeavy'), emoji: '⚗️', desc: t('quiz.options.chemHeavyDesc') },
@@ -582,25 +550,25 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {step === STEPS.SOCIAL_PROOF && (
           <motion.div key="social" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
             <div className="rounded-2xl p-4 text-center" style={{ background: '#E8F8F0', borderLeft: `4px solid ${GREEN}` }}>
-              <p className="font-extrabold text-stone-900 text-sm">{t('quizBold.socialProof.banner')}</p>
-              <p className="text-xs text-stone-600 mt-1">{t('quizBold.socialProof.bannerSub')}</p>
+              <p className="font-extrabold text-stone-900 text-sm">{t('quizDetox.socialProof.banner')}</p>
+              <p className="text-xs text-stone-600 mt-1">{t('quizDetox.socialProof.bannerSub')}</p>
             </div>
 
             <TestimonialCard
               avatarUrl="/images/quiz-bold/testimonial-maria.jpg"
-              name={t('quizBold.socialProof.testimonialName')}
-              location={t('quizBold.socialProof.testimonialLocation')}
-              text={t('quizBold.socialProof.testimonialText')}
-              beforeUrl="/images/quiz-bold/testimonial-antes.jpg"
-              afterUrl="/images/quiz-bold/testimonial-depois.jpg"
-              beforeLabel={t('quizBold.socialProof.beforeLabel')}
-              afterLabel={t('quizBold.socialProof.afterLabel')}
+              name={t('quizDetox.socialProof.testimonialName')}
+              location={t('quizDetox.socialProof.testimonialLocation')}
+              text={t('quizDetox.socialProof.testimonialText')}
+              beforeUrl="/images/quiz-v2/antes-1.jpg"
+              afterUrl="/images/quiz-v2/depois-1.jpg"
+              beforeLabel={t('quizDetox.socialProof.beforeLabel')}
+              afterLabel={t('quizDetox.socialProof.afterLabel')}
             />
 
-            <p className="text-xs text-stone-500 text-center italic">{t('quizBold.socialProof.caption')}</p>
+            <p className="text-xs text-stone-500 text-center italic">{t('quizDetox.socialProof.caption')}</p>
 
             <GreenButton onClick={() => setStep(STEPS.NAME)}>
-              {t('quizBold.socialProof.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizDetox.socialProof.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
@@ -608,12 +576,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {/* ═══ NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={9} total={TOTAL_QUIZ_STEPS} />
-            <div className="text-center pt-6">
-              <div className="text-5xl mb-4">🌿</div>
-              <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quiz.name.title')}</h2>
-              <p className="text-base text-stone-500">{t('quiz.name.subtitle')}</p>
-            </div>
+            {stepHeader(9, t('quiz.name.title'), null, t('quiz.name.subtitle'))}
             <input
               type="text"
               placeholder={t('quiz.name.placeholder')}
@@ -638,22 +601,22 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {step === STEPS.FINAL && (
           <motion.div key="final" {...slide} className="max-w-lg mx-auto w-full px-4 pt-20 pb-8 flex flex-col gap-8 min-h-screen">
             <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">
-              {t('quizBold.finalQuestion.headline1')}{' '}
-              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>{t('quizBold.finalQuestion.headlineHighlight1')}</span>{' '}
-              {t('quizBold.finalQuestion.headline2')}{' '}
-              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>{t('quizBold.finalQuestion.headlineHighlight2')}</span>{' '}
-              {t('quizBold.finalQuestion.headline3')}
+              {t('quizDetox.finalQuestion.headline1')}{' '}
+              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>{t('quizDetox.finalQuestion.headlineHighlight1')}</span>{' '}
+              {t('quizDetox.finalQuestion.headline2')}{' '}
+              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>{t('quizDetox.finalQuestion.headlineHighlight2')}</span>{' '}
+              {t('quizDetox.finalQuestion.headline3')}
             </h2>
 
             <div className="flex flex-col gap-3">
               <GreenButton pulse={true} onClick={() => handleFinalAnswer('yes')}>
-                🤩 {t('quizBold.finalQuestion.ctaYes')}
+                🌿 {t('quizDetox.finalQuestion.ctaYes')}
               </GreenButton>
               <button
                 onClick={() => handleFinalAnswer('doubts')}
                 className="w-full py-5 font-extrabold rounded-full text-base flex items-center justify-center gap-2 border-2 border-stone-300 bg-white text-stone-700"
               >
-                🙂 {t('quizBold.finalQuestion.ctaDoubts')}
+                🙂 {t('quizDetox.finalQuestion.ctaDoubts')}
               </button>
             </div>
           </motion.div>
@@ -668,7 +631,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             className="max-w-lg mx-auto w-full px-4 py-16 flex flex-col items-center gap-8"
           >
             <div className="text-center">
-              <div className="text-4xl mb-4">🔬</div>
+              <div className="text-4xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900">{t('quiz.loading.title')}</h2>
               <p className="text-sm text-stone-400 mt-2">{t('quiz.loading.subtitle')}</p>
             </div>
@@ -681,7 +644,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
                 <div key={i} className="flex items-center gap-3">
                   <div
                     className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
-                    style={{ background: loadingProgress >= item.threshold ? P : '#e7e5e4' }}
+                    style={{ background: loadingProgress >= item.threshold ? GREEN : '#e7e5e4' }}
                   >
                     {loadingProgress >= item.threshold && <Check className="w-3 h-3 text-white" />}
                   </div>
@@ -694,7 +657,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             <div className="w-full bg-stone-200 rounded-full h-2">
               <motion.div
                 className="h-2 rounded-full"
-                style={{ background: 'linear-gradient(90deg, #FB45A9, #E03594)' }}
+                style={{ background: GREEN_GRAD }}
                 animate={{ width: `${loadingProgress}%` }}
                 transition={{ duration: 0.5 }}
               />
