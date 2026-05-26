@@ -306,6 +306,76 @@
       }
     }
   },
+  "detoxFlow": {
+    "diagnosis": {
+      "urgencyBanner": "⚠ DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
+      "titleWithName": "{{name}}, tienes",
+      "titleNoName": "Tienes",
+      "titleScoreSuffix": "de probabilidad de tener tu cuero cabelludo",
+      "titleHighlight": "INTOXICADO",
+      "factorsHeading": "Estos son los factores que te exponen:",
+      "urgentBanner": "Necesitas un protocolo de desintoxicación URGENTE",
+      "previewHeading": "Tu protocolo personalizado incluye:",
+      "previewItems": [
+        { "icon": "🌿", "text": "21 días de tratamiento 100% natural" },
+        { "icon": "🧪", "text": "Recetas caseras con ingredientes que ya tienes" },
+        { "icon": "💯", "text": "Personalizado para tu tipo de cabello y nivel de toxicidad" },
+        { "icon": "🔄", "text": "Plan progresivo de 4 fases para limpiar el folículo" },
+        { "icon": "📱", "text": "Acceso desde cualquier dispositivo" }
+      ],
+      "cta": "🌿 Quiero conocer mi protocolo",
+      "reassurance": "Sin productos caros · Sin químicos · Sin suscripciones"
+    },
+    "offer": {
+      "recap": "Tu protocolo personalizado está listo. Solo falta activarlo.",
+      "guaranteeBadge": "🛡️ GARANTÍA TOTAL DE 7 DÍAS",
+      "guaranteeText": "Si no ves resultados en 7 días, te devolvemos cada centavo. Sin preguntas, sin burocracia.",
+      "includesHeading": "Tu protocolo de desintoxicación incluye:",
+      "includesItems": [
+        { "icon": "🌿", "title": "Protocolo de 21 días personalizado", "desc": "Plan paso a paso adaptado a tu nivel de toxicidad" },
+        { "icon": "🧪", "title": "Recetas caseras exclusivas", "desc": "Ingredientes naturales que ya tienes en casa — costo casi cero" },
+        { "icon": "🚫", "title": "Lista de químicos a evitar", "desc": "Sabrás exactamente qué productos están dañándote" },
+        { "icon": "🔄", "title": "Plan progresivo de 4 fases", "desc": "Desintoxicación gradual para que tu cabello no sufra" },
+        { "icon": "📚", "title": "Biblioteca con 25 recetas naturales", "desc": "Acceso completo a todo el contenido NatGlow" },
+        { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único — no es suscripción mensual" },
+        { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero — pruébalo y decide" }
+      ],
+      "valueComparison": {
+        "title": "Lo que pagarías en otros lugares:",
+        "rows": [
+          { "label": "Tratamientos en salón profesional", "price": "$200+/mes" },
+          { "label": "Productos comerciales premium", "price": "$80+/mes" },
+          { "label": "Consulta con dermatólogo", "price": "$150+" },
+          { "label": "NatGlow (pago único, acceso de por vida)", "price": "$47", "highlight": true }
+        ]
+      },
+      "socialProofHeading": "Mujeres que ya desintoxicaron su cabello:",
+      "moreTestimonialsHeading": "Más resultados verificados",
+      "faq": {
+        "tag": "Preguntas frecuentes",
+        "title": "Todo lo que necesitas saber",
+        "items": [
+          {
+            "q": "¿Funciona para mi tipo de cabello?",
+            "a": "Sí. El protocolo es personalizado según las respuestas de tu test — incluyendo tu tipo de cabello (liso, ondulado, rizado o crespo) y tu nivel actual de toxicidad."
+          },
+          {
+            "q": "¿Cuánto tiempo veo resultados?",
+            "a": "La mayoría de mujeres reportan menos picazón y caspa en los primeros 7 días. Resultados visibles en brillo y caída en 14-21 días. La desintoxicación completa toma 21 días."
+          },
+          {
+            "q": "¿Y si no me funciona?",
+            "a": "Tienes 7 días de garantía total. Si no ves resultados, te devolvemos el 100% sin preguntas. Solo escríbenos."
+          },
+          {
+            "q": "¿Las recetas son caras?",
+            "a": "No. Las recetas usan ingredientes que probablemente ya tienes en casa — aceite de coco, miel, aloe vera, vinagre de manzana. Costo promedio por receta: menos de $0.50."
+          }
+        ]
+      },
+      "stickyCTALabel": "Activar mi protocolo"
+    }
+  },
   "resultsDetox": {
     "hero": {
       "urgencyBanner": "🌿 DIAGNÓSTICO DE TOXICIDAD COMPLETADO",

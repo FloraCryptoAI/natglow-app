@@ -12,6 +12,8 @@ import Quiz from './pages/Quiz';
 import QuizBold from './pages/QuizBold';
 import QuizDetox from './pages/QuizDetox';
 import Results from './pages/Results';
+import ResultsDetox from './pages/ResultsDetox';
+import OfferDetox from './pages/OfferDetox';
 import Login from './pages/Login';
 import Upgrade from './pages/Upgrade';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
@@ -123,7 +125,8 @@ const AppRoutes = () => {
       <Route path="/results-cheap"   element={<Results pricingPlan="monthly_cheap" />} />
       <Route path="/results-premium" element={<Results pricingPlan="monthly_premium" />} />
       <Route path="/results-bold"    element={<Results pricingPlan="bold" />} />
-      <Route path="/results-detox"   element={<Results pricingPlan="detox" />} />
+      <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
+      <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
       <Route path="/results-weekly"  element={<Navigate to="/results" replace />} />
 
       {/* Legacy redirect — keeps old /Results links working (emails, ads, bookmarks) */}
