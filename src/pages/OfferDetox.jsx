@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLocation, useNavigate, Link, Navigate } from 'react-router-dom'
+import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Shield, Clock, Loader2, Check, ChevronDown, ChevronUp, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -146,18 +146,6 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-24 md:pb-0" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header className="bg-white sticky top-0 z-30" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-        <div className="max-w-xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="NatGlow" className="w-11 h-11 rounded-2xl object-cover" />
-            <span style={{ fontWeight: 400, color: '#535353', fontSize: '16px', letterSpacing: '-0.01em' }}>NatGlow</span>
-          </div>
-          <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600">
-            Ya tengo cuenta →
-          </Link>
-        </div>
-      </header>
-
       {/* ── RECAP ── */}
       <section className="bg-white">
         <div className="max-w-xl mx-auto px-5 pt-8 pb-6 text-center">

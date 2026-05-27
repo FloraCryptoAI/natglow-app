@@ -308,7 +308,7 @@
   },
   "detoxFlow": {
     "diagnosis": {
-      "urgencyBanner": "⚠ DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
+      "urgencyBanner": "DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
       "titleWithName": "{{name}}, tienes",
       "titleNoName": "Tienes",
       "titleScoreSuffix": "de probabilidad de tener tu cuero cabelludo",

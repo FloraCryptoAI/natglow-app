@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocation, useNavigate, Link, Navigate } from 'react-router-dom'
+import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -78,18 +78,6 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
 
   return (
     <div className="min-h-screen bg-stone-50" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header className="bg-white" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-        <div className="max-w-xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="NatGlow" className="w-11 h-11 rounded-2xl object-cover" />
-            <span style={{ fontWeight: 400, color: '#535353', fontSize: '16px', letterSpacing: '-0.01em' }}>NatGlow</span>
-          </div>
-          <Link to="/Login" className="text-xs font-semibold text-stone-400 hover:text-stone-600">
-            Ya tengo cuenta →
-          </Link>
-        </div>
-      </header>
-
       <div className="max-w-xl mx-auto px-5 pt-5 pb-10 flex flex-col gap-6">
 
         <FadeIn>
