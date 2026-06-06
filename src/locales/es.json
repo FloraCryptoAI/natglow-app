@@ -76,18 +76,18 @@
 
   "quizBold": {
     "intro": {
-      "urgencyBanner": "URGENTE — LEE ANTES DE CONTINUAR",
+      "urgencyBanner": "URGENTE · LEE ANTES DE CONTINUAR",
       "title": "EL PROTOCOLO NATURAL DE 21 DÍAS",
       "titleHighlight1": "RESTAURANDO",
       "titleMiddle": "el cabello dañado y",
       "titleHighlight2": "DEVOLVIENDO EL BRILLO",
       "titleEnd": "a mujeres latinas",
-      "subtitle": "Descubre por qué tu pelo se cae, no crece, no brilla — aun usando los mejores productos.",
+      "subtitle": "Descubre por qué tu pelo se cae, no crece, no brilla, aun usando los mejores productos.",
       "beforeLabel": "ANTES",
       "beforeCaption": "Folículos sofocados por químicos",
-      "afterLabel": "DESPUÉS — 21 DÍAS",
+      "afterLabel": "DESPUÉS · 21 DÍAS",
       "afterCaption": "Cabello respirando y creciendo",
-      "scientificBadge": "DATO CIENTÍFICO — OMS",
+      "scientificBadge": "DATO CIENTÍFICO · OMS",
       "scientificBody": "70% de las mujeres tienen sus folículos capilares dañados por la acumulación de químicos cosméticos. Atacan la raíz, sofocan el crecimiento y debilitan el cabello.",
       "cta": "HACER EL TEST GRATUITO AHORA"
     },
@@ -108,7 +108,7 @@
       "ctaLong": "Lo siento hace más de 1 año"
     },
     "scientificFear": {
-      "urgencyBanner": "CUIDADO — LEE ESTO AHORA",
+      "urgencyBanner": "CUIDADO · LEE ESTO AHORA",
       "headline": "Si nunca has hecho una",
       "headlineHighlight": "DESINTOXICACIÓN CAPILAR NATURAL,",
       "headlineMiddle": "los químicos pueden acumularse en tu cuero cabelludo y",
@@ -140,9 +140,9 @@
     "socialProof": {
       "banner": "LOS RESULTADOS NO MIENTEN",
       "bannerSub": "Tus síntomas indican folículos dañados. Pero hay esperanza.",
-      "testimonialName": "Maria Santos",
-      "testimonialLocation": "Bogotá, Colombia",
-      "testimonialText": "Llevaba 3 años perdiendo pelo. Probé de todo: vitaminas, tratamientos caros, dermatólogo. Nada funcionaba. En 21 días con el protocolo NatGlow mi caída paró y volvió el brillo natural. Pensé que era imposible. 😍",
+      "testimonialName": "Camila Vargas",
+      "testimonialLocation": "Ciudad de México, MX",
+      "testimonialText": "Llevaba años con el pelo seco, sin brillo y con las puntas dañadas. Probé tratamientos caros, no funcionaba nada. En 21 días con el protocolo NatGlow, mi pelo volvió a brillar y se sintió suave nuevamente. Era como si tuviera otro cabello 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cabello restaurado sin químicos",
@@ -186,24 +186,24 @@
       "chemProducts": {
         "title": "¿Usas alisado, decoloración o tintes?",
         "subtitle": "Los químicos son la causa #1 de caída irreversible",
-        "context": "Sé honesta — esto define qué tan urgente es tu protocolo"
+        "context": "Sé honesta, esto define qué tan urgente es tu protocolo"
       }
     }
   },
   "quizDetox": {
     "intro": {
-      "urgencyBanner": "🌿 IMPORTANTE — LEE ANTES DE CONTINUAR",
+      "urgencyBanner": "🌿 IMPORTANTE · LEE ANTES DE CONTINUAR",
       "title": "EL PROTOCOLO DE DESINTOXICACIÓN CAPILAR DE 21 DÍAS",
       "titleHighlight1": "LIMPIANDO",
       "titleMiddle": "los folículos y devolviendo la",
       "titleHighlight2": "SALUD AL CUERO CABELLUDO",
       "titleEnd": "de mujeres latinas",
-      "subtitle": "Descubre por qué tu cabello no responde — aun usando tratamientos caros y productos de farmacia.",
+      "subtitle": "Descubre por qué tu cabello no responde, aun usando tratamientos caros y productos de farmacia.",
       "beforeLabel": "INTOXICADO",
       "beforeCaption": "Cuero cabelludo sofocado por químicos",
-      "afterLabel": "LIMPIO — 21 DÍAS",
+      "afterLabel": "LIMPIO · 21 DÍAS",
       "afterCaption": "Folículos respirando y saludables",
-      "scientificBadge": "DATO CIENTÍFICO — DERMATOLOGÍA",
+      "scientificBadge": "DATO CIENTÍFICO · DERMATOLOGÍA",
       "scientificBody": "Después de años usando productos comerciales, el cuero cabelludo acumula una capa invisible de sulfatos, parabenos y silicones que sofoca los folículos y bloquea la respiración natural.",
       "cta": "DESCUBRIR MI NIVEL DE TOXICIDAD"
     },
@@ -224,7 +224,7 @@
       "ctaLong": "Llevo años sufriendo esto"
     },
     "scientificFear": {
-      "urgencyBanner": "⚠ ALERTA — LO QUE NADIE TE CUENTA",
+      "urgencyBanner": "ALERTA, LO QUE NADIE TE CUENTA",
       "headline": "Cada vez que te lavas el cabello con productos comerciales, depositas una",
       "headlineHighlight": "CAPA DE QUÍMICOS",
       "headlineMiddle": "que se acumula y NO se elimina con el lavado normal. Después de años, tu cuero cabelludo está literalmente",
@@ -246,7 +246,7 @@
     "reframing": {
       "headline1": "Tu cabello no está dañado.",
       "headline2": "Tu cuero cabelludo está INTOXICADO.",
-      "explanation": "Años de productos comerciales depositaron una capa invisible de químicos en tu cuero cabelludo. Esa capa sofoca los folículos, atrae caspa y provoca caída — sin que tú lo veas.",
+      "explanation": "Años de productos comerciales depositaron una capa invisible de químicos en tu cuero cabelludo. Esa capa sofoca los folículos, atrae caspa y provoca caída, sin que tú lo veas.",
       "denial1": "No es falta de higiene",
       "denial2": "No es genética",
       "denial3": "No es tu tipo de cuero cabelludo",
@@ -256,9 +256,9 @@
     "socialProof": {
       "banner": "TU CUERO CABELLUDO TE PIDE AYUDA",
       "bannerSub": "Tus síntomas indican alta toxicidad. Pero la desintoxicación es posible.",
-      "testimonialName": "Maria González",
-      "testimonialLocation": "São Paulo, Brasil",
-      "testimonialText": "Llevaba 5 años con caspa crónica. Probé champús anti-caspa, cremas, dermatólogo. En 21 días con la desintoxicación NatGlow desapareció por completo. Mi cuero cabelludo respira de nuevo 🌿",
+      "testimonialName": "Camila Vargas",
+      "testimonialLocation": "Ciudad de México, MX",
+      "testimonialText": "Llevaba años con el pelo seco, sin brillo y con las puntas dañadas. Probé tratamientos caros, no funcionaba nada. En 21 días con la desintoxicación NatGlow, mi pelo volvió a brillar y se sintió suave nuevamente. Era como si tuviera otro cabello 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cuero cabelludo desintoxicado naturalmente",
@@ -302,7 +302,7 @@
       "chemProducts": {
         "title": "¿Usas alisado, decoloración o tintes?",
         "subtitle": "Estos son los químicos más tóxicos para el cuero cabelludo",
-        "context": "Sé honesta — define qué tan urgente es tu desintoxicación"
+        "context": "Sé honesta, define qué tan urgente es tu desintoxicación"
       }
     }
   },
@@ -318,10 +318,11 @@
       "previewHeading": "Tu protocolo personalizado incluye:",
       "previewItems": [
         { "icon": "🌿", "text": "21 días de tratamiento 100% natural" },
-        { "icon": "🧪", "text": "Recetas caseras con ingredientes que ya tienes" },
+        { "icon": "🧪", "text": "3 recetas naturales exclusivas desarrolladas por especialistas" },
+        { "icon": "💇", "text": "Progresiva casera que no agrede el cabello ni el cuero cabelludo" },
         { "icon": "💯", "text": "Personalizado para tu tipo de cabello y nivel de toxicidad" },
         { "icon": "🔄", "text": "Plan progresivo de 4 fases para limpiar el folículo" },
-        { "icon": "📱", "text": "Acceso desde cualquier dispositivo" }
+        { "icon": "📱", "text": "App exclusiva instalable en tu smartphone (PWA)" }
       ],
       "cta": "🌿 Quiero conocer mi protocolo",
       "reassurance": "Sin productos caros · Sin químicos · Sin suscripciones"
@@ -333,12 +334,12 @@
       "includesHeading": "Tu protocolo de desintoxicación incluye:",
       "includesItems": [
         { "icon": "🌿", "title": "Protocolo de 21 días personalizado", "desc": "Plan paso a paso adaptado a tu nivel de toxicidad" },
-        { "icon": "🧪", "title": "Recetas caseras exclusivas", "desc": "Ingredientes naturales que ya tienes en casa — costo casi cero" },
+        { "icon": "🧪", "title": "Recetas caseras exclusivas", "desc": "Ingredientes naturales que ya tienes en casa, costo casi cero" },
         { "icon": "🚫", "title": "Lista de químicos a evitar", "desc": "Sabrás exactamente qué productos están dañándote" },
         { "icon": "🔄", "title": "Plan progresivo de 4 fases", "desc": "Desintoxicación gradual para que tu cabello no sufra" },
         { "icon": "📚", "title": "Biblioteca con 25 recetas naturales", "desc": "Acceso completo a todo el contenido NatGlow" },
-        { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único — no es suscripción mensual" },
-        { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero — pruébalo y decide" }
+        { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único, no es suscripción mensual" },
+        { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero, pruébalo y decide" }
       ],
       "valueComparison": {
         "title": "Lo que pagarías en otros lugares:",
@@ -357,7 +358,7 @@
         "items": [
           {
             "q": "¿Funciona para mi tipo de cabello?",
-            "a": "Sí. El protocolo es personalizado según las respuestas de tu test — incluyendo tu tipo de cabello (liso, ondulado, rizado o crespo) y tu nivel actual de toxicidad."
+            "a": "Sí. El protocolo es personalizado según las respuestas de tu test, incluyendo tu tipo de cabello (liso, ondulado, rizado o crespo) y tu nivel actual de toxicidad."
           },
           {
             "q": "¿Cuánto tiempo veo resultados?",
@@ -369,7 +370,7 @@
           },
           {
             "q": "¿Las recetas son caras?",
-            "a": "No. Las recetas usan ingredientes que probablemente ya tienes en casa — aceite de coco, miel, aloe vera, vinagre de manzana. Costo promedio por receta: menos de $0.50."
+            "a": "No. Las recetas usan ingredientes que probablemente ya tienes en casa, aceite de coco, miel, aloe vera, vinagre de manzana. Costo promedio por receta: menos de $0.50."
           }
         ]
       },
@@ -396,7 +397,7 @@
       "title": "Tu desintoxicación de 21 días",
       "titleHighlight": "empieza HOY",
       "subtitle": "Cada día sin desintoxicar es un día más de acumulación tóxica en tu cuero cabelludo.",
-      "promoBadge": "🌿 OFERTA ESPECIAL — Solo Hoy",
+      "promoBadge": "🌿 OFERTA ESPECIAL · Solo Hoy",
       "cta": "¡QUIERO DESINTOXICAR MI CABELLO!"
     },
     "testimonialsSection": {
@@ -407,10 +408,10 @@
     },
     "testimonials": [
       {
-        "name": "Maria González",
-        "location": "São Paulo, Brasil",
+        "name": "Camila Vargas",
+        "location": "Ciudad de México, MX",
         "duration": "21 días",
-        "text": "Llevaba 5 años con caspa. Desapareció en 3 semanas. Mi cuero cabelludo respira de nuevo.",
+        "text": "Mi pelo seco y sin brillo volvió a la vida. La progresiva casera me sorprendió, mucho mejor que la química.",
         "antes": "/images/quiz-v2/antes-1.jpg",
         "depois": "/images/quiz-v2/depois-1.jpg"
       },
@@ -460,18 +461,18 @@
   },
   "resultsBold": {
     "hero": {
-      "urgencyBanner": "⚠ DIAGNÓSTICO COMPLETADO — LEE CON ATENCIÓN",
+      "urgencyBanner": "DIAGNÓSTICO COMPLETADO · LEE CON ATENCIÓN",
       "badge": "🚨 Tu cabello está en estado crítico",
       "titleWithName": "{{name}}, tus folículos están siendo",
       "titleHighlight": "SABOTEADOS",
       "titleNoName": "Tus folículos están siendo",
-      "subtitle": "Analizamos tus respuestas y encontramos exactamente qué está destruyendo tu cabello. Lee hasta el final — tu protocolo personalizado te espera."
+      "subtitle": "Analizamos tus respuestas y encontramos exactamente qué está destruyendo tu cabello. Lee hasta el final, tu protocolo personalizado te espera."
     },
     "diagnosis": {
       "signs": "🚨 Tu cabello está pidiendo SOCORRO:",
       "causes": "⚠️ Y aquí está la VERDAD que nadie te dice:",
       "goodNews": "✅ Pero todavía estás a tiempo de revertirlo.",
-      "goodNewsText": "El daño capilar es reversible cuando se aplica el protocolo correcto. Miles de mujeres como tú ya recuperaron su cabello en 21 días con las recetas naturales correctas — sin químicos, sin tratamientos caros, sin depender de salones."
+      "goodNewsText": "El daño capilar es reversible cuando se aplica el protocolo correcto. Miles de mujeres como tú ya recuperaron su cabello en 21 días con las recetas naturales correctas, sin químicos, sin tratamientos caros, sin depender de salones."
     },
     "recipes": {
       "badge": "🔓 Solo para tu protocolo personalizado",
@@ -485,11 +486,11 @@
       "stars": "4,9 de 5 estrellas · Verificado"
     },
     "pricing": {
-      "badge": "🔥 ÚLTIMA OPORTUNIDAD — Precio especial",
+      "badge": "🔥 ÚLTIMA OPORTUNIDAD · Precio especial",
       "title": "Tu protocolo de 21 días",
       "titleHighlight": "empieza HOY",
       "subtitle": "Cada día sin actuar es un día más de daño irreversible en tus folículos.",
-      "promoBadge": "🔥 OFERTA ESPECIAL — Solo Hoy",
+      "promoBadge": "🔥 OFERTA ESPECIAL · Solo Hoy",
       "cta": "¡SÍ, QUIERO RESTAURAR MI CABELLO!"
     },
     "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
@@ -535,7 +536,7 @@
       "p1": "Desde tiempos antiguos, nuestro cabello nunca había necesitado tantos productos como hoy. La industria cosmética siempre está inventando algo nuevo y vendiéndolo como esencial, creando un ciclo interminable de consumo. Compras, usas, sientes una mejora momentánea… y pronto necesitas otro producto.",
       "p2": "En medio de todo esto, tu cabello y tu cuero cabelludo van siendo sobrecargados por químicos, residuos y excesos. ¿Y sabes cuál es el resultado después de algunos años?",
       "p3": "Caída del cabello, debilitamiento de los cabellos y dependencia constante de nuevos tratamientos.",
-      "p4": "Necesitas protegerte de esto y cuidar tu cabello de forma natural — y nosotros vamos a ayudarte con eso.",
+      "p4": "Necesitas protegerte de esto y cuidar tu cabello de forma natural, y nosotros vamos a ayudarte con eso.",
       "cta": "Continuar"
     },
     "beforeAfter": {
@@ -796,7 +797,7 @@
     "faqTitle": "Preguntas frecuentes",
     "faq": [
       { "q": "¿Y si no me gusta?", "a": "Tienes 7 días de garantía total. Si no estás satisfecha, te devolvemos el 100% sin preguntas. Solo contáctanos." },
-      { "q": "¿Los ingredientes de las recetas son caros?", "a": "¡No! Todas las recetas usan ingredientes simples como miel, aceite de oliva, huevos y aloe vera — que probablemente ya tienes en casa." },
+      { "q": "¿Los ingredientes de las recetas son caros?", "a": "¡No! Todas las recetas usan ingredientes simples como miel, aceite de oliva, huevos y aloe vera, que probablemente ya tienes en casa." },
       { "q": "¿Cuánto tiempo hasta ver resultados?", "a": "La mayoría de las usuarias nota mejora visible en 2 a 3 semanas siguiendo la rutina. Resultados a largo plazo en 60–90 días." },
       { "q": "¿Funciona para cualquier tipo de cabello?", "a": "¡Sí! El plan es personalizado con base en tu diagnóstico para funcionar con tu tipo y problema específico." }
     ],
@@ -849,7 +850,7 @@
     "recipesLabel": "Recetas incluidas en tu plan",
     "planPreview": "Vista previa del plan de 21 días",
     "day1Task": "Cambia agua caliente por tibia o fría",
-    "day3Task": "Mascarilla de Aloe Vera y Miel — 20 min",
+    "day3Task": "Mascarilla de Aloe Vera y Miel, 20 min",
     "day7Task": "Check-in: observa el brillo y el frizz",
     "moreDays": "+ 18 días de plan detallado",
     "startTitle": "Comienza tu recuperación hoy",
@@ -875,14 +876,14 @@
       "Usa agua tibia o fría para lavar el cabello",
       "Protege tu cabello con protector térmico antes de usar calor",
       "Duerme con funda de satén o seda para reducir la fricción",
-      "Mantente bien hidratada — el cabello refleja la salud interna del cuerpo",
+      "Mantente bien hidratada, el cabello refleja la salud interna del cuerpo",
       "Peina con cuidado, siempre de abajo hacia arriba, sin tirar",
-      "Evita recoger el cabello mojado — causa rotura"
+      "Evita recoger el cabello mojado, causa rotura"
     ],
     "habitsToAvoid": [
-      "Agua caliente en la ducha — reseca los cabellos y abre la cutícula",
+      "Agua caliente en la ducha, reseca los cabellos y abre la cutícula",
       "Uso diario de secador o plancha sin protección térmica",
-      "Cepillar el cabello mojado con fuerza — es cuando está más débil",
+      "Cepillar el cabello mojado con fuerza, es cuando está más débil",
       "Exceso de productos químicos sin hidratación compensatoria",
       "Recoger muy apretado con bandas elásticas para el cabello"
     ],
@@ -903,11 +904,11 @@
       },
       "oleo-coco-nutricao": {
         "shortName": "Aceite de Coco Puro",
-        "shortDesc": "Nutrición profunda — resultado visible desde el primer uso"
+        "shortDesc": "Nutrición profunda, resultado visible desde el primer uso"
       },
       "mel-de-babosa": {
         "shortName": "Miel de Aloe Vera",
-        "shortDesc": "Tónico fermentado natural — fortalece, evita la caída y estimula el crecimiento"
+        "shortDesc": "Tónico fermentado natural, fortalece, evita la caída y estimula el crecimiento"
       },
       "maizena-acucar": {
         "shortName": "Progresiva Casera",
@@ -970,7 +971,7 @@
     "importantTip": "Consejo importante",
     "indicatedFor": "Indicado para:",
     "allergyTitle": "Prueba de sensibilidad recomendada",
-    "allergyBody": "Algunos ingredientes — como la sábila (aloe vera), huevos, miel, aceites esenciales, frutos secos o cítricos — pueden causar reacciones alérgicas o irritación cutánea. Antes de aplicar cualquier receta en el cuero cabelludo, prueba una pequeña cantidad en la parte interna de la muñeca o el codo y espera 24 horas. Si experimentas enrojecimiento, picazón o ardor, no uses la receta. Consulta a un dermatólogo si tienes alergias conocidas o cuero cabelludo sensible."
+    "allergyBody": "Algunos ingredientes, como la sábila (aloe vera), huevos, miel, aceites esenciales, frutos secos o cítricos, pueden causar reacciones alérgicas o irritación cutánea. Antes de aplicar cualquier receta en el cuero cabelludo, prueba una pequeña cantidad en la parte interna de la muñeca o el codo y espera 24 horas. Si experimentas enrojecimiento, picazón o ardor, no uses la receta. Consulta a un dermatólogo si tienes alergias conocidas o cuero cabelludo sensible."
   },
 
   "hairSpecialRecipe": {
@@ -1010,8 +1011,8 @@
         "description": "El primer paso es eliminar la acumulación de químicos del cuero cabelludo y restaurar la hidratación profunda. Limpiaremos, hidrataremos y crearemos hábitos que detengan el daño.",
         "goals": ["Desintoxicación del cuero cabelludo", "Hidratación profunda", "Eliminar hábitos químicos", "Cierre de cutículas"],
         "weeks": {
-          "1": { "focus": "Inicio de la desintoxicación", "desc": "El primer paso es eliminar los químicos acumulados y restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Evita productos comerciales con sulfatos y parabenos", "Usa agua tibia o fría para lavar el cabello", "Evita la plancha y el secador esta semana", "Mantente bien hidratada — el cabello refleja la salud interna"] },
-          "2": { "focus": "Profundización de la limpieza", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita alisados químicos y progresivas con formol", "Termina la ducha con 30 segundos de agua fría", "Evita el secador — deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto"] },
+          "1": { "focus": "Inicio de la desintoxicación", "desc": "El primer paso es eliminar los químicos acumulados y restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Evita productos comerciales con sulfatos y parabenos", "Usa agua tibia o fría para lavar el cabello", "Evita la plancha y el secador esta semana", "Mantente bien hidratada, el cabello refleja la salud interna"] },
+          "2": { "focus": "Profundización de la limpieza", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita alisados químicos y progresivas con formol", "Termina la ducha con 30 segundos de agua fría", "Evita el secador, deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto"] },
           "3": { "focus": "Sellado de la desintoxicación", "desc": "Sella los resultados logrados y prepárate para la fase de fortalecimiento.", "habits": ["Mantén los hábitos de desintoxicación de las semanas anteriores", "Evita herramientas de calor y químicos comerciales", "Observa la diferencia en brillo y suavidad", "Tómate una foto para comparar con el inicio 📸"] }
         }
       },
@@ -1043,7 +1044,7 @@
         "description": "Llegaste al estado ideal. Ahora mantén con consistencia y sigue evolucionando mes a mes.",
         "goals": ["Mantener hidratación", "Prevenir daños", "Hábitos consistentes", "Mejora continua"],
         "weeks": {
-          "1": { "focus": "Rutina de mantenimiento", "desc": "Mantén los hábitos y recetas que te dieron resultados.", "habits": ["Sigue libre de químicos comerciales — tu cuero cabelludo lo agradece", "Aplica aloe vera puro como hidratante ligero", "Mantén el agua fría al final de la ducha", "Mantente bien hidratada internamente"] },
+          "1": { "focus": "Rutina de mantenimiento", "desc": "Mantén los hábitos y recetas que te dieron resultados.", "habits": ["Sigue libre de químicos comerciales, tu cuero cabelludo lo agradece", "Aplica aloe vera puro como hidratante ligero", "Mantén el agua fría al final de la ducha", "Mantente bien hidratada internamente"] },
           "2": { "focus": "Revisión de progreso", "desc": "Revisa tu progreso y ajusta la rutina según sea necesario. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita recaer en productos comerciales con sulfatos", "Hidratación ligera semanal con las recetas base", "Evita el calor excesivo (plancha/secador)", "Masajea el cuero cabelludo por 3 minutos"] },
           "3": { "focus": "Evolución continua", "desc": "Sigue evolucionando y disfrutando tu cabello transformado.", "habits": ["Mantén tu cabello libre de químicos a largo plazo", "Aplica miel pura en las puntas por 15 min antes de lavar", "Mantén los hábitos aprendidos en las fases anteriores", "¡Celebra los resultados logrados! 🎉"] }
         }
@@ -1051,7 +1052,7 @@
     },
     "habits": [
       "Usa agua tibia o fría para lavar el cabello",
-      "Mantente bien hidratada — bebe 2L de agua",
+      "Mantente bien hidratada, bebe 2L de agua",
       "Evita recoger el cabello mojado",
       "Evita el uso excesivo de calor"
     ]
@@ -1059,9 +1060,9 @@
 
   "hairProgress": {
     "title": "Tu Progreso",
-    "subtitle": "Viaje capilar continuo — sigue cada fase",
+    "subtitle": "Viaje capilar continuo, sigue cada fase",
     "phaseLabel": "Fase actual",
-    "phaseTitle": "Fase {{n}} — {{name}}",
+    "phaseTitle": "Fase {{n}}: {{name}}",
     "weeksCompleted": "Semanas completadas",
     "weeksCount": "{{n}}/3 semanas",
     "journeyTitle": "Tu Viaje Capilar",
@@ -1072,10 +1073,10 @@
     "achievementsTitle": "Logros",
     "achievements": [
       "Primera semana completada",
-      "Fase 1 completada — Recuperación",
-      "Fase 2 completada — Fortalecimiento",
-      "Fase 3 completada — Crecimiento",
-      "Viaje completo — Mantenimiento activo"
+      "Fase 1 completada · Recuperación",
+      "Fase 2 completada · Fortalecimiento",
+      "Fase 3 completada · Crecimiento",
+      "Viaje completo · Mantenimiento activo"
     ],
     "motivational": "Sigue marcando las semanas en el plan para avanzar en las fases.",
     "goToPlan": "Ir al plan"
@@ -1130,7 +1131,7 @@
     "newsletter": "Newsletter",
     "newsletterDesc": "Contenido de cuidado capilar semanal",
     "importantMessages": "Mensajes importantes de la cuenta",
-    "importantMessagesDesc": "Siempre activo — necesario para la seguridad de la cuenta",
+    "importantMessagesDesc": "Siempre activo, necesario para la seguridad de la cuenta",
     "disablePush": "Desactivar notificaciones push",
     "disablePushDesc": "Dejar de recibir notificaciones push en este dispositivo",
     "disablePushConfirm": "Notificaciones push desactivadas en este dispositivo",

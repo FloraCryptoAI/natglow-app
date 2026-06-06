@@ -40,7 +40,7 @@ export const HAIR_RECIPES = [
     description: 'Tônico natural concentrado feito com babosa fermentada em açúcar. Fortalece os fios, evita a queda e estimula o crescimento.',
     ingredients: ['Babosa (Aloe Vera)', 'Açúcar', 'Pote de vidro'],
     amounts: ['Folhas de babosa (o suficiente para encher o pote)', 'Açúcar (camadas alternadas)', '1 pote de vidro com tampa'],
-    instructions: 'Corte a babosa em pedaços. Coloque no pote de vidro intercalando uma camada de açúcar e uma de babosa, até encher. Tampe e deixe descansar por 48 horas para fermentar naturalmente. Após esse tempo, o açúcar terá se transformado em um xarope concentrado — esse é o "mel de babosa".',
+    instructions: 'Corte a babosa em pedaços. Coloque no pote de vidro intercalando uma camada de açúcar e uma de babosa, até encher. Tampe e deixe descansar por 48 horas para fermentar naturalmente. Após esse tempo, o açúcar terá se transformado em um xarope concentrado, esse é o "mel de babosa".',
     duration_minutes: 20,
     frequency: '2x por semana',
     benefits: ['Fortalece o cabelo', 'Evita a queda', 'Auxilia no crescimento', 'Hidratação profunda'],
@@ -78,7 +78,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 25,
     frequency: '1x por semana',
     benefits: ['Elasticidade', 'Hidratação', 'Maciez', 'Nutrição'],
-    tips: 'Use banana bem madura (com manchas escuras) — ela dissolve muito melhor e tem mais potássio.',
+    tips: 'Use banana bem madura (com manchas escuras), ela dissolve muito melhor e tem mais potássio.',
     hair_types: ['Ressecados', 'Quebradicos', 'Sem elasticidade'],
     problems: ['dry', 'breakage', 'frizz'],
     phase: [1, 2, 4],
@@ -112,7 +112,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 20,
     frequency: '1x por semana',
     benefits: ['Hidratação', 'Equilíbrio de pH', 'Limpeza suave', 'Brilho'],
-    tips: 'Use o limão em pequena quantidade — o excesso pode ressecar. Evite exposição ao sol após aplicação.',
+    tips: 'Use o limão em pequena quantidade, o excesso pode ressecar. Evite exposição ao sol após aplicação.',
     hair_types: ['Oleosos', 'Com caspa leve', 'Normais'],
     problems: ['dry', 'frizz'],
     phase: [1, 4],
@@ -129,7 +129,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 30,
     frequency: '2x por semana',
     benefits: ['Hidratação profunda', 'Nutrição', 'Maciez', 'Brilho'],
-    tips: 'Aqueça levemente a mistura antes de aplicar — potencializa a absorção.',
+    tips: 'Aqueça levemente a mistura antes de aplicar, potencializa a absorção.',
     hair_types: ['Todos os tipos', 'Especialmente secos'],
     problems: ['dry', 'frizz', 'breakage'],
     phase: [1, 2, 4],
@@ -178,7 +178,7 @@ export const HAIR_RECIPES = [
     description: 'Banana rica em potássio e vitaminas fortalece o fio. O óleo de coco sela e dá brilho.',
     ingredients: ['Banana', 'Óleo de Coco'],
     amounts: ['1 banana bem madura', '1 colher de sopa de óleo de coco'],
-    instructions: 'Amasse a banana até virar pasta bem lisinha (sem grumos). Misture com o óleo de coco. Aplique nos fios úmidos. Deixe agir 20 minutos com touca. Enxágue muito bem — retire todos os resíduos de banana.',
+    instructions: 'Amasse a banana até virar pasta bem lisinha (sem grumos). Misture com o óleo de coco. Aplique nos fios úmidos. Deixe agir 20 minutos com touca. Enxágue muito bem, retire todos os resíduos de banana.',
     duration_minutes: 25,
     frequency: '1x por semana',
     benefits: ['Nutrição', 'Fortalecimento', 'Maciez', 'Brilho'],
@@ -218,7 +218,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 25,
     frequency: '1x por semana',
     benefits: ['Reconstrução proteica', 'Redução de quebra', 'Fortalecimento', 'Maciez'],
-    tips: 'Use apenas a gema — ela tem mais nutrientes e menos risco de resíduo. Água fria é obrigatória.',
+    tips: 'Use apenas a gema, ela tem mais nutrientes e menos risco de resíduo. Água fria é obrigatória.',
     hair_types: ['Fragilizados', 'Porosos', 'Com química'],
     problems: ['breakage', 'hair_loss'],
     phase: [2, 3],
@@ -250,7 +250,7 @@ export const HAIR_RECIPES = [
     description: 'Rinse final que fecha as cutículas e equilibra o pH. Resultado: brilho espelhado e frizz reduzido.',
     ingredients: ['Vinagre de Maçã'],
     amounts: ['2 colheres de sopa de vinagre de maçã', '1 copo de água fria'],
-    instructions: 'Misture o vinagre de maçã na água. Após lavar e condicionar normalmente, despeje a mistura nos fios. Massageie suavemente por 1–2 minutos. Não enxágue — o cheiro desaparece quando o cabelo seca.',
+    instructions: 'Misture o vinagre de maçã na água. Após lavar e condicionar normalmente, despeje a mistura nos fios. Massageie suavemente por 1–2 minutos. Não enxágue, o cheiro desaparece quando o cabelo seca.',
     duration_minutes: 5,
     frequency: '1x por semana',
     benefits: ['Fechamento de cutículas', 'Brilho intenso', 'Anti-frizz', 'pH equilibrado'],
@@ -360,7 +360,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 45,
     frequency: '1x por semana',
     benefits: ['Estimula crescimento', 'Nutre raízes', 'Hidratação profunda', 'Fortalecimento'],
-    tips: 'A massagem no couro cabeludo é essencial — ela ativa a circulação e potencializa o efeito do tratamento.',
+    tips: 'A massagem no couro cabeludo é essencial, ela ativa a circulação e potencializa o efeito do tratamento.',
     hair_types: ['Todos os tipos', 'Com crescimento lento'],
     problems: ['no_growth', 'hair_loss', 'dry'],
     phase: [3, 4],
@@ -396,7 +396,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 2,
     frequency: 'Diário (conforme necessário)',
     benefits: ['Proteção das pontas', 'Redução de quebra', 'Brilho', 'Selagem'],
-    tips: 'Menos é mais — excesso de óleo pesa no cabelo. Comece com 2 gotas e ajuste conforme necessidade.',
+    tips: 'Menos é mais, excesso de óleo pesa no cabelo. Comece com 2 gotas e ajuste conforme necessidade.',
     hair_types: ['Todos os tipos'],
     problems: ['breakage', 'dry'],
     phase: [4],
@@ -413,7 +413,7 @@ export const HAIR_RECIPES = [
     duration_minutes: 20,
     frequency: '1x por semana',
     benefits: ['Manutenção da hidratação', 'Brilho', 'Maciez', 'Fácil de preparar'],
-    tips: 'Essa é sua receita de manutenção — simples, rápida e eficaz para manter os resultados conquistados.',
+    tips: 'Essa é sua receita de manutenção, simples, rápida e eficaz para manter os resultados conquistados.',
     hair_types: ['Todos os tipos'],
     problems: ['dry', 'frizz'],
     phase: [4],
@@ -428,7 +428,7 @@ export const HAIR_RECIPES = [
     description: 'Aplicação concentrada de mel nas pontas mais ressecadas. Rápido, simples e muito eficaz.',
     ingredients: ['Mel'],
     amounts: ['1 colher de chá de mel puro'],
-    instructions: 'Aplique o mel diretamente nas pontas do cabelo úmido. Deixe agir 10–15 minutos. Enxágue com água fria. Lave normalmente. Foque apenas nas pontas — evite raiz.',
+    instructions: 'Aplique o mel diretamente nas pontas do cabelo úmido. Deixe agir 10–15 minutos. Enxágue com água fria. Lave normalmente. Foque apenas nas pontas, evite raiz.',
     duration_minutes: 15,
     frequency: '2–3x por semana',
     benefits: ['Hidratação focada nas pontas', 'Redução de dupla pontagem', 'Brilho', 'Rápido e eficaz'],
@@ -447,7 +447,7 @@ export const HAIR_RECIPES = [
     description: 'Tratamento profundo feito durante a noite. Os óleos penetram nos fios enquanto você dorme, potencializando a nutrição e recuperação capilar.',
     ingredients: ['Óleo de Coco', 'Óleo de Rícino', 'Alecrim'],
     amounts: ['1 dedo de óleo de coco', '1 dedo de óleo de rícino', '7 gotas de alecrim'],
-    instructions: 'Em um recipiente pequeno (uma garrafinha ou potinho), coloque 1 dedo de óleo de coco e 1 dedo de óleo de rícino — a medida "dedo" é a altura do líquido dentro do recipiente, não na mão. Acrescente as 7 gotas de alecrim e misture agitando bem. Aplique no cabelo sujo (sem lavar antes), massageando o couro cabeludo e distribuindo pelo comprimento dos fios. Cubra com touca descartável e durma com o produto. Lave normalmente no dia seguinte com shampoo, repetindo a lavagem 2 vezes para remover todo o óleo.',
+    instructions: 'Em um recipiente pequeno (uma garrafinha ou potinho), coloque 1 dedo de óleo de coco e 1 dedo de óleo de rícino, a medida "dedo" é a altura do líquido dentro do recipiente, não na mão. Acrescente as 7 gotas de alecrim e misture agitando bem. Aplique no cabelo sujo (sem lavar antes), massageando o couro cabeludo e distribuindo pelo comprimento dos fios. Cubra com touca descartável e durma com o produto. Lave normalmente no dia seguinte com shampoo, repetindo a lavagem 2 vezes para remover todo o óleo.',
     duration_minutes: 480,
     frequency: '1x por semana',
     benefits: ['Nutrição profunda noturna', 'Estímulo ao crescimento', 'Fortalecimento', 'Hidratação intensa'],
@@ -462,14 +462,14 @@ export const HAIR_RECIPES = [
     category: 'Hidratação',
     tag: 'opcional',
     optional: true,
-    description: 'Sentindo falta da sua progressiva? Que tal tentar essa receita caseira no lugar de químicos? Alisa, sela cutículas e dá brilho — sem formol nem produtos agressivos. Pode não funcionar igualmente em todos os tipos de cabelo, mas vale a tentativa.',
+    description: 'Sentindo falta da sua progressiva? Que tal tentar essa receita caseira no lugar de químicos? Alisa, sela cutículas e dá brilho, sem formol nem produtos agressivos. Pode não funcionar igualmente em todos os tipos de cabelo, mas vale a tentativa.',
     ingredients: ['Creme capilar natural', 'Amido de milho (maizena)', 'Açúcar', 'Limão ou Vinagre de Maçã'],
     amounts: ['2 colheres de creme ou máscara capilar', '2 colheres de amido de milho (maizena)', '2 colheres de açúcar', 'Limão ou vinagre de maçã a gosto'],
     instructions: 'Em um recipiente, misture o creme capilar, a maizena e o açúcar até formar uma pasta homogênea. Adicione algumas gotas de limão ou vinagre de maçã a gosto e misture novamente. Aplique nos fios após lavar o cabelo com shampoo, distribuindo do comprimento até as pontas. Deixe agir por 40 minutos com touca plástica. Enxágue bem com água fria.',
     duration_minutes: 40,
     frequency: '1x por semana',
     benefits: ['Efeito alisante natural', 'Maciez intensa', 'Selamento das cutículas', 'Controle do frizz'],
-    tips: 'O resultado varia conforme o tipo de cabelo — testa primeiro numa mecha para ver como reage. Não substitui hidratações regulares.',
+    tips: 'O resultado varia conforme o tipo de cabelo, testa primeiro numa mecha para ver como reage. Não substitui hidratações regulares.',
     hair_types: ['Todos os tipos'],
     problems: ['dry', 'frizz', 'breakage'],
     phase: [1, 2, 3, 4],
@@ -480,7 +480,7 @@ export const HAIR_RECIPES = [
 // INGREDIENTES COM TAGS DE EFICÁCIA
 // ============================================================
 
-// 8 ingredientes curados — obrigatórios + complementares por problema
+// 8 ingredientes curados, obrigatórios + complementares por problema
 export const HAIR_INGREDIENTS = [
   { name: 'Babosa (Aloe Vera)', emoji: '🪴', tag: 'ultra', benefits: ['Hidratação', 'Crescimento', 'Anti-queda'] },
   { name: 'Mel', emoji: '🍯', tag: 'ultra', benefits: ['Nutrição', 'Brilho', 'Hidratação'] },
@@ -493,7 +493,7 @@ export const HAIR_INGREDIENTS = [
 ];
 
 // ============================================================
-// SISTEMA DE FASES — JORNADA CAPILAR CONTÍNUA
+// SISTEMA DE FASES, JORNADA CAPILAR CONTÍNUA
 // ============================================================
 
 export const HAIR_PHASES = [
@@ -544,37 +544,37 @@ export const HAIR_PHASES = [
 // ============================================================
 
 export const PHASE_PLANS = {
-  // FASE 1 — RECUPERAÇÃO
+  // FASE 1, RECUPERAÇÃO
   1: [
     { day: 1,  type: 'habit',     task: 'Lave com água morna (nunca quente)', icon: 'droplets' },
     { day: 2,  type: 'habit',     task: 'Evite prender o cabelo molhado', icon: 'droplets' },
     { day: 3,  type: 'treatment', task: 'Hidratação profunda por 20–30 min', icon: 'sparkles', recipe_options: ['babosa-mel', 'mel-azeite'] },
     { day: 4,  type: 'habit',     task: 'Beba pelo menos 2L de água hoje', icon: 'droplets' },
-    { day: 5,  type: 'rest',      task: 'Dia de descanso — mantenha apenas os hábitos essenciais', icon: 'leaf' },
+    { day: 5,  type: 'rest',      task: 'Dia de descanso, mantenha apenas os hábitos essenciais', icon: 'leaf' },
     { day: 6,  type: 'treatment', task: 'Nutrição capilar por 1 hora', icon: 'sparkles', recipe_options: ['mel-de-babosa', 'banana-coco'] },
     { day: 7,  type: 'checkin',   task: 'Check-in: observe o brilho e toque os fios. Tire uma foto!', icon: 'camera' },
     { day: 8,  type: 'habit',     task: 'Finalize o banho com água fria por 30 segundos', icon: 'droplets' },
     { day: 9,  type: 'treatment', task: 'Hidratação profunda por 20–30 min', icon: 'sparkles', recipe_options: ['babosa-mel', 'abacate-azeite'] },
-    { day: 10, type: 'habit',     task: 'Evite o secador hoje — deixe secar naturalmente', icon: 'droplets' },
+    { day: 10, type: 'habit',     task: 'Evite o secador hoje, deixe secar naturalmente', icon: 'droplets' },
     { day: 11, type: 'treatment', task: 'Selagem dos fios após lavagem', icon: 'sparkles', recipe_options: ['vinagre-maca', 'babosa-pura'] },
-    { day: 12, type: 'rest',      task: 'Dia de descanso — reforce os hábitos', icon: 'leaf' },
+    { day: 12, type: 'rest',      task: 'Dia de descanso, reforce os hábitos', icon: 'leaf' },
     { day: 13, type: 'habit',     task: 'Beba 2L de água e evite água quente no banho', icon: 'droplets' },
     { day: 14, type: 'checkin',   task: 'Check-in de 2 semanas: compare com a primeira. Há melhora?', icon: 'camera' },
     { day: 15, type: 'treatment', task: 'Hidratação profunda por 30–40 min', icon: 'sparkles', recipe_options: ['abacate-azeite', 'banana-mel'] },
     { day: 16, type: 'habit',     task: 'Durma com o cabelo solto num travesseiro limpo', icon: 'droplets' },
     { day: 17, type: 'treatment', task: 'Hidratação profunda por 20–30 min', icon: 'sparkles', recipe_options: ['babosa-mel', 'iogurte-mel'] },
-    { day: 18, type: 'rest',      task: 'Dia de descanso — reforce os hábitos aprendidos', icon: 'leaf' },
+    { day: 18, type: 'rest',      task: 'Dia de descanso, reforce os hábitos aprendidos', icon: 'leaf' },
     { day: 19, type: 'treatment', task: 'Nutrição capilar por 1 hora', icon: 'sparkles', recipe_options: ['mel-de-babosa', 'mel-azeite'] },
     { day: 20, type: 'habit',     task: 'Evite secador, chapinha e elásticos com metal', icon: 'droplets' },
     { day: 21, type: 'checkin',   task: 'Check-in final da Fase 1: compare o antes e depois! 🎉', icon: 'camera' },
   ],
 
-  // FASE 2 — FORTALECIMENTO
+  // FASE 2, FORTALECIMENTO
   2: [
     { day: 1,  type: 'habit',     task: 'Mantenha os hábitos da fase anterior como base', icon: 'droplets' },
     { day: 2,  type: 'treatment', task: 'Reconstrução proteica por 20–25 min', icon: 'sparkles', recipe_options: ['ovo-mel', 'iogurte-mel-reconstrucao'] },
-    { day: 3,  type: 'habit',     task: 'Corte as pontas duplas — favorece o crescimento', icon: 'droplets' },
-    { day: 4,  type: 'rest',      task: 'Dia de descanso — reforce hábitos de hidratação', icon: 'leaf' },
+    { day: 3,  type: 'habit',     task: 'Corte as pontas duplas, favorece o crescimento', icon: 'droplets' },
+    { day: 4,  type: 'rest',      task: 'Dia de descanso, reforce hábitos de hidratação', icon: 'leaf' },
     { day: 5,  type: 'treatment', task: 'Nutrição capilar intensa por 40 min', icon: 'sparkles', recipe_options: ['abacate-coco', 'mel-de-babosa'] },
     { day: 6,  type: 'habit',     task: 'Evite elásticos que puxam o cabelo', icon: 'droplets' },
     { day: 7,  type: 'checkin',   task: 'Check-in semana 1 da Fase 2: observe a quebra diminuindo', icon: 'camera' },
@@ -583,7 +583,7 @@ export const PHASE_PLANS = {
     { day: 10, type: 'treatment', task: 'Selagem dos fios após lavagem', icon: 'sparkles', recipe_options: ['vinagre-maca', 'oleo-argan-finalizacao'] },
     { day: 11, type: 'rest',      task: 'Dia de descanso', icon: 'leaf' },
     { day: 12, type: 'treatment', task: 'Hidratação profunda por 20–25 min', icon: 'sparkles', recipe_options: ['banana-mel', 'babosa-mel'] },
-    { day: 13, type: 'habit',     task: 'Evite calor hoje — sem secador ou chapinha', icon: 'droplets' },
+    { day: 13, type: 'habit',     task: 'Evite calor hoje, sem secador ou chapinha', icon: 'droplets' },
     { day: 14, type: 'checkin',   task: 'Check-in de 2 semanas: compare a quebra', icon: 'camera' },
     { day: 15, type: 'treatment', task: 'Reconstrução proteica por 20–25 min', icon: 'sparkles', recipe_options: ['ovo-mel', 'iogurte-ovo'] },
     { day: 16, type: 'habit',     task: 'Durma com trança solta para reduzir quebra noturna', icon: 'droplets' },
@@ -594,13 +594,13 @@ export const PHASE_PLANS = {
     { day: 21, type: 'checkin',   task: 'Check-in final da Fase 2: celebre a redução de quebra! 💪', icon: 'camera' },
   ],
 
-  // FASE 3 — CRESCIMENTO
+  // FASE 3, CRESCIMENTO
   3: [
     { day: 1,  type: 'habit',     task: 'Massageie o couro cabeludo por 5 min hoje', icon: 'droplets' },
     { day: 2,  type: 'treatment', task: 'Esfoliação do couro cabeludo por 20 min', icon: 'sparkles', recipe_options: ['cafe-estimulo', 'babosa-cebola'] },
     { day: 3,  type: 'habit',     task: 'Mantenha hidratação: beba 2L de água', icon: 'droplets' },
     { day: 4,  type: 'treatment', task: 'Tônico estimulante para crescimento por 40 min', icon: 'sparkles', recipe_options: ['cebola-coco', 'mel-coco-crescimento'] },
-    { day: 5,  type: 'rest',      task: 'Dia de descanso — mantenha os hábitos', icon: 'leaf' },
+    { day: 5,  type: 'rest',      task: 'Dia de descanso, mantenha os hábitos', icon: 'leaf' },
     { day: 6,  type: 'treatment', task: 'Tônico anti-queda por 30–35 min', icon: 'sparkles', recipe_options: ['cha-verde-crescimento', 'cebola-crescimento'] },
     { day: 7,  type: 'checkin',   task: 'Check-in semana 1 da Fase 3: observe o couro cabeludo', icon: 'camera' },
     { day: 8,  type: 'treatment', task: 'Tratamento de raiz e comprimento por 40 min', icon: 'sparkles', recipe_options: ['babosa-cebola', 'mel-coco-crescimento'] },
@@ -608,7 +608,7 @@ export const PHASE_PLANS = {
     { day: 10, type: 'treatment', task: 'Esfoliação do couro cabeludo por 20 min', icon: 'sparkles', recipe_options: ['cafe-estimulo', 'cebola-coco'] },
     { day: 11, type: 'rest',      task: 'Dia de descanso', icon: 'leaf' },
     { day: 12, type: 'treatment', task: 'Tônico estimulante para crescimento por 40–45 min', icon: 'sparkles', recipe_options: ['cebola-crescimento', 'babosa-cebola'] },
-    { day: 13, type: 'habit',     task: 'Evite prender o cabelo com tensão — favorece a queda', icon: 'droplets' },
+    { day: 13, type: 'habit',     task: 'Evite prender o cabelo com tensão, favorece a queda', icon: 'droplets' },
     { day: 14, type: 'checkin',   task: 'Check-in de 2 semanas: a queda diminuiu?', icon: 'camera' },
     { day: 15, type: 'treatment', task: 'Nutrição de raiz para crescimento por 40–45 min', icon: 'sparkles', recipe_options: ['mel-coco-crescimento', 'abacate-coco'] },
     { day: 16, type: 'habit',     task: 'Massageie o couro cabeludo com as pontas dos dedos por 5 min', icon: 'droplets' },
@@ -619,29 +619,29 @@ export const PHASE_PLANS = {
     { day: 21, type: 'checkin',   task: 'Check-in final da Fase 3: seu cabelo cresceu! 🚀', icon: 'camera' },
   ],
 
-  // FASE 4 — MANUTENÇÃO (plano rolante de 21 dias)
+  // FASE 4, MANUTENÇÃO (plano rolante de 21 dias)
   4: [
     { day: 1,  type: 'habit',     task: 'Aplique babosa pura nos fios como hidratante leve', icon: 'droplets' },
     { day: 2,  type: 'habit',     task: 'Mantenha água fria no final do banho', icon: 'droplets' },
     { day: 3,  type: 'treatment', task: 'Hidratação de manutenção por 20 min', icon: 'sparkles', recipe_options: ['mascara-manutencao', 'iogurte-mel'] },
     { day: 4,  type: 'habit',     task: 'Óleo de coco nas pontas antes de dormir', icon: 'droplets' },
-    { day: 5,  type: 'rest',      task: 'Dia de descanso — mantenha a consistência', icon: 'leaf' },
+    { day: 5,  type: 'rest',      task: 'Dia de descanso, mantenha a consistência', icon: 'leaf' },
     { day: 6,  type: 'treatment', task: 'Nutrição capilar por 1 hora', icon: 'sparkles', recipe_options: ['mel-de-babosa', 'abacate-coco'] },
     { day: 7,  type: 'checkin',   task: 'Check-in semanal: como está o brilho e a maciez?', icon: 'camera' },
     { day: 8,  type: 'habit',     task: 'Hidratação com babosa pura nos fios', icon: 'droplets' },
     { day: 9,  type: 'treatment', task: 'Hidratação profunda por 20–30 min', icon: 'sparkles', recipe_options: ['babosa-mel', 'mel-azeite'] },
-    { day: 10, type: 'habit',     task: 'Evite calor excessivo — prefira secar ao natural', icon: 'droplets' },
+    { day: 10, type: 'habit',     task: 'Evite calor excessivo, prefira secar ao natural', icon: 'droplets' },
     { day: 11, type: 'treatment', task: 'Selagem dos fios após lavagem', icon: 'sparkles', recipe_options: ['vinagre-maca', 'oleo-argan-finalizacao'] },
     { day: 12, type: 'rest',      task: 'Dia de descanso', icon: 'leaf' },
     { day: 13, type: 'habit',     task: 'Massageie o couro cabeludo por 3 minutos', icon: 'droplets' },
-    { day: 14, type: 'checkin',   task: 'Check-in de 2 semanas — você está mantendo os resultados?', icon: 'camera' },
+    { day: 14, type: 'checkin',   task: 'Check-in de 2 semanas, você está mantendo os resultados?', icon: 'camera' },
     { day: 15, type: 'treatment', task: 'Hidratação profunda por 30–40 min', icon: 'sparkles', recipe_options: ['abacate-azeite', 'banana-mel'] },
     { day: 16, type: 'habit',     task: 'Durma com cabelo solto em travesseiro limpo', icon: 'droplets' },
     { day: 17, type: 'treatment', task: 'Hidratação de manutenção por 20 min', icon: 'sparkles', recipe_options: ['mascara-manutencao', 'babosa-mel'] },
     { day: 18, type: 'rest',      task: 'Dia de descanso', icon: 'leaf' },
     { day: 19, type: 'treatment', task: 'Nutrição capilar por 1 hora', icon: 'sparkles', recipe_options: ['mel-de-babosa', 'mel-azeite'] },
     { day: 20, type: 'habit',     task: 'Aplique mel puro nas pontas por 15 min antes de lavar', icon: 'droplets' },
-    { day: 21, type: 'checkin',   task: 'Check-in mensal de manutenção — continue evoluindo! ✨', icon: 'camera' },
+    { day: 21, type: 'checkin',   task: 'Check-in mensal de manutenção, continue evoluindo! ✨', icon: 'camera' },
   ],
 };
 

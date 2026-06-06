@@ -105,12 +105,12 @@ export default function HairDashboard() {
 
   return (
     <div className="space-y-4 pb-8">
-      {/* Install prompt — aparece condicionalmente baseado em localStorage */}
+      {/* Install prompt, aparece condicionalmente baseado em localStorage */}
       {showInstallPrompt && (
         <InstallPrompt onResolved={handleInstallResolved} />
       )}
 
-      {/* Push notification banner — aparece 3s após install prompt ser resolvido */}
+      {/* Push notification banner, aparece 3s após install prompt ser resolvido */}
       {showPushBanner && (
         <PushBanner onEnable={handlePushEnable} onDismiss={handlePushDismiss} />
       )}

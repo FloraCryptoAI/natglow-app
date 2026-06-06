@@ -441,7 +441,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           </motion.div>
         )}
 
-        {/* ═══ Q1 — WASH FREQ ═══ */}
+        {/* ═══ Q1, WASH FREQ ═══ */}
         {step === STEPS.Q1 && (
           <motion.div key="q1" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(4, t('quizDetox.questions.washFreq.title'), t('quizDetox.questions.washFreq.context'))}
@@ -462,7 +462,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           </motion.div>
         )}
 
-        {/* ═══ Q2 — WATER TEMP ═══ */}
+        {/* ═══ Q2, WATER TEMP ═══ */}
         {step === STEPS.Q2 && (
           <motion.div key="q2" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(5, t('quizDetox.questions.waterTemp.title'), t('quizDetox.questions.waterTemp.context'))}
@@ -483,7 +483,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           </motion.div>
         )}
 
-        {/* ═══ Q3 — HEAT TOOLS ═══ */}
+        {/* ═══ Q3, HEAT TOOLS ═══ */}
         {step === STEPS.Q3 && (
           <motion.div key="q3" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(6, t('quizDetox.questions.heatTools.title'), t('quizDetox.questions.heatTools.context'))}
@@ -504,7 +504,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           </motion.div>
         )}
 
-        {/* ═══ Q4 — HYDRATION ═══ */}
+        {/* ═══ Q4, HYDRATION ═══ */}
         {step === STEPS.Q4 && (
           <motion.div key="q4" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(7, t('quizDetox.questions.hydration.title'), t('quizDetox.questions.hydration.context'))}
@@ -525,7 +525,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           </motion.div>
         )}
 
-        {/* ═══ Q5 — CHEM PRODUCTS ═══ */}
+        {/* ═══ Q5, CHEM PRODUCTS ═══ */}
         {step === STEPS.Q5 && (
           <motion.div key="q5" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(8, t('quizDetox.questions.chemProducts.title'), t('quizDetox.questions.chemProducts.context'), t('quizDetox.questions.chemProducts.subtitle'))}

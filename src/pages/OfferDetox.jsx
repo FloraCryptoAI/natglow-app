@@ -154,7 +154,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
               className="inline-flex items-center gap-2 text-xs font-extrabold px-3 py-1.5 rounded-full mb-4"
               style={{ background: level.bg, color: level.color }}
             >
-              ✓ Diagnóstico: {score}% toxicidad — Nivel {level.label}
+              ✓ Diagnóstico: {score}% toxicidad, Nivel {level.label}
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 leading-tight">
               {name ? `${name}, tu protocolo personalizado` : 'Tu protocolo personalizado'}
@@ -274,7 +274,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
                   className="inline-flex items-center gap-2 text-xs font-extrabold px-4 py-1.5 rounded-full mb-5"
                   style={{ background: '#E8F8F0', color: GREEN_DARK, border: '1px solid #A9DFBF' }}
                 >
-                  🌿 OFERTA ESPECIAL — Solo Hoy
+                  🌿 OFERTA ESPECIAL, Solo Hoy
                 </div>
 
                 {timeLeft > 0 && (
@@ -306,7 +306,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
                     <span className="text-stone-400 text-base ml-1">pago único</span>
                   </div>
                   <p className="text-sm font-bold mt-2 flex items-center gap-1.5" style={{ color: GREEN_DARK }}>
-                    ♾️ Acceso VITALICIO — sin suscripción
+                    ♾️ Acceso VITALICIO, sin suscripción
                   </p>
                 </div>
 
