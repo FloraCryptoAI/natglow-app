@@ -15,9 +15,9 @@ import {
   recordPushBannerDismissed,
 } from '@/lib/push';
 
-const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'maizena-acucar'];
-const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🥥', 'maizena-acucar': '🍋' };
-const ESSENTIAL_STAR = { 'babosa-mel': true };
+const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'oleo-coco-nutricao'];
+const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🌙', 'oleo-coco-nutricao': '🥥' };
+const ESSENTIAL_STAR = { 'babosa-mel': true, 'oleo-coco-nutricao': true };
 
 function TagBadge({ tag, tagLabels }) {
   const data = tagLabels[tag];
@@ -182,6 +182,34 @@ export default function HairDashboard() {
           })}
         </div>
       </div>
+
+      {(() => {
+        const progresivaRecipe = getRecipeById('maizena-acucar');
+        const progresivaText = t('hairDashboard.progresivaSection', { returnObjects: true });
+        if (!progresivaRecipe) return null;
+        return (
+          <button
+            onClick={() => setSelectedRecipe(progresivaRecipe)}
+            className="w-full text-left bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200 hover:border-amber-300 transition-all"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-full bg-white border-2 border-amber-200 flex items-center justify-center text-xl flex-shrink-0">
+                🌿
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                    {progresivaText.badge}
+                  </span>
+                </div>
+                <h3 className="font-bold text-stone-900 text-sm leading-snug">{progresivaText.title}</h3>
+                <p className="text-xs text-stone-600 mt-1 leading-snug">{progresivaText.body}</p>
+                <p className="text-xs font-semibold mt-2 text-amber-700">{progresivaText.cta} →</p>
+              </div>
+            </div>
+          </button>
+        );
+      })()}
 
       <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
         <div className="flex items-center gap-2 mb-3">

@@ -9,8 +9,8 @@ import { useHairPlan } from '@/hooks/useHairPlan';
 const PHASE_RECIPE_IDS = {
   1: [
     { id: 'babosa-mel',              emoji: '🌿', tag: 'ultra' },
-    { id: 'tratamento-noturno-oleo', emoji: '🥥', tag: 'ultra' },
-    { id: 'maizena-acucar',          emoji: '🍋', tag: 'eficiente' },
+    { id: 'tratamento-noturno-oleo', emoji: '🌙', tag: 'ultra' },
+    { id: 'oleo-coco-nutricao',      emoji: '🥥', tag: 'ultra' },
   ],
   2: [
     { id: 'ovo-mel',      emoji: '🥚', tag: 'eficiente' },
@@ -29,6 +29,11 @@ const PHASE_RECIPE_IDS = {
   ],
 };
 
+// Optional bonus recipe shown only on Week 2 of every phase
+const WEEK_BONUS_RECIPE = {
+  2: { id: 'maizena-acucar', emoji: '🌿' },
+};
+
 const PHASE_COLORS = {
   1: 'from-brand to-brand-light',
   2: 'from-blue-600 to-blue-800',
@@ -42,7 +47,7 @@ function TagBadge({ tag, tagLabels }) {
   return <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${data.color}`}>{data.label}</span>;
 }
 
-function WeekCard({ weekNum, phaseNum, phaseRecipeIds, completed, onToggle, onSelectRecipe, t, tagLabels, getRecipeById }) {
+function WeekCard({ weekNum, phaseNum, phaseRecipeIds, bonusRecipe, completed, onToggle, onSelectRecipe, t, tagLabels, getRecipeById }) {
   const [open, setOpen] = useState(false);
   const gradient = PHASE_COLORS[phaseNum];
 
@@ -104,6 +109,28 @@ function WeekCard({ weekNum, phaseNum, phaseRecipeIds, completed, onToggle, onSe
                     );
                   })}
                 </div>
+                {bonusRecipe && (() => {
+                  const recipe = getRecipeById(bonusRecipe.id);
+                  if (!recipe) return null;
+                  return (
+                    <button
+                      onClick={() => onSelectRecipe(recipe)}
+                      className="mt-2 w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 hover:border-amber-300 transition-all text-left"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-white border-2 border-amber-200 flex items-center justify-center text-lg flex-shrink-0">
+                        {bonusRecipe.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                          <p className="text-sm font-semibold text-stone-800">{recipe.name}</p>
+                          <span className="text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 whitespace-nowrap">USO OPCIONAL</span>
+                        </div>
+                        <p className="text-xs text-stone-500">{recipe.duration_minutes} min · {recipe.frequency}</p>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                    </button>
+                  );
+                })()}
               </div>
               <div>
                 <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">{t('hairPlan.habitsThisWeek')}</p>
@@ -204,6 +231,7 @@ export default function HairPlan() {
             weekNum={weekNum}
             phaseNum={phase}
             phaseRecipeIds={phaseRecipes}
+            bonusRecipe={WEEK_BONUS_RECIPE[weekNum]}
             completed={completedWeeks.includes(weekNum)}
             onToggle={() => toggleWeek(weekNum)}
             onSelectRecipe={setSelectedRecipe}

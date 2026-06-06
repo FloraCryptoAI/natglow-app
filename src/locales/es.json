@@ -859,16 +859,16 @@
   },
 
   "hairDashboard": {
-    "planLabel": "Tu Plan de Recuperación",
+    "planLabel": "Tu Plan de Desintoxicación",
     "title": "Rutina Capilar ✨",
-    "subtitle": "Plan estructurado para restaurar la salud del cabello, controlar el frizz y prevenir la rotura con ingredientes naturales.",
+    "subtitle": "Plan estructurado para desintoxicar el cuero cabelludo, restaurar la hidratación profunda y eliminar los químicos acumulados con ingredientes naturales.",
     "focusLabel": "Enfoque actual",
-    "focusValue": "Recuperación e hidratación",
+    "focusValue": "Desintoxicación e hidratación",
     "durationLabel": "Duración del Plan",
     "durationValue": "21 días",
     "essentialTitle": "Método Esencial",
     "essentialLabel": "Empieza aquí",
-    "essentialSubtitle": "Para mejores resultados, enfócate en estas 3 recetas. Son la base de la recuperación capilar.",
+    "essentialSubtitle": "Para mejores resultados, enfócate en estas 3 recetas. Son la base de tu desintoxicación capilar.",
     "habitsAdopt": "Hábitos para Adoptar",
     "habitsAvoid": "Hábitos para Evitar",
     "dailyHabits": [
@@ -886,6 +886,12 @@
       "Exceso de productos químicos sin hidratación compensatoria",
       "Recoger muy apretado con bandas elásticas para el cabello"
     ],
+    "progresivaSection": {
+      "badge": "USO OPCIONAL",
+      "title": "¿Sientes falta de tu progresiva?",
+      "body": "Prueba esta receta casera natural en lugar de químicos con formol. Puede no funcionar igual en todos los tipos de cabello, pero vale la pena intentarlo.",
+      "cta": "Ver receta de progresiva casera"
+    },
     "essentialRecipes": {
       "babosa-mel": {
         "shortName": "Aloe Vera + Miel",
@@ -895,9 +901,13 @@
         "shortName": "Aceite de Coco + Ricino",
         "shortDesc": "Nutrición profunda nocturna y fortalecimiento del cabello"
       },
+      "oleo-coco-nutricao": {
+        "shortName": "Aceite de Coco Puro",
+        "shortDesc": "Nutrición profunda — resultado visible desde el primer uso"
+      },
       "maizena-acucar": {
-        "shortName": "Maicena + Azúcar",
-        "shortDesc": "Suavidad intensa, brillo y sellado de cutículas"
+        "shortName": "Progresiva Casera",
+        "shortDesc": "Alternativa natural a la progresiva química — uso opcional"
       }
     },
     "tagLabels": {
@@ -991,14 +1001,14 @@
     "confirmRestart": "Sí, reiniciar",
     "phases": {
       "1": {
-        "name": "Recuperación",
-        "focus": "Hidratar profundamente y reparar los daños existentes",
-        "description": "El primer paso es restaurar lo que se perdió. Hidrataremos, cerraremos cutículas y crearemos hábitos que detengan el daño.",
-        "goals": ["Hidratación profunda", "Cierre de cutículas", "Reducción del frizz", "Eliminar hábitos perjudiciales"],
+        "name": "Desintoxicación + Hidratación Intensa",
+        "focus": "Desintoxicar el cuero cabelludo y restaurar la hidratación profunda",
+        "description": "El primer paso es eliminar la acumulación de químicos del cuero cabelludo y restaurar la hidratación profunda. Limpiaremos, hidrataremos y crearemos hábitos que detengan el daño.",
+        "goals": ["Desintoxicación del cuero cabelludo", "Hidratación profunda", "Eliminar hábitos químicos", "Cierre de cutículas"],
         "weeks": {
-          "1": { "focus": "Hidratación inicial", "desc": "El primer paso es restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Usa agua tibia o fría para lavar el cabello", "Mantente bien hidratada — el cabello refleja la salud interna del cuerpo", "Evita recoger el cabello mojado", "Evita el uso excesivo de calor"] },
-          "2": { "focus": "Consolidación", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente.", "habits": ["Termina la ducha con 30 segundos de agua fría", "Evita el secador — deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto", "Sigue bebiendo bastante agua"] },
-          "3": { "focus": "Sellado", "desc": "Sella los resultados logrados y prepárate para la fase de fortalecimiento.", "habits": ["Mantén los hábitos de las semanas anteriores", "Observa la diferencia en brillo y suavidad", "Evita herramientas de calor y ligas con metal", "Tómate una foto para comparar con el inicio 📸"] }
+          "1": { "focus": "Inicio de la desintoxicación", "desc": "El primer paso es eliminar los químicos acumulados y restaurar la humedad perdida. Haz al menos 1 receta esta semana.", "habits": ["Evita productos comerciales con sulfatos y parabenos", "Usa agua tibia o fría para lavar el cabello", "Evita la plancha y el secador esta semana", "Mantente bien hidratada — el cabello refleja la salud interna"] },
+          "2": { "focus": "Profundización de la limpieza", "desc": "Sigue con la hidratación y empieza a construir nuevos hábitos consistentemente. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita alisados químicos y progresivas con formol", "Termina la ducha con 30 segundos de agua fría", "Evita el secador — deja secar naturalmente cuando sea posible", "Duerme con el cabello suelto"] },
+          "3": { "focus": "Sellado de la desintoxicación", "desc": "Sella los resultados logrados y prepárate para la fase de fortalecimiento.", "habits": ["Mantén los hábitos de desintoxicación de las semanas anteriores", "Evita herramientas de calor y químicos comerciales", "Observa la diferencia en brillo y suavidad", "Tómate una foto para comparar con el inicio 📸"] }
         }
       },
       "2": {
@@ -1007,9 +1017,9 @@
         "description": "Con la hidratación restablecida, es hora de fortalecer la fibra capilar y reducir la rotura sistemáticamente.",
         "goals": ["Aporte proteico", "Reducción de rotura", "Fortalecimiento de la fibra", "Elasticidad restaurada"],
         "weeks": {
-          "1": { "focus": "Inicio proteico", "desc": "Empieza a agregar proteína a tu rutina para reconstruir los cabellos dañados.", "habits": ["Sigue usando agua tibia o fría", "Evita ligas que tiren del cabello", "Córtate las puntas abiertas si las hay", "Evita el calor excesivo"] },
-          "2": { "focus": "Consolidación", "desc": "Balancea proteína e hidratación para cabellos sanos y fuertes.", "habits": ["Duerme con trenza suelta para reducir la rotura nocturna", "Aplica aceite de coco en las puntas antes de dormir", "Bebe 2L de agua al día", "Evita la plancha o el secador esta semana"] },
-          "3": { "focus": "Fortalecimiento", "desc": "Termina la fase con cabellos más fuertes y resistentes.", "habits": ["Observa la reducción en la rotura al cepillar", "Mantén los hábitos de las semanas anteriores", "Sigue evitando el calor", "Mantente bien hidratada internamente"] }
+          "1": { "focus": "Inicio proteico", "desc": "Empieza a agregar proteína a tu rutina para reconstruir los cabellos dañados.", "habits": ["Continúa evitando sulfatos, parabenos y silicones", "Sigue usando agua tibia o fría", "Evita ligas que tiren del cabello", "Evita el calor excesivo (plancha/secador)"] },
+          "2": { "focus": "Consolidación", "desc": "Balancea proteína e hidratación para cabellos sanos y fuertes. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita alisados, tintes y decoloraciones esta fase", "Duerme con trenza suelta para reducir la rotura nocturna", "Aplica aceite de coco en las puntas antes de dormir", "Evita la plancha o el secador esta semana"] },
+          "3": { "focus": "Fortalecimiento", "desc": "Termina la fase con cabellos más fuertes y resistentes.", "habits": ["Sigue evitando químicos comerciales", "Observa la reducción en la rotura al cepillar", "Mantén los hábitos de las semanas anteriores", "Mantente bien hidratada internamente"] }
         }
       },
       "3": {
@@ -1018,9 +1028,9 @@
         "description": "Un cuero cabelludo sano crece más. En esta fase nos enfocamos en la nutrición de la raíz y la estimulación de los folículos.",
         "goals": ["Estimular folículos", "Reducir caída", "Nutrición de la raíz", "Crecimiento acelerado"],
         "weeks": {
-          "1": { "focus": "Activación del cuero cabelludo", "desc": "Empieza a estimular el cuero cabelludo con tratamientos específicos.", "habits": ["Masajea el cuero cabelludo por 5 min antes de dormir", "Bebe 2L de agua al día", "Evita recoger el cabello con tensión", "Aliméntate bien — las vitaminas hacen diferencia"] },
-          "2": { "focus": "Tónicos de crecimiento", "desc": "Aplica tónicos anticaída regularmente para resultados consistentes.", "habits": ["Continúa con el masaje capilar diario", "Evita recoger muy apretado", "Usa agua fría al final de la ducha", "Duerme con el cabello suelto"] },
-          "3": { "focus": "Consolidación", "desc": "Consolida los resultados de crecimiento y prepárate para la fase de mantenimiento.", "habits": ["Masajea el cuero cabelludo con las yemas de los dedos por 5 min", "Bebe 2L de agua al día", "Evita ligas que tiren", "Continúa con los tratamientos semanales"] }
+          "1": { "focus": "Activación del cuero cabelludo", "desc": "Empieza a estimular el cuero cabelludo con tratamientos específicos.", "habits": ["Mantén tu cuero cabelludo libre de químicos comerciales", "Masajea el cuero cabelludo por 5 min antes de dormir", "Bebe 2L de agua al día", "Evita la plancha y el secador"] },
+          "2": { "focus": "Tónicos de crecimiento", "desc": "Aplica tónicos anticaída regularmente para resultados consistentes. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita tintes y progresivas químicas este mes", "Continúa con el masaje capilar diario", "Usa agua fría al final de la ducha", "Duerme con el cabello suelto"] },
+          "3": { "focus": "Consolidación", "desc": "Consolida los resultados de crecimiento y prepárate para la fase de mantenimiento.", "habits": ["Sigue evitando productos comerciales con químicos agresivos", "Masajea el cuero cabelludo con las yemas de los dedos por 5 min", "Bebe 2L de agua al día", "Continúa con los tratamientos semanales"] }
         }
       },
       "4": {
@@ -1029,9 +1039,9 @@
         "description": "Llegaste al estado ideal. Ahora mantén con consistencia y sigue evolucionando mes a mes.",
         "goals": ["Mantener hidratación", "Prevenir daños", "Hábitos consistentes", "Mejora continua"],
         "weeks": {
-          "1": { "focus": "Rutina de mantenimiento", "desc": "Mantén los hábitos y recetas que te dieron resultados.", "habits": ["Aplica aloe vera puro como hidratante ligero", "Mantén el agua fría al final de la ducha", "Aceite de coco en las puntas antes de dormir", "Mantente bien hidratada internamente"] },
-          "2": { "focus": "Revisión de progreso", "desc": "Revisa tu progreso y ajusta la rutina según sea necesario.", "habits": ["Hidratación ligera semanal con las recetas base", "Evita el calor excesivo", "Duerme con cabello suelto en almohada limpia", "Masajea el cuero cabelludo por 3 minutos"] },
-          "3": { "focus": "Evolución continua", "desc": "Sigue evolucionando y disfrutando tu cabello transformado.", "habits": ["Aplica miel pura en las puntas por 15 min antes de lavar", "Evita recoger muy apretado", "Mantén los hábitos aprendidos en las fases anteriores", "¡Celebra los resultados logrados! 🎉"] }
+          "1": { "focus": "Rutina de mantenimiento", "desc": "Mantén los hábitos y recetas que te dieron resultados.", "habits": ["Sigue libre de químicos comerciales — tu cuero cabelludo lo agradece", "Aplica aloe vera puro como hidratante ligero", "Mantén el agua fría al final de la ducha", "Mantente bien hidratada internamente"] },
+          "2": { "focus": "Revisión de progreso", "desc": "Revisa tu progreso y ajusta la rutina según sea necesario. Considera la receta opcional de progresiva casera 🌿.", "habits": ["Evita recaer en productos comerciales con sulfatos", "Hidratación ligera semanal con las recetas base", "Evita el calor excesivo (plancha/secador)", "Masajea el cuero cabelludo por 3 minutos"] },
+          "3": { "focus": "Evolución continua", "desc": "Sigue evolucionando y disfrutando tu cabello transformado.", "habits": ["Mantén tu cabello libre de químicos a largo plazo", "Aplica miel pura en las puntas por 15 min antes de lavar", "Mantén los hábitos aprendidos en las fases anteriores", "¡Celebra los resultados logrados! 🎉"] }
         }
       }
     },

@@ -325,16 +325,16 @@ export const RECIPE_TEXT = {
     hair_types: ['Todos los tipos'],
   },
   'maizena-acucar': {
-    name: 'Mascarilla de Maicena + Azúcar',
+    name: 'Progresiva Casera Natural',
     category: 'Hidratación',
-    description: 'Mascarilla selladora e hidratante con almidón de maíz y azúcar. Deja los cabellos suaves, brillantes y sin frizz.',
-    ingredients: ['Crema capilar', 'Almidón de maíz (maicena)', 'Azúcar', 'Limón o Vinagre de Manzana'],
+    description: '¿Sientes falta de tu progresiva? ¿Qué tal probar esta receta casera en lugar de químicos? Alisa, sella cutículas y da brillo — sin formol ni productos agresivos. Puede no funcionar igual en todos los tipos de cabello, pero vale la pena intentarlo.',
+    ingredients: ['Crema capilar natural', 'Almidón de maíz (maicena)', 'Azúcar', 'Limón o Vinagre de Manzana'],
     amounts: ['2 cucharadas de crema o mascarilla capilar', '2 cucharadas de almidón de maíz (maicena)', '2 cucharadas de azúcar', 'Limón o vinagre de manzana al gusto'],
     instructions: 'En un recipiente, mezcla la crema capilar, la maicena y el azúcar hasta formar una pasta homogénea. Agrega algunas gotas de limón o vinagre de manzana al gusto y mezcla nuevamente. Aplica en los cabellos después de lavar con champú, distribuyendo del largo hasta las puntas. Deja actuar por 40 minutos con gorra plástica. Enjuaga bien con agua fría.',
     duration_minutes: 40,
     frequency: '1 vez por semana',
-    benefits: ['Suavidad intensa', 'Brillo', 'Sellado de cutículas', 'Control del frizz'],
-    tips: 'Usa después de lavar el cabello con champú. El azúcar y el ácido del limón ayudan a abrir la cutícula para una mejor absorción.',
+    benefits: ['Efecto alisante natural', 'Suavidad intensa', 'Sellado de cutículas', 'Control del frizz'],
+    tips: 'El resultado varía según el tipo de cabello — prueba primero en un mechón para ver cómo reacciona. No sustituye las hidrataciones regulares.',
     hair_types: ['Todos los tipos'],
   },
 };
@@ -352,11 +352,11 @@ export const INGREDIENT_TEXT = {
 
 export const PHASE_TEXT = {
   1: {
-    name: 'Recuperación',
-    focus: 'Hidratar profundamente y reparar los daños existentes',
-    emoji: '🌱',
-    description: 'El primer paso es restaurar lo que se perdió. Hidrataremos, cerraremos cutículas y crearemos hábitos que detengan el daño.',
-    goals: ['Hidratación profunda', 'Cierre de cutículas', 'Reducción del frizz', 'Eliminar hábitos perjudiciales'],
+    name: 'Desintoxicación + Hidratación Intensa',
+    focus: 'Desintoxicar el cuero cabelludo y restaurar la hidratación profunda',
+    emoji: '🌿',
+    description: 'El primer paso es eliminar la acumulación de químicos del cuero cabelludo y restaurar la hidratación profunda. Limpiaremos, hidrataremos y crearemos hábitos que detengan el daño.',
+    goals: ['Desintoxicación del cuero cabelludo', 'Hidratación profunda', 'Eliminar hábitos químicos', 'Cierre de cutículas'],
   },
   2: {
     name: 'Fortalecimiento',
