@@ -8,7 +8,6 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
-import Quiz from './pages/Quiz';
 import QuizBold from './pages/QuizBold';
 import QuizDetox from './pages/QuizDetox';
 import Results from './pages/Results';
@@ -60,7 +59,7 @@ function ScrollToTop() {
 
 function LandingRedirect() {
   const { search } = useLocation();
-  return <Navigate to={`/quiz${search}`} replace />;
+  return <Navigate to={`/quiz-detox${search}`} replace />;
 }
 
 function Spinner() {
@@ -112,25 +111,25 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/Login" replace />} />
 
-      {/* ── Quiz routes — one per pricing plan ── */}
-      <Route path="/quiz"         element={<Quiz pricingPlan="monthly" />} />
-      <Route path="/quiz-cheap"   element={<Quiz pricingPlan="monthly_cheap" />} />
-      <Route path="/quiz-premium" element={<Quiz pricingPlan="monthly_premium" />} />
+      {/* ── Quiz routes — only the 2 persuasive funnels are active ── */}
       <Route path="/quiz-bold"    element={<QuizBold pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
-      <Route path="/quiz-weekly"  element={<Navigate to="/quiz" replace />} />
 
-      {/* ── Results routes — one per pricing plan ── */}
-      <Route path="/results"         element={<Results pricingPlan="monthly" />} />
-      <Route path="/results-cheap"   element={<Results pricingPlan="monthly_cheap" />} />
-      <Route path="/results-premium" element={<Results pricingPlan="monthly_premium" />} />
+      {/* ── Results routes ── */}
       <Route path="/results-bold"    element={<Results pricingPlan="bold" />} />
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
-      <Route path="/results-weekly"  element={<Navigate to="/results" replace />} />
 
-      {/* Legacy redirect — keeps old /Results links working (emails, ads, bookmarks) */}
-      <Route path="/Results" element={<Navigate to="/results" replace />} />
+      {/* Legacy redirects — old standard funnel URLs now point to /quiz-detox (flagship) */}
+      <Route path="/quiz"           element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/quiz-cheap"     element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/quiz-premium"   element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/quiz-weekly"    element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/results"        element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/results-cheap"  element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/results-premium" element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/results-weekly" element={<Navigate to="/quiz-detox" replace />} />
+      <Route path="/Results"        element={<Navigate to="/quiz-detox" replace />} />
 
       <Route path="/Landing" element={<LandingRedirect />} />
       <Route path="/Login"          element={<Login />} />
