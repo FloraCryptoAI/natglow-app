@@ -13,19 +13,19 @@ const PHASE_RECIPE_IDS = {
     { id: 'mel-de-babosa',           emoji: '🍯', tag: 'ultra' },
   ],
   2: [
-    { id: 'ovo-mel',      emoji: '🥚', tag: 'eficiente' },
-    { id: 'iogurte-ovo',  emoji: '🥛', tag: 'eficiente' },
-    { id: 'abacate-coco', emoji: '🥑', tag: 'ultra' },
+    { id: 'ovo-mel',       emoji: '🥚', tag: 'eficiente' },
+    { id: 'mel-de-babosa', emoji: '🍯', tag: 'ultra' },
+    { id: 'abacate-coco',  emoji: '🥑', tag: 'ultra' },
   ],
   3: [
     { id: 'cebola-crescimento', emoji: '🧅', tag: 'complementar' },
-    { id: 'cafe-estimulo',      emoji: '☕', tag: 'complementar' },
+    { id: 'mel-de-babosa',      emoji: '🍯', tag: 'ultra' },
     { id: 'babosa-cebola',      emoji: '🌿', tag: 'eficiente' },
   ],
   4: [
-    { id: 'babosa-pura',            emoji: '🪴', tag: 'ultra' },
-    { id: 'mascara-manutencao',     emoji: '🍯', tag: 'eficiente' },
-    { id: 'oleo-argan-finalizacao', emoji: '🥥', tag: 'complementar' },
+    { id: 'babosa-pura',        emoji: '🪴', tag: 'ultra' },
+    { id: 'mel-de-babosa',      emoji: '🍯', tag: 'ultra' },
+    { id: 'mascara-manutencao', emoji: '🥥', tag: 'eficiente' },
   ],
 };
 

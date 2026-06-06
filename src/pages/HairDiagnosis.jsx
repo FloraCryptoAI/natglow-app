@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
-const PREVIEW_IDS = ['babosa-mel', 'oleo-coco-nutricao', 'abacate-azeite'];
+const PREVIEW_IDS = ['babosa-mel', 'mel-de-babosa', 'abacate-azeite'];
 
 function EfficiencyTag({ tag, tagLabels }) {
   const data = tagLabels[tag];
