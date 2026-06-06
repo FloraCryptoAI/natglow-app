@@ -10,7 +10,7 @@ const PHASE_RECIPE_IDS = {
   1: [
     { id: 'babosa-mel',              emoji: '🌿', tag: 'ultra' },
     { id: 'tratamento-noturno-oleo', emoji: '🌙', tag: 'ultra' },
-    { id: 'oleo-coco-nutricao',      emoji: '🥥', tag: 'ultra' },
+    { id: 'mel-de-babosa',           emoji: '🍯', tag: 'ultra' },
   ],
   2: [
     { id: 'ovo-mel',      emoji: '🥚', tag: 'eficiente' },

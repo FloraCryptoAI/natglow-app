@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Calendar, AlertTriangle, CheckCircle, Star, Bell, X } from 'lucide-react';
+import { Sparkles, Calendar, AlertTriangle, CheckCircle, Bell, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import HairSpecialRecipe from '../components/hair/HairSpecialRecipe';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
-import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
+import EssentialRecipesCard from '../components/hair/EssentialRecipesCard';
 import { supabase } from '@/api/supabaseClient';
 import InstallPrompt from '../components/InstallPrompt';
 import {
@@ -14,16 +14,6 @@ import {
   recordPushDeclined,
   recordPushBannerDismissed,
 } from '@/lib/push';
-
-const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'oleo-coco-nutricao'];
-const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🌙', 'oleo-coco-nutricao': '🥥' };
-const ESSENTIAL_STAR = { 'babosa-mel': true, 'oleo-coco-nutricao': true };
-
-function TagBadge({ tag, tagLabels }) {
-  const data = tagLabels[tag];
-  if (!data) return null;
-  return <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${data.color}`}>{data.label}</span>;
-}
 
 function PushBanner({ onEnable, onDismiss }) {
   const { t } = useTranslation();
@@ -59,7 +49,6 @@ function PushBanner({ onEnable, onDismiss }) {
 
 export default function HairDashboard() {
   const { t } = useTranslation();
-  const { getRecipeById, tagLabels } = useTranslatedHairData();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
@@ -106,8 +95,6 @@ export default function HairDashboard() {
     recordPushBannerDismissed();
   };
 
-  const essentialRecipes = ESSENTIAL_IDS.map(id => getRecipeById(id)).filter(Boolean);
-  const essentialDisplay = t('hairDashboard.essentialRecipes', { returnObjects: true });
   const dailyHabits = t('hairDashboard.dailyHabits', { returnObjects: true });
   const habitsToAvoid = t('hairDashboard.habitsToAvoid', { returnObjects: true });
   const specialRecipe = t('hairDashboard.specialRecipe', { returnObjects: true });
@@ -146,70 +133,7 @@ export default function HairDashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-r from-brand-bg to-white border-b border-stone-100 px-5 pt-5 pb-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-            <h2 className="text-lg font-bold text-stone-900">{t('hairDashboard.essentialTitle')}</h2>
-          </div>
-          <p className="text-xs font-semibold text-brand mb-1">{t('hairDashboard.essentialLabel')}</p>
-          <p className="text-sm text-stone-500 leading-relaxed">
-            {t('hairDashboard.essentialSubtitle')}
-          </p>
-        </div>
-        <div className="divide-y divide-stone-100">
-          {essentialRecipes.map((recipe) => {
-            const disp = essentialDisplay[recipe.id] || {};
-            return (
-              <button
-                key={recipe.id}
-                onClick={() => setSelectedRecipe(recipe)}
-                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-all text-left"
-              >
-                <div className="w-11 h-11 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-xl flex-shrink-0">
-                  {ESSENTIAL_EMOJIS[recipe.id] || '🌿'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <p className="font-bold text-stone-800 text-sm">{disp.shortName || recipe.name}</p>
-                    <TagBadge tag={recipe.tag} tagLabels={tagLabels} />
-                    {ESSENTIAL_STAR[recipe.id] && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />}
-                  </div>
-                  <p className="text-xs text-stone-400 leading-snug">{disp.shortDesc || recipe.description}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {(() => {
-        const progresivaRecipe = getRecipeById('maizena-acucar');
-        const progresivaText = t('hairDashboard.progresivaSection', { returnObjects: true });
-        if (!progresivaRecipe) return null;
-        return (
-          <button
-            onClick={() => setSelectedRecipe(progresivaRecipe)}
-            className="w-full text-left bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200 hover:border-amber-300 transition-all"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-full bg-white border-2 border-amber-200 flex items-center justify-center text-xl flex-shrink-0">
-                🌿
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
-                    {progresivaText.badge}
-                  </span>
-                </div>
-                <h3 className="font-bold text-stone-900 text-sm leading-snug">{progresivaText.title}</h3>
-                <p className="text-xs text-stone-600 mt-1 leading-snug">{progresivaText.body}</p>
-                <p className="text-xs font-semibold mt-2 text-amber-700">{progresivaText.cta} →</p>
-              </div>
-            </div>
-          </button>
-        );
-      })()}
+      <EssentialRecipesCard onSelectRecipe={setSelectedRecipe} variant="dashboard" />
 
       <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
         <div className="flex items-center gap-2 mb-3">

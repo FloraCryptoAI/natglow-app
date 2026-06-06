@@ -2,6 +2,7 @@ export const TAG_TEXT = {
   ultra:        'Ultra efectiva',
   eficiente:    'Efectiva',
   complementar: 'Complementaria',
+  opcional:     'Uso opcional',
 };
 
 export const DAY_TYPE_TEXT = {
@@ -24,6 +25,19 @@ export const RECIPE_TEXT = {
     benefits: ['Hidratación intensa', 'Brillo inmediato', 'Cierre de cutículas', 'Reducción del frizz'],
     tips: 'Usa miel orgánica para mejores resultados. La gorra retiene el calor corporal y potencia la absorción.',
     hair_types: ['Todos los tipos', 'Especialmente seco y dañado'],
+  },
+  'mel-de-babosa': {
+    name: 'Miel de Aloe Vera',
+    category: 'Hidratación',
+    description: 'Tónico natural concentrado hecho con aloe vera fermentada en azúcar. Fortalece los cabellos, evita la caída y estimula el crecimiento.',
+    ingredients: ['Aloe Vera', 'Azúcar', 'Frasco de vidrio'],
+    amounts: ['Hojas de aloe vera (lo suficiente para llenar el frasco)', 'Azúcar (capas alternadas)', '1 frasco de vidrio con tapa'],
+    instructions: 'Corta el aloe vera en trozos. Coloca en el frasco de vidrio intercalando una capa de azúcar y una de aloe, hasta llenar. Tapa y deja reposar por 48 horas para fermentar naturalmente. Después de ese tiempo, el azúcar se habrá transformado en un jarabe concentrado — esa es la "miel de aloe vera".',
+    duration_minutes: 20,
+    frequency: '2 veces por semana',
+    benefits: ['Fortalece el cabello', 'Evita la caída', 'Auxilia el crecimiento', 'Hidratación profunda'],
+    tips: 'Aplica en el largo del cabello, evitando la raíz. Puedes usarla en el pre-poo o mezclada con tu hidratación. Guarda en la nevera después de preparar.',
+    hair_types: ['Todos los tipos'],
   },
   'abacate-azeite': {
     name: 'Hidratación con Aguacate y Aceite de Oliva',

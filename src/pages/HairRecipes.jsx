@@ -2,30 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import HairRecipeDetail from '../components/hair/HairRecipeDetail';
-import { Star } from 'lucide-react';
+import EssentialRecipesCard from '../components/hair/EssentialRecipesCard';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
-
-const ESSENTIAL_IDS = ['babosa-mel', 'tratamento-noturno-oleo', 'maizena-acucar'];
-const ESSENTIAL_EMOJIS = { 'babosa-mel': '🌿', 'tratamento-noturno-oleo': '🥥', 'maizena-acucar': '🍋' };
-const ESSENTIAL_STAR = { 'babosa-mel': true };
-
-function EfficiencyTag({ tag, tagLabels }) {
-  const data = tagLabels[tag];
-  if (!data) return null;
-  return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${data.color}`}>
-      {data.label}
-    </span>
-  );
-}
 
 export default function HairRecipes() {
   const { t } = useTranslation();
-  const { recipes, ingredients, tagLabels, getRecipeById } = useTranslatedHairData();
+  const { recipes, ingredients } = useTranslatedHairData();
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const essentialRecipes = ESSENTIAL_IDS.map(id => getRecipeById(id)).filter(Boolean);
-  const essentialDisplay = t('hairDashboard.essentialRecipes', { returnObjects: true });
 
   const toggleIngredient = (name) => {
     setSelectedIngredients(prev =>
@@ -55,41 +39,7 @@ export default function HairRecipes() {
         <p className="text-stone-500 mt-1">{t('hairRecipes.subtitle', { count: recipes.length })}</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-r from-brand-bg to-white border-b border-stone-100 px-5 pt-5 pb-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-            <h2 className="text-base font-bold text-stone-900">{t('hairRecipes.essentialTitle')}</h2>
-          </div>
-          <p className="text-sm text-stone-500 leading-relaxed">
-            {t('hairRecipes.essentialSubtitle')}
-          </p>
-        </div>
-        <div className="divide-y divide-stone-100">
-          {essentialRecipes.map(recipe => {
-            const disp = essentialDisplay?.[recipe.id] || {};
-            return (
-              <button
-                key={recipe.id}
-                onClick={() => setSelectedRecipe(recipe)}
-                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-all text-left"
-              >
-                <div className="w-11 h-11 rounded-full bg-brand-bg border border-brand-pale flex items-center justify-center text-xl flex-shrink-0">
-                  {ESSENTIAL_EMOJIS[recipe.id] || '🌿'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <p className="font-bold text-stone-800 text-sm">{disp.shortName || recipe.name}</p>
-                    <EfficiencyTag tag={recipe.tag} tagLabels={tagLabels} />
-                    {ESSENTIAL_STAR[recipe.id] && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />}
-                  </div>
-                  <p className="text-xs text-stone-400 leading-snug">{disp.shortDesc || recipe.description}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <EssentialRecipesCard onSelectRecipe={setSelectedRecipe} variant="recipes" />
 
       <div>
         <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3">

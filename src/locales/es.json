@@ -905,9 +905,13 @@
         "shortName": "Aceite de Coco Puro",
         "shortDesc": "Nutrición profunda — resultado visible desde el primer uso"
       },
+      "mel-de-babosa": {
+        "shortName": "Miel de Aloe Vera",
+        "shortDesc": "Tónico fermentado natural — fortalece, evita la caída y estimula el crecimiento"
+      },
       "maizena-acucar": {
         "shortName": "Progresiva Casera",
-        "shortDesc": "Alternativa natural a la progresiva química — uso opcional"
+        "shortDesc": "¿Sientes falta de tu progresiva? Prueba esta alternativa natural sin químicos"
       }
     },
     "tagLabels": {

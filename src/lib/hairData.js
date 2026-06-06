@@ -6,6 +6,7 @@ export const TAG_LABELS = {
   ultra: { label: 'Ultra eficaz', color: 'bg-green-100 text-green-800 border-green-200' },
   eficiente: { label: 'Eficaz', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   complementar: { label: 'Complementar', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+  opcional: { label: 'Uso opcional', color: 'bg-amber-100 text-amber-800 border-amber-300' },
 };
 
 // ============================================================
@@ -29,6 +30,23 @@ export const HAIR_RECIPES = [
     tips: 'Use mel orgânico para melhores resultados. A touca retém o calor do corpo e potencializa a absorção.',
     hair_types: ['Todos os tipos', 'Especialmente seco e ressecado'],
     problems: ['dry', 'frizz', 'breakage'],
+    phase: [1, 2, 3, 4],
+  },
+  {
+    id: 'mel-de-babosa',
+    name: 'Mel de Babosa',
+    category: 'Hidratação',
+    tag: 'ultra',
+    description: 'Tônico natural concentrado feito com babosa fermentada em açúcar. Fortalece os fios, evita a queda e estimula o crescimento.',
+    ingredients: ['Babosa (Aloe Vera)', 'Açúcar', 'Pote de vidro'],
+    amounts: ['Folhas de babosa (o suficiente para encher o pote)', 'Açúcar (camadas alternadas)', '1 pote de vidro com tampa'],
+    instructions: 'Corte a babosa em pedaços. Coloque no pote de vidro intercalando uma camada de açúcar e uma de babosa, até encher. Tampe e deixe descansar por 48 horas para fermentar naturalmente. Após esse tempo, o açúcar terá se transformado em um xarope concentrado — esse é o "mel de babosa".',
+    duration_minutes: 20,
+    frequency: '2x por semana',
+    benefits: ['Fortalece o cabelo', 'Evita a queda', 'Auxilia no crescimento', 'Hidratação profunda'],
+    tips: 'Aplique no comprimento do cabelo, evitando a raiz. Pode usar no pré-poo ou misturado à hidratação. Guarde na geladeira após preparar.',
+    hair_types: ['Todos os tipos'],
+    problems: ['hair_loss', 'no_growth', 'dry', 'breakage'],
     phase: [1, 2, 3, 4],
   },
   {
@@ -442,7 +460,7 @@ export const HAIR_RECIPES = [
     id: 'maizena-acucar',
     name: 'Progressiva Caseira Natural',
     category: 'Hidratação',
-    tag: 'eficiente',
+    tag: 'opcional',
     optional: true,
     description: 'Sentindo falta da sua progressiva? Que tal tentar essa receita caseira no lugar de químicos? Alisa, sela cutículas e dá brilho — sem formol nem produtos agressivos. Pode não funcionar igualmente em todos os tipos de cabelo, mas vale a tentativa.',
     ingredients: ['Creme capilar natural', 'Amido de milho (maizena)', 'Açúcar', 'Limão ou Vinagre de Maçã'],
