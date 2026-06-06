@@ -306,6 +306,76 @@
       }
     }
   },
+  "boldFlow": {
+    "diagnosis": {
+      "urgencyBanner": "DIAGNÓSTICO DE DAÑO CAPILAR COMPLETADO",
+      "titleWithName": "{{name}}, tus folículos tienen",
+      "titleNoName": "Tus folículos tienen",
+      "titleScoreSuffix": "de probabilidad de estar",
+      "titleHighlight": "SABOTEADOS",
+      "factorsHeading": "Estos son los factores que están dañando tu cabello:",
+      "urgentBanner": "Necesitas un protocolo de recuperación URGENTE",
+      "previewHeading": "Tu protocolo personalizado incluye:",
+      "previewItems": [
+        { "icon": "🚀", "text": "21 días de protocolo natural de recuperación" },
+        { "icon": "🧪", "text": "3 recetas naturales exclusivas desarrolladas por especialistas" },
+        { "icon": "💇", "text": "Progresiva casera que no agrede el cabello ni el cuero cabelludo" },
+        { "icon": "💯", "text": "Personalizado para tu tipo de cabello y nivel de daño" },
+        { "icon": "🔄", "text": "Plan progresivo de 4 fases para reactivar el folículo" },
+        { "icon": "📱", "text": "App exclusiva instalable en tu smartphone (PWA)" }
+      ],
+      "cta": "🚀 Quiero salvar mi cabello",
+      "reassurance": "Sin químicos · Sin tratamientos caros · Sin salones"
+    },
+    "offer": {
+      "recap": "Tu protocolo personalizado está listo. Solo falta activarlo.",
+      "guaranteeBadge": "🛡️ GARANTÍA TOTAL DE 7 DÍAS",
+      "guaranteeText": "Si no ves resultados en 7 días, te devolvemos cada centavo. Sin preguntas, sin burocracia.",
+      "includesHeading": "Tu protocolo de recuperación incluye:",
+      "includesItems": [
+        { "icon": "🚀", "title": "Protocolo de 21 días personalizado", "desc": "Plan paso a paso adaptado a tu nivel de daño capilar" },
+        { "icon": "🧪", "title": "3 recetas naturales exclusivas", "desc": "Desarrolladas por especialistas, con ingredientes que ya tienes" },
+        { "icon": "💇", "title": "Progresiva casera natural", "desc": "Alternativa a la progresiva química, no agrede el cabello" },
+        { "icon": "🚫", "title": "Lista de químicos a evitar", "desc": "Sabrás exactamente qué productos están saboteando tu cabello" },
+        { "icon": "📚", "title": "Biblioteca con 25 recetas naturales", "desc": "Acceso completo a todo el contenido NatGlow" },
+        { "icon": "📱", "title": "App exclusiva para tu smartphone", "desc": "Instalable como aplicación nativa (PWA)" },
+        { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único, no es suscripción mensual" },
+        { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero, pruébalo y decide" }
+      ],
+      "valueComparison": {
+        "title": "Lo que pagarías en otros lugares:",
+        "rows": [
+          { "label": "Tratamientos en salón profesional", "price": "$200+/mes" },
+          { "label": "Productos comerciales premium", "price": "$80+/mes" },
+          { "label": "Consulta con dermatólogo", "price": "$150+" },
+          { "label": "NatGlow (pago único, acceso de por vida)", "price": "$17", "highlight": true }
+        ]
+      },
+      "socialProofHeading": "Mujeres que ya recuperaron su cabello:",
+      "moreTestimonialsHeading": "Más resultados verificados",
+      "testimonialsSection": {
+        "badge": "Resultados reales · Verificados",
+        "title": "+12.480 mujeres ya salvaron",
+        "titleHighlight": "su cabello",
+        "subtitle": "Estos son resultados reales de mujeres que aplicaron el protocolo. Cada testimonial fue verificado."
+      },
+      "faq": {
+        "tag": "Preguntas frecuentes",
+        "title": "Todo lo que necesitas saber",
+        "items": [
+          { "q": "¿Funciona para mi tipo de cabello?", "a": "Sí. El protocolo es personalizado según las respuestas de tu test, incluyendo tu tipo de cabello y tu nivel actual de daño." },
+          { "q": "¿Cuánto tiempo veo resultados?", "a": "La mayoría de mujeres reportan menos caída y más brillo en los primeros 7 días. Resultados visibles en 14 a 21 días." },
+          { "q": "¿Y si no me funciona?", "a": "Tienes 7 días de garantía total. Si no ves resultados, te devolvemos el 100% sin preguntas." },
+          { "q": "¿Las recetas son caras?", "a": "No. Usan ingredientes que probablemente ya tienes en casa: aceite de coco, miel, aloe vera. Costo promedio por receta: menos de $0.50." }
+        ]
+      },
+      "stickyCTALabel": "Activar mi protocolo",
+      "finalCTAHeading": "¿Lista para recuperar tu cabello?",
+      "finalCTASubtitle": "Cada día sin actuar es un día más de daño en tus folículos.",
+      "finalCTAButton": "QUIERO ACTIVAR MI PROTOCOLO",
+      "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
+    }
+  },
   "detoxFlow": {
     "diagnosis": {
       "urgencyBanner": "DIAGNÓSTICO DE TOXICIDAD COMPLETADO",

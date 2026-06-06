@@ -10,7 +10,8 @@ import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
 import QuizBold from './pages/QuizBold';
 import QuizDetox from './pages/QuizDetox';
-import Results from './pages/Results';
+import ResultsBold from './pages/ResultsBold';
+import OfferBold from './pages/OfferBold';
 import ResultsDetox from './pages/ResultsDetox';
 import OfferDetox from './pages/OfferDetox';
 import Login from './pages/Login';
@@ -115,8 +116,9 @@ const AppRoutes = () => {
       <Route path="/quiz-bold"    element={<QuizBold pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
 
-      {/* ── Results routes ── */}
-      <Route path="/results-bold"    element={<Results pricingPlan="bold" />} />
+      {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
+      <Route path="/results-bold"    element={<ResultsBold pricingPlan="bold" />} />
+      <Route path="/offer-bold"      element={<OfferBold pricingPlan="bold" />} />
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
 
