@@ -5,9 +5,19 @@ import HairRecipeDetail from '../components/hair/HairRecipeDetail';
 import EssentialRecipesCard from '../components/hair/EssentialRecipesCard';
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData';
 
+function EfficiencyTag({ tag, tagLabels }) {
+  const data = tagLabels[tag];
+  if (!data) return null;
+  return (
+    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${data.color}`}>
+      {data.label}
+    </span>
+  );
+}
+
 export default function HairRecipes() {
   const { t } = useTranslation();
-  const { recipes, ingredients } = useTranslatedHairData();
+  const { recipes, ingredients, tagLabels } = useTranslatedHairData();
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
