@@ -19,10 +19,13 @@ const STATUS_BADGE = {
 
 const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸' }
 
+// Currently both /quiz-bold and /quiz-detox write 'one_time_basic' as pricing_plan.
+// The funnel is differentiated by event_type prefix in funnel_events, not by plan_key.
+// Legacy plans kept so historical orders still display correctly.
 const PLAN_BADGE = {
-  one_time_basic:    { label: 'Básico $17.99',   bg: 'bg-cyan-50',    text: 'text-cyan-700' },
-  one_time_standard: { label: 'Completo $27.99', bg: 'bg-violet-50',  text: 'text-violet-700' },
-  one_time_premium:  { label: 'VIP $47.99',      bg: 'bg-amber-50',   text: 'text-amber-700' },
+  one_time_basic:    { label: 'NatGlow $17',     bg: 'bg-cyan-50',    text: 'text-cyan-700' },
+  one_time_standard: { label: 'Completo $27 (legado)', bg: 'bg-violet-50',  text: 'text-violet-700' },
+  one_time_premium:  { label: 'VIP $47 (legado)',      bg: 'bg-amber-50',   text: 'text-amber-700' },
 }
 
 const DIAGNOSIS_BADGE = {
@@ -39,6 +42,9 @@ const QUIZ_LABELS = {
   chemProducts: { label: 'Produtos químicos', options: { yes_heavy: 'Sim (fortes)', yes_mild: 'Sim (suaves)', no: 'Não' } },
   hairType:     { label: 'Tipo de cabelo',    options: { liso: 'Liso', ondulado: 'Ondulado', cacheado: 'Cacheado', crespo: 'Crespo' } },
   age:          { label: 'Faixa etária',      options: { '18_29': '18–29', '30_39': '30–39', '40_49': '40–49', '50_plus': '50+' } },
+  // New fields from persuasive funnels (quiz-bold / quiz-detox)
+  symptomsIntensity: { label: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
+  finalChoice:       { label: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
 }
 
 function StatusBadge({ status }) {
@@ -261,7 +267,7 @@ export default function AdminUsers() {
       if (result?.error) throw new Error(result.error)
       // Client-side plan filter (server doesn't filter by plan yet — keeps edge fn simple)
       const filtered = pf
-        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'one_time_standard') === pf)
+        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'one_time_basic') === pf)
         : (result.users ?? [])
       setUsers(filtered)
       setTotal(pf ? filtered.length : (result.total ?? 0))
@@ -399,9 +405,9 @@ export default function AdminUsers() {
           className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
         >
           <option value="">Todos os planos</option>
-          <option value="one_time_basic">Básico $17.99</option>
-          <option value="one_time_standard">Completo $27.99</option>
-          <option value="one_time_premium">VIP $47.99</option>
+          <option value="one_time_basic">NatGlow $17 (Bold/Detox)</option>
+          <option value="one_time_standard">Completo $27 (legado)</option>
+          <option value="one_time_premium">VIP $47 (legado)</option>
         </select>
       </div>
 
@@ -452,7 +458,7 @@ export default function AdminUsers() {
                     <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
                     <td className="px-4 py-3">
                       {(() => {
-                        const p = PLAN_BADGE[u.pricing_plan ?? 'one_time_standard'] ?? PLAN_BADGE.one_time_standard
+                        const p = PLAN_BADGE[u.pricing_plan ?? 'one_time_basic'] ?? PLAN_BADGE.one_time_basic
                         return (
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.bg} ${p.text}`}>
                             {p.label}

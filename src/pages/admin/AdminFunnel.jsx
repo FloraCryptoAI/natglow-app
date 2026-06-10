@@ -6,11 +6,12 @@ import ErrorBanner from './components/ErrorBanner'
 import { useAdminFetch } from './hooks/useAdminFetch'
 
 const FUNNEL_STEPS = [
-  { key: 'quiz_started',      label: 'Iniciaram o quiz',      color: '#7c3aed' },
-  { key: 'quiz_completed',    label: 'Completaram o quiz',    color: '#2563eb' },
-  { key: 'results_viewed',    label: 'Viram os resultados',   color: '#8b5cf6' },
-  { key: 'cta_clicked',       label: 'Clicaram em Assinar',   color: '#d97706' },
-  { key: 'payment_completed', label: 'Pagamento confirmado',  color: '#059669' },
+  { key: 'quiz_started',      label: 'Iniciaram o quiz',         color: '#7c3aed' },
+  { key: 'quiz_completed',    label: 'Completaram o quiz',       color: '#2563eb' },
+  { key: 'results_viewed',    label: 'Viram a página diagnóstico', color: '#8b5cf6' },
+  { key: 'offer_viewed',      label: 'Viram a oferta',           color: '#ec4899' },
+  { key: 'cta_clicked',       label: 'Clicaram em comprar',      color: '#d97706' },
+  { key: 'payment_completed', label: 'Pagamento confirmado',     color: '#059669' },
 ]
 
 const PERIODS = [
@@ -20,11 +21,12 @@ const PERIODS = [
   { key: 'custom', label: 'Personalizado' },
 ]
 
+// Funnels (Bold and Detox) — query string param is `funnel` on backend,
+// also accepted as legacy `plan`.
 const PLAN_FILTERS = [
-  { key: 'all',               label: 'Todos os produtos' },
-  { key: 'one_time_basic',    label: 'Básico $17.99' },
-  { key: 'one_time_standard', label: 'Completo $27.99' },
-  { key: 'one_time_premium',  label: 'VIP $47.99' },
+  { key: 'all',   label: 'Todos os funis' },
+  { key: 'bold',  label: 'Quiz Bold' },
+  { key: 'detox', label: 'Quiz Detox' },
 ]
 
 export default function AdminFunnel() {
@@ -41,7 +43,7 @@ export default function AdminFunnel() {
     setLoading(true)
     setError(null)
     try {
-      const params = new URLSearchParams({ period: p, plan: pl })
+      const params = new URLSearchParams({ period: p, funnel: pl })
       if (p === 'custom' && cs) params.set('start', cs)
       if (p === 'custom' && ce) params.set('end', ce)
       const result = await apiFetch(`/admin-funnel?${params}`)

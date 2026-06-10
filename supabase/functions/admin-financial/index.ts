@@ -4,13 +4,16 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+// Plan labels keyed by plan_key as stored in `subscriptions.pricing_plan`.
+// Currently both /quiz-bold and /quiz-detox use one_time_basic ($17).
+// Standard/Premium kept as legacy so historical orders still render with proper label.
 const PLAN_LABELS: Record<string, string> = {
-  one_time_basic:    'NatGlow Básico · $17',
-  one_time_standard: 'NatGlow Completo · $27',
-  one_time_premium:  'NatGlow VIP · $47',
-  monthly_499:       'Monthly $4.99',
-  monthly_699:       'Monthly $6.99',
-  monthly_1499:      'Monthly $14.99',
+  one_time_basic:    'NatGlow · $17 (Bold/Detox)',
+  one_time_standard: 'NatGlow Completo · $27 (legado)',
+  one_time_premium:  'NatGlow VIP · $47 (legado)',
+  monthly_499:       'Monthly $4.99 (legado)',
+  monthly_699:       'Monthly $6.99 (legado)',
+  monthly_1499:      'Monthly $14.99 (legado)',
 }
 
 const PLAN_PRICE: Record<string, number> = {

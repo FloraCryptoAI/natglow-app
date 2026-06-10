@@ -17,10 +17,11 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 
 // ── constants ────────────────────────────────────────────────────────────────
 
+// Funnels (Bold vs Detox) — both currently use the same Hotmart product ($17),
+// distinguished server-side by funnel_events event_type prefix and cta_clicked.metadata.source.
 const PLANS = [
-  { key: 'one_time_basic',    label: 'NatGlow Básico',   short: 'Básico $17.99',   color: '#0891b2' },
-  { key: 'one_time_standard', label: 'NatGlow Completo', short: 'Completo $27.99', color: '#7c3aed' },
-  { key: 'one_time_premium',  label: 'NatGlow VIP',      short: 'VIP $47.99',      color: '#d97706' },
+  { key: 'bold',  label: 'Quiz Bold',  short: 'Bold $17',  color: '#0891b2' },
+  { key: 'detox', label: 'Quiz Detox', short: 'Detox $17', color: '#7c3aed' },
 ]
 
 const PERIODS = [
@@ -41,6 +42,9 @@ const QUESTION_LABELS = {
   heatTools:    { title: 'Uso de calor',            options: { daily: 'Todo dia', few: 'Algumas vezes', rarely: 'Raramente' } },
   hydration:    { title: 'Hidratação',              options: { regularly: 'Regularmente', sometimes: 'Às vezes', never: 'Nunca' } },
   chemProducts: { title: 'Produtos químicos',       options: { yes_heavy: 'Sim (forte)', yes_mild: 'Sim (suave)', no: 'Não' } },
+  // New fields from persuasive funnels
+  symptomsIntensity: { title: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
+  finalChoice:       { title: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
 }
 
 // Comparison table metric definitions

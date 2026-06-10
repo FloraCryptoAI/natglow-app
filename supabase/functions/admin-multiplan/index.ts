@@ -4,20 +4,46 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-const PLAN_CONFIG: Record<string, { label: string; price: number; product_id: string }> = {
-  one_time_basic:    { label: 'NatGlow Básico · $17.99',   price: 17.99, product_id: '7789064' },
-  one_time_standard: { label: 'NatGlow Completo · $27.99', price: 27.99, product_id: '7789077' },
-  one_time_premium:  { label: 'NatGlow VIP · $47.99',      price: 47.99, product_id: '7789099' },
+// Both funnels currently use the same plan_key in `subscriptions.pricing_plan`
+// (one_time_basic, $17). We differentiate Bold vs Detox by funnel_events
+// event_type prefix and cta_clicked.metadata.source.
+const FUNNEL_CONFIG: Record<string, {
+  label:       string
+  price:       number
+  product_id:  string
+  plan_key:    string  // what's written to subscriptions.pricing_plan
+  cta_source:  string  // metadata.source for cta_clicked
+  events: { started: string; completed: string; results: string; offer: string }
+}> = {
+  bold: {
+    label:      'Quiz Bold · $17',
+    price:      17,
+    product_id: '7789064',
+    plan_key:   'one_time_basic',
+    cta_source: 'offer_bold',
+    events: {
+      started:   'quiz_bold_started',
+      completed: 'quiz_bold_completed',
+      results:   'results_bold_viewed',
+      offer:     'offer_bold_viewed',
+    },
+  },
+  detox: {
+    label:      'Quiz Detox · $17',
+    price:      17,
+    product_id: '7789064',
+    plan_key:   'one_time_basic',
+    cta_source: 'offer_detox',
+    events: {
+      started:   'quiz_detox_started',
+      completed: 'quiz_detox_completed',
+      results:   'results_detox_viewed',
+      offer:     'offer_detox_viewed',
+    },
+  },
 }
 
-const PLAN_KEYS = ['one_time_basic', 'one_time_standard', 'one_time_premium'] as const
-
-const FUNNEL_STEPS = ['quiz_started', 'quiz_completed', 'results_viewed', 'cta_clicked', 'payment_completed'] as const
-
-function normalizePlan(p: string | null | undefined): string {
-  if (p && PLAN_CONFIG[p]) return p
-  return 'one_time_standard'
-}
+const FUNNEL_KEYS = ['bold', 'detox'] as const
 
 // Two-proportion z-test (returns absolute z value)
 function zScore(p1: number, n1: number, p2: number, n2: number): number {
@@ -28,8 +54,8 @@ function zScore(p1: number, n1: number, p2: number, n2: number): number {
   return Math.abs((p1 - p2) / se)
 }
 
-type SubRow   = { pricing_plan: string | null; status: string; created_at: string; purchase_amount: number | null }
-type EventRow = { session_id: string; event_type: string; pricing_plan: string | null }
+type SubRow   = { pricing_plan: string | null; status: string; created_at: string; purchase_amount: number | null; user_id?: string }
+type EventRow = { session_id: string; event_type: string; user_id?: string | null; metadata?: { source?: string } | null }
 
 const dbH = {
   Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -70,76 +96,95 @@ Deno.serve(async (req) => {
 
     const [evRes, subRes] = await Promise.all([
       fetch(
-        `${SUPABASE_URL}/rest/v1/funnel_events?select=session_id,event_type,pricing_plan&created_at=gte.${sinceISO}&created_at=lte.${untilISO}&limit=20000`,
+        `${SUPABASE_URL}/rest/v1/funnel_events?select=session_id,event_type,user_id,metadata&created_at=gte.${sinceISO}&created_at=lte.${untilISO}&limit=20000`,
         { headers: dbH }
       ),
       fetch(
-        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,purchase_amount&limit=5000`,
+        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,purchase_amount,user_id&limit=5000`,
         { headers: dbH }
       ),
     ])
 
-    const events:  EventRow[] = await evRes.json().then(d => Array.isArray(d) ? d : [])
-    const allSubs: SubRow[]   = await subRes.json().then(d => Array.isArray(d) ? d : [])
+    const events:  EventRow[] = await evRes.json().then((d: unknown) => Array.isArray(d) ? d : [])
+    const allSubs: SubRow[]   = await subRes.json().then((d: unknown) => Array.isArray(d) ? d : [])
 
-    // Group events into plan → step → Set<session_id>
-    const planCounts: Record<string, Record<string, Set<string>>> = {}
-    for (const pk of PLAN_KEYS) {
-      planCounts[pk] = {}
-      for (const step of FUNNEL_STEPS) planCounts[pk][step] = new Set()
+    // Build per-funnel stage sets
+    const funnelSessions: Record<string, Record<string, Set<string>>> = {}
+    const funnelUserIds:  Record<string, Set<string>> = {}
+
+    for (const fk of FUNNEL_KEYS) {
+      funnelSessions[fk] = {
+        started:   new Set(),
+        completed: new Set(),
+        results:   new Set(),
+        offer:     new Set(),
+        cta:       new Set(),
+      }
+      funnelUserIds[fk] = new Set()
     }
+
     for (const ev of events) {
-      const pk = normalizePlan(ev.pricing_plan)
-      planCounts[pk]?.[ev.event_type]?.add(ev.session_id)
+      for (const fk of FUNNEL_KEYS) {
+        const cfg = FUNNEL_CONFIG[fk]
+        if (ev.event_type === cfg.events.started)   funnelSessions[fk].started.add(ev.session_id)
+        if (ev.event_type === cfg.events.completed) funnelSessions[fk].completed.add(ev.session_id)
+        if (ev.event_type === cfg.events.results)   funnelSessions[fk].results.add(ev.session_id)
+        if (ev.event_type === cfg.events.offer)     funnelSessions[fk].offer.add(ev.session_id)
+        if (ev.event_type === 'cta_clicked' && ev.metadata?.source === cfg.cta_source) {
+          funnelSessions[fk].cta.add(ev.session_id)
+          if (ev.user_id) funnelUserIds[fk].add(ev.user_id)
+        }
+      }
     }
 
-    // Group subscriptions by plan
-    const planSubs: Record<string, SubRow[]> = {}
-    for (const pk of PLAN_KEYS) planSubs[pk] = []
-    for (const s of allSubs) planSubs[normalizePlan(s.pricing_plan)].push(s)
+    // Conversions: subscriptions whose user_id appears in funnel's cta-clicked set
+    // (best-effort attribution since both funnels write the same plan_key)
+    const periodSubs = allSubs.filter(s => s.created_at >= sinceISO && s.created_at <= untilISO)
 
-    // Build metrics per plan
-    const planMetrics = PLAN_KEYS.map(pk => {
-      const cfg    = PLAN_CONFIG[pk]
-      const counts = planCounts[pk]
+    const funnelMetrics = FUNNEL_KEYS.map(fk => {
+      const cfg     = FUNNEL_CONFIG[fk]
+      const stages  = funnelSessions[fk]
+      const userIds = funnelUserIds[fk]
 
-      const started     = counts['quiz_started']?.size      ?? 0
-      const completed   = counts['quiz_completed']?.size    ?? 0
-      const viewed      = counts['results_viewed']?.size    ?? 0
-      const ctaClicked  = counts['cta_clicked']?.size       ?? 0
-      const conversions = counts['payment_completed']?.size ?? 0
+      const started     = stages.started.size
+      const completed   = stages.completed.size
+      const resultsView = stages.results.size
+      const offerView   = stages.offer.size
+      const ctaClicked  = stages.cta.size
 
-      const completionRate = started > 0 ? parseFloat(((completed  / started) * 100).toFixed(1)) : 0
-      const conversionRate = started > 0 ? parseFloat(((conversions / started) * 100).toFixed(1)) : 0
-
-      // Revenue: prefer stored purchase_amount, fall back to plan price
-      const revenuePeriod = parseFloat(
-        [...(counts['payment_completed'] ?? new Set())]
-          .reduce((_acc, _sid) => _acc + cfg.price, 0) // use plan price for period events
-          .toFixed(2)
+      const conversionSubs = periodSubs.filter(
+        s => s.status === 'active' && s.user_id && userIds.has(s.user_id)
       )
-      const avgTicket = conversions > 0 ? parseFloat((revenuePeriod / conversions).toFixed(2)) : 0
+      const conversions   = conversionSubs.length
+      const revenuePeriod = parseFloat(
+        conversionSubs.reduce((acc, s) => acc + (s.purchase_amount ?? cfg.price), 0).toFixed(2)
+      )
 
-      // Refund rate from all-time subscriptions for this plan
-      const subs        = planSubs[pk]
-      const totalSubs   = subs.length
-      const activeSubs  = subs.filter(s => s.status === 'active').length
-      const refundedSubs = subs.filter(s => s.status === 'refunded' || s.status === 'chargeback').length
-      const refundRate   = (activeSubs + refundedSubs) > 0
+      const completionRate = started > 0 ? parseFloat(((completed   / started) * 100).toFixed(1)) : 0
+      const conversionRate = started > 0 ? parseFloat(((conversions / started) * 100).toFixed(1)) : 0
+      const avgTicket      = conversions > 0 ? parseFloat((revenuePeriod / conversions).toFixed(2)) : 0
+
+      // Refund rate from all-time subscriptions matching this funnel's user_ids
+      // (only those with user_id we attributed to this funnel)
+      const allFunnelSubs = allSubs.filter(s => s.user_id && userIds.has(s.user_id))
+      const totalSubs     = allFunnelSubs.length
+      const activeSubs    = allFunnelSubs.filter(s => s.status === 'active').length
+      const refundedSubs  = allFunnelSubs.filter(s => s.status === 'refunded' || s.status === 'chargeback').length
+      const refundRate    = (activeSubs + refundedSubs) > 0
         ? parseFloat((refundedSubs / (activeSubs + refundedSubs) * 100).toFixed(1))
         : 0
 
-      // ROI score = conversion_rate (fraction) × price
       const roiScore = parseFloat(((conversionRate / 100) * cfg.price).toFixed(4))
 
       return {
-        plan_key:        pk,
+        plan_key:        fk,                  // 'bold' | 'detox'
         label:           cfg.label,
         price:           cfg.price,
         product_id:      cfg.product_id,
         quiz_started:    started,
         quiz_completed:  completed,
-        results_viewed:  viewed,
+        results_viewed:  resultsView,
+        offer_viewed:    offerView,
         cta_clicked:     ctaClicked,
         conversions,
         completion_rate: completionRate,
@@ -154,14 +199,13 @@ Deno.serve(async (req) => {
     })
 
     // Winner = highest ROI score
-    const sorted   = [...planMetrics].sort((a, b) => b.roi_score - a.roi_score)
+    const sorted   = [...funnelMetrics].sort((a, b) => b.roi_score - a.roi_score)
     const winner   = sorted[0]
     const runnerUp = sorted[1]
 
-    // Statistical significance via z-test on conversion rates
     let sigLevel: 'significant' | 'trend' | 'insufficient' = 'insufficient'
     let zVal  = 0
-    let note  = 'Dados insuficientes. Mínimo: 50 visitas por produto.'
+    let note  = 'Dados insuficientes. Mínimo: 50 visitas por funil.'
 
     if (winner && runnerUp) {
       const n1 = winner.quiz_started
@@ -175,18 +219,18 @@ Deno.serve(async (req) => {
           note = `Diferença estatisticamente significativa (p<0.05). ${n1} vs ${n2} visitantes.`
         } else if (zVal >= 1.645 || (zVal >= 1.96 && minN < 100)) {
           sigLevel = 'trend'
-          note = `Tendência detectada mas amostra ainda pequena (${minN} visitas). Mínimo recomendado: 100/produto.`
+          note = `Tendência detectada mas amostra ainda pequena (${minN} visitas). Mínimo recomendado: 100/funil.`
         } else {
           sigLevel = 'insufficient'
           note = `Diferença não é estatisticamente significativa ainda. Continue coletando dados.`
         }
       } else {
-        note = `Amostra insuficiente (${Math.min(n1 ?? 0, n2 ?? 0)} visitas no menor produto). Necessário ≥50 por produto.`
+        note = `Amostra insuficiente (${Math.min(n1 ?? 0, n2 ?? 0)} visitas no menor funil). Necessário ≥50 por funil.`
       }
     }
 
     return new Response(JSON.stringify({
-      plans: planMetrics,
+      plans: funnelMetrics,
       period: { start: sinceISO, end: untilISO, label: period },
       significance: {
         winner_key:   winner?.plan_key ?? null,

@@ -20,9 +20,9 @@ const DEFAULTS = {
 }
 
 const PER_PLAN = [
-  { key: 'one_time_basic',    label: 'Básico $17.99',   placeholder: 'ex: You save $80' },
-  { key: 'one_time_standard', label: 'Completo $27.99', placeholder: 'ex: You save $70' },
-  { key: 'one_time_premium',  label: 'VIP $47.99',      placeholder: 'ex: You save $50' },
+  { key: 'one_time_basic',    label: 'NatGlow $17 (Bold/Detox)',  placeholder: 'ex: You save $30' },
+  { key: 'one_time_standard', label: 'Completo $27 (legado)',     placeholder: 'ex: You save $70' },
+  { key: 'one_time_premium',  label: 'VIP $47 (legado)',          placeholder: 'ex: You save $50' },
 ]
 
 function Toggle({ checked, onChange, disabled }) {

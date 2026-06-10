@@ -40,9 +40,9 @@ const SEGMENTS = [
 ]
 
 const PLANS = [
-  { key: 'one_time_basic',    label: 'Básico $17.99' },
-  { key: 'one_time_standard', label: 'Completo $27.99' },
-  { key: 'one_time_premium',  label: 'VIP $47.99' },
+  { key: 'one_time_basic',    label: 'NatGlow $17 (Bold/Detox)' },
+  { key: 'one_time_standard', label: 'Completo $27 (legado)' },
+  { key: 'one_time_premium',  label: 'VIP $47 (legado)' },
 ]
 
 const STATUSES = [

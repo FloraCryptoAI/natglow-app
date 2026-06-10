@@ -4,45 +4,79 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-const FUNNEL_STEPS = [
-  'quiz_started',
-  'quiz_completed',
-  'results_viewed',
-  'cta_clicked',
-  'payment_completed',
-] as const
+// Funnel-specific event maps. Each step accepts an array of event_types
+// to count (Set-union of session_ids across them).
+const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }>> = {
+  bold: [
+    { key: 'quiz_started',      events: ['quiz_bold_started'] },
+    { key: 'quiz_completed',    events: ['quiz_bold_completed'] },
+    { key: 'results_viewed',    events: ['results_bold_viewed'] },
+    { key: 'offer_viewed',      events: ['offer_bold_viewed'] },
+    { key: 'cta_clicked',       events: ['cta_clicked'] }, // metadata.source filtered below
+    { key: 'payment_completed', events: ['payment_completed'] },
+  ],
+  detox: [
+    { key: 'quiz_started',      events: ['quiz_detox_started'] },
+    { key: 'quiz_completed',    events: ['quiz_detox_completed'] },
+    { key: 'results_viewed',    events: ['results_detox_viewed'] },
+    { key: 'offer_viewed',      events: ['offer_detox_viewed'] },
+    { key: 'cta_clicked',       events: ['cta_clicked'] },
+    { key: 'payment_completed', events: ['payment_completed'] },
+  ],
+  // Combined view: counts both bold + detox
+  all: [
+    { key: 'quiz_started',      events: ['quiz_bold_started', 'quiz_detox_started'] },
+    { key: 'quiz_completed',    events: ['quiz_bold_completed', 'quiz_detox_completed'] },
+    { key: 'results_viewed',    events: ['results_bold_viewed', 'results_detox_viewed'] },
+    { key: 'offer_viewed',      events: ['offer_bold_viewed', 'offer_detox_viewed'] },
+    { key: 'cta_clicked',       events: ['cta_clicked'] },
+    { key: 'payment_completed', events: ['payment_completed'] },
+  ],
+}
 
-async function countEvents(
-  eventType: string,
+// For cta_clicked we need to filter by metadata.source matching the funnel
+const CTA_SOURCE: Record<string, string> = {
+  bold:  'offer_bold',
+  detox: 'offer_detox',
+}
+
+async function countSessionsForEvents(
+  events: string[],
   since: string,
-  until?: string,
-  plan?: string | null,
+  until: string | undefined,
+  funnel: string,
+  isCta: boolean,
 ): Promise<number> {
-  const params = new URLSearchParams({
-    event_type: `eq.${eventType}`,
-    select: 'session_id',
-    limit: '10000',
-  })
-  params.append('created_at', `gte.${since}`)
-  if (until) params.append('created_at', `lte.${until}`)
+  const sessions = new Set<string>()
 
-  if (plan && plan !== 'all') {
-    if (plan === 'one_time_standard') {
-      // Old events with null pricing_plan are treated as one_time_standard
-      params.set('or', '(pricing_plan.eq.one_time_standard,pricing_plan.is.null)')
-    } else {
-      params.append('pricing_plan', `eq.${plan}`)
+  for (const eventType of events) {
+    const params = new URLSearchParams({
+      event_type: `eq.${eventType}`,
+      select: isCta ? 'session_id,metadata' : 'session_id',
+      limit: '20000',
+    })
+    params.append('created_at', `gte.${since}`)
+    if (until) params.append('created_at', `lte.${until}`)
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/funnel_events?${params}`, {
+      headers: {
+        Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+        apikey: SUPABASE_SERVICE_KEY,
+      },
+    })
+    const rows: { session_id: string; metadata?: { source?: string } | null }[] = await res.json()
+
+    for (const r of rows) {
+      // Filter cta_clicked by source when funnel is specific
+      if (isCta && funnel !== 'all') {
+        const expectedSource = CTA_SOURCE[funnel]
+        if (r.metadata?.source !== expectedSource) continue
+      }
+      sessions.add(r.session_id)
     }
   }
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/funnel_events?${params}`, {
-    headers: {
-      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-      apikey: SUPABASE_SERVICE_KEY,
-    },
-  })
-  const rows: { session_id: string }[] = await res.json()
-  return new Set(rows.map(r => r.session_id)).size
+  return sessions.size
 }
 
 Deno.serve(async (req) => {
@@ -61,7 +95,11 @@ Deno.serve(async (req) => {
     const period      = url.searchParams.get('period') ?? '30d'
     const customStart = url.searchParams.get('start')
     const customEnd   = url.searchParams.get('end')
-    const plan        = url.searchParams.get('plan') ?? 'all'   // 'all' | plan_key
+    // Accept legacy `plan` param (defaulted to 'all'), and also new `funnel` param.
+    // 'bold' | 'detox' | 'all'
+    const funnel      = url.searchParams.get('funnel') ?? url.searchParams.get('plan') ?? 'all'
+
+    const definition = FUNNEL_DEFINITIONS[funnel] ?? FUNNEL_DEFINITIONS.all
 
     const now = new Date()
     let since: string
@@ -81,12 +119,12 @@ Deno.serve(async (req) => {
     }
 
     const counts = await Promise.all(
-      FUNNEL_STEPS.map(step => countEvents(step, since, until, plan))
+      definition.map(s => countSessionsForEvents(s.events, since, until, funnel, s.key === 'cta_clicked'))
     )
 
-    const steps = FUNNEL_STEPS.map((key, i) => ({ event_type: key, count: counts[i] }))
+    const steps = definition.map((s, i) => ({ event_type: s.key, count: counts[i] }))
 
-    return new Response(JSON.stringify({ steps, period, plan }), {
+    return new Response(JSON.stringify({ steps, period, funnel, plan: funnel }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {

@@ -22,10 +22,10 @@ const CATEGORIES = [
 ]
 
 const PLAN_OPTIONS = [
-  { value: null,               label: 'Global / não vinculado' },
-  { value: 'one_time_basic',   label: 'Básico $17.99' },
-  { value: 'one_time_standard',label: 'Completo $27.99' },
-  { value: 'one_time_premium', label: 'VIP $47.99' },
+  { value: null,                label: 'Global / não vinculado' },
+  { value: 'one_time_basic',    label: 'NatGlow $17 (Bold/Detox)' },
+  { value: 'one_time_standard', label: 'Completo $27 (legado)' },
+  { value: 'one_time_premium',  label: 'VIP $47 (legado)' },
 ]
 
 const CONFIDENCE_CONFIG = {
