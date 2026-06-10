@@ -131,7 +131,11 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
     const qs = params.toString()
     if (qs) checkoutUrl += (checkoutUrl.includes('?') ? '&' : '?') + qs
 
-    window.location.href = checkoutUrl
+    // Give the CAPI keepalive fetches ~300ms head-start before unloading the
+    // page. Without this, some browsers (notably Safari and some Chrome cases)
+    // cancel keepalive requests on immediate navigation, causing CAPI events
+    // like InitiateCheckout to never reach TikTok/Facebook.
+    setTimeout(() => { window.location.href = checkoutUrl }, 300)
   }
 
   const scrollToPricing = () => {
