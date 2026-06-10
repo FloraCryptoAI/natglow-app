@@ -131,10 +131,11 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
     const qs = params.toString()
     if (qs) checkoutUrl += (checkoutUrl.includes('?') ? '&' : '?') + qs
 
-    // Give the CAPI keepalive fetches ~300ms head-start before navigating away.
-    // Some browsers cancel keepalive requests on immediate navigation, causing
-    // CAPI events like InitiateCheckout to never reach TikTok/Facebook.
-    setTimeout(() => { window.location.href = checkoutUrl }, 300)
+    // Give the CAPI keepalive fetches a head-start before navigating away.
+    // Safari (especially iOS) is aggressive about cancelling keepalive on
+    // user-initiated nav. 600ms is imperceptible (loading spinner is showing)
+    // but reliable across Chrome/Safari/iOS Chrome.
+    setTimeout(() => { window.location.href = checkoutUrl }, 600)
   }
 
   const scrollToPricing = () => {

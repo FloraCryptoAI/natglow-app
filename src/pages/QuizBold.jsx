@@ -167,8 +167,6 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
   useEffect(() => {
     if (step !== STEPS.LOADING) return
     trackFunnelEvent('quiz_bold_completed', { answers }, plan_key)
-    trackFbEvent('Lead', { content_name: 'quiz_bold_completed', content_category: plan_key })
-    trackTtEvent('SubmitForm', { content_name: 'quiz_bold_completed', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     setLoadingProgress(0)
     const timers = [
       setTimeout(() => setLoadingProgress(30), 600),
@@ -197,6 +195,16 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
       trackFunnelEvent('quiz_bold_symptom_intense', { intensity }, plan_key)
     }
     setStep(STEPS.SCIENTIFIC)
+  }
+
+  // Fire SubmitForm + Lead when user submits the name. This is when the "form"
+  // is actually submitted (user gave us their info). Firing here (on a stable
+  // page, no immediate unload) is much more reliable than firing on LOADING.
+  const handleNameSubmit = () => {
+    if (!answers.name.trim()) return
+    trackFbEvent('Lead', { content_name: 'quiz_bold_name', content_category: plan_key })
+    trackTtEvent('SubmitForm', { content_name: 'quiz_bold_name', content_category: plan_key, content_id: plan_key, content_type: 'product' })
+    setStep(STEPS.FINAL)
   }
 
   const handleFinalAnswer = (choice) => {
@@ -625,7 +633,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             />
             <button
               disabled={!answers.name.trim()}
-              onClick={() => setStep(STEPS.FINAL)}
+              onClick={handleNameSubmit}
               className="btn-primary py-6 text-base flex items-center justify-center gap-2"
             >
               {t('quiz.name.cta')}
