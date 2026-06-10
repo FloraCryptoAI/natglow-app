@@ -4,16 +4,18 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+// Both /quiz-bold and /quiz-detox use plan_key 'one_time_basic' ($17).
+// Standard/Premium are legacy plans kept for historical orders.
 const PLAN_REVENUE: Record<string, number> = {
-  one_time_basic:    17.99,
-  one_time_standard: 27.99,
-  one_time_premium:  47.99,
+  one_time_basic:    17,
+  one_time_standard: 27,
+  one_time_premium:  47,
 }
 
 const PLAN_LABELS_COSTS: Record<string, string> = {
-  one_time_basic:    'Básico $17.99',
-  one_time_standard: 'Completo $27.99',
-  one_time_premium:  'VIP $47.99',
+  one_time_basic:    'NatGlow $17 (Bold/Detox)',
+  one_time_standard: 'Completo $27 (legado)',
+  one_time_premium:  'VIP $47 (legado)',
 }
 
 function subRevenue(s: Record<string, unknown>): number {
@@ -297,7 +299,7 @@ Deno.serve(async (req) => {
       // ROI per plan
       const planRoi = Object.keys(PLAN_REVENUE).map(planKey => {
         const planSubs = subs.filter(s => {
-          const p = (s.pricing_plan as string | null) ?? 'one_time_standard'
+          const p = (s.pricing_plan as string | null) ?? 'one_time_basic'
           if (p !== planKey) return false
           const c = s.created_at as string
           return c >= startDate.toISOString() && c <= endDate.toISOString() && s.status === 'active'

@@ -216,7 +216,7 @@ Deno.serve(async (req) => {
       status:          s.status,
       created_at:      s.created_at,
       last_sign_in_at: authDetails[s.user_id as string] ?? null,
-      pricing_plan:    (s.pricing_plan as string | null) ?? 'one_time_standard',
+      pricing_plan:    (s.pricing_plan as string | null) ?? 'one_time_basic',
       purchase_amount: s.purchase_amount,
       purchase_currency: s.purchase_currency,
       hotmart_transaction_id: s.hotmart_transaction_id,

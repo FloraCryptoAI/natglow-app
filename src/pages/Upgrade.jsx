@@ -11,44 +11,23 @@ const P    = '#FB45A9'
 const PD   = '#E03594'
 const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 
+// Single plan now — both /quiz-bold and /quiz-detox share the same $17 product.
+// Standard/Premium tiers were retired when the standard funnels were removed.
 const PLANS = [
   {
-    key: 'monthly_cheap',
-    name: 'NatGlow Esencial',
+    key: 'bold',
+    name: 'NatGlow Protocolo',
     price: 17,
-    highlight: false,
-    features: [
-      'Método 21 días completo',
-      '3 recetas campeonas',
-      'Rutina personalizada 84 días',
-      'Acceso en cualquier dispositivo',
-    ],
-  },
-  {
-    key: 'monthly',
-    name: 'NatGlow Completo',
-    price: 27,
     highlight: true,
-    badge: '🔥 Más popular',
+    badge: '🔥 Acceso completo',
     features: [
-      'Todo lo del plan Esencial',
-      'Feed de comunidad',
-      '2 guías bônus exclusivos',
-      'Seguimiento de progreso',
+      'Protocolo de 21 días personalizado',
+      '3 recetas naturales exclusivas',
+      'Progresiva casera sin químicos',
+      'Plan progresivo de 4 fases',
       'Biblioteca con 25 recetas',
-    ],
-  },
-  {
-    key: 'monthly_premium',
-    name: 'NatGlow VIP',
-    price: 47,
-    highlight: false,
-    features: [
-      'Todo lo del plan Completo',
-      'Grupo exclusivo VIP',
-      'Plan personalizado extra',
-      'Soporte prioritario',
-      'Contenido nuevo cada mes',
+      'App instalable en tu smartphone (PWA)',
+      'Acceso VITALICIO sin suscripción',
     ],
   },
 ]

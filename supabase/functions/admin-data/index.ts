@@ -5,9 +5,9 @@ const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const PLAN_PRICE: Record<string, number> = {
-  one_time_basic:    17.99,
-  one_time_standard: 27.99,
-  one_time_premium:  47.99,
+  one_time_basic:    17, // active — used by both /quiz-bold and /quiz-detox
+  one_time_standard: 27, // legacy
+  one_time_premium:  47, // legacy
 }
 
 function subAmount(s: Record<string, unknown>): number {

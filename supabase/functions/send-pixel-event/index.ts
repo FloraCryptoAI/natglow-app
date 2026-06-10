@@ -56,6 +56,28 @@ Deno.serve(async (req) => {
         custom_data: custom_data || {},
       }).catch(() => { /* logged inside */ })
     } else if (platform === 'tiktok') {
+      // TikTok Events API requires content_id inside a `contents: [{...}]` array.
+      // Browser-side ttq.track accepts flat content_id but CAPI does not.
+      // Transform: flat content_id/content_type/content_name -> contents array
+      const p = properties || {}
+      const ttProperties: Record<string, unknown> = {}
+      if (typeof p.value === 'number')   ttProperties.value    = p.value
+      if (typeof p.currency === 'string') ttProperties.currency = p.currency
+
+      if (Array.isArray(p.contents) && p.contents.length > 0) {
+        ttProperties.contents = p.contents
+      } else {
+        // Build contents array from flat fields. Fallback content_id avoids
+        // TikTok's "missing content_id" warning in Events Manager.
+        ttProperties.contents = [{
+          content_id:   p.content_id   || 'natglow_default',
+          content_type: p.content_type || 'product',
+          content_name: p.content_name || event_name,
+          quantity:     1,
+          price:        typeof p.value === 'number' ? p.value : undefined,
+        }]
+      }
+
       sendTikTokEvent({
         event: event_name,
         event_id,
@@ -64,7 +86,7 @@ Deno.serve(async (req) => {
           ip,
           user_agent: userAgent,
         },
-        properties: properties || {},
+        properties: ttProperties as Record<string, unknown>,
       }).catch(() => { /* logged inside */ })
     } else {
       return new Response(JSON.stringify({ ok: false, error: 'unknown platform' }), {
