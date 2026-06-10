@@ -223,7 +223,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
             </p>
             {Array.isArray(testimonials) && testimonials.length > 0 && (
               <BeforeAfterTestimonialCarousel
-                testimonials={testimonials.slice(0, 2)}
+                testimonials={testimonials.slice(1, 4)}
                 verifiedBadgeTemplate={verifiedBadge}
               />
             )}
@@ -290,12 +290,12 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
 
                 <div className="mb-6">
                   <div className="flex items-center gap-2.5 mb-1">
-                    <p className="text-stone-400 line-through text-base">$97.00</p>
+                    <p className="text-stone-400 line-through text-base">$47.00</p>
                     <span
                       className="text-xs font-semibold px-2.5 py-1 rounded-full"
                       style={{ background: '#FEF2F2', color: '#DC2626' }}
                     >
-                      Ahorras $50
+                      Ahorras $30
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1">
@@ -351,7 +351,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
       </section>
 
       {/* ── MORE TESTIMONIALS ── */}
-      {Array.isArray(testimonials) && testimonials.length > 2 && (
+      {Array.isArray(testimonials) && testimonials.length > 4 && (
         <section className="bg-stone-50 py-10">
           <div className="max-w-xl mx-auto px-5 flex flex-col gap-5">
             <FadeIn>
@@ -361,7 +361,7 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
             </FadeIn>
             <FadeIn delay={0.1}>
               <BeforeAfterTestimonialCarousel
-                testimonials={testimonials.slice(2)}
+                testimonials={testimonials.slice(4)}
                 verifiedBadgeTemplate={verifiedBadge}
               />
             </FadeIn>

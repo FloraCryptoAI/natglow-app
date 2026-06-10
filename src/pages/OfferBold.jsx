@@ -224,7 +224,7 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
             </p>
             {Array.isArray(testimonials) && testimonials.length > 0 && (
               <BeforeAfterTestimonialCarousel
-                testimonials={testimonials.slice(0, 2)}
+                testimonials={testimonials.slice(1, 4)}
                 verifiedBadgeTemplate={verifiedBadge}
               />
             )}
@@ -352,7 +352,7 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
       </section>
 
       {/* ── MORE TESTIMONIALS ── */}
-      {Array.isArray(testimonials) && testimonials.length > 2 && (
+      {Array.isArray(testimonials) && testimonials.length > 4 && (
         <section className="bg-stone-50 py-10">
           <div className="max-w-xl mx-auto px-5 flex flex-col gap-5">
             <FadeIn>
@@ -362,7 +362,7 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
             </FadeIn>
             <FadeIn delay={0.1}>
               <BeforeAfterTestimonialCarousel
-                testimonials={testimonials.slice(2)}
+                testimonials={testimonials.slice(4)}
                 verifiedBadgeTemplate={verifiedBadge}
               />
             </FadeIn>

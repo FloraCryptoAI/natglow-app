@@ -591,8 +591,8 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               name={t('quizBold.socialProof.testimonialName')}
               location={t('quizBold.socialProof.testimonialLocation')}
               text={t('quizBold.socialProof.testimonialText')}
-              beforeUrl="/images/quiz-bold/testimonial-antes.jpg"
-              afterUrl="/images/quiz-bold/testimonial-depois.jpg"
+              beforeUrl="/images/quiz-v2/antes-1.jpg"
+              afterUrl="/images/quiz-v2/depois-1.jpg"
               beforeLabel={t('quizBold.socialProof.beforeLabel')}
               afterLabel={t('quizBold.socialProof.afterLabel')}
             />

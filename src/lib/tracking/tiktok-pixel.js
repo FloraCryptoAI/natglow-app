@@ -42,11 +42,42 @@ export async function initTikTokPixel() {
 }
 
 export function trackTtEvent(eventName, params = {}, eventId = null) {
-  if (!initialized || !window.ttq) return null
   const id = eventId ?? crypto.randomUUID()
-  // event_id must be in the third options argument for deduplication with Events API
-  window.ttq.track(eventName, params, { event_id: id })
+  // Browser pixel (immediate, picked up by Pixel Helper extension + ad attribution)
+  if (initialized && window.ttq) {
+    window.ttq.track(eventName, params, { event_id: id })
+  }
+  // CAPI fire-and-forget — gets event into tracking_events_log + Test Events tool
+  fireCAPI(eventName, id, params)
   return id
+}
+
+function fireCAPI(eventName, eventId, properties) {
+  try {
+    const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+    fetch(`${supabaseUrl}/functions/v1/send-pixel-event`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey:        supabaseAnonKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        platform:   'tiktok',
+        event_name: eventName,
+        event_id:   eventId,
+        user_data:  { ttclid: readCookie('ttclid') || undefined },
+        properties,
+      }),
+      keepalive: true,
+    }).catch(() => { /* tracking must never break the app */ })
+  } catch { /* ignore */ }
+}
+
+function readCookie(name) {
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+  return match ? decodeURIComponent(match[1]) : null
 }
 
 export function isTikTokReady() {

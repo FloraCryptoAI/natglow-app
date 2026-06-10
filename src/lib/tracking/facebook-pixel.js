@@ -46,10 +46,45 @@ export async function initFacebookPixel() {
 }
 
 export function trackFbEvent(eventName, params = {}, customEventId = null) {
-  if (!initialized || !window.fbq) return null
   const eventID = customEventId ?? crypto.randomUUID()
-  window.fbq('track', eventName, params, { eventID })
+  // Browser pixel (immediate, picked up by Pixel Helper + ad attribution)
+  if (initialized && window.fbq) {
+    window.fbq('track', eventName, params, { eventID })
+  }
+  // CAPI fire-and-forget — gets event into tracking_events_log + Test Events tool
+  fireCAPI(eventName, eventID, params)
   return eventID
+}
+
+function fireCAPI(eventName, eventId, custom_data) {
+  try {
+    const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+    fetch(`${supabaseUrl}/functions/v1/send-pixel-event`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey:        supabaseAnonKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        platform:   'facebook',
+        event_name: eventName,
+        event_id:   eventId,
+        user_data:  {
+          fbp: readCookie('_fbp') || undefined,
+          fbc: readCookie('_fbc') || undefined,
+        },
+        custom_data,
+      }),
+      keepalive: true,
+    }).catch(() => { /* tracking must never break the app */ })
+  } catch { /* ignore */ }
+}
+
+function readCookie(name) {
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+  return match ? decodeURIComponent(match[1]) : null
 }
 
 export function isPixelReady() {

@@ -142,7 +142,7 @@
       "bannerSub": "Tus síntomas indican folículos dañados. Pero hay esperanza.",
       "testimonialName": "Camila Vargas",
       "testimonialLocation": "Ciudad de México, MX",
-      "testimonialText": "Llevaba años con el pelo seco, sin brillo y con las puntas dañadas. Probé tratamientos caros, no funcionaba nada. En 21 días con el protocolo NatGlow, mi pelo volvió a brillar y se sintió suave nuevamente. Era como si tuviera otro cabello 🌿",
+      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas dobles. Probé tratamientos caros, pero cuanto más químicos usaba, más empeoraba después de algunas semanas. Después de probar el protocolo durante 2 semanas ya tuve resultados, mi cabello recuperó el brillo y volvió a estar suave. Ni parece el mismo de antes. Ya se lo recomendé a algunas amigas y los resultados están siendo increíbles 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cabello restaurado sin químicos",
@@ -258,7 +258,7 @@
       "bannerSub": "Tus síntomas indican alta toxicidad. Pero la desintoxicación es posible.",
       "testimonialName": "Camila Vargas",
       "testimonialLocation": "Ciudad de México, MX",
-      "testimonialText": "Llevaba años con el pelo seco, sin brillo y con las puntas dañadas. Probé tratamientos caros, no funcionaba nada. En 21 días con la desintoxicación NatGlow, mi pelo volvió a brillar y se sintió suave nuevamente. Era como si tuviera otro cabello 🌿",
+      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas dobles. Probé tratamientos caros, pero cuanto más químicos usaba, más empeoraba después de algunas semanas. Después de probar el protocolo durante 2 semanas ya tuve resultados, mi cabello recuperó el brillo y volvió a estar suave. Ni parece el mismo de antes. Ya se lo recomendé a algunas amigas y los resultados están siendo increíbles 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cuero cabelludo desintoxicado naturalmente",
@@ -417,7 +417,7 @@
           { "label": "Tratamientos en salón profesional", "price": "$200+/mes" },
           { "label": "Productos comerciales premium", "price": "$80+/mes" },
           { "label": "Consulta con dermatólogo", "price": "$150+" },
-          { "label": "NatGlow (pago único, acceso de por vida)", "price": "$47", "highlight": true }
+          { "label": "NatGlow (pago único, acceso de por vida)", "price": "$17", "highlight": true }
         ]
       },
       "socialProofHeading": "Mujeres que ya desintoxicaron su cabello:",
