@@ -254,8 +254,9 @@ Deno.serve(async (req) => {
               value:    planValue ?? undefined,
               currency: purchaseCurrency,
               contents: [{
-                content_id:   planKey ?? productId,
+                content_id:   planKey || productId || 'natglow_purchase',
                 content_type: 'product',
+                content_name: planKey || 'NatGlow',
                 quantity:     1,
                 price:        planValue ?? undefined,
               }],
