@@ -221,17 +221,33 @@ Deno.serve(async (req) => {
           purchase_type:          purchaseType,
         })
 
-        // Log payment_completed into funnel_events so the admin funnel dashboard
-        // ('Pagamento confirmado' step) increments. session_id is synthesized from
-        // tx so the admin's distinct-session count works correctly.
+        // Log payment_completed into funnel_events for the admin funnel chart.
+        // Attribute to the originating funnel (bold/detox) by looking up the
+        // user's most recent cta_clicked event — its metadata.source is either
+        // 'offer_bold' or 'offer_detox'. This way a single Hotmart product can
+        // serve both funnels without losing attribution.
         try {
+          let funnelSource: string | null = null
+          try {
+            const ctaRes = await sbFetch(
+              `/rest/v1/funnel_events?event_type=eq.cta_clicked&user_id=eq.${userId}&order=created_at.desc&limit=1&select=metadata`
+            )
+            const ctaEvents = await ctaRes.json()
+            funnelSource = (ctaEvents?.[0]?.metadata?.source as string | undefined) ?? null
+          } catch { /* fall back to null source */ }
+
           await sbFetch(`/rest/v1/funnel_events`, {
             method: 'POST',
             body: JSON.stringify({
               event_type:   'payment_completed',
               session_id:   `hp_${txId || Date.now()}`,
               user_id:      userId,
-              metadata:     { source: 'hotmart_webhook', tx_id: txId, product_id: productId },
+              metadata:     {
+                source:     funnelSource,        // 'offer_bold' | 'offer_detox' | null
+                origin:     'hotmart_webhook',
+                tx_id:      txId,
+                product_id: productId,
+              },
               pricing_plan: planKey,
             }),
           })

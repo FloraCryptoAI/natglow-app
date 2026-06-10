@@ -34,8 +34,10 @@ const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }
   ],
 }
 
-// For cta_clicked we need to filter by metadata.source matching the funnel
-const CTA_SOURCE: Record<string, string> = {
+// Events that need source-based filtering when a specific funnel is selected.
+// Both cta_clicked and payment_completed carry metadata.source = 'offer_bold' or 'offer_detox'
+const SOURCE_FILTERED_STEPS = new Set(['cta_clicked', 'payment_completed'])
+const FUNNEL_SOURCE: Record<string, string> = {
   bold:  'offer_bold',
   detox: 'offer_detox',
 }
@@ -45,14 +47,15 @@ async function countSessionsForEvents(
   since: string,
   until: string | undefined,
   funnel: string,
-  isCta: boolean,
+  stepKey: string,
 ): Promise<number> {
   const sessions = new Set<string>()
+  const needsSourceFilter = SOURCE_FILTERED_STEPS.has(stepKey) && funnel !== 'all'
 
   for (const eventType of events) {
     const params = new URLSearchParams({
       event_type: `eq.${eventType}`,
-      select: isCta ? 'session_id,metadata' : 'session_id',
+      select: needsSourceFilter ? 'session_id,metadata' : 'session_id',
       limit: '20000',
     })
     params.append('created_at', `gte.${since}`)
@@ -67,9 +70,8 @@ async function countSessionsForEvents(
     const rows: { session_id: string; metadata?: { source?: string } | null }[] = await res.json()
 
     for (const r of rows) {
-      // Filter cta_clicked by source when funnel is specific
-      if (isCta && funnel !== 'all') {
-        const expectedSource = CTA_SOURCE[funnel]
+      if (needsSourceFilter) {
+        const expectedSource = FUNNEL_SOURCE[funnel]
         if (r.metadata?.source !== expectedSource) continue
       }
       sessions.add(r.session_id)
@@ -119,7 +121,7 @@ Deno.serve(async (req) => {
     }
 
     const counts = await Promise.all(
-      definition.map(s => countSessionsForEvents(s.events, since, until, funnel, s.key === 'cta_clicked'))
+      definition.map(s => countSessionsForEvents(s.events, since, until, funnel, s.key))
     )
 
     const steps = definition.map((s, i) => ({ event_type: s.key, count: counts[i] }))
