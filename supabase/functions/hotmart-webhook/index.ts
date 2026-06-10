@@ -221,6 +221,24 @@ Deno.serve(async (req) => {
           purchase_type:          purchaseType,
         })
 
+        // Log payment_completed into funnel_events so the admin funnel dashboard
+        // ('Pagamento confirmado' step) increments. session_id is synthesized from
+        // tx so the admin's distinct-session count works correctly.
+        try {
+          await sbFetch(`/rest/v1/funnel_events`, {
+            method: 'POST',
+            body: JSON.stringify({
+              event_type:   'payment_completed',
+              session_id:   `hp_${txId || Date.now()}`,
+              user_id:      userId,
+              metadata:     { source: 'hotmart_webhook', tx_id: txId, product_id: productId },
+              pricing_plan: planKey,
+            }),
+          })
+        } catch (err) {
+          console.error('Failed to log payment_completed funnel event:', err)
+        }
+
         // Generate magic link for welcome email (non-fatal if fails)
         let magicLink: string | null = null
         try { magicLink = await adminGenerateMagicLink(email) } catch { /* non-fatal */ }
