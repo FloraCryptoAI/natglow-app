@@ -56,20 +56,29 @@ function fireCAPI(eventName, eventId, properties) {
   try {
     const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-    fetch(`${supabaseUrl}/functions/v1/send-pixel-event`, {
+    // apikey as URL query param so sendBeacon (which can't set custom headers)
+    // can authenticate at the Supabase API gateway.
+    const url = `${supabaseUrl}/functions/v1/send-pixel-event?apikey=${supabaseAnonKey}`
+    const body = JSON.stringify({
+      platform:   'tiktok',
+      event_name: eventName,
+      event_id:   eventId,
+      user_data:  { ttclid: readCookie('ttclid') || undefined },
+      properties,
+    })
+
+    // sendBeacon is the proper API for analytics during page unload (Safari/iOS
+    // are stricter than Chrome about keepalive fetch). Fallback to fetch if not
+    // available or if the queue is full.
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([body], { type: 'application/json' })
+      if (navigator.sendBeacon(url, blob)) return
+    }
+
+    fetch(url, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey:        supabaseAnonKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        platform:   'tiktok',
-        event_name: eventName,
-        event_id:   eventId,
-        user_data:  { ttclid: readCookie('ttclid') || undefined },
-        properties,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body,
       keepalive: true,
     }).catch(() => { /* tracking must never break the app */ })
   } catch { /* ignore */ }

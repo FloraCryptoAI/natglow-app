@@ -60,23 +60,27 @@ function fireCAPI(eventName, eventId, custom_data) {
   try {
     const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-    fetch(`${supabaseUrl}/functions/v1/send-pixel-event`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey:        supabaseAnonKey,
-        'Content-Type': 'application/json',
+    const url = `${supabaseUrl}/functions/v1/send-pixel-event?apikey=${supabaseAnonKey}`
+    const body = JSON.stringify({
+      platform:   'facebook',
+      event_name: eventName,
+      event_id:   eventId,
+      user_data:  {
+        fbp: readCookie('_fbp') || undefined,
+        fbc: readCookie('_fbc') || undefined,
       },
-      body: JSON.stringify({
-        platform:   'facebook',
-        event_name: eventName,
-        event_id:   eventId,
-        user_data:  {
-          fbp: readCookie('_fbp') || undefined,
-          fbc: readCookie('_fbc') || undefined,
-        },
-        custom_data,
-      }),
+      custom_data,
+    })
+
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([body], { type: 'application/json' })
+      if (navigator.sendBeacon(url, blob)) return
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
       keepalive: true,
     }).catch(() => { /* tracking must never break the app */ })
   } catch { /* ignore */ }
