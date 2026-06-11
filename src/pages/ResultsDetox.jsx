@@ -9,15 +9,8 @@ import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
-import ToxicityGauge from '@/components/results/ToxicityGauge'
-import ComparativeBar from '@/components/results/ComparativeBar'
 import LoadingTransition from '@/components/results/LoadingTransition'
-import {
-  calculateToxicityScore,
-  getDiagnosticFactors,
-  getToxicityLevel,
-  AVERAGE_TOXICITY,
-} from '@/lib/toxicityCalculator'
+import { getDiagnosticFactors } from '@/lib/toxicityCalculator'
 
 const FadeIn = ({ children, delay = 0, className = '' }) => (
   <motion.div
@@ -58,10 +51,11 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
   const answers = state?.answers ?? storedAnswers
   if (!answers) return <Navigate to={route_path} replace />
 
-  const score = calculateToxicityScore(answers)
-  const level = getToxicityLevel(score)
   const factors = getDiagnosticFactors(answers)
   const name = answers.name?.trim()
+  // Soft visual theme — replaces former red 'CRITICO' diagnostic accent
+  const accentColor = '#1E8449'
+  const accentBg    = '#E8F8F0'
 
   const handleProtocoloClick = () => {
     trackFunnelEvent('results_detox_protocolo_clicked', null, plan_key)
@@ -69,7 +63,7 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
   }
 
   const onLoadingDone = () => {
-    navigate('/offer-detox', { state: { answers, score } })
+    navigate('/offer-detox', { state: { answers } })
   }
 
   if (showLoading) {
@@ -83,7 +77,7 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
         <FadeIn>
           <div
             className="w-full rounded-2xl px-4 py-3 flex items-center justify-center gap-2 text-white font-extrabold text-sm tracking-wide"
-            style={{ background: level.color }}
+            style={{ background: accentColor }}
           >
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             {t('detoxFlow.diagnosis.urgencyBanner')}
@@ -96,21 +90,11 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
               ? t('detoxFlow.diagnosis.titleWithName', { name })
               : t('detoxFlow.diagnosis.titleNoName')}
             {' '}
-            <span style={{ color: level.color }}>{score}%</span>
-            {' '}
             {t('detoxFlow.diagnosis.titleScoreSuffix')}{' '}
-            <span style={{ color: level.color, background: level.bg, padding: '0 6px' }}>
+            <span style={{ color: accentColor, background: accentBg, padding: '0 6px' }}>
               {t('detoxFlow.diagnosis.titleHighlight')}
             </span>
           </h1>
-        </FadeIn>
-
-        <FadeIn delay={0.2}>
-          <ToxicityGauge score={score} levelLabel={level.label} levelColor={level.color} />
-        </FadeIn>
-
-        <FadeIn delay={0.3}>
-          <ComparativeBar userScore={score} averageScore={AVERAGE_TOXICITY} userColor={level.color} />
         </FadeIn>
 
         <FadeIn delay={0.4}>
@@ -141,10 +125,10 @@ export default function ResultsDetox({ pricingPlan = 'detox' }) {
         <FadeIn delay={0.6}>
           <div
             className="rounded-2xl p-5 text-center border-2"
-            style={{ background: level.bg, borderColor: level.color }}
+            style={{ background: accentBg, borderColor: accentColor }}
           >
-            <p className="font-extrabold text-base leading-snug" style={{ color: level.color }}>
-              ⚠ {t('detoxFlow.diagnosis.urgentBanner')}
+            <p className="font-extrabold text-base leading-snug" style={{ color: accentColor }}>
+              ✨ {t('detoxFlow.diagnosis.urgentBanner')}
             </p>
           </div>
         </FadeIn>

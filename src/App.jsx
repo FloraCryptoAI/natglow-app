@@ -60,7 +60,7 @@ function ScrollToTop() {
 
 function LandingRedirect() {
   const { search } = useLocation();
-  return <Navigate to={`/quiz-detox${search}`} replace />;
+  return <Navigate to={`/quiz-bold${search}`} replace />;
 }
 
 function Spinner() {
@@ -122,16 +122,17 @@ const AppRoutes = () => {
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
 
-      {/* Legacy redirects — old standard funnel URLs now point to /quiz-detox (flagship) */}
-      <Route path="/quiz"           element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/quiz-cheap"     element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/quiz-premium"   element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/quiz-weekly"    element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/results"        element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/results-cheap"  element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/results-premium" element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/results-weekly" element={<Navigate to="/quiz-detox" replace />} />
-      <Route path="/Results"        element={<Navigate to="/quiz-detox" replace />} />
+      {/* Legacy redirects — default everywhere is /quiz-bold (safer copy, used for ads).
+          /quiz-detox is reserved for direct paid traffic only — accessed by typing the URL. */}
+      <Route path="/quiz"           element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/quiz-cheap"     element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/quiz-premium"   element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/quiz-weekly"    element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/results"        element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/results-cheap"  element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/results-premium" element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/results-weekly" element={<Navigate to="/quiz-bold" replace />} />
+      <Route path="/Results"        element={<Navigate to="/quiz-bold" replace />} />
 
       <Route path="/Landing" element={<LandingRedirect />} />
       <Route path="/Login"          element={<Login />} />

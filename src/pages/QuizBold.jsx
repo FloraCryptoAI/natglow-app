@@ -12,7 +12,6 @@ import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
 import UrgencyBanner from '@/components/quiz/UrgencyBanner'
 import ScientificCard from '@/components/quiz/ScientificCard'
-import FakeNewsCard from '@/components/quiz/FakeNewsCard'
 import ReframingCard from '@/components/quiz/ReframingCard'
 import TestimonialCard from '@/components/quiz/TestimonialCard'
 import PersuasiveStepHeader from '@/components/quiz/PersuasiveStepHeader'
@@ -58,7 +57,7 @@ function ProgressBar({ current, total }) {
     <div className="w-full bg-stone-200 rounded-full h-1.5">
       <motion.div
         className="h-1.5 rounded-full"
-        style={{ background: 'linear-gradient(90deg, #C0392B, #FB45A9)' }}
+        style={{ background: 'linear-gradient(90deg, #27AE60, #1E8449)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4 }}
@@ -354,28 +353,12 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizBold.scientificFear.caption')}</p>
 
-            <GreenButton onClick={() => setStep(STEPS.NEWS)}>
+            <GreenButton onClick={() => setStep(STEPS.REFRAMING)}>
               {t('quizBold.scientificFear.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
 
-        {/* ═══ FAKE NEWS ═══ */}
-        {step === STEPS.NEWS && (
-          <motion.div key="news" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
-            <FakeNewsCard
-              logoLabel={t('quizBold.news.logoLabel')}
-              headline={t('quizBold.news.headline')}
-              subheadline={t('quizBold.news.subheadline')}
-              credit={t('quizBold.news.credit')}
-              imageUrl="/images/quiz-bold/news-screenshot.jpg"
-            />
-
-            <GreenButton onClick={() => setStep(STEPS.REFRAMING)}>
-              {t('quizBold.news.cta')} <ArrowRight className="w-4 h-4" />
-            </GreenButton>
-          </motion.div>
-        )}
 
         {/* ═══ REFRAMING ═══ */}
         {step === STEPS.REFRAMING && (

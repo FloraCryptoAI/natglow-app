@@ -87,37 +87,37 @@
       "beforeCaption": "Folículos sofocados por químicos",
       "afterLabel": "DESPUÉS · 21 DÍAS",
       "afterCaption": "Cabello respirando y creciendo",
-      "scientificBadge": "DATO CIENTÍFICO · OMS",
-      "scientificBody": "70% de las mujeres tienen sus folículos capilares dañados por la acumulación de químicos cosméticos. Atacan la raíz, sofocan el crecimiento y debilitan el cabello.",
+      "scientificBadge": "¿SABÍAS QUE?",
+      "scientificBody": "Factores como la acumulación de residuos cosméticos y los procedimientos químicos frecuentes pueden influir en la calidad y apariencia de tu cabello. Por eso, los cuidados naturales diarios se han vuelto cada vez más importantes para preservar una apariencia saludable y vibrante.",
       "cta": "HACER EL TEST GRATUITO AHORA"
     },
     "symptoms": {
-      "title": "¿Sientes alguno de estos síntomas hace más de 30 días?",
+      "title": "¿Reconoces alguna de estas señales en tu cabello?",
       "pills": {
-        "hairLoss": "CAÍDA DE PELO",
+        "hairLoss": "POCA VITALIDAD",
         "dryness": "RESEQUEDAD",
         "frizz": "FRIZZ",
-        "splitEnds": "PUNTAS QUEBRADAS",
+        "splitEnds": "PUNTAS DAÑADAS",
         "noShine": "POCO BRILLO",
-        "grease": "GRASA",
+        "grease": "RAÍCES GRASAS",
         "noVolume": "POCO VOLUMEN",
-        "itch": "PICAZÓN",
-        "weakRoot": "RAÍZ DÉBIL"
+        "itch": "CABELLO OPACO",
+        "weakRoot": "CABELLO QUEBRADIZO"
       },
-      "ctaShort": "Lo siento hace más de 30 días",
-      "ctaLong": "Lo siento hace más de 1 año"
+      "ctaShort": "Lo noto hace algunas semanas",
+      "ctaLong": "Lo noto hace mucho tiempo"
     },
     "scientificFear": {
-      "urgencyBanner": "CUIDADO · LEE ESTO AHORA",
-      "headline": "Si nunca has hecho una",
-      "headlineHighlight": "DESINTOXICACIÓN CAPILAR NATURAL,",
-      "headlineMiddle": "los químicos pueden acumularse en tu cuero cabelludo y",
-      "headlineDanger": "DESTRUIR los folículos permanentemente,",
-      "headlineEnd": "causando CALVICIE IRREVERSIBLE.",
-      "warningBox": "No ignores este riesgo. Es esencial desintoxicar tu cabello al menos una vez al año.",
-      "healthyLabel": "FOLÍCULO SANO",
-      "damagedLabel": "FOLÍCULO DAÑADO",
-      "caption": "Folículo sofocado por químicos de productos comerciales",
+      "urgencyBanner": "IMPORTANTE · LEE ANTES DE CONTINUAR",
+      "headline": "La acumulación de residuos cosméticos y los factores externos pueden afectar el",
+      "headlineHighlight": "entorno natural del cuero cabelludo",
+      "headlineMiddle": "y contribuir a que el cabello luzca más",
+      "headlineDanger": "opaco, débil o sin volumen.",
+      "headlineEnd": "",
+      "warningBox": "Una rutina adecuada de limpieza y cuidado puede ayudar a mantener una apariencia más saludable desde la raíz.",
+      "healthyLabel": "FOLÍCULO LIMPIO",
+      "damagedLabel": "FOLÍCULO CON RESIDUOS",
+      "caption": "Diferencia visual entre un cuero cabelludo limpio y uno con acumulación de residuos cosméticos.",
       "cta": "continuar"
     },
     "news": {
@@ -128,13 +128,13 @@
       "cta": "continuar"
     },
     "reframing": {
-      "headline1": "La caída de tu pelo",
-      "headline2": "NO es culpa tuya.",
-      "explanation": "Son los químicos de tus productos diarios que se acumulan en el folículo, sofocan la raíz y bloquean el crecimiento natural.",
-      "denial1": "No es genética",
-      "denial2": "No es falta de cuidado",
-      "denial3": "No es estrés",
-      "affirmation": "Son los químicos sabotando tu pelo",
+      "headline1": "Lo que muchas personas",
+      "headline2": "no saben sobre el cabello.",
+      "explanation": "Muchas personas creen que solo la genética o la edad influyen en la apariencia del cabello. Pero los especialistas señalan que factores externos, como los residuos de productos y las agresiones diarias, también pueden afectar el ambiente del cuero cabelludo y la vitalidad del cabello.",
+      "denial1": "No es solo genética",
+      "denial2": "No es solo estrés",
+      "denial3": "No es solo el paso del tiempo",
+      "affirmation": "Los cuidados diarios también tienen un papel importante",
       "cta": "continuar"
     },
     "socialProof": {
@@ -142,22 +142,22 @@
       "bannerSub": "Tus síntomas indican folículos dañados. Pero hay esperanza.",
       "testimonialName": "Camila Vargas",
       "testimonialLocation": "Ciudad de México, MX",
-      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas dobles. Probé tratamientos caros, pero cuanto más químicos usaba, más empeoraba después de algunas semanas. Después de probar el protocolo durante 2 semanas ya tuve resultados, mi cabello recuperó el brillo y volvió a estar suave. Ni parece el mismo de antes. Ya se lo recomendé a algunas amigas y los resultados están siendo increíbles 🌿",
+      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas abiertas. Ya había probado diferentes tratamientos, pero los resultados no duraban como esperaba. Después de incluir esta rutina en mi día a día durante algunas semanas, noté mi cabello con más brillo, suavidad y una apariencia mucho más saludable. Quedé tan contenta con la experiencia que la recomendé a algunas amigas, y también les gustaron los resultados que vieron en su cabello. 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cabello restaurado sin químicos",
       "cta": "Continuar"
     },
     "finalQuestion": {
-      "headline1": "¿Te gustaría recibir un",
-      "headlineHighlight1": "protocolo personalizado",
-      "headline2": "para restaurar tu cabello en",
-      "headlineHighlight2": "21 días,",
-      "headline3": "con brillo, fuerza y crecimiento natural?",
-      "ctaYes": "¡Sí, lo quiero ya!",
-      "ctaDoubts": "Tengo interés pero dudas"
+      "headline1": "¿Te gustaría una",
+      "headlineHighlight1": "rutina personalizada",
+      "headline2": "para mejorar la apariencia de tu cabello,",
+      "headlineHighlight2": "manteniéndolo",
+      "headline3": "con más brillo y vitalidad?",
+      "ctaYes": "¡Sí, me interesa!",
+      "ctaDoubts": "Quiero saber más antes"
     },
-    "stepBadge": "PASO {{current}} DE {{total}} · No te detengas ahora",
+    "stepBadge": "PASO {{current}} DE {{total}} · Sigue para ver tu resultado",
     "questions": {
       "age": {
         "title": "¿Cuántos años tienes?",
@@ -185,8 +185,8 @@
       },
       "chemProducts": {
         "title": "¿Usas alisado, decoloración o tintes?",
-        "subtitle": "Los químicos son la causa #1 de caída irreversible",
-        "context": "Sé honesta, esto define qué tan urgente es tu protocolo"
+        "subtitle": "Estos procedimientos pueden afectar la apariencia del cabello con el tiempo",
+        "context": ""
       }
     }
   },
@@ -203,37 +203,37 @@
       "beforeCaption": "Cuero cabelludo sofocado por químicos",
       "afterLabel": "LIMPIO · 21 DÍAS",
       "afterCaption": "Folículos respirando y saludables",
-      "scientificBadge": "DATO CIENTÍFICO · DERMATOLOGÍA",
-      "scientificBody": "Después de años usando productos comerciales, el cuero cabelludo acumula una capa invisible de sulfatos, parabenos y silicones que sofoca los folículos y bloquea la respiración natural.",
-      "cta": "DESCUBRIR MI NIVEL DE TOXICIDAD"
+      "scientificBadge": "¿SABÍAS QUE?",
+      "scientificBody": "Factores como la acumulación de residuos cosméticos y los procedimientos químicos frecuentes pueden influir en la calidad y apariencia de tu cabello. Por eso, los cuidados naturales diarios se han vuelto cada vez más importantes para preservar una apariencia saludable y vibrante.",
+      "cta": "EMPEZAR EL TEST GRATUITO"
     },
     "symptoms": {
-      "title": "¿Tienes alguno de estos signos de intoxicación capilar?",
+      "title": "¿Tu cabello presenta alguna de estas señales?",
       "pills": {
         "dandruff": "CASPA",
-        "itch": "PICAZÓN",
-        "grease": "GRASA EXCESIVA",
-        "hairLoss": "CAÍDA",
-        "redness": "ENROJECIMIENTO",
-        "smell": "OLOR FUERTE",
-        "nightItch": "COMEZÓN NOCTURNA",
-        "weakHair": "CABELLO DÉBIL",
-        "sensitive": "CUERO SENSIBLE"
+        "itch": "FALTA DE BRILLO",
+        "grease": "RAÍCES GRASAS",
+        "hairLoss": "POCA VITALIDAD",
+        "redness": "CUERO CABELLUDO INCÓMODO",
+        "smell": "RESIDUOS ACUMULADOS",
+        "nightItch": "FRIZZ EXCESIVO",
+        "weakHair": "CABELLO QUEBRADIZO",
+        "sensitive": "PUNTAS DAÑADAS"
       },
-      "ctaShort": "Tengo estos síntomas hace meses",
-      "ctaLong": "Llevo años sufriendo esto"
+      "ctaShort": "Lo noto hace algunas semanas",
+      "ctaLong": "Lo noto hace mucho tiempo"
     },
     "scientificFear": {
-      "urgencyBanner": "ALERTA, LO QUE NADIE TE CUENTA",
-      "headline": "Cada vez que te lavas el cabello con productos comerciales, depositas una",
-      "headlineHighlight": "CAPA DE QUÍMICOS",
-      "headlineMiddle": "que se acumula y NO se elimina con el lavado normal. Después de años, tu cuero cabelludo está literalmente",
-      "headlineDanger": "SOFOCADO",
-      "headlineEnd": "por toxinas invisibles.",
-      "warningBox": "Estos químicos no salen solos. Sin una desintoxicación específica, siguen acumulándose mes tras mes, año tras año.",
-      "healthyLabel": "CUERO LIMPIO",
-      "damagedLabel": "CUERO INTOXICADO",
-      "caption": "Capa tóxica invisible acumulada por productos comerciales",
+      "urgencyBanner": "IMPORTANTE · LEE ANTES DE CONTINUAR",
+      "headline": "La acumulación de residuos cosméticos y los factores externos pueden afectar el",
+      "headlineHighlight": "entorno natural del cuero cabelludo",
+      "headlineMiddle": "y contribuir a que el cabello luzca más",
+      "headlineDanger": "opaco, débil o sin volumen.",
+      "headlineEnd": "",
+      "warningBox": "Una rutina adecuada de limpieza y cuidado puede ayudar a mantener una apariencia más saludable desde la raíz.",
+      "healthyLabel": "FOLÍCULO LIMPIO",
+      "damagedLabel": "FOLÍCULO CON RESIDUOS",
+      "caption": "Diferencia visual entre un cuero cabelludo limpio y uno con acumulación de residuos cosméticos.",
       "cta": "continuar"
     },
     "news": {
@@ -244,13 +244,13 @@
       "cta": "continuar"
     },
     "reframing": {
-      "headline1": "Tu cabello no está dañado.",
-      "headline2": "Tu cuero cabelludo está INTOXICADO.",
-      "explanation": "Años de productos comerciales depositaron una capa invisible de químicos en tu cuero cabelludo. Esa capa sofoca los folículos, atrae caspa y provoca caída, sin que tú lo veas.",
-      "denial1": "No es falta de higiene",
-      "denial2": "No es genética",
-      "denial3": "No es tu tipo de cuero cabelludo",
-      "affirmation": "Es acumulación tóxica que NUNCA fue limpiada",
+      "headline1": "Lo que muchas personas",
+      "headline2": "no saben sobre el cabello.",
+      "explanation": "Muchas personas creen que solo la genética o la edad influyen en la apariencia del cabello. Pero los especialistas señalan que factores externos, como los residuos de productos y las agresiones diarias, también pueden afectar el ambiente del cuero cabelludo y la vitalidad del cabello.",
+      "denial1": "No es solo genética",
+      "denial2": "No es solo estrés",
+      "denial3": "No es solo el paso del tiempo",
+      "affirmation": "Los cuidados diarios también tienen un papel importante",
       "cta": "continuar"
     },
     "socialProof": {
@@ -258,20 +258,20 @@
       "bannerSub": "Tus síntomas indican alta toxicidad. Pero la desintoxicación es posible.",
       "testimonialName": "Camila Vargas",
       "testimonialLocation": "Ciudad de México, MX",
-      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas dobles. Probé tratamientos caros, pero cuanto más químicos usaba, más empeoraba después de algunas semanas. Después de probar el protocolo durante 2 semanas ya tuve resultados, mi cabello recuperó el brillo y volvió a estar suave. Ni parece el mismo de antes. Ya se lo recomendé a algunas amigas y los resultados están siendo increíbles 🌿",
+      "testimonialText": "Durante años tuve el cabello seco, sin brillo y con puntas abiertas. Ya había probado diferentes tratamientos, pero los resultados no duraban como esperaba. Después de incluir esta rutina en mi día a día durante algunas semanas, noté mi cabello con más brillo, suavidad y una apariencia mucho más saludable. Quedé tan contenta con la experiencia que la recomendé a algunas amigas, y también les gustaron los resultados que vieron en su cabello. 🌿",
       "beforeLabel": "ANTES",
       "afterLabel": "DESPUÉS",
       "caption": "Cuero cabelludo desintoxicado naturalmente",
       "cta": "Continuar"
     },
     "finalQuestion": {
-      "headline1": "¿Te gustaría empezar la",
-      "headlineHighlight1": "desintoxicación capilar",
-      "headline2": "de",
-      "headlineHighlight2": "21 días",
-      "headline3": "y recuperar el control natural de tu cabello?",
-      "ctaYes": "¡Sí, quiero desintoxicar ahora!",
-      "ctaDoubts": "Tengo interés pero dudas"
+      "headline1": "¿Te gustaría una",
+      "headlineHighlight1": "rutina personalizada",
+      "headline2": "para mejorar la apariencia de tu cabello,",
+      "headlineHighlight2": "manteniéndolo",
+      "headline3": "con más brillo y vitalidad?",
+      "ctaYes": "¡Sí, me interesa!",
+      "ctaDoubts": "Quiero saber más antes"
     },
     "stepBadge": "PASO {{current}} DE {{total}} · Cada respuesta importa",
     "questions": {
@@ -301,44 +301,44 @@
       },
       "chemProducts": {
         "title": "¿Usas alisado, decoloración o tintes?",
-        "subtitle": "Estos son los químicos más tóxicos para el cuero cabelludo",
-        "context": "Sé honesta, define qué tan urgente es tu desintoxicación"
+        "subtitle": "Estos procedimientos pueden afectar la apariencia del cabello con el tiempo",
+        "context": ""
       }
     }
   },
   "boldFlow": {
     "diagnosis": {
-      "urgencyBanner": "DIAGNÓSTICO DE DAÑO CAPILAR COMPLETADO",
-      "titleWithName": "{{name}}, tus folículos tienen",
-      "titleNoName": "Tus folículos tienen",
-      "titleScoreSuffix": "de probabilidad de estar",
-      "titleHighlight": "SABOTEADOS",
-      "factorsHeading": "Estos son los factores que están dañando tu cabello:",
-      "urgentBanner": "Necesitas un protocolo de recuperación URGENTE",
-      "previewHeading": "Tu protocolo personalizado incluye:",
+      "urgencyBanner": "TU ANÁLISIS PERSONALIZADO ESTÁ LISTO",
+      "titleWithName": "{{name}}, tu cabello presenta",
+      "titleNoName": "Tu cabello presenta",
+      "titleScoreSuffix": "señales que pueden",
+      "titleHighlight": "mejorarse con una rutina adecuada",
+      "factorsHeading": "Aspectos detectados en tu rutina actual:",
+      "urgentBanner": "Una rutina personalizada puede ayudar a mejorar la apariencia de tu cabello",
+      "previewHeading": "Tu rutina personalizada considera:",
       "previewItems": [
-        { "icon": "🚀", "text": "21 días de protocolo natural de recuperación" },
-        { "icon": "🧪", "text": "3 recetas naturales exclusivas desarrolladas por especialistas" },
-        { "icon": "💇", "text": "Progresiva casera que no agrede el cabello ni el cuero cabelludo" },
-        { "icon": "💯", "text": "Personalizado para tu tipo de cabello y nivel de daño" },
-        { "icon": "🔄", "text": "Plan progresivo de 4 fases para reactivar el folículo" },
-        { "icon": "📱", "text": "App exclusiva instalable en tu smartphone (PWA)" }
+        { "icon": "🌿", "text": "Cuidados naturales para el día a día" },
+        { "icon": "🧪", "text": "3 recetas naturales exclusivas elaboradas por especialistas" },
+        { "icon": "💇", "text": "Alisado casero natural, una alternativa sin químicos" },
+        { "icon": "💯", "text": "Adaptada a tu tipo de cabello" },
+        { "icon": "🔄", "text": "Plan progresivo en 4 etapas" },
+        { "icon": "📱", "text": "App exclusiva instalable en tu celular (PWA)" }
       ],
-      "cta": "🚀 Quiero salvar mi cabello",
-      "reassurance": "Sin químicos · Sin tratamientos caros · Sin salones"
+      "cta": "🌿 Quiero ver mi rutina personalizada",
+      "reassurance": "Sin productos caros · Sin químicos agresivos · Sin visitas al salón"
     },
     "offer": {
-      "recap": "Tu protocolo personalizado está listo. Solo falta activarlo.",
+      "recap": "Tu rutina personalizada está lista. Aquí tienes todos los detalles.",
       "guaranteeBadge": "🛡️ GARANTÍA TOTAL DE 7 DÍAS",
-      "guaranteeText": "Si no ves resultados en 7 días, te devolvemos cada centavo. Sin preguntas, sin burocracia.",
-      "includesHeading": "Tu protocolo de recuperación incluye:",
+      "guaranteeText": "Si por cualquier motivo no estás satisfecha en los primeros 7 días, te devolvemos el 100%. Sin preguntas, sin burocracia.",
+      "includesHeading": "Tu rutina personalizada incluye:",
       "includesItems": [
-        { "icon": "🚀", "title": "Protocolo de 21 días personalizado", "desc": "Plan paso a paso adaptado a tu nivel de daño capilar" },
-        { "icon": "🧪", "title": "3 recetas naturales exclusivas", "desc": "Desarrolladas por especialistas, con ingredientes que ya tienes" },
-        { "icon": "💇", "title": "Progresiva casera natural", "desc": "Alternativa a la progresiva química, no agrede el cabello" },
-        { "icon": "🚫", "title": "Lista de químicos a evitar", "desc": "Sabrás exactamente qué productos están saboteando tu cabello" },
+        { "icon": "🌿", "title": "Rutina de cuidado natural personalizada", "desc": "Plan paso a paso adaptado a tu tipo de cabello" },
+        { "icon": "🧪", "title": "3 recetas naturales exclusivas", "desc": "Elaboradas por especialistas, con ingredientes que ya tienes en casa" },
+        { "icon": "💇", "title": "Alisado casero natural", "desc": "Alternativa sin químicos para suavizar el cabello" },
+        { "icon": "🚫", "title": "Lista de ingredientes a evitar", "desc": "Sabrás qué ingredientes evitar para cuidar mejor de tu cabello" },
         { "icon": "📚", "title": "Biblioteca con 25 recetas naturales", "desc": "Acceso completo a todo el contenido NatGlow" },
-        { "icon": "📱", "title": "App exclusiva para tu smartphone", "desc": "Instalable como aplicación nativa (PWA)" },
+        { "icon": "📱", "title": "App exclusiva para tu celular", "desc": "Instalable como aplicación nativa (PWA)" },
         { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único, no es suscripción mensual" },
         { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero, pruébalo y decide" }
       ],
@@ -347,67 +347,68 @@
         "rows": [
           { "label": "Tratamientos en salón profesional", "price": "$200+/mes" },
           { "label": "Productos comerciales premium", "price": "$80+/mes" },
-          { "label": "Consulta con dermatólogo", "price": "$150+" },
+          { "label": "Consultas con especialista", "price": "$150+" },
           { "label": "NatGlow (pago único, acceso de por vida)", "price": "$17", "highlight": true }
         ]
       },
-      "socialProofHeading": "Mujeres que ya recuperaron su cabello:",
-      "moreTestimonialsHeading": "Más resultados verificados",
+      "socialProofHeading": "Mujeres que ya disfrutan de su rutina:",
+      "moreTestimonialsHeading": "Más experiencias compartidas",
       "testimonialsSection": {
-        "badge": "Resultados reales · Verificados",
-        "title": "+12.480 mujeres ya salvaron",
-        "titleHighlight": "su cabello",
-        "subtitle": "Estos son resultados reales de mujeres que aplicaron el protocolo. Cada testimonial fue verificado."
+        "badge": "Experiencias reales · Verificadas",
+        "title": "+12.480 mujeres ya disfrutan de",
+        "titleHighlight": "su rutina natural",
+        "subtitle": "Estas son experiencias reales de mujeres que adoptaron la rutina. Cada testimonio fue compartido voluntariamente."
       },
       "faq": {
         "tag": "Preguntas frecuentes",
         "title": "Todo lo que necesitas saber",
         "items": [
-          { "q": "¿Funciona para mi tipo de cabello?", "a": "Sí. El protocolo es personalizado según las respuestas de tu test, incluyendo tu tipo de cabello y tu nivel actual de daño." },
-          { "q": "¿Cuánto tiempo veo resultados?", "a": "La mayoría de mujeres reportan menos caída y más brillo en los primeros 7 días. Resultados visibles en 14 a 21 días." },
-          { "q": "¿Y si no me funciona?", "a": "Tienes 7 días de garantía total. Si no ves resultados, te devolvemos el 100% sin preguntas." },
+          { "q": "¿Funciona para mi tipo de cabello?", "a": "Sí. La rutina es personalizada según las respuestas de tu test, incluyendo tu tipo de cabello." },
+          { "q": "¿Cuándo voy a notar la diferencia?", "a": "Cada cabello responde de forma diferente. Muchas usuarias reportan notar más brillo y suavidad en pocas semanas al seguir la rutina con consistencia." },
+          { "q": "¿Y si no me gusta?", "a": "Tienes 7 días de garantía total. Si por cualquier motivo no estás satisfecha, te devolvemos el 100% sin preguntas." },
           { "q": "¿Las recetas son caras?", "a": "No. Usan ingredientes que probablemente ya tienes en casa: aceite de coco, miel, aloe vera. Costo promedio por receta: menos de $0.50." }
         ]
       },
-      "stickyCTALabel": "Activar mi protocolo",
-      "finalCTAHeading": "¿Lista para recuperar tu cabello?",
-      "finalCTASubtitle": "Cada día sin actuar es un día más de daño en tus folículos.",
-      "finalCTAButton": "QUIERO ACTIVAR MI PROTOCOLO",
-      "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
+      "stickyCTALabel": "Empezar mi rutina",
+      "finalCTAHeading": "¿Lista para empezar tu rutina?",
+      "finalCTASubtitle": "Empieza hoy y descubre lo que una rutina personalizada puede aportar a tu cabello.",
+      "finalCTAButton": "QUIERO EMPEZAR MI RUTINA",
+      "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si por cualquier motivo no estás satisfecha, te devolvemos el 100% sin preguntas."
     }
   },
   "detoxFlow": {
     "diagnosis": {
-      "urgencyBanner": "DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
-      "titleWithName": "{{name}}, tienes",
-      "titleNoName": "Tienes",
-      "titleScoreSuffix": "de probabilidad de tener tu cuero cabelludo",
-      "titleHighlight": "INTOXICADO",
-      "factorsHeading": "Estos son los factores que te exponen:",
-      "urgentBanner": "Necesitas un protocolo de desintoxicación URGENTE",
-      "previewHeading": "Tu protocolo personalizado incluye:",
+      "urgencyBanner": "TU ANÁLISIS PERSONALIZADO ESTÁ LISTO",
+      "titleWithName": "{{name}}, tu cabello presenta",
+      "titleNoName": "Tu cabello presenta",
+      "titleScoreSuffix": "señales que pueden",
+      "titleHighlight": "mejorarse con una rutina adecuada",
+      "factorsHeading": "Aspectos detectados en tu rutina actual:",
+      "urgentBanner": "Una rutina personalizada puede ayudar a mejorar la apariencia de tu cabello",
+      "previewHeading": "Tu rutina personalizada considera:",
       "previewItems": [
-        { "icon": "🌿", "text": "21 días de tratamiento 100% natural" },
-        { "icon": "🧪", "text": "3 recetas naturales exclusivas desarrolladas por especialistas" },
-        { "icon": "💇", "text": "Progresiva casera que no agrede el cabello ni el cuero cabelludo" },
-        { "icon": "💯", "text": "Personalizado para tu tipo de cabello y nivel de toxicidad" },
-        { "icon": "🔄", "text": "Plan progresivo de 4 fases para limpiar el folículo" },
-        { "icon": "📱", "text": "App exclusiva instalable en tu smartphone (PWA)" }
+        { "icon": "🌿", "text": "Cuidados naturales para el día a día" },
+        { "icon": "🧪", "text": "3 recetas naturales exclusivas elaboradas por especialistas" },
+        { "icon": "💇", "text": "Alisado casero natural, una alternativa sin químicos" },
+        { "icon": "💯", "text": "Adaptada a tu tipo de cabello" },
+        { "icon": "🔄", "text": "Plan progresivo en 4 etapas" },
+        { "icon": "📱", "text": "App exclusiva instalable en tu celular (PWA)" }
       ],
-      "cta": "🌿 Quiero conocer mi protocolo",
-      "reassurance": "Sin productos caros · Sin químicos · Sin suscripciones"
+      "cta": "🌿 Quiero ver mi rutina personalizada",
+      "reassurance": "Sin productos caros · Sin químicos agresivos · Sin suscripciones"
     },
     "offer": {
-      "recap": "Tu protocolo personalizado está listo. Solo falta activarlo.",
+      "recap": "Tu rutina personalizada está lista. Aquí tienes todos los detalles.",
       "guaranteeBadge": "🛡️ GARANTÍA TOTAL DE 7 DÍAS",
-      "guaranteeText": "Si no ves resultados en 7 días, te devolvemos cada centavo. Sin preguntas, sin burocracia.",
-      "includesHeading": "Tu protocolo de desintoxicación incluye:",
+      "guaranteeText": "Si por cualquier motivo no estás satisfecha en los primeros 7 días, te devolvemos el 100%. Sin preguntas, sin burocracia.",
+      "includesHeading": "Tu rutina personalizada incluye:",
       "includesItems": [
-        { "icon": "🌿", "title": "Protocolo de 21 días personalizado", "desc": "Plan paso a paso adaptado a tu nivel de toxicidad" },
-        { "icon": "🧪", "title": "Recetas caseras exclusivas", "desc": "Ingredientes naturales que ya tienes en casa, costo casi cero" },
-        { "icon": "🚫", "title": "Lista de químicos a evitar", "desc": "Sabrás exactamente qué productos están dañándote" },
-        { "icon": "🔄", "title": "Plan progresivo de 4 fases", "desc": "Desintoxicación gradual para que tu cabello no sufra" },
+        { "icon": "🌿", "title": "Rutina de cuidado natural personalizada", "desc": "Plan paso a paso adaptado a tu tipo de cabello" },
+        { "icon": "🧪", "title": "3 recetas naturales exclusivas", "desc": "Elaboradas por especialistas, con ingredientes que ya tienes en casa" },
+        { "icon": "💇", "title": "Alisado casero natural", "desc": "Alternativa sin químicos para suavizar el cabello" },
+        { "icon": "🚫", "title": "Lista de ingredientes a evitar", "desc": "Sabrás qué ingredientes evitar para cuidar mejor de tu cabello" },
         { "icon": "📚", "title": "Biblioteca con 25 recetas naturales", "desc": "Acceso completo a todo el contenido NatGlow" },
+        { "icon": "📱", "title": "App exclusiva para tu celular", "desc": "Instalable como aplicación nativa (PWA)" },
         { "icon": "♾️", "title": "Acceso VITALICIO", "desc": "Pago único, no es suscripción mensual" },
         { "icon": "🛡️", "title": "Garantía de 7 días sin preguntas", "desc": "Riesgo cero, pruébalo y decide" }
       ],
@@ -416,152 +417,140 @@
         "rows": [
           { "label": "Tratamientos en salón profesional", "price": "$200+/mes" },
           { "label": "Productos comerciales premium", "price": "$80+/mes" },
-          { "label": "Consulta con dermatólogo", "price": "$150+" },
+          { "label": "Consultas con especialista", "price": "$150+" },
           { "label": "NatGlow (pago único, acceso de por vida)", "price": "$17", "highlight": true }
         ]
       },
-      "socialProofHeading": "Mujeres que ya desintoxicaron su cabello:",
-      "moreTestimonialsHeading": "Más resultados verificados",
+      "socialProofHeading": "Mujeres que ya disfrutan de su rutina:",
+      "moreTestimonialsHeading": "Más experiencias compartidas",
       "faq": {
         "tag": "Preguntas frecuentes",
         "title": "Todo lo que necesitas saber",
         "items": [
-          {
-            "q": "¿Funciona para mi tipo de cabello?",
-            "a": "Sí. El protocolo es personalizado según las respuestas de tu test, incluyendo tu tipo de cabello (liso, ondulado, rizado o crespo) y tu nivel actual de toxicidad."
-          },
-          {
-            "q": "¿Cuánto tiempo veo resultados?",
-            "a": "La mayoría de mujeres reportan menos picazón y caspa en los primeros 7 días. Resultados visibles en brillo y caída en 14-21 días. La desintoxicación completa toma 21 días."
-          },
-          {
-            "q": "¿Y si no me funciona?",
-            "a": "Tienes 7 días de garantía total. Si no ves resultados, te devolvemos el 100% sin preguntas. Solo escríbenos."
-          },
-          {
-            "q": "¿Las recetas son caras?",
-            "a": "No. Las recetas usan ingredientes que probablemente ya tienes en casa, aceite de coco, miel, aloe vera, vinagre de manzana. Costo promedio por receta: menos de $0.50."
-          }
+          { "q": "¿Funciona para mi tipo de cabello?", "a": "Sí. La rutina es personalizada según las respuestas de tu test, incluyendo tu tipo de cabello (liso, ondulado, rizado o crespo)." },
+          { "q": "¿Cuándo voy a notar la diferencia?", "a": "Cada cabello responde de forma diferente. Muchas usuarias reportan notar más brillo y suavidad en pocas semanas al seguir la rutina con consistencia." },
+          { "q": "¿Y si no me gusta?", "a": "Tienes 7 días de garantía total. Si por cualquier motivo no estás satisfecha, te devolvemos el 100% sin preguntas. Solo escríbenos." },
+          { "q": "¿Las recetas son caras?", "a": "No. Las recetas usan ingredientes que probablemente ya tienes en casa: aceite de coco, miel, aloe vera, vinagre de manzana. Costo promedio por receta: menos de $0.50." }
         ]
       },
-      "stickyCTALabel": "Activar mi protocolo"
+      "stickyCTALabel": "Empezar mi rutina"
     }
   },
   "resultsDetox": {
     "hero": {
-      "urgencyBanner": "🌿 DIAGNÓSTICO DE TOXICIDAD COMPLETADO",
-      "badge": "⚠ Cuero cabelludo con alta toxicidad",
-      "titleWithName": "{{name}}, tu cuero cabelludo tiene un",
-      "titleHighlight": "NIVEL ALTO de toxicidad",
-      "titleNoName": "Tu cuero cabelludo tiene un",
-      "subtitle": "Analizamos tus respuestas. Tu cuero cabelludo lleva años acumulando químicos sin saberlo. Aquí está tu protocolo de desintoxicación personalizado."
+      "urgencyBanner": "🌿 TU ANÁLISIS PERSONALIZADO ESTÁ LISTO",
+      "badge": "✨ Aspectos identificados en tu rutina",
+      "titleWithName": "{{name}}, tu cabello podría",
+      "titleHighlight": "beneficiarse de una rutina personalizada",
+      "titleNoName": "Tu cabello podría",
+      "subtitle": "Analizamos tus respuestas. Identificamos aspectos de tu rutina actual que pueden estar influyendo en la apariencia de tu cabello. Aquí está tu rutina personalizada."
     },
     "diagnosis": {
-      "signs": "🚨 Signos de intoxicación capilar:",
-      "causes": "⚠️ Causas de la acumulación tóxica:",
-      "goodNews": "🌿 La desintoxicación es posible.",
-      "goodNewsText": "La acumulación tóxica del cuero cabelludo es 100% reversible con el protocolo correcto. Miles de mujeres como tú ya desintoxicaron su cabello en 21 días con ingredientes naturales que limpian sin agredir."
+      "signs": "✨ Aspectos identificados:",
+      "causes": "💡 Posibles factores que influyen:",
+      "goodNews": "🌿 La apariencia puede mejorar.",
+      "goodNewsText": "Pequeños ajustes en la rutina diaria pueden contribuir a mejorar la apariencia del cabello. Miles de mujeres ya adoptaron esta rutina natural y reportan resultados notables en su cabello."
     },
     "pricing": {
-      "badge": "🔓 Protocolo personalizado disponible",
-      "title": "Tu desintoxicación de 21 días",
-      "titleHighlight": "empieza HOY",
-      "subtitle": "Cada día sin desintoxicar es un día más de acumulación tóxica en tu cuero cabelludo.",
+      "badge": "🔓 Rutina personalizada disponible",
+      "title": "Tu rutina personalizada",
+      "titleHighlight": "está lista",
+      "subtitle": "Empieza hoy y descubre lo que una rutina personalizada puede aportar a tu cabello.",
       "promoBadge": "🌿 OFERTA ESPECIAL · Solo Hoy",
-      "cta": "¡QUIERO DESINTOXICAR MI CABELLO!"
+      "cta": "¡QUIERO EMPEZAR MI RUTINA!"
     },
     "testimonialsSection": {
-      "badge": "Resultados reales · Verificados",
-      "title": "+12.480 mujeres ya desintoxicaron",
-      "titleHighlight": "su cabello",
-      "subtitle": "Estos son resultados reales de mujeres que aplicaron el protocolo. Cada testimonial fue verificado."
+      "badge": "Experiencias reales · Compartidas",
+      "title": "+12.480 mujeres ya disfrutan",
+      "titleHighlight": "de su rutina",
+      "subtitle": "Estas son experiencias reales de mujeres que adoptaron la rutina natural. Cada testimonio fue compartido voluntariamente."
     },
     "testimonials": [
       {
         "name": "Camila Vargas",
         "location": "Ciudad de México, MX",
-        "duration": "21 días",
-        "text": "Mi pelo seco y sin brillo volvió a la vida. La progresiva casera me sorprendió, mucho mejor que la química.",
+        "duration": "Algunas semanas",
+        "text": "Mi cabello, antes opaco y sin vida, recuperó el brillo y la suavidad. La rutina casera me sorprendió mucho.",
         "antes": "/images/quiz-v2/antes-1.jpg",
         "depois": "/images/quiz-v2/depois-1.jpg"
       },
       {
         "name": "Carolina Mendoza",
         "location": "Bogotá, Colombia",
-        "duration": "28 días",
-        "text": "Después de la desintoxicación, mi pelo volvió a crecer fuerte. No volveré a productos comerciales.",
+        "duration": "Algunas semanas",
+        "text": "Después de incluir esta rutina natural en mi día a día, mi cabello se vio mucho mejor. No vuelvo a los productos comerciales.",
         "antes": "/images/quiz-v2/antes-2.jpg",
         "depois": "/images/quiz-v2/depois-2.jpg"
       },
       {
         "name": "Lucía Hernández",
         "location": "Ciudad de México, MX",
-        "duration": "21 días",
-        "text": "Mi cuero cabelludo dejó de picar y mi pelo dejó de caer. Increíble la diferencia.",
+        "duration": "Algunas semanas",
+        "text": "Mi cabello dejó de verse opaco y empezó a verse mucho más sano. Una diferencia muy notable.",
         "antes": "/images/quiz-v2/antes-3.jpg",
         "depois": "/images/quiz-v2/depois-3.jpg"
       },
       {
         "name": "Ana Rodríguez",
         "location": "Buenos Aires, Argentina",
-        "duration": "30 días",
-        "text": "Pensé que era genética. Era acumulación tóxica. Hoy mi pelo brilla como hace 10 años.",
+        "duration": "Algunas semanas",
+        "text": "Pensé que era solo genética. Pero al cambiar mi rutina, mi cabello empezó a verse mucho mejor. Brilla como hace años.",
         "antes": "/images/quiz-v2/antes-4.jpg",
         "depois": "/images/quiz-v2/depois-4.jpg"
       },
       {
         "name": "Sofía Castro",
         "location": "Lima, Perú",
-        "duration": "21 días",
-        "text": "Adiós caspa, adiós picazón, adiós grasa. El protocolo es simple y funciona.",
+        "duration": "Algunas semanas",
+        "text": "Adiós opacidad, adiós resequedad. La rutina es simple y los resultados se notan.",
         "antes": "/images/quiz-v2/antes-5.jpg",
         "depois": "/images/quiz-v2/depois-5.jpg"
       },
       {
         "name": "Isabella Silva",
         "location": "Quito, Ecuador",
-        "duration": "25 días",
-        "text": "Probé de todo. Solo la desintoxicación natural funcionó. Mi cabello volvió a la vida.",
+        "duration": "Algunas semanas",
+        "text": "Probé de todo. Solo esta rutina natural me trajo el resultado que esperaba. Mi cabello recuperó la vitalidad.",
         "antes": "/images/quiz-v2/antes-6.jpg",
         "depois": "/images/quiz-v2/depois-6.jpg"
       }
     ],
-    "verifiedBadge": "🌿 RESULTADO EN {{duration}} · VERIFICADO",
+    "verifiedBadge": "🌿 EXPERIENCIA COMPARTIDA · {{duration}}",
     "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
   },
   "resultsBold": {
     "hero": {
-      "urgencyBanner": "DIAGNÓSTICO COMPLETADO · LEE CON ATENCIÓN",
-      "badge": "🚨 Tu cabello está en estado crítico",
-      "titleWithName": "{{name}}, tus folículos están siendo",
-      "titleHighlight": "SABOTEADOS",
-      "titleNoName": "Tus folículos están siendo",
-      "subtitle": "Analizamos tus respuestas y encontramos exactamente qué está destruyendo tu cabello. Lee hasta el final, tu protocolo personalizado te espera."
+      "urgencyBanner": "TU ANÁLISIS PERSONALIZADO ESTÁ LISTO",
+      "badge": "✨ Aspectos identificados en tu rutina",
+      "titleWithName": "{{name}}, tu cabello podría",
+      "titleHighlight": "beneficiarse de una rutina personalizada",
+      "titleNoName": "Tu cabello podría",
+      "subtitle": "Analizamos tus respuestas. Identificamos aspectos de tu rutina actual que pueden estar influyendo en la apariencia de tu cabello. Aquí está tu rutina personalizada."
     },
     "diagnosis": {
-      "signs": "🚨 Tu cabello está pidiendo SOCORRO:",
-      "causes": "⚠️ Y aquí está la VERDAD que nadie te dice:",
-      "goodNews": "✅ Pero todavía estás a tiempo de revertirlo.",
-      "goodNewsText": "El daño capilar es reversible cuando se aplica el protocolo correcto. Miles de mujeres como tú ya recuperaron su cabello en 21 días con las recetas naturales correctas, sin químicos, sin tratamientos caros, sin depender de salones."
+      "signs": "✨ Aspectos identificados:",
+      "causes": "💡 Posibles factores que influyen:",
+      "goodNews": "🌿 La apariencia puede mejorar.",
+      "goodNewsText": "Pequeños ajustes en la rutina diaria pueden contribuir a mejorar la apariencia del cabello. Miles de mujeres ya adoptaron esta rutina natural y reportan resultados notables."
     },
     "recipes": {
-      "badge": "🔓 Solo para tu protocolo personalizado",
-      "title1": "Las 3 recetas que están REVIRTIENDO la caída de pelo de ",
-      "title2": "miles de mujeres latinas",
-      "subtitle": "Resultados visibles desde la primera aplicación. Con ingredientes naturales que sofocan los químicos acumulados en tu cuero cabelludo."
+      "badge": "🔓 Solo para tu rutina personalizada",
+      "title1": "Las 3 recetas naturales preferidas por ",
+      "title2": "miles de mujeres",
+      "subtitle": "Cuidados con ingredientes naturales que ya tienes en casa."
     },
     "social": {
       "title1": "+12.480 mujeres ya ",
-      "title2": "recuperaron su cabello",
-      "stars": "4,9 de 5 estrellas · Verificado"
+      "title2": "disfrutan de su rutina",
+      "stars": "4,9 de 5 estrellas · Experiencias verificadas"
     },
     "pricing": {
-      "badge": "🔥 ÚLTIMA OPORTUNIDAD · Precio especial",
-      "title": "Tu protocolo de 21 días",
-      "titleHighlight": "empieza HOY",
-      "subtitle": "Cada día sin actuar es un día más de daño irreversible en tus folículos.",
-      "promoBadge": "🔥 OFERTA ESPECIAL · Solo Hoy",
-      "cta": "¡SÍ, QUIERO RESTAURAR MI CABELLO!"
+      "badge": "🌿 OFERTA ESPECIAL · Precio promocional",
+      "title": "Tu rutina personalizada",
+      "titleHighlight": "está lista",
+      "subtitle": "Empieza hoy y descubre lo que una rutina personalizada puede aportar a tu cabello.",
+      "promoBadge": "🌿 OFERTA ESPECIAL · Solo Hoy",
+      "cta": "¡QUIERO EMPEZAR MI RUTINA!"
     },
     "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si no ves resultados, te devolvemos el 100% sin preguntas."
   },

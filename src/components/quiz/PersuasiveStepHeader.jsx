@@ -6,7 +6,7 @@ function ProgressBar({ current, total }) {
     <div className="w-full bg-stone-200 rounded-full h-1.5">
       <motion.div
         className="h-1.5 rounded-full"
-        style={{ background: 'linear-gradient(90deg, #C0392B, #FB45A9)' }}
+        style={{ background: 'linear-gradient(90deg, #27AE60, #1E8449)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4 }}
@@ -15,7 +15,11 @@ function ProgressBar({ current, total }) {
   )
 }
 
-export default function PersuasiveStepHeader({ current, total, title, context, subtitle, t, accentColor = '#C0392B', badgeText }) {
+export default function PersuasiveStepHeader({ current, total, title, subtitle, t, accentColor = '#1E8449', badgeText }) {
+  // `context` prop is intentionally ignored — the red warning subtitles below
+  // each question title were removed for ads policy compliance (FB flags
+  // medical-sounding urgency claims). Kept the prop signature to avoid
+  // breaking callers, but the field no longer renders.
   const badge = badgeText || t('quizBold.stepBadge', { current, total })
   return (
     <div className="flex flex-col gap-3">
@@ -26,11 +30,6 @@ export default function PersuasiveStepHeader({ current, total, title, context, s
       <div className="text-center flex flex-col gap-1.5">
         <h2 className="text-2xl font-extrabold text-stone-900 leading-tight">{title}</h2>
         {subtitle && <p className="text-sm text-stone-400">{subtitle}</p>}
-        {context && (
-          <p className="text-xs font-bold uppercase tracking-wider mt-1" style={{ color: accentColor }}>
-            ⚠ {context}
-          </p>
-        )}
       </div>
     </div>
   )

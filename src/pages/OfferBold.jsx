@@ -12,7 +12,6 @@ import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
 import BeforeAfterTestimonialCarousel from '@/components/BeforeAfterTestimonialCarousel'
 import StickyMobileCTA from '@/components/results/StickyMobileCTA'
-import { calculateToxicityScore, getToxicityLevel } from '@/lib/toxicityCalculator'
 
 const GREEN = '#27AE60'
 const GREEN_DARK = '#1E8449'
@@ -102,8 +101,6 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
   const answers = state?.answers ?? storedAnswers
   if (!answers) return <Navigate to={route_path} replace />
 
-  const score = state?.score ?? calculateToxicityScore(answers)
-  const level = getToxicityLevel(score)
   const name = answers.name?.trim()
 
   const handleCheckout = () => {
@@ -157,14 +154,14 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
           <FadeIn>
             <div
               className="inline-flex items-center gap-2 text-xs font-extrabold px-3 py-1.5 rounded-full mb-4"
-              style={{ background: level.bg, color: level.color }}
+              style={{ background: '#E8F8F0', color: GREEN_DARK }}
             >
-              ✓ Diagnóstico: {score}% de daño, Nivel {level.label}
+              ✨ Tu rutina personalizada
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 leading-tight">
-              {name ? `${name}, tu protocolo personalizado` : 'Tu protocolo personalizado'}
+              {name ? `${name}, tu rutina personalizada` : 'Tu rutina personalizada'}
               {' '}
-              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>está listo.</span>
+              <span style={{ color: GREEN_DARK, background: '#E8F8F0', padding: '0 6px' }}>está lista.</span>
             </h1>
             <p className="text-sm text-stone-500 mt-3">{t('boldFlow.offer.recap')}</p>
           </FadeIn>

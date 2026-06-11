@@ -12,7 +12,6 @@ import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
 import UrgencyBanner from '@/components/quiz/UrgencyBanner'
 import ScientificCard from '@/components/quiz/ScientificCard'
-import FakeNewsCard from '@/components/quiz/FakeNewsCard'
 import ReframingCard from '@/components/quiz/ReframingCard'
 import TestimonialCard from '@/components/quiz/TestimonialCard'
 import PersuasiveStepHeader from '@/components/quiz/PersuasiveStepHeader'
@@ -350,25 +349,8 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizDetox.scientificFear.caption')}</p>
 
-            <GreenButton onClick={() => setStep(STEPS.NEWS)}>
-              {t('quizDetox.scientificFear.cta')} <ArrowRight className="w-4 h-4" />
-            </GreenButton>
-          </motion.div>
-        )}
-
-        {/* ═══ FAKE NEWS ═══ */}
-        {step === STEPS.NEWS && (
-          <motion.div key="news" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
-            <FakeNewsCard
-              logoLabel={t('quizDetox.news.logoLabel')}
-              headline={t('quizDetox.news.headline')}
-              subheadline={t('quizDetox.news.subheadline')}
-              credit={t('quizDetox.news.credit')}
-              imageUrl="/images/quiz-bold/news-screenshot.jpg"
-            />
-
             <GreenButton onClick={() => setStep(STEPS.REFRAMING)}>
-              {t('quizDetox.news.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizDetox.scientificFear.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
         )}
