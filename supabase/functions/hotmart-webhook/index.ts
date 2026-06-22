@@ -1,4 +1,3 @@
-import { sendFacebookCAPIEvent } from '../_shared/facebook-capi.ts'
 import { sendTikTokEvent }        from '../_shared/tiktok-events-api.ts'
 import { sendTransactionalEmail } from '../send-transactional-email/index.ts'
 
@@ -267,36 +266,28 @@ Deno.serve(async (req) => {
           data:     { magic_link: magicLink ?? undefined, name },
         }).catch(err => console.error('Welcome email failed:', err))
 
-        // CAPI + TikTok — awaited so the function doesn't shut down before the HTTP calls complete
+        // TikTok CompletePayment — Hotmart's native pixel only fires Facebook,
+        // so we still need to fire CompletePayment server-side for TikTok.
+        // Facebook Purchase is NOT fired here: Hotmart's own Facebook pixel
+        // already fires Purchase on the thank-you page, and firing CAPI here
+        // would create a duplicate.
         const eventId = `hp_${txId || Date.now()}`
-        await Promise.allSettled([
-          sendFacebookCAPIEvent({
-            event_name:  'Purchase',
-            event_id:    eventId,
-            user_data:   { email, external_id: userId },
-            custom_data: {
-              value:        planValue ?? undefined,
-              currency:     purchaseCurrency,
-              content_name: planKey ?? undefined,
-            },
-          }),
-          sendTikTokEvent({
-            event:      'CompletePayment',
-            event_id:   eventId,
-            user_data:  { email, external_id: userId },
-            properties: {
-              value:    planValue ?? undefined,
-              currency: purchaseCurrency,
-              contents: [{
-                content_id:   planKey || productId || 'natglow_purchase',
-                content_type: 'product',
-                content_name: planKey || 'NatGlow',
-                quantity:     1,
-                price:        planValue ?? undefined,
-              }],
-            },
-          }),
-        ])
+        await sendTikTokEvent({
+          event:      'CompletePayment',
+          event_id:   eventId,
+          user_data:  { email, external_id: userId },
+          properties: {
+            value:    planValue ?? undefined,
+            currency: purchaseCurrency,
+            contents: [{
+              content_id:   planKey || productId || 'natglow_purchase',
+              content_type: 'product',
+              content_name: planKey || 'NatGlow',
+              quantity:     1,
+              price:        planValue ?? undefined,
+            }],
+          },
+        })
 
         break
       }
