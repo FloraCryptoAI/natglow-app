@@ -17,7 +17,7 @@ export function welcomeTemplate(_locale: string, data: { email?: string; magic_l
     </p>
 
     <p style="margin:0 0 18px;font-size:15px;color:#57534e;line-height:1.75">
-      Tu decisión de cuidar tu cabello de forma natural es un gesto de amor propio que merece cada atención. Desde hoy, tienes acceso completo a tu <strong style="color:#1c1917">plan personalizado de 84 días</strong> — construido especialmente para ti.
+      Tu decisión de cuidar tu cabello de forma natural es un gesto de amor propio que merece cada atención. Desde hoy, tienes acceso completo a tu <strong style="color:#1c1917">rutina personalizada de 21 días</strong> — los primeros resultados visibles — y al <strong style="color:#1c1917">plan progresivo completo de 4 fases</strong> para mantener tu cabello sano a largo plazo.
     </p>
 
     <div style="background:#fdf2f8;border-left:4px solid #FB45A9;border-radius:0 10px 10px 0;padding:18px 20px;margin:0 0 18px">

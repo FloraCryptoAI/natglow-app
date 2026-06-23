@@ -1,122 +1,71 @@
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ChevronDown, ChevronUp, Loader2, Mail, CheckCircle } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
 
 const CONTACT_EMAIL = 'support@natglow.app'
 
+// Project is 100% Spanish (LATAM). English block removed.
+// Business model: single payment via Hotmart ($17), lifetime access — no
+// monthly subscription. FAQs and form must reflect that.
 const CONTENT = {
-  en: {
-    title: 'Contact & Support',
-    subtitle: 'We respond within 24 hours on business days.',
-    emailLabel: 'Or email us directly:',
-    form: {
-      name: 'Your name',
-      email: 'Your email',
-      category: 'Category',
-      categories: [
-        { value: '', label: 'Select a category...' },
-        { value: 'payment', label: 'Payment' },
-        { value: 'account', label: 'Account / Access' },
-        { value: 'refund', label: 'Refund Request' },
-        { value: 'content', label: 'Content' },
-        { value: 'other', label: 'Other' },
-      ],
-      message: 'Message',
-      messagePlaceholder: 'Describe your question or issue in detail...',
-      submit: 'Send message',
-      submitting: 'Sending...',
-      success: 'Message sent! We\'ll get back to you within 24 hours.',
-      error: 'Something went wrong. Please try again or email us directly.',
-    },
-    faqTitle: 'Frequently Asked Questions',
-    faqs: [
-      {
-        q: 'How do I cancel my subscription?',
-        a: 'You can cancel at any time by going to Settings → Manage Subscription, or by emailing support@natglow.app. After cancellation, you keep access until the end of your current billing period.',
-      },
-      {
-        q: 'When will I be charged again?',
-        a: 'Your subscription renews automatically each month on the same date as your first payment. You can see the next renewal date in Settings → Manage Subscription.',
-      },
-      {
-        q: 'Can I get a refund?',
-        a: 'Yes! We offer a full refund within the first 7 days of your initial subscription. After that period, renewals are non-refundable, but you can cancel anytime. See our Refund Policy for details.',
-      },
-      {
-        q: 'I forgot my password / can\'t log in',
-        a: 'NatGlow uses passwordless login — just enter your email and you\'ll receive a magic link. Make sure to check your spam folder. If you still can\'t access your account, contact us and we\'ll help.',
-      },
-      {
-        q: 'How does the 84-day plan work?',
-        a: 'Your personalised 84-day plan is a structured hair care programme divided into 3 phases of 28 days each. Each phase progressively builds on the previous one, focusing on cleansing, nourishment, and sealing. You can track your progress in the Progress section.',
-      },
-      {
-        q: 'Is the content safe for my hair?',
-        a: 'All NatGlow content is created for educational purposes based on natural hair care principles. However, individual results vary and we always recommend consulting a dermatologist before using any ingredient if you have known allergies or scalp conditions.',
-      },
-      {
-        q: 'Can I share my account with someone else?',
-        a: 'Accounts are personal and non-transferable. Sharing your account is not permitted per our Terms of Service. Each user must have their own subscription.',
-      },
+  title: 'Contacto y Soporte',
+  subtitle: 'Respondemos en menos de 24 horas en días hábiles.',
+  emailLabel: 'O escríbenos directamente:',
+  form: {
+    name: 'Tu nombre',
+    email: 'Tu correo electrónico',
+    category: 'Categoría',
+    categories: [
+      { value: '',          label: 'Selecciona una categoría...' },
+      { value: 'payment',   label: 'Pago / Acceso' },
+      { value: 'account',   label: 'Cuenta' },
+      { value: 'refund',    label: 'Solicitud de reembolso' },
+      { value: 'content',   label: 'Contenido' },
+      { value: 'other',     label: 'Otro' },
     ],
+    message: 'Mensaje',
+    messagePlaceholder: 'Describe tu pregunta o problema con detalle...',
+    submit: 'Enviar mensaje',
+    submitting: 'Enviando...',
+    success: '¡Mensaje enviado! Te responderemos en menos de 24 horas.',
+    error: 'Algo salió mal. Inténtalo de nuevo o escríbenos directamente.',
   },
-  es: {
-    title: 'Contacto y Soporte',
-    subtitle: 'Respondemos en menos de 24 horas en días hábiles.',
-    emailLabel: 'O escríbenos directamente:',
-    form: {
-      name: 'Tu nombre',
-      email: 'Tu correo electrónico',
-      category: 'Categoría',
-      categories: [
-        { value: '', label: 'Selecciona una categoría...' },
-        { value: 'payment', label: 'Pago' },
-        { value: 'account', label: 'Cuenta / Acceso' },
-        { value: 'refund', label: 'Solicitud de reembolso' },
-        { value: 'content', label: 'Contenido' },
-        { value: 'other', label: 'Otro' },
-      ],
-      message: 'Mensaje',
-      messagePlaceholder: 'Describe tu pregunta o problema con detalle...',
-      submit: 'Enviar mensaje',
-      submitting: 'Enviando...',
-      success: '¡Mensaje enviado! Te responderemos en menos de 24 horas.',
-      error: 'Algo salió mal. Inténtalo de nuevo o escríbenos directamente.',
+  faqTitle: 'Preguntas Frecuentes',
+  faqs: [
+    {
+      q: 'Acabo de comprar — ¿cómo accedo a mi cuenta?',
+      a: 'Después de tu pago, te enviamos un correo de bienvenida con un botón de acceso instantáneo. Si no lo ves en tu bandeja principal, revisa la carpeta de spam o promociones. Si aún no llega después de 10 minutos, escríbenos a ' + CONTACT_EMAIL + ' indicando el correo que usaste en la compra.',
     },
-    faqTitle: 'Preguntas Frecuentes',
-    faqs: [
-      {
-        q: '¿Cómo cancelo mi suscripción?',
-        a: 'Puedes cancelar en cualquier momento desde Configuración → Gestionar Suscripción, o enviando un correo a support@natglow.app. Después de cancelar, conservas el acceso hasta el final de tu período de facturación actual.',
-      },
-      {
-        q: '¿Cuándo se realizará mi próximo cobro?',
-        a: 'Tu suscripción se renueva automáticamente cada mes en la misma fecha de tu primer pago. Puedes ver la próxima fecha de renovación en Configuración → Gestionar Suscripción.',
-      },
-      {
-        q: '¿Puedo solicitar un reembolso?',
-        a: '¡Sí! Ofrecemos un reembolso completo dentro de los primeros 7 días de tu suscripción inicial. Después de ese período, las renovaciones no son reembolsables, pero puedes cancelar en cualquier momento. Consulta nuestra Política de Reembolsos para más detalles.',
-      },
-      {
-        q: 'Olvidé mi contraseña / no puedo iniciar sesión',
-        a: 'NatGlow utiliza inicio de sesión sin contraseña — simplemente ingresa tu correo y recibirás un enlace mágico. Asegúrate de revisar tu carpeta de spam. Si aún no puedes acceder a tu cuenta, contáctanos y te ayudaremos.',
-      },
-      {
-        q: '¿Cómo funciona el plan de 84 días?',
-        a: 'Tu plan personalizado de 84 días es un programa estructurado de cuidado capilar dividido en 3 fases de 28 días. Cada fase se construye progresivamente sobre la anterior, enfocándose en limpieza, nutrición y sellado. Puedes seguir tu progreso en la sección Progreso.',
-      },
-      {
-        q: '¿El contenido es seguro para mi cabello?',
-        a: 'Todo el contenido de NatGlow se crea con fines educativos basados en principios de cuidado capilar natural. Sin embargo, los resultados individuales varían y siempre recomendamos consultar a un dermatólogo antes de usar cualquier ingrediente si tienes alergias conocidas o condiciones del cuero cabelludo.',
-      },
-      {
-        q: '¿Puedo compartir mi cuenta con otra persona?',
-        a: 'Las cuentas son personales e intransferibles. Compartir tu cuenta no está permitido según nuestros Términos de Servicio. Cada usuaria debe tener su propia suscripción.',
-      },
-    ],
-  },
+    {
+      q: '¿Por cuánto tiempo tengo acceso?',
+      a: 'Tu acceso es VITALICIO. Hiciste un pago único — no hay suscripción, no hay renovaciones mensuales, no se cobrará nada más. Puedes entrar a tu plan cuando quieras, las veces que quieras.',
+    },
+    {
+      q: '¿Cómo funciona el plan?',
+      a: 'Tu rutina personalizada de 21 días te da los primeros resultados visibles — menos frizz, más brillo, cabello más fuerte. Después de los primeros 21 días, accedes al plan progresivo completo de 4 fases (84 días totales) para mantener tu cabello sano a largo plazo. Cada fase se enfoca en una etapa diferente: limpieza, nutrición, fortalecimiento y mantenimiento.',
+    },
+    {
+      q: '¿Puedo solicitar un reembolso?',
+      a: 'Sí. Ofrecemos garantía de satisfacción de 7 días — si no quedas conforme dentro de los 7 días posteriores a tu compra, te devolvemos el 100% del valor. Para solicitar reembolso, escríbenos a ' + CONTACT_EMAIL + ' con el correo que usaste en la compra. El reembolso se procesa directamente por Hotmart en 5 a 10 días hábiles.',
+    },
+    {
+      q: 'Olvidé el acceso / no encuentro el correo de bienvenida',
+      a: 'NatGlow usa inicio de sesión sin contraseña — ingresa tu correo en la página de Iniciar Sesión y recibirás un código de 6 dígitos. Asegúrate de revisar también la carpeta de spam o promociones. Si aún tienes problemas, contáctanos y te ayudamos.',
+    },
+    {
+      q: 'Compré con un correo y quiero usar otro — ¿se puede cambiar?',
+      a: 'Sí. Escríbenos a ' + CONTACT_EMAIL + ' desde el correo registrado en la compra indicando el correo nuevo al que quieres migrar tu acceso. Hacemos el cambio manualmente y te confirmamos por correo cuando esté listo.',
+    },
+    {
+      q: '¿El contenido es seguro para mi cabello?',
+      a: 'Todo el contenido de NatGlow es de carácter educativo y se basa en principios de cuidado capilar natural. Los resultados individuales varían. Si tienes alergias conocidas o condiciones del cuero cabelludo, recomendamos consultar a un dermatólogo antes de aplicar cualquier ingrediente.',
+    },
+    {
+      q: '¿Puedo compartir mi cuenta con otra persona?',
+      a: 'Las cuentas son personales e intransferibles. Compartir tu cuenta no está permitido según nuestros Términos de Servicio. Cada persona debe tener su propia compra.',
+    },
+  ],
 }
 
 function FaqItem({ q, a }) {
@@ -138,8 +87,7 @@ function FaqItem({ q, a }) {
 }
 
 export default function Contact() {
-  const { i18n } = useTranslation()
-  const c = i18n.language?.startsWith('es') ? CONTENT.es : CONTENT.en
+  const c = CONTENT
 
   const [form, setForm] = useState({ name: '', email: '', category: '', message: '' })
   const [status, setStatus] = useState('idle') // idle | loading | success | error
@@ -281,7 +229,7 @@ export default function Contact() {
           ))}
         </div>
 
-        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow. All rights reserved.</p>
+        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow. Todos los derechos reservados.</p>
       </div>
     </div>
   )

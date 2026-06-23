@@ -1,101 +1,58 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 const CONTACT_EMAIL = 'support@natglow.app'
 
-const EN = {
-  disclaimer: 'This document was drafted with AI assistance as an initial version. We recommend seeking legal counsel to verify its suitability for your specific jurisdiction.',
-  title: 'Refund Policy',
-  lastUpdated: 'Last updated: May 10, 2026',
-  sections: [
-    {
-      heading: '1. Satisfaction Guarantee',
-      body: 'We stand behind the quality of NatGlow. If you are not fully satisfied with your initial subscription, we offer a full refund within the first 7 (seven) days of your first payment. This guarantee applies to new subscribers only and covers the initial subscription charge.',
-    },
-    {
-      heading: '2. How to Request a Refund',
-      body: [
-        'Send an email to ' + CONTACT_EMAIL + ' within 7 days of your first charge.',
-        'Include the subject line: "Refund Request — [your email address]".',
-        'Briefly describe the reason for your request (optional, but helps us improve).',
-        'We will confirm receipt of your request and process the refund if you are within the eligible period.',
-      ],
-    },
-    {
-      heading: '3. Processing Time',
-      body: 'Approved refunds are processed within 5–10 business days. The credit will appear on your original payment method statement within the timeframe set by your bank or card issuer, which may vary.',
-    },
-    {
-      heading: '4. Monthly Renewals',
-      body: 'After the initial 7-day guarantee period, recurring monthly charges are non-refundable. However, you may cancel your subscription at any time and you will retain full access to the Service until the end of your current paid billing period. You will not be charged for subsequent months after cancellation.',
-    },
-    {
-      heading: '5. Non-Eligible Cases',
-      body: [
-        'Refund requests submitted after the 7-day guarantee window.',
-        'Recurring monthly renewal charges (beyond the first payment).',
-        'Accounts found to have violated our Terms of Service.',
-        'Cases where fraudulent activity is suspected.',
-        'Chargebacks filed with your bank or card issuer without first contacting us — initiating a chargeback may result in immediate account suspension.',
-        'Multiple accounts created to exploit the guarantee period more than once.',
-      ],
-    },
-    {
-      heading: '6. Contact',
-      body: 'For any questions about this policy, please contact us at ' + CONTACT_EMAIL + '. We aim to respond within 24 hours on business days.',
-    },
-  ],
-}
-
+// Project is 100% Spanish (LATAM). English block removed.
+// Single payment via Hotmart — no monthly renewals, no recurring charges.
+// 7-day satisfaction guarantee processed through Hotmart.
 const ES = {
   disclaimer: 'Este documento fue redactado con asistencia de IA como versión inicial. Recomendamos consultar asesoría legal para verificar su adecuación a su jurisdicción específica.',
   title: 'Política de Reembolsos',
-  lastUpdated: 'Última actualización: 10 de mayo de 2026',
+  lastUpdated: 'Última actualización: 23 de junio de 2026',
   sections: [
     {
       heading: '1. Garantía de Satisfacción',
-      body: 'Respaldamos la calidad de NatGlow. Si no está completamente satisfecha con su suscripción inicial, ofrecemos un reembolso completo dentro de los primeros 7 (siete) días de su primer pago. Esta garantía aplica únicamente a nuevas suscriptoras y cubre el cargo inicial de suscripción.',
+      body: 'Respaldamos la calidad de NatGlow. Si no estás completamente satisfecha con tu compra, ofrecemos un reembolso COMPLETO del 100% dentro de los primeros 7 (siete) días desde la fecha de pago, sin necesidad de justificación. Como NatGlow es un pago único (sin suscripción), basta con que solicites el reembolso dentro de ese plazo.',
     },
     {
       heading: '2. Cómo Solicitar un Reembolso',
       body: [
-        'Envíe un correo a ' + CONTACT_EMAIL + ' dentro de los 7 días de su primer cargo.',
-        'Incluya el asunto: "Solicitud de Reembolso — [su correo electrónico]".',
-        'Describa brevemente el motivo de su solicitud (opcional, pero nos ayuda a mejorar).',
-        'Confirmaremos la recepción de su solicitud y procesaremos el reembolso si está dentro del período elegible.',
+        'Envía un correo a ' + CONTACT_EMAIL + ' dentro de los 7 días posteriores a tu compra.',
+        'Incluye el asunto: "Solicitud de Reembolso — [tu correo de compra]".',
+        'Describe brevemente el motivo (opcional, pero nos ayuda a mejorar).',
+        'Confirmaremos la recepción y procesaremos la solicitud si está dentro del plazo elegible.',
+        'Alternativamente, puedes solicitar el reembolso directamente desde tu cuenta de Hotmart, en la sección "Mis compras", también dentro de los 7 días.',
       ],
     },
     {
       heading: '3. Tiempo de Procesamiento',
-      body: 'Los reembolsos aprobados se procesan en un plazo de 5 a 10 días hábiles. El crédito aparecerá en su método de pago original en el plazo establecido por su banco o emisor de tarjeta, que puede variar.',
+      body: 'Los reembolsos aprobados son procesados directamente por Hotmart en un plazo de 5 a 10 días hábiles. El crédito aparecerá en tu método de pago original en el plazo establecido por tu banco o emisor de tarjeta, que puede variar.',
     },
     {
-      heading: '4. Renovaciones Mensuales',
-      body: 'Tras el período de garantía inicial de 7 días, los cargos mensuales recurrentes no son reembolsables. Sin embargo, puede cancelar su suscripción en cualquier momento y conservará el acceso completo al Servicio hasta el final de su período de facturación pagado. No se realizarán cargos en meses posteriores a la cancelación.',
+      heading: '4. Pago Único — Sin Renovaciones',
+      body: 'NatGlow es un pago único. No existen cobros mensuales, anuales ni recurrentes. Una vez transcurridos los 7 días de la garantía, el pago no es reembolsable, pero conservas acceso VITALICIO al contenido. No se cobrará nada más a tu método de pago.',
     },
     {
       heading: '5. Casos No Elegibles',
       body: [
-        'Solicitudes de reembolso presentadas después de los 7 días de garantía.',
-        'Cargos de renovación mensual recurrentes (más allá del primer pago).',
-        'Cuentas que hayan violado nuestros Términos de Servicio.',
-        'Casos en los que se sospeche actividad fraudulenta.',
-        'Contracargos presentados ante su banco o emisor de tarjeta sin contactarnos previamente — iniciar un contracargo puede resultar en la suspensión inmediata de la cuenta.',
-        'Cuentas múltiples creadas para aprovechar el período de garantía más de una vez.',
+        'Solicitudes de reembolso enviadas después de los 7 días desde la compra.',
+        'Cuentas que hayan violado nuestros Términos de Servicio (compartir cuenta, distribuir contenido, etc.).',
+        'Casos donde se detecte fraude o abuso de la garantía.',
+        'Disputas (chargebacks) abiertas en el banco sin contactarnos primero — abrir una disputa puede resultar en suspensión inmediata de la cuenta.',
+        'Múltiples cuentas creadas para abusar de la garantía más de una vez.',
       ],
     },
     {
       heading: '6. Contacto',
-      body: 'Para cualquier pregunta sobre esta política, contáctenos en ' + CONTACT_EMAIL + '. Respondemos en un plazo de 24 horas en días hábiles.',
+      body: 'Si tienes alguna pregunta sobre esta política, contáctanos en ' + CONTACT_EMAIL + '. Buscamos responder en menos de 24 horas en días hábiles.',
     },
   ],
 }
 
 export default function Refund() {
-  const { i18n } = useTranslation()
-  const content = i18n.language?.startsWith('es') ? ES : EN
+  const content = ES
 
   return (
     <div className="min-h-screen bg-white">
@@ -113,9 +70,7 @@ export default function Refund() {
         </div>
 
         <div className="mb-6 px-4 py-3 bg-pink-50 border border-pink-100 rounded-xl text-sm text-pink-700 font-medium">
-          {i18n.language?.startsWith('es')
-            ? '✓ Garantía de satisfacción completa en los primeros 7 días'
-            : '✓ Full satisfaction guarantee within the first 7 days'}
+          ✓ Garantía de satisfacción completa en los primeros 7 días
         </div>
 
         <h1 className="text-2xl font-bold text-stone-900 mb-1">{content.title}</h1>
@@ -138,7 +93,7 @@ export default function Refund() {
           ))}
         </div>
 
-        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow</p>
+        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow. Todos los derechos reservados.</p>
       </div>
     </div>
   )

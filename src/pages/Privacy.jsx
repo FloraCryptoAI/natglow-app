@@ -1,166 +1,97 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 const CONTACT_EMAIL = 'support@natglow.app'
 
-const EN = {
-  disclaimer: 'This document is an initial version and may be revised by legal counsel in the future.',
-  title: 'Privacy Policy',
-  lastUpdated: 'Last updated: May 10, 2026',
-  sections: [
-    {
-      heading: '1. Who We Are',
-      body: 'NatGlow ("we", "us", or "our") operates the app available at app.natglow.app. We are committed to protecting your personal data and respecting your privacy.',
-    },
-    {
-      heading: '2. Data We Collect',
-      body: [
-        'Email address — provided when you purchase a subscription.',
-        'Quiz answers — hair type, concerns, and preferences entered during the quiz flow.',
-        'Payment information — processed securely by Stripe. We do not store full card numbers.',
-        'Usage data — pages visited, actions taken, and time spent in the app (via analytics cookies, if consented).',
-        'Device and browser information — IP address, browser type, and device identifiers used for analytics and security.',
-      ],
-    },
-    {
-      heading: '3. How We Use Your Data',
-      body: [
-        'Provide and personalise the NatGlow service.',
-        'Process payments and manage subscriptions.',
-        'Send transactional emails (login links, subscription updates).',
-        'Improve our product through aggregated, anonymised analytics.',
-        'Measure the effectiveness of our marketing campaigns (Facebook and TikTok advertising), only if you have consented to analytics cookies.',
-        'Send server-side conversion events to advertising platforms (Facebook Conversions API and TikTok Events API) to improve campaign attribution accuracy. These server-side events are matched against consented browser signals and do not create new tracking beyond what you have already consented to.',
-      ],
-    },
-    {
-      heading: '4. Cookies and Tracking',
-      body: 'We use cookies and similar technologies for session management, analytics, and advertising. Analytics and advertising cookies (such as the Facebook Pixel and TikTok Pixel) are only loaded after you give explicit consent. You may withdraw consent at any time by clicking "Reject" on the cookie banner or by contacting us.',
-    },
-    {
-      heading: '5. Third-Party Services',
-      body: [
-        'Stripe — payment processing (stripe.com/privacy)',
-        'Supabase — database and authentication (supabase.com/privacy)',
-        'Meta (Facebook) — advertising analytics, subject to your consent (including Conversions API for server-side matching)',
-        'TikTok — advertising analytics, subject to your consent (including Events API for server-side matching)',
-        'Vercel — application hosting (vercel.com/legal/privacy-policy)',
-        'Resend — transactional email delivery (resend.com/legal/privacy-policy)',
-      ],
-    },
-    {
-      heading: '6. Data Retention',
-      body: 'We retain your personal data for as long as your account is active. If you cancel your subscription, we retain your data for up to 12 months before deletion. Aggregated, anonymised analytics data may be retained indefinitely.',
-    },
-    {
-      heading: '7. Your Rights',
-      body: [
-        'Access — request a copy of the data we hold about you.',
-        'Correction — ask us to correct inaccurate data.',
-        'Deletion — request erasure of your personal data.',
-        'Objection — object to processing for marketing purposes.',
-        'Portability — receive your data in a structured, machine-readable format.',
-      ],
-    },
-    {
-      heading: '8. Minimum Age',
-      body: 'NatGlow is intended for users aged 18 and over. We do not knowingly collect data from minors.',
-    },
-    {
-      heading: '9. Server Location',
-      body: 'Your data is stored on servers located in the United States (Supabase) and may be processed by our third-party providers in other jurisdictions.',
-    },
-    {
-      heading: '10. Contact',
-      body: `If you have questions about this policy or wish to exercise your rights, please contact us at ${CONTACT_EMAIL}.`,
-    },
-  ],
-}
-
+// Project is 100% Spanish (LATAM). English block removed.
+// Reflects actual stack: Supabase auth, Hotmart single payment, FB+TikTok
+// pixels enabled by default (no consent banner active in production).
 const ES = {
-  disclaimer: 'Este documento es una versión inicial y puede ser revisada por asesoría legal en el futuro.',
+  disclaimer: 'Este documento fue redactado con asistencia de IA como versión inicial. Recomendamos consultar asesoría legal para verificar su adecuación a su jurisdicción específica.',
   title: 'Política de Privacidad',
-  lastUpdated: 'Última actualización: 10 de mayo de 2026',
+  lastUpdated: 'Última actualización: 23 de junio de 2026',
   sections: [
     {
-      heading: '1. Quiénes somos',
-      body: 'NatGlow ("nosotros" o "nuestro") opera la app disponible en app.natglow.app. Nos comprometemos a proteger sus datos personales y respetar su privacidad.',
+      heading: '1. Quiénes Somos',
+      body: 'NatGlow ("nosotros" o "nuestro") opera la aplicación disponible en app.natglow.app. Nos comprometemos a proteger sus datos personales y respetar su privacidad. Esta política explica qué datos recolectamos, cómo los usamos y qué derechos tiene usted.',
     },
     {
-      heading: '2. Datos que recopilamos',
+      heading: '2. Datos que Recolectamos',
       body: [
-        'Correo electrónico — proporcionado al contratar una suscripción.',
-        'Respuestas del quiz — tipo de cabello, preocupaciones y preferencias ingresadas durante el quiz.',
-        'Datos de pago — procesados de forma segura por Stripe. No almacenamos números de tarjeta completos.',
-        'Datos de uso — páginas visitadas, acciones realizadas y tiempo en la app (mediante cookies de analítica, si ha dado su consentimiento).',
-        'Información de dispositivo y navegador — dirección IP, tipo de navegador e identificadores de dispositivo usados para analítica y seguridad.',
+        'Correo electrónico — proporcionado al momento de la compra y al iniciar sesión.',
+        'Nombre — opcional, proporcionado durante el diagnóstico del quiz.',
+        'Respuestas del quiz capilar — para generar tu rutina personalizada.',
+        'Datos de la compra — gestionados por Hotmart (nuestro procesador de pagos). NatGlow recibe únicamente el correo de la compradora y la confirmación del pago; no almacenamos datos de tarjeta.',
+        'Datos de uso — páginas visitadas, acciones realizadas y tiempo en la app, para mejorar el servicio.',
+        'Datos técnicos — dirección IP, tipo de dispositivo, navegador y país aproximado (obtenido por geolocalización del IP).',
       ],
     },
     {
-      heading: '3. Cómo usamos sus datos',
+      heading: '3. Cómo Usamos sus Datos',
       body: [
-        'Proveer y personalizar el servicio NatGlow.',
-        'Procesar pagos y gestionar suscripciones.',
-        'Enviar correos transaccionales (enlaces de acceso, actualizaciones de suscripción).',
-        'Mejorar nuestro producto mediante analítica agregada y anonimizada.',
-        'Medir la efectividad de nuestras campañas de marketing (publicidad en Facebook y TikTok), solo si ha dado su consentimiento para cookies de analítica.',
-        'Enviar eventos de conversión del lado del servidor a plataformas publicitarias (Facebook Conversions API y TikTok Events API) para mejorar la precisión de atribución. Estos eventos se comparan con señales del navegador ya consentidas y no generan seguimiento adicional.',
+        'Crear y mantener tu cuenta de acceso.',
+        'Generar y entregar tu rutina capilar personalizada.',
+        'Enviar comunicaciones operacionales (correo de bienvenida, recordatorios, soporte).',
+        'Procesar tu compra y eventual reembolso a través de Hotmart.',
+        'Medir el desempeño de nuestras campañas publicitarias y mejorar la experiencia.',
+        'Cumplir con obligaciones legales y prevenir fraude.',
       ],
     },
     {
-      heading: '4. Cookies y seguimiento',
-      body: 'Utilizamos cookies y tecnologías similares para gestión de sesión, analítica y publicidad. Las cookies de analítica y publicidad (como el Facebook Pixel y el TikTok Pixel) solo se cargan tras otorgar su consentimiento explícito. Puede revocar el consentimiento en cualquier momento haciendo clic en "Rechazar" en el banner de cookies o contactándonos.',
+      heading: '4. Cookies y Tecnologías de Seguimiento',
+      body: 'Utilizamos cookies y píxeles para gestión de sesión, analítica y publicidad. Específicamente cargamos el Facebook Pixel y el TikTok Pixel para medir conversiones de nuestras campañas y mejorar la relevancia de los anuncios que ves. Estas tecnologías se activan al ingresar a nuestras páginas. Si deseas desactivar el seguimiento publicitario, puedes hacerlo a través de la configuración de cookies y privacidad de tu navegador, o de las preferencias publicitarias de Facebook (facebook.com/adpreferences) y TikTok (tiktok.com/legal/page/global/cookie-policy/es).',
     },
     {
-      heading: '5. Servicios de terceros',
+      heading: '5. Compartir Datos con Terceros',
       body: [
-        'Stripe — procesamiento de pagos (stripe.com/privacy)',
-        'Supabase — base de datos y autenticación (supabase.com/privacy)',
-        'Meta (Facebook) — analítica publicitaria, sujeto a su consentimiento (incluye Conversions API para coincidencia del lado del servidor)',
-        'TikTok — analítica publicitaria, sujeto a su consentimiento (incluye Events API para coincidencia del lado del servidor)',
-        'Vercel — hospedaje de la aplicación (vercel.com/legal/privacy-policy)',
-        'Resend — entrega de correos transaccionales (resend.com/legal/privacy-policy)',
+        'Hotmart — procesa tu pago y emite factura. Política propia en hotmart.com.',
+        'Supabase — proveedor de base de datos y autenticación (donde se almacena tu cuenta).',
+        'Meta / Facebook — recibe eventos de conversión (compras, quiz iniciado, etc.) vinculados al ID anónimo de tu navegador.',
+        'TikTok — recibe los mismos tipos de eventos para optimización publicitaria.',
+        'Servicio de correo transaccional — para enviar el correo de bienvenida y recuperación de acceso.',
+        'No vendemos sus datos personales a terceros.',
       ],
     },
     {
-      heading: '6. Retención de datos',
-      body: 'Conservamos sus datos mientras su cuenta esté activa. Si cancela su suscripción, los retenemos hasta 12 meses antes de eliminarlos. Los datos de analítica agregados y anonimizados pueden conservarse indefinidamente.',
+      heading: '6. Tiempo de Retención',
+      body: 'Conservamos sus datos personales mientras mantenga una cuenta activa con nosotros. Después de su solicitud de eliminación, eliminamos los datos personales identificables en un plazo de 30 días, excepto cuando la ley exija conservarlos por períodos específicos (registros fiscales, por ejemplo).',
     },
     {
-      heading: '7. Sus derechos',
+      heading: '7. Sus Derechos',
       body: [
-        'Acceso — solicitar una copia de los datos que tenemos sobre usted.',
-        'Corrección — pedirnos que corrija datos inexactos.',
-        'Eliminación — solicitar el borrado de sus datos personales.',
-        'Oposición — oponerse al tratamiento con fines de marketing.',
-        'Portabilidad — recibir sus datos en formato estructurado y legible por máquina.',
+        'Acceder a los datos que tenemos sobre usted.',
+        'Solicitar corrección de datos inexactos.',
+        'Solicitar eliminación de su cuenta y datos asociados.',
+        'Retirar el consentimiento al procesamiento de datos cuando aplique.',
+        'Presentar queja ante la autoridad de protección de datos de su país.',
+        'Para ejercer cualquier derecho, escríbanos a ' + CONTACT_EMAIL + '. Respondemos en un plazo máximo de 30 días.',
       ],
     },
     {
-      heading: '8. Edad mínima',
-      body: 'NatGlow está destinado a mayores de 18 años. No recopilamos datos de menores de manera intencional.',
+      heading: '8. Seguridad',
+      body: 'Implementamos medidas técnicas y organizacionales para proteger sus datos: cifrado en tránsito (HTTPS), control de acceso por roles, auditorías periódicas y políticas de seguridad de bases de datos (Row Level Security). Sin embargo, ningún sistema es 100% inviolable; en caso de incidente de seguridad que afecte sus datos personales, le notificaremos según los plazos exigidos por la ley aplicable.',
     },
     {
-      heading: '9. Ubicación de servidores',
-      body: 'Sus datos se almacenan en servidores ubicados en Estados Unidos (Supabase) y pueden ser procesados por nuestros proveedores en otras jurisdicciones.',
+      heading: '9. Edad Mínima',
+      body: 'El Servicio está destinado exclusivamente a usuarias mayores de 18 años. No recolectamos conscientemente datos de menores. Si tomamos conocimiento de que un menor creó una cuenta, eliminaremos sus datos.',
     },
     {
-      heading: '10. Contacto',
-      body: `Si tiene preguntas sobre esta política o desea ejercer sus derechos, contáctenos en ${CONTACT_EMAIL}.`,
+      heading: '10. Cambios a Esta Política',
+      body: 'Podemos actualizar esta política periódicamente. Cambios significativos serán notificados por correo electrónico o mediante un aviso en la aplicación. La fecha de "Última actualización" arriba indica la versión vigente.',
+    },
+    {
+      heading: '11. Contacto',
+      body: 'Para preguntas sobre esta política o sobre sus datos personales, escríbanos a ' + CONTACT_EMAIL + '.',
     },
   ],
 }
 
 export default function Privacy() {
-  const { i18n } = useTranslation()
-  const content = i18n.language?.startsWith('es') ? ES : EN
-
+  const content = ES
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
       <div className="max-w-2xl mx-auto px-5 py-10">
-        {/* Back link */}
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 mb-8 transition-colors"
@@ -194,7 +125,7 @@ export default function Privacy() {
           ))}
         </div>
 
-        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow</p>
+        <p className="mt-12 text-xs text-stone-300 text-center">© {new Date().getFullYear()} NatGlow. Todos los derechos reservados.</p>
       </div>
     </div>
   )
