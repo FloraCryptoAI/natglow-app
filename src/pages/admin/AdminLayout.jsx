@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { to: '/admin/users',      icon: Users,            label: 'Usuárias' },
   { to: '/admin/financial',  icon: CreditCard,       label: 'Financeiro' },
   { to: '/admin/costs',      icon: Receipt,          label: 'Custos & ROI' },
-  { to: '/admin/retention',  icon: TrendDown,        label: 'Retenção' },
+  { to: '/admin/retention',  icon: TrendDown,        label: 'Atividade pós-compra' },
   { to: '/admin/geography',  icon: Globe,            label: 'Geografia & Conversão' },
   { to: '/admin/quiz',           icon: ClipboardText,    label: 'Respostas do Quiz' },
   { to: '/admin/notifications',  icon: Bell,             label: 'Notificações' },

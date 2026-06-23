@@ -50,8 +50,8 @@ export default function AdminRetention() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900">Engajamento</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Uso do app após a compra</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Atividade pós-compra</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Como as compradoras estão usando o app após a venda</p>
         </div>
         <button
           onClick={load}
