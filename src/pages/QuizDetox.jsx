@@ -105,16 +105,16 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
     { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz-v2/crespo.jpg' },
   ]
 
-  const SYMPTOM_PILLS = [
-    t('quizDetox.symptoms.pills.dandruff'),
-    t('quizDetox.symptoms.pills.itch'),
-    t('quizDetox.symptoms.pills.grease'),
-    t('quizDetox.symptoms.pills.hairLoss'),
-    t('quizDetox.symptoms.pills.redness'),
-    t('quizDetox.symptoms.pills.smell'),
-    t('quizDetox.symptoms.pills.nightItch'),
-    t('quizDetox.symptoms.pills.weakHair'),
-    t('quizDetox.symptoms.pills.sensitive'),
+  // Grid of 6 symptom cards — each shows a real image of the issue
+  // instead of one background photo with floating pills. Images reused
+  // from /quiz-v2 (legacy quiz assets already in public/).
+  const SYMPTOM_CARDS = [
+    { img: '/images/quiz-v2/queda-crescimento.jpg', label: t('quizDetox.symptoms.pills.hairLoss') },
+    { img: '/images/quiz-v2/ressecado-frizz.jpg',   label: t('quizDetox.symptoms.pills.nightItch') },
+    { img: '/images/quiz-v2/sem-brilho.jpg',        label: t('quizDetox.symptoms.pills.itch') },
+    { img: '/images/quiz-v2/oleoso.jpg',            label: t('quizDetox.symptoms.pills.grease') },
+    { img: '/images/quiz-v2/quebra-pontas.jpg',     label: t('quizDetox.symptoms.pills.sensitive') },
+    { img: '/images/quiz-v2/sem-volume.jpg',        label: t('quizDetox.symptoms.pills.weakHair') },
   ]
 
   // Detox uses green accent for headers (lighter "wellness/cleansing" vibe vs bold's red)
@@ -288,26 +288,37 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
           <motion.div key="symptoms" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
             {stepHeader(1, t('quizDetox.symptoms.title'))}
 
-            <div className="relative w-full rounded-2xl overflow-hidden bg-stone-100" style={{ aspectRatio: '1/1' }}>
-              <img
-                src="/images/quiz-bold/woman-symptoms.jpg"
-                alt=""
-                className="w-full h-full object-cover"
-                onError={e => { e.currentTarget.style.display = 'none' }}
-              />
-              <div className="absolute inset-0 p-3 flex flex-wrap items-start gap-2 content-between">
-                {SYMPTOM_PILLS.slice(0, 3).map((p, i) => (
-                  <span key={i} className="pill-green">{p}</span>
-                ))}
-                <div className="w-full"></div>
-                {SYMPTOM_PILLS.slice(3, 6).map((p, i) => (
-                  <span key={i} className="pill-green">{p}</span>
-                ))}
-                <div className="w-full"></div>
-                {SYMPTOM_PILLS.slice(6).map((p, i) => (
-                  <span key={i} className="pill-green">{p}</span>
-                ))}
-              </div>
+            <p className="text-sm text-stone-500 leading-snug text-center -mt-2">
+              {t('quizDetox.symptoms.subtitle')}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {SYMPTOM_CARDS.map((card, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative rounded-2xl overflow-hidden bg-stone-100 shadow-sm"
+                  style={{ aspectRatio: '1/1' }}
+                >
+                  <img
+                    src={card.img}
+                    alt={card.label}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={e => { e.currentTarget.style.display = 'none' }}
+                  />
+                  <div
+                    className="absolute inset-x-0 bottom-0 px-3 py-2.5 pointer-events-none"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)' }}
+                  >
+                    <p className="text-white text-[11px] sm:text-xs font-extrabold tracking-wider uppercase leading-tight text-center">
+                      {card.label}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             <div className="flex flex-col gap-3">

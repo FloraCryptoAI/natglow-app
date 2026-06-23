@@ -121,16 +121,17 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
     { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz-v2/crespo.jpg' },
   ]
 
-  const SYMPTOM_PILLS = [
-    t('quizBold.symptoms.pills.hairLoss'),
-    t('quizBold.symptoms.pills.dryness'),
-    t('quizBold.symptoms.pills.frizz'),
-    t('quizBold.symptoms.pills.splitEnds'),
-    t('quizBold.symptoms.pills.noShine'),
-    t('quizBold.symptoms.pills.grease'),
-    t('quizBold.symptoms.pills.noVolume'),
-    t('quizBold.symptoms.pills.itch'),
-    t('quizBold.symptoms.pills.weakRoot'),
+  // Grid of 6 symptom cards — each shows a real image of that hair issue
+  // instead of one background photo with floating pills. Higher recognition,
+  // better conversion. Images reused from /quiz-v2 (legacy quiz assets that
+  // were already shipped to public/).
+  const SYMPTOM_CARDS = [
+    { img: '/images/quiz-v2/queda-crescimento.jpg', label: t('quizBold.symptoms.pills.hairLoss') },
+    { img: '/images/quiz-v2/ressecado-frizz.jpg',   label: t('quizBold.symptoms.pills.dryness') },
+    { img: '/images/quiz-v2/quebra-pontas.jpg',     label: t('quizBold.symptoms.pills.splitEnds') },
+    { img: '/images/quiz-v2/sem-brilho.jpg',        label: t('quizBold.symptoms.pills.noShine') },
+    { img: '/images/quiz-v2/oleoso.jpg',            label: t('quizBold.symptoms.pills.grease') },
+    { img: '/images/quiz-v2/sem-volume.jpg',        label: t('quizBold.symptoms.pills.noVolume') },
   ]
 
   useEffect(() => {
@@ -288,30 +289,42 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
           <motion.div key="symptoms" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
             <ProgressBar current={1} total={TOTAL_QUIZ_STEPS} />
 
-            <h2 className="text-2xl font-extrabold text-stone-900 leading-snug text-center">
-              {t('quizBold.symptoms.title')}
-            </h2>
+            <div className="flex flex-col gap-2 text-center">
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                {t('quizBold.symptoms.title')}
+              </h2>
+              <p className="text-sm text-stone-500 leading-snug">
+                {t('quizBold.symptoms.subtitle')}
+              </p>
+            </div>
 
-            <div className="relative w-full rounded-2xl overflow-hidden bg-stone-100" style={{ aspectRatio: '1/1' }}>
-              <img
-                src="/images/quiz-bold/woman-symptoms.jpg"
-                alt=""
-                className="w-full h-full object-cover"
-                onError={e => { e.currentTarget.style.display = 'none' }}
-              />
-              <div className="absolute inset-0 p-3 flex flex-wrap items-start gap-2 content-between">
-                {SYMPTOM_PILLS.slice(0, 3).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
-                ))}
-                <div className="w-full"></div>
-                {SYMPTOM_PILLS.slice(3, 6).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
-                ))}
-                <div className="w-full"></div>
-                {SYMPTOM_PILLS.slice(6).map((p, i) => (
-                  <span key={i} className="pill">{p}</span>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-3">
+              {SYMPTOM_CARDS.map((card, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative rounded-2xl overflow-hidden bg-stone-100 shadow-sm"
+                  style={{ aspectRatio: '1/1' }}
+                >
+                  <img
+                    src={card.img}
+                    alt={card.label}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={e => { e.currentTarget.style.display = 'none' }}
+                  />
+                  <div
+                    className="absolute inset-x-0 bottom-0 px-3 py-2.5 pointer-events-none"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)' }}
+                  >
+                    <p className="text-white text-[11px] sm:text-xs font-extrabold tracking-wider uppercase leading-tight text-center">
+                      {card.label}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             <div className="flex flex-col gap-3">

@@ -93,6 +93,7 @@
     },
     "symptoms": {
       "title": "¿Reconoces alguna de estas señales en tu cabello?",
+      "subtitle": "Identifica lo que sientes — esto nos ayuda a personalizar tu rutina",
       "pills": {
         "hairLoss": "POCA VITALIDAD",
         "dryness": "RESEQUEDAD",
@@ -209,6 +210,7 @@
     },
     "symptoms": {
       "title": "¿Tu cabello presenta alguna de estas señales?",
+      "subtitle": "Identifica lo que sientes — esto nos ayuda a personalizar tu rutina",
       "pills": {
         "dandruff": "CASPA",
         "itch": "FALTA DE BRILLO",
