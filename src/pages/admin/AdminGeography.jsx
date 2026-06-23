@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '@/lib/AdminAuthContext'
-import { AlertCircle, Globe, Users, TrendingUp } from 'lucide-react'
+import { AlertCircle, Globe, Users, TrendingUp, DollarSign, Target, MapPin } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
 import {
-  ResponsiveContainer, PieChart, Pie, Cell, Tooltip,
+  ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
-  LineChart, Line,
 } from 'recharts'
 
-const LANG_COLORS = { es: '#10b981', en: '#6366f1' }
+const BOLD_COLOR  = '#0891b2'
+const DETOX_COLOR = '#7c3aed'
 
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
@@ -56,76 +56,21 @@ function ChartSkeleton({ h = 200 }) {
   return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
-function SectionHeader({ title }) {
-  return <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</p>
-}
-
-function LangPie({ langStarts }) {
-  const total = (langStarts?.es ?? 0) + (langStarts?.en ?? 0)
-  if (total === 0) return <p className="text-sm text-gray-400 text-center py-8">Sem dados ainda.</p>
-
-  const pieData = [
-    { name: 'Espanhol (ES)', value: langStarts.es, color: LANG_COLORS.es },
-    { name: 'Inglês (EN)', value: langStarts.en, color: LANG_COLORS.en },
-  ]
-
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    if (percent < 0.05) return null
-    const RADIAN = Math.PI / 180
-    const r = innerRadius + (outerRadius - innerRadius) * 0.5
-    const x = cx + r * Math.cos(-midAngle * RADIAN)
-    const y = cy + r * Math.sin(-midAngle * RADIAN)
-    return (
-      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700}>
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    )
-  }
-
+function SectionHeader({ title, hint }) {
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-6">
-      <div className="w-full sm:w-48 flex-shrink-0">
-        <ResponsiveContainer width="100%" height={180}>
-          <PieChart>
-            <Pie
-              data={pieData} cx="50%" cy="50%"
-              innerRadius={44} outerRadius={80}
-              dataKey="value" labelLine={false}
-              label={CustomLabel}
-            >
-              {pieData.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.length) return null
-                const d = payload[0]
-                return (
-                  <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl text-xs">
-                    <p className="font-bold mb-0.5">{d.name}</p>
-                    <p>{d.value} sessões</p>
-                  </div>
-                )
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="flex flex-col gap-3 flex-1">
-        {pieData.map(d => (
-          <div key={d.name} className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: d.color }} />
-            <span className="text-sm text-gray-600 flex-1">{d.name}</span>
-            <span className="text-sm font-bold text-gray-900 tabular-nums">{d.value}</span>
-            <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
-              {total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : '—'}
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="mb-3">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{title}</p>
+      {hint && <p className="text-[11px] text-gray-400 mt-0.5">{hint}</p>}
     </div>
   )
+}
+
+// Color-code conversion rates so it's obvious which countries are winners/losers.
+function convBadge(rate) {
+  if (rate >= 5) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' }
+  if (rate >= 2) return { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200' }
+  if (rate > 0)  return { bg: 'bg-rose-50',    text: 'text-rose-700',    border: 'border-rose-200' }
+  return { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-200' }
 }
 
 export default function AdminGeography() {
@@ -134,6 +79,8 @@ export default function AdminGeography() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [sortKey, setSortKey] = useState('paid')  // paid | revenue | conv_rate | started | completion_rate
+  const [minStarts, setMinStarts] = useState(0)
 
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
   const authHeaders = {
@@ -163,24 +110,35 @@ export default function AdminGeography() {
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const langStarts   = data?.langStarts   ?? { es: 0, en: 0 }
-  const langConverts = data?.langConverts ?? { es: 0, en: 0 }
-  const topCountries = data?.topCountries ?? []
-  const monthlyTrend = data?.monthlyTrend ?? []
+  const totals        = data?.totals        ?? { started: 0, completed: 0, paid: 0, revenue: 0, conv_rate: 0, countries_with_traffic: 0 }
+  const countries     = data?.countries     ?? []
+  const bestConverter = data?.bestConverter ?? null
+  const monthlyTrend  = data?.monthlyTrend  ?? []
+  const recent        = data?.recent        ?? { weekBold: 0, weekDetox: 0, monthBold: 0, monthDetox: 0 }
+  const productPrice  = data?.product_price_usd ?? 17
 
-  const totalStarts    = langStarts.es + langStarts.en
-  const totalConverts  = langConverts.es + langConverts.en
-  const convES = langStarts.es > 0 ? ((langConverts.es / langStarts.es) * 100).toFixed(1) : '—'
-  const convEN = langStarts.en > 0 ? ((langConverts.en / langStarts.en) * 100).toFixed(1) : '—'
-  const maxCountry = topCountries[0]?.count ?? 1
+  const filteredSortedCountries = useMemo(() => {
+    const filtered = countries.filter(c => c.started >= minStarts)
+    return [...filtered].sort((a, b) => {
+      if (sortKey === 'conv_rate')       return b.conv_rate - a.conv_rate
+      if (sortKey === 'revenue')         return b.revenue - a.revenue
+      if (sortKey === 'started')         return b.started - a.started
+      if (sortKey === 'completion_rate') return b.completion_rate - a.completion_rate
+      return b.paid - a.paid  // default
+    })
+  }, [countries, sortKey, minStarts])
+
+  const fmt$ = (n) => `$${Math.round(n).toLocaleString('pt-BR')}`
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900">Idioma & Geografia</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Distribuição por idioma e origem geográfica</p>
+          <h1 className="text-xl font-extrabold text-gray-900">Geografia & Conversão por País</h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Onde investir mais em ads — taxa de conversão e receita por país
+          </p>
         </div>
         <button
           onClick={load}
@@ -201,223 +159,199 @@ export default function AdminGeography() {
         </div>
       )}
 
-      {/* Summary metrics */}
+      {/* Summary cards */}
       <section>
-        <SectionHeader title="Resumo" />
+        <SectionHeader title="Visão geral" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            icon={Users} iconBg="bg-emerald-50" iconColor="text-emerald-500"
-            label="Total iniciaram (ES)"
-            value={loading ? '—' : langStarts.es}
-            sub={loading ? undefined : `${totalStarts > 0 ? ((langStarts.es / totalStarts) * 100).toFixed(1) : 0}% do total`}
-            loading={loading}
+            icon={Globe} iconBg="bg-cyan-50" iconColor="text-cyan-500"
+            label="Países com tráfego" loading={loading}
+            value={totals.countries_with_traffic}
+            sub={`${totals.started.toLocaleString('pt-BR')} quizes iniciados`}
           />
           <MetricCard
-            icon={Users} iconBg="bg-indigo-50" iconColor="text-indigo-500"
-            label="Total iniciaram (EN)"
-            value={loading ? '—' : langStarts.en}
-            sub={loading ? undefined : `${totalStarts > 0 ? ((langStarts.en / totalStarts) * 100).toFixed(1) : 0}% do total`}
-            loading={loading}
+            icon={Target} iconBg="bg-violet-50" iconColor="text-violet-500"
+            label="Conversão global" loading={loading}
+            value={`${totals.conv_rate}%`}
+            sub={`${totals.paid} compras de ${totals.started.toLocaleString('pt-BR')} quizes`}
           />
           <MetricCard
-            icon={TrendingUp} iconBg="bg-emerald-50" iconColor="text-emerald-600"
-            label="Conversão ES"
-            value={loading ? '—' : (convES !== '—' ? `${convES}%` : '—')}
-            sub={`${langConverts.es} assinantes ES`}
-            loading={loading}
+            icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
+            label="Receita total" loading={loading}
+            value={fmt$(totals.revenue)}
+            sub={`Bold + Detox · $${productPrice}/venda`}
           />
           <MetricCard
-            icon={TrendingUp} iconBg="bg-indigo-50" iconColor="text-indigo-600"
-            label="Conversão EN"
-            value={loading ? '—' : (convEN !== '—' ? `${convEN}%` : '—')}
-            sub={`${langConverts.en} assinantes EN`}
-            loading={loading}
+            icon={TrendingUp} iconBg="bg-amber-50" iconColor="text-amber-500"
+            label="Melhor país"  loading={loading}
+            value={bestConverter ? `${bestConverter.nome}` : '—'}
+            sub={bestConverter
+              ? `${bestConverter.conv_rate}% · ${bestConverter.paid} venda${bestConverter.paid === 1 ? '' : 's'}`
+              : 'Mín. 10 quizes p/ qualificar'}
           />
         </div>
       </section>
 
-      {/* New subs this week / month */}
+      {/* Recent window */}
       <section>
-        <SectionHeader title="Novas assinaturas por idioma" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <p className="font-bold text-gray-800 mb-4">Esta semana</p>
-            {loading ? <ChartSkeleton h={56} /> : (
-              <div className="flex flex-col gap-2.5">
-                {[
-                  { lang: 'ES', value: data?.weekEs ?? 0, color: LANG_COLORS.es },
-                  { lang: 'EN', value: data?.weekEn ?? 0, color: LANG_COLORS.en },
-                ].map(r => (
-                  <div key={r.lang} className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-gray-500 w-6">{r.lang}</span>
-                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, r.value * 20)}%`, background: r.color }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold text-gray-700 w-5 text-right">{r.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <p className="font-bold text-gray-800 mb-4">Este mês</p>
-            {loading ? <ChartSkeleton h={56} /> : (
-              <div className="flex flex-col gap-2.5">
-                {[
-                  { lang: 'ES', value: data?.monthEs ?? 0, color: LANG_COLORS.es },
-                  { lang: 'EN', value: data?.monthEn ?? 0, color: LANG_COLORS.en },
-                ].map(r => {
-                  const maxMonth = Math.max(data?.monthEs ?? 0, data?.monthEn ?? 0, 1)
-                  return (
-                    <div key={r.lang} className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-gray-500 w-6">{r.lang}</span>
-                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${(r.value / maxMonth) * 100}%`, background: r.color }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold text-gray-700 w-5 text-right">{r.value}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+        <SectionHeader title="Vendas recentes (por funil)" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
+            label="Bold — esta semana" value={recent.weekBold} loading={loading}
+            sub={`${fmt$(recent.weekBold * productPrice)} arrecadado`}
+          />
+          <MetricCard
+            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
+            label="Detox — esta semana" value={recent.weekDetox} loading={loading}
+            sub={`${fmt$(recent.weekDetox * productPrice)} arrecadado`}
+          />
+          <MetricCard
+            icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
+            label="Bold — este mês" value={recent.monthBold} loading={loading}
+            sub={`${fmt$(recent.monthBold * productPrice)} arrecadado`}
+          />
+          <MetricCard
+            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
+            label="Detox — este mês" value={recent.monthDetox} loading={loading}
+            sub={`${fmt$(recent.monthDetox * productPrice)} arrecadado`}
+          />
         </div>
       </section>
 
-      {/* Language distribution pie */}
+      {/* Monthly trend chart by funnel */}
       <section className="bg-white rounded-2xl border border-gray-100 p-5">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-            <Globe className="w-[18px] h-[18px] text-emerald-500" />
-          </div>
-          <p className="font-bold text-gray-800">Distribuição por idioma — quizzes iniciados</p>
-          {!loading && (
-            <span className="ml-auto text-sm text-gray-400 font-medium">{totalStarts} total</span>
-          )}
-        </div>
-        {loading ? <ChartSkeleton h={200} /> : <LangPie langStarts={langStarts} />}
-      </section>
-
-      {/* Monthly trend */}
-      <section className="bg-white rounded-2xl border border-gray-100 p-5">
-        <p className="font-bold text-gray-800 mb-4">Evolução mensal ES vs EN — assinaturas</p>
-        {loading ? (
-          <ChartSkeleton h={220} />
-        ) : monthlyTrend.every(m => m.es === 0 && m.en === 0) ? (
-          <p className="text-sm text-gray-400 text-center py-12">Sem dados de conversão no período.</p>
-        ) : (
+        <SectionHeader
+          title="Tendência mensal (Bold vs Detox)"
+          hint="Vendas por funil nos últimos 6 meses"
+        />
+        {loading ? <ChartSkeleton h={220} /> : (
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={monthlyTrend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <BarChart data={monthlyTrend} barGap={4} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
-              <Tooltip content={({ active, payload, label }) => (
-                <ChartTooltip active={active} payload={payload} label={label} />
-              )} />
-              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-                formatter={v => <span className="text-gray-500">{v}</span>} />
-              <Line
-                type="monotone" dataKey="es" name="Espanhol (ES)"
-                stroke={LANG_COLORS.es} strokeWidth={2.5}
-                dot={{ r: 3.5, fill: LANG_COLORS.es, strokeWidth: 0 }}
-                activeDot={{ r: 5 }}
-              />
-              <Line
-                type="monotone" dataKey="en" name="Inglês (EN)"
-                stroke={LANG_COLORS.en} strokeWidth={2.5}
-                dot={{ r: 3.5, fill: LANG_COLORS.en, strokeWidth: 0 }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </section>
-
-      {/* Top 10 countries */}
-      <section className="bg-white rounded-2xl border border-gray-100 p-5">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-            <Globe className="w-[18px] h-[18px] text-blue-500" />
-          </div>
-          <p className="font-bold text-gray-800">Top 10 países de origem</p>
-          <span className="ml-auto text-xs text-gray-400">por quizzes iniciados</span>
-        </div>
-        {loading ? (
-          <ChartSkeleton h={240} />
-        ) : topCountries.length === 0 ? (
-          <div className="py-12 text-center">
-            <Globe className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-            <p className="text-sm text-gray-400">Sem dados de país ainda.</p>
-            <p className="text-xs text-gray-300 mt-0.5">Os países aparecem quando o Cloudflare envia o header CF-IPCountry.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {topCountries.map((c, i) => (
-              <div key={c.pais} className="flex items-center gap-3">
-                <span className="text-sm text-gray-400 font-medium w-5 text-right flex-shrink-0">{i + 1}</span>
-                <span className="text-sm font-semibold text-gray-700 w-36 flex-shrink-0 truncate">{c.nome}</span>
-                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-violet-400 rounded-full transition-all duration-500"
-                    style={{ width: `${(c.count / maxCountry) * 100}%` }}
-                  />
-                </div>
-                <span className="text-sm font-bold text-gray-700 w-8 text-right tabular-nums">{c.count}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Conversion rate comparison chart */}
-      <section className="bg-white rounded-2xl border border-gray-100 p-5">
-        <p className="font-bold text-gray-800 mb-4">Taxa de conversão por idioma</p>
-        {loading ? (
-          <ChartSkeleton h={160} />
-        ) : (
-          <ResponsiveContainer width="100%" height={160}>
-            <BarChart
-              data={[
-                { lang: 'Espanhol (ES)', taxa: parseFloat(convES) || 0, fill: LANG_COLORS.es },
-                { lang: 'Inglês (EN)',   taxa: parseFloat(convEN) || 0, fill: LANG_COLORS.en },
-              ]}
-              margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-              <XAxis dataKey="lang" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-              <YAxis
-                tickFormatter={v => `${v}%`}
-                tick={{ fontSize: 11, fill: '#9ca3af' }}
-                axisLine={false} tickLine={false} width={40}
-              />
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (!active || !payload?.length) return null
-                  return (
-                    <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl text-xs">
-                      <p className="font-bold">{label}</p>
-                      <p>{payload[0].value}% de conversão</p>
-                    </div>
-                  )
-                }}
-              />
-              <Bar dataKey="taxa" name="Conversão" radius={[6, 6, 0, 0]} maxBarSize={80}>
-                {[
-                  { fill: LANG_COLORS.es },
-                  { fill: LANG_COLORS.en },
-                ].map((entry, index) => (
-                  <Cell key={index} fill={entry.fill} />
-                ))}
-              </Bar>
+              <Tooltip content={<ChartTooltip />} />
+              <Legend wrapperStyle={{ paddingTop: 8, fontSize: 12 }} iconType="circle" />
+              <Bar dataKey="bold"  name="Quiz Bold"  fill={BOLD_COLOR}  radius={[4,4,0,0]} maxBarSize={42} />
+              <Bar dataKey="detox" name="Quiz Detox" fill={DETOX_COLOR} radius={[4,4,0,0]} maxBarSize={42} />
             </BarChart>
           </ResponsiveContainer>
+        )}
+      </section>
+
+      {/* Per-country table */}
+      <section className="bg-white rounded-2xl border border-gray-100 p-5">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Detalhamento por país</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">Ordene para encontrar onde investir mais em ads</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={sortKey}
+              onChange={e => setSortKey(e.target.value)}
+              className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none focus:border-violet-400"
+            >
+              <option value="paid">Mais vendas</option>
+              <option value="revenue">Maior receita</option>
+              <option value="conv_rate">Melhor conversão</option>
+              <option value="started">Mais quizes iniciados</option>
+              <option value="completion_rate">Melhor taxa de conclusão</option>
+            </select>
+            <select
+              value={minStarts}
+              onChange={e => setMinStarts(parseInt(e.target.value, 10))}
+              className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none focus:border-violet-400"
+            >
+              <option value={0}>Todos os países</option>
+              <option value={5}>Mín. 5 quizes</option>
+              <option value={10}>Mín. 10 quizes</option>
+              <option value={25}>Mín. 25 quizes</option>
+            </select>
+          </div>
+        </div>
+
+        {loading ? (
+          <ChartSkeleton h={260} />
+        ) : filteredSortedCountries.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-12">
+            Sem dados ainda — espere algumas sessões chegarem.
+          </p>
+        ) : (
+          <div className="overflow-x-auto -mx-5 px-5">
+            <table className="w-full text-sm min-w-[760px]">
+              <thead>
+                <tr className="border-b border-gray-100 text-[11px] uppercase tracking-wider text-gray-400">
+                  <th className="text-left  font-bold py-2.5 pr-3">País</th>
+                  <th className="text-right font-bold py-2.5 px-2">Quiz iniciado</th>
+                  <th className="text-right font-bold py-2.5 px-2">Concluído</th>
+                  <th className="text-right font-bold py-2.5 px-2">% concluiu</th>
+                  <th className="text-right font-bold py-2.5 px-2">Vendas</th>
+                  <th className="text-right font-bold py-2.5 px-2">Conv. %</th>
+                  <th className="text-right font-bold py-2.5 px-2">Receita</th>
+                  <th className="text-right font-bold py-2.5 pl-2">Bold/Detox</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSortedCountries.map(c => {
+                  const badge = convBadge(c.conv_rate)
+                  return (
+                    <tr key={c.pais} className="border-b border-gray-50 hover:bg-gray-50/50">
+                      <td className="py-3 pr-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                          <span className="font-semibold text-gray-800">{c.nome}</span>
+                          <span className="text-[10px] text-gray-400 font-mono">{c.pais}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-right tabular-nums text-gray-700">{c.started.toLocaleString('pt-BR')}</td>
+                      <td className="py-3 px-2 text-right tabular-nums text-gray-700">{c.completed.toLocaleString('pt-BR')}</td>
+                      <td className="py-3 px-2 text-right tabular-nums text-gray-500">{c.completion_rate}%</td>
+                      <td className="py-3 px-2 text-right tabular-nums font-semibold text-gray-900">{c.paid}</td>
+                      <td className="py-3 px-2 text-right">
+                        <span className={`inline-block px-2 py-0.5 rounded-full border text-xs font-bold tabular-nums ${badge.bg} ${badge.text} ${badge.border}`}>
+                          {c.conv_rate}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-2 text-right tabular-nums font-bold text-emerald-600">
+                        {c.revenue > 0 ? fmt$(c.revenue) : '—'}
+                      </td>
+                      <td className="py-3 pl-2 text-right">
+                        {c.paid === 0 ? (
+                          <span className="text-gray-300 text-xs">—</span>
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5 text-[11px]">
+                            <span style={{ color: BOLD_COLOR }}  className="font-semibold tabular-nums">B {c.bold_paid}</span>
+                            <span className="text-gray-300">·</span>
+                            <span style={{ color: DETOX_COLOR }} className="font-semibold tabular-nums">D {c.detox_paid}</span>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!loading && filteredSortedCountries.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-gray-400">
+            <span className="font-semibold">Legenda Conv. %:</span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
+              ≥ 5% (excelente · escalar ads)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-400" />
+              2–5% (ok · testar criativos)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-rose-400" />
+              &lt; 2% (caro · revisar)
+            </span>
+          </div>
         )}
       </section>
     </div>
