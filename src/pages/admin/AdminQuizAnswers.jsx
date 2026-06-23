@@ -464,10 +464,13 @@ export default function AdminQuizAnswers() {
     }
   }, [apiFetch, period])
 
-  const loadIndividualQuiz = useCallback(async (plan) => {
+  const loadIndividualQuiz = useCallback(async (funnel) => {
     setQuizLoading(true)
     try {
-      const result = await apiFetch(`/admin-quiz?plan=${plan}`)
+      // funnel = 'bold' | 'detox' — selects event_type prefix on the server
+      // (quiz_bold_* vs quiz_detox_*). The legacy `plan` query param is for
+      // pricing_plan filtering, which is not what we want here.
+      const result = await apiFetch(`/admin-quiz?funnel=${funnel}`)
       if (!result) return
       setQuizData(result)
     } catch {

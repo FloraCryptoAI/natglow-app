@@ -61,14 +61,30 @@ Deno.serve(async (req) => {
       })
     }
 
-    const url  = new URL(req.url)
-    const plan = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
-    const pf   = planFilter(plan)
+    const url    = new URL(req.url)
+    const plan   = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
+    const funnel = url.searchParams.get('funnel') ?? 'all'  // 'all' | 'bold' | 'detox'
+    const pf     = planFilter(plan)
+
+    // Map funnel to event types. The new persuasive funnels fire
+    // quiz_bold_started/quiz_detox_started instead of the legacy quiz_started.
+    // Legacy 'quiz_started'/'quiz_completed' are kept for historical data.
+    const startedEventTypes =
+      funnel === 'bold'  ? ['quiz_bold_started'] :
+      funnel === 'detox' ? ['quiz_detox_started'] :
+      ['quiz_started', 'quiz_bold_started', 'quiz_detox_started']
+
+    const completedEventTypes =
+      funnel === 'bold'  ? ['quiz_bold_completed'] :
+      funnel === 'detox' ? ['quiz_detox_completed'] :
+      ['quiz_completed', 'quiz_bold_completed', 'quiz_detox_completed']
+
+    const inOp = (types: string[]) => `in.(${types.map(encodeURIComponent).join(',')})`
 
     const [quizEvents, payEvents, startedEvents] = await Promise.all([
-      fetchEvents(`event_type=eq.quiz_completed&select=session_id,idioma,metadata,created_at${pf}`),
+      fetchEvents(`event_type=${inOp(completedEventTypes)}&select=session_id,idioma,metadata,created_at${pf}`),
       fetchEvents(`event_type=eq.payment_completed&select=session_id,created_at${pf}`),
-      fetchEvents(`event_type=eq.quiz_started&select=session_id,idioma,pais${pf}`),
+      fetchEvents(`event_type=${inOp(startedEventTypes)}&select=session_id,idioma,pais${pf}`),
     ])
 
     const convertedSessions = new Set(payEvents.map(e => e.session_id as string))
