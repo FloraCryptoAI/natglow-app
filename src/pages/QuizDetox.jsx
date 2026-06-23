@@ -299,24 +299,26 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative rounded-2xl overflow-hidden bg-stone-100 shadow-sm"
-                  style={{ aspectRatio: '1/1' }}
+                  className="flex flex-col gap-2"
                 >
-                  <img
-                    src={card.img}
-                    alt={card.label}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                    onError={e => { e.currentTarget.style.display = 'none' }}
-                  />
                   <div
-                    className="absolute inset-x-0 bottom-0 px-3 py-2.5 pointer-events-none"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)' }}
+                    className="w-full rounded-2xl overflow-hidden bg-stone-100 shadow-sm"
+                    style={{ aspectRatio: '7/5' }}
                   >
-                    <p className="text-white text-[11px] sm:text-xs font-extrabold tracking-wider uppercase leading-tight text-center">
-                      {card.label}
-                    </p>
+                    <img
+                      src={card.img}
+                      alt={card.label}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      onError={e => { e.currentTarget.style.display = 'none' }}
+                    />
                   </div>
+                  <span
+                    className="self-center px-3 py-1 rounded-full text-[11px] sm:text-xs font-extrabold tracking-wider uppercase text-center"
+                    style={{ background: '#E8F8F0', color: GREEN_DARK, border: `1px solid ${GREEN}33` }}
+                  >
+                    {card.label}
+                  </span>
                 </motion.div>
               ))}
             </div>
