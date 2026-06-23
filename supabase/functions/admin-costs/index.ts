@@ -4,23 +4,35 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-// Both /quiz-bold and /quiz-detox use plan_key 'one_time_basic' ($17).
-// Standard/Premium are legacy plans kept for historical orders.
-const PLAN_REVENUE: Record<string, number> = {
+// Single product. Both /quiz-bold and /quiz-detox sell the same Hotmart
+// product at $17. Funnel attribution comes from
+// funnel_events.payment_completed.metadata.source ('offer_bold' | 'offer_detox').
+const PRODUCT_PRICE = 17
+
+// Legacy plan keys are still mapped so historical subs (Stripe era) still
+// contribute revenue to global totals; they no longer appear as separate
+// rows in the ROI breakdown.
+const LEGACY_PLAN_REVENUE: Record<string, number> = {
   one_time_basic:    17,
   one_time_standard: 27,
   one_time_premium:  47,
 }
 
-const PLAN_LABELS_COSTS: Record<string, string> = {
-  one_time_basic:    'NatGlow $17 (Bold/Detox)',
-  one_time_standard: 'Completo $27 (legado)',
-  one_time_premium:  'VIP $47 (legado)',
+const FUNNEL_LABELS: Record<string, string> = {
+  bold:   'Quiz Bold',
+  detox:  'Quiz Detox',
+  global: 'Global / não vinculado',
 }
 
 function subRevenue(s: Record<string, unknown>): number {
   if (typeof s.purchase_amount === 'number') return s.purchase_amount
-  return PLAN_REVENUE[(s.pricing_plan as string) ?? ''] ?? 0
+  return LEGACY_PLAN_REVENUE[(s.pricing_plan as string) ?? ''] ?? PRODUCT_PRICE
+}
+
+function sourceToFunnel(src: string | null | undefined): 'bold' | 'detox' | 'unknown' {
+  if (src === 'offer_bold')  return 'bold'
+  if (src === 'offer_detox') return 'detox'
+  return 'unknown'
 }
 
 const dbHeaders = {
@@ -227,10 +239,12 @@ Deno.serve(async (req) => {
       const sixMonths    = getSixMonths()
       const sixStartDate = sixMonths[0].startDate
 
-      const [periodCostsArr, sixMonthCosts, subs] = await Promise.all([
+      const [periodCostsArr, sixMonthCosts, subs, periodPayEvents] = await Promise.all([
         supabaseGet(`admin_costs?select=categoria,valor,pricing_plan&data=gte.${startISO}&data=lte.${endISO}`),
         supabaseGet(`admin_costs?select=data,categoria,valor&data=gte.${sixStartDate}&order=data.asc`),
         supabaseGet(`subscriptions?select=created_at,status,pricing_plan,purchase_amount&order=created_at.asc&limit=2000`),
+        // Funnel attribution data: payment_completed events in the period with source metadata
+        supabaseGet(`funnel_events?select=metadata&event_type=eq.payment_completed&created_at=gte.${startDate.toISOString()}&created_at=lte.${endDate.toISOString()}&limit=5000`),
       ])
 
       const periodRevenue = await fetchHotmartRevenueInPeriod(
@@ -296,60 +310,79 @@ Deno.serve(async (req) => {
         }
       })
 
-      // ROI per plan
-      const planRoi = Object.keys(PLAN_REVENUE).map(planKey => {
-        const planSubs = subs.filter(s => {
-          const p = (s.pricing_plan as string | null) ?? 'one_time_basic'
-          if (p !== planKey) return false
+      // ── ROI per FUNNEL (Bold / Detox / Global) ────────────────────────
+      // Revenue comes from funnel_events.payment_completed.metadata.source
+      // (set by hotmart-webhook based on user's last cta_clicked source).
+      // Each sale counts as $17.
+      const funnelSales: Record<'bold' | 'detox' | 'unknown', number> = {
+        bold: 0, detox: 0, unknown: 0,
+      }
+      for (const ev of periodPayEvents) {
+        const src = (ev.metadata as { source?: string } | null)?.source
+        funnelSales[sourceToFunnel(src)]++
+      }
+      // Legacy/non-funnel revenue (Stripe era, manual orders, etc.) still
+      // counts in totals but goes to 'global' for the breakdown.
+      const periodSubsRevenue = subs
+        .filter(s => {
           const c = s.created_at as string
           return c >= startDate.toISOString() && c <= endDate.toISOString() && s.status === 'active'
         })
+        .reduce((acc, s) => acc + subRevenue(s), 0)
+      const funnelEventsRevenue = (funnelSales.bold + funnelSales.detox + funnelSales.unknown) * PRODUCT_PRICE
+      const unattributedRevenue = Math.max(0, periodSubsRevenue - funnelEventsRevenue)
 
-        const revenueContribution = parseFloat(planSubs.reduce((acc, s) => acc + subRevenue(s), 0).toFixed(2))
+      // Ad costs per funnel — admin_costs.pricing_plan now accepts 'bold' / 'detox'
+      // as overloaded funnel identifiers. Legacy plan_keys (one_time_*) roll up to global.
+      const costsByFunnel = (key: 'bold' | 'detox' | 'global') =>
+        periodCostsArr
+          .filter(c => {
+            if (c.categoria !== 'trafego_pago') return false
+            const pp = c.pricing_plan as string | null
+            if (key === 'global') {
+              return !pp || (pp !== 'bold' && pp !== 'detox')
+            }
+            return pp === key
+          })
+          .reduce((s, c) => s + Number(c.valor ?? 0), 0)
 
-        const planTrafficCosts = parseFloat(
-          periodCostsArr
-            .filter(c => c.categoria === 'trafego_pago' && c.pricing_plan === planKey)
-            .reduce((s, c) => s + Number(c.valor ?? 0), 0)
-            .toFixed(2)
-        )
-
-        const roi = planTrafficCosts > 0
-          ? parseFloat((revenueContribution / planTrafficCosts).toFixed(2))
-          : null
+      const funnelRoi = (['bold', 'detox'] as const).map(funnel => {
+        const sales        = funnelSales[funnel]
+        const revenue      = sales * PRODUCT_PRICE
+        const trafficCost  = parseFloat(costsByFunnel(funnel).toFixed(2))
+        const roi          = trafficCost > 0 ? parseFloat((revenue / trafficCost).toFixed(2)) : null
+        const cpa          = sales > 0 ? parseFloat((trafficCost / sales).toFixed(2)) : null
 
         const confidenceLevel: 'high' | 'medium' | 'low' =
-          planSubs.length >= 100 ? 'high' : planSubs.length >= 30 ? 'medium' : 'low'
+          sales >= 50 ? 'high' : sales >= 15 ? 'medium' : 'low'
 
         return {
-          plan_key:             planKey,
-          label:                PLAN_LABELS_COSTS[planKey] ?? planKey,
-          price:                PLAN_REVENUE[planKey] ?? 0,
-          active_subs:          planSubs.length,
-          revenue_contribution: revenueContribution,
-          traffic_costs:        planTrafficCosts,
+          funnel,
+          label:                FUNNEL_LABELS[funnel],
+          price:                PRODUCT_PRICE,
+          sales,
+          revenue_contribution: parseFloat(revenue.toFixed(2)),
+          traffic_costs:        trafficCost,
           roi,
+          cpa,
           confidence_level:     confidenceLevel,
         }
       })
 
-      // Global unlinked traffic costs
-      const globalTrafficCosts = parseFloat(
-        periodCostsArr
-          .filter(c => c.categoria === 'trafego_pago' && !PLAN_REVENUE[c.pricing_plan as string])
-          .reduce((s, c) => s + Number(c.valor ?? 0), 0)
-          .toFixed(2)
-      )
-      if (globalTrafficCosts > 0) {
-        planRoi.push({
-          plan_key:             'global',
-          label:                'Global (não vinculado)',
-          price:                0,
-          active_subs:          0,
-          revenue_contribution: 0,
+      const globalTrafficCosts = parseFloat(costsByFunnel('global').toFixed(2))
+      const globalSalesAttributed = funnelSales.unknown
+      const globalRevenue = globalSalesAttributed * PRODUCT_PRICE + unattributedRevenue
+      if (globalTrafficCosts > 0 || globalSalesAttributed > 0 || unattributedRevenue > 0) {
+        funnelRoi.push({
+          funnel:               'global' as 'bold' | 'detox',
+          label:                FUNNEL_LABELS.global,
+          price:                PRODUCT_PRICE,
+          sales:                globalSalesAttributed,
+          revenue_contribution: parseFloat(globalRevenue.toFixed(2)),
           traffic_costs:        globalTrafficCosts,
-          roi:                  null,
-          confidence_level:     'low' as const,
+          roi:                  globalTrafficCosts > 0 ? parseFloat((globalRevenue / globalTrafficCosts).toFixed(2)) : null,
+          cpa:                  globalSalesAttributed > 0 ? parseFloat((globalTrafficCosts / globalSalesAttributed).toFixed(2)) : null,
+          confidence_level:     'low',
         })
       }
 
@@ -365,7 +398,9 @@ Deno.serve(async (req) => {
         sixMonthData,
         categoryDistribution,
         trafficRoiByMonth,
-        planRoi,
+        funnelRoi,
+        // Legacy alias so older frontend doesn't crash mid-deploy
+        planRoi: funnelRoi,
       })
     }
 

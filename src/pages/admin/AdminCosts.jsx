@@ -21,11 +21,14 @@ const CATEGORIES = [
   { key: 'outros',       label: 'Outros',         emoji: '📝' },
 ]
 
-const PLAN_OPTIONS = [
-  { value: null,                label: 'Global / não vinculado' },
-  { value: 'one_time_basic',    label: 'NatGlow $17 (Bold/Detox)' },
-  { value: 'one_time_standard', label: 'Completo $27 (legado)' },
-  { value: 'one_time_premium',  label: 'VIP $47 (legado)' },
+// Overloaded use of admin_costs.pricing_plan to encode the funnel (not a true
+// plan_key). New ad costs should be tagged 'bold' or 'detox' so ROI splits per
+// funnel. Legacy one_time_* values still exist in the DB for historical costs
+// but are no longer offered in the dropdown — they roll up to 'global' in ROI.
+const FUNNEL_OPTIONS = [
+  { value: null,    label: 'Global / não vinculado' },
+  { value: 'bold',  label: 'Quiz Bold' },
+  { value: 'detox', label: 'Quiz Detox' },
 ]
 
 const CONFIDENCE_CONFIG = {
@@ -279,18 +282,18 @@ function CostFormModal({ open, onClose, onSave, initial, saving }) {
           {/* Vincular a plano */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Vincular a plano de preço <span className="text-gray-400 font-normal">(opcional)</span>
+              Vincular a funil <span className="text-gray-400 font-normal">(opcional)</span>
             </label>
             <select
               value={form.pricing_plan ?? ''}
               onChange={e => set('pricing_plan', e.target.value || null)}
               className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-violet-400 bg-white"
             >
-              {PLAN_OPTIONS.map(o => (
+              {FUNNEL_OPTIONS.map(o => (
                 <option key={o.value ?? 'null'} value={o.value ?? ''}>{o.label}</option>
               ))}
             </select>
-            <p className="text-xs text-gray-400 mt-1">Usado no cálculo de ROI por plano. Recomendado para Tráfego Pago.</p>
+            <p className="text-xs text-gray-400 mt-1">Usado no cálculo de ROI por funil. Recomendado para Tráfego Pago.</p>
           </div>
 
           {/* Observação */}
@@ -685,7 +688,7 @@ export default function AdminCosts() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50">
-                      {['Data', 'Categoria', 'Descrição', 'Valor', 'Observação', ''].map(h => (
+                      {['Data', 'Categoria', 'Funil', 'Descrição', 'Valor', 'Observação', ''].map(h => (
                         <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -693,6 +696,11 @@ export default function AdminCosts() {
                   <tbody className="divide-y divide-gray-50">
                     {costs.map(cost => {
                       const cat = CATEGORIES.find(c => c.key === cost.categoria)
+                      const funnelLabel =
+                        cost.pricing_plan === 'bold'  ? { txt: 'Bold',  cls: 'bg-cyan-100 text-cyan-700' } :
+                        cost.pricing_plan === 'detox' ? { txt: 'Detox', cls: 'bg-violet-100 text-violet-700' } :
+                        cost.pricing_plan          ? { txt: 'Legado', cls: 'bg-gray-100 text-gray-500' } :
+                        null
                       return (
                         <tr key={cost.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{cost.data}</td>
@@ -700,6 +708,15 @@ export default function AdminCosts() {
                             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
                               {cat?.emoji} {cat?.label}
                             </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {funnelLabel ? (
+                              <span className={`inline-flex text-xs font-semibold px-2.5 py-1 rounded-full ${funnelLabel.cls}`}>
+                                {funnelLabel.txt}
+                              </span>
+                            ) : (
+                              <span className="text-gray-300 text-xs">—</span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-gray-500 max-w-[180px] truncate">
                             {cost.descricao_outros || '—'}
@@ -826,31 +843,34 @@ export default function AdminCosts() {
             />
           </div>
 
-          {/* ROI per plan table */}
-          {!loadingRoi && (roiData?.planRoi?.length ?? 0) > 0 && (
+          {/* ROI per funnel table */}
+          {!loadingRoi && (roiData?.funnelRoi?.length ?? 0) > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
               <div className="px-5 pt-5 pb-3">
-                <p className="font-bold text-gray-800 mb-0.5">ROI por plano de preço</p>
-                <p className="text-xs text-gray-400">Receita gerada × custo de anúncios vinculado no período</p>
+                <p className="font-bold text-gray-800 mb-0.5">ROI por funil (Bold vs Detox)</p>
+                <p className="text-xs text-gray-400">
+                  Vendas atribuídas via funnel_events.metadata.source × custo de ads vinculado no período
+                </p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50">
-                      {['Plano', 'Compras ativas', 'Receita gerada', 'Custo de anúncios', 'ROI', 'Confiabilidade'].map(h => (
+                      {['Funil', 'Vendas', 'Receita', 'Custo de ads', 'CPA', 'ROI', 'Confiabilidade'].map(h => (
                         <th key={h} className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {(roiData?.planRoi ?? []).map(p => {
+                    {(roiData?.funnelRoi ?? []).map(p => {
                       const conf = CONFIDENCE_CONFIG[p.confidence_level] ?? CONFIDENCE_CONFIG.low
                       return (
-                        <tr key={p.plan_key} className="hover:bg-gray-50 transition-colors">
+                        <tr key={p.funnel} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3 font-semibold text-gray-800 whitespace-nowrap">{p.label}</td>
-                          <td className="px-4 py-3 text-gray-600 tabular-nums">{p.active_subs}</td>
+                          <td className="px-4 py-3 text-gray-600 tabular-nums">{p.sales}</td>
                           <td className="px-4 py-3 font-bold text-gray-900 tabular-nums">{fmt(p.revenue_contribution)}</td>
                           <td className="px-4 py-3 text-gray-600 tabular-nums">{p.traffic_costs > 0 ? fmt(p.traffic_costs) : <span className="text-gray-300">—</span>}</td>
+                          <td className="px-4 py-3 text-gray-600 tabular-nums">{p.cpa != null ? fmt(p.cpa) : <span className="text-gray-300">—</span>}</td>
                           <td className="px-4 py-3 font-bold tabular-nums">
                             {p.roi != null
                               ? <span className={p.roi >= 1 ? 'text-emerald-600' : 'text-red-500'}>{p.roi}×</span>
@@ -868,14 +888,15 @@ export default function AdminCosts() {
                     <tr className="border-t border-gray-200 bg-gray-50">
                       <td className="px-4 py-3 font-bold text-gray-800">Total</td>
                       <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
-                        {(roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.active_subs, 0)}
+                        {(roiData?.funnelRoi ?? []).filter(p => p.funnel !== 'global').reduce((a, p) => a + p.sales, 0)}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
-                        {fmt((roiData?.planRoi ?? []).filter(p => p.plan_key !== 'global').reduce((a, p) => a + p.revenue_contribution, 0))}
+                        {fmt((roiData?.funnelRoi ?? []).filter(p => p.funnel !== 'global').reduce((a, p) => a + p.revenue_contribution, 0))}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-800 tabular-nums">
-                        {fmt((roiData?.planRoi ?? []).reduce((a, p) => a + p.traffic_costs, 0))}
+                        {fmt((roiData?.funnelRoi ?? []).reduce((a, p) => a + p.traffic_costs, 0))}
                       </td>
+                      <td className="px-4 py-3" />
                       <td className="px-4 py-3" />
                       <td className="px-4 py-3" />
                     </tr>
@@ -883,7 +904,7 @@ export default function AdminCosts() {
                 </table>
               </div>
               <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">
-                Custos sem plano vinculado não entram no ROI por plano — são exibidos em "Global".
+                Vincule cada custo de Tráfego Pago a "Quiz Bold" ou "Quiz Detox" no formulário para que o ROI separe por funil. Custos não vinculados aparecem em "Global".
               </p>
             </div>
           )}
