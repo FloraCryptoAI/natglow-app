@@ -44,14 +44,17 @@ Deno.serve(async (req) => {
     const userAgent = req.headers.get('user-agent') ?? undefined
 
     if (platform === 'facebook') {
-      // Fire-and-forget — don't block response on CAPI roundtrip
+      // Fire-and-forget — don't block response on CAPI roundtrip.
+      // FB expects client_ip_address / client_user_agent (NOT ip / user_agent).
+      // Without these the event has no matching parameters and FB rejects with
+      // error_subcode 2804050.
       sendFacebookCAPIEvent({
         event_name,
         event_id,
         user_data: {
           ...(user_data || {}),
-          ip,
-          user_agent: userAgent,
+          client_ip_address: ip,
+          client_user_agent: userAgent,
         },
         custom_data: custom_data || {},
       }).catch(() => { /* logged inside */ })

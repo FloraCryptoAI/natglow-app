@@ -139,10 +139,21 @@ Deno.serve(async (req) => {
 
       // Test Facebook pixel via CAPI
       if (mode === 'test_facebook') {
+        // Facebook CAPI requires at least one customer identifier per event.
+        // Forward the admin user's IP + user agent so the test passes the
+        // "matching parameters" validation (error_subcode 2804050).
+        const clientIp =
+          req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          req.headers.get('x-real-ip') ||
+          undefined
+        const userAgent = req.headers.get('user-agent') || undefined
         const result = await sendFacebookCAPIEvent({
           event_name: 'PageView',
           event_id:   `test_${Date.now()}`,
-          user_data:  {},
+          user_data:  {
+            client_ip_address: clientIp,
+            client_user_agent: userAgent,
+          },
         })
         return json(result)
       }
