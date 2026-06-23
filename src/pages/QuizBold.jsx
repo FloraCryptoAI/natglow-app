@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Check } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -199,10 +199,16 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
   // Fire SubmitForm + Lead when user submits the name. This is when the "form"
   // is actually submitted (user gave us their info). Firing here (on a stable
   // page, no immediate unload) is much more reliable than firing on LOADING.
+  // leadFiredRef guards against double-fire from rapid double-clicks, mobile
+  // ghost-clicks, or the user backing up and resubmitting the same session.
+  const leadFiredRef = useRef(false)
   const handleNameSubmit = () => {
     if (!answers.name.trim()) return
-    trackFbEvent('Lead', { content_name: 'quiz_bold_name', content_category: plan_key })
-    trackTtEvent('SubmitForm', { content_name: 'quiz_bold_name', content_category: plan_key, content_id: plan_key, content_type: 'product' })
+    if (!leadFiredRef.current) {
+      leadFiredRef.current = true
+      trackFbEvent('Lead', { content_name: 'quiz_bold_name', content_category: plan_key })
+      trackTtEvent('SubmitForm', { content_name: 'quiz_bold_name', content_category: plan_key, content_id: plan_key, content_type: 'product' })
+    }
     setStep(STEPS.FINAL)
   }
 
