@@ -115,7 +115,10 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
     sessionStorage.setItem('tt_complete_value', String(display_price))
 
     trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source: 'offer_bold' }, plan_key)
-    trackFbEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key }, fbEventId)
+    // Facebook InitiateCheckout is fired by Hotmart's native partner pixel
+    // integration when the user lands on their checkout. Firing here would
+    // create a 2nd event with a different event_id (can't be deduped).
+    // TikTok stays — Hotmart has no TikTok partner integration.
     trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
 
     let checkoutUrl = hotmart_checkout_url || '/'
