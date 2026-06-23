@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ChevronDown, ChevronUp, Loader2, Mail, CheckCircle } from 'lucide-react'
 import { supabase } from '@/api/supabaseClient'
-
-const CONTACT_EMAIL = 'support@natglow.app'
+import { CONTACT_EMAIL } from '@/config/contact'
 
 // Project is 100% Spanish (LATAM). English block removed.
 // Business model: single payment via Hotmart ($17), lifetime access — no

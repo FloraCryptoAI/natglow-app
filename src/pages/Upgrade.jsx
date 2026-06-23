@@ -6,6 +6,8 @@ import LegalLine from '@/components/LegalLine'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
 import { PRICING_PLANS } from '@/config/pricing'
+import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
+import { trackFunnelEvent } from '@/lib/trackFunnelEvent'
 
 const P    = '#FB45A9'
 const PD   = '#E03594'
@@ -58,10 +60,30 @@ export default function Upgrade() {
     return `${m}:${sec}`
   }
 
-  const handleBuy = (planKey) => {
+  const handleBuy = async (planKey) => {
     const plan = PRICING_PLANS[planKey]
     if (!plan?.hotmart_checkout_url) return
-    window.location.href = plan.hotmart_checkout_url
+
+    // Mirror the offer-page tracking so abandoned-quiz returners are still
+    // attributed in the funnel and TikTok pixel. Facebook is intentionally
+    // skipped here — Hotmart's native FB pixel partner integration fires
+    // InitiateCheckout when the user lands on their checkout.
+    const eventId = crypto.randomUUID()
+    trackFunnelEvent('cta_clicked', { source: 'upgrade', fb_event_id: eventId }, plan.plan_key)
+    try {
+      await initTikTokPixel()
+      trackTtEvent('InitiateCheckout', {
+        value:        plan.display_price,
+        currency:     'USD',
+        content_name: plan.plan_key,
+        content_id:   plan.plan_key,
+        content_type: 'product',
+      }, eventId)
+    } catch { /* never block the buy flow on tracking */ }
+
+    // Give CAPI keepalive fetches a head-start before navigation (Safari
+    // is aggressive about cancelling these on user-initiated nav).
+    setTimeout(() => { window.location.href = plan.hotmart_checkout_url }, 400)
   }
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0]

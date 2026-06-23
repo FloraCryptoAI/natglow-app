@@ -1,8 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-
-const CONTACT_EMAIL = 'support@natglow.app'
+import { CONTACT_EMAIL } from '@/config/contact'
 
 // Project is 100% Spanish (LATAM). English block removed.
 // Single payment via Hotmart — no monthly renewals, no recurring charges.
