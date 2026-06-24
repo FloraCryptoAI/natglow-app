@@ -121,18 +121,6 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
     { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz-v2/crespo.jpg' },
   ]
 
-  // Grid of 6 symptom cards — each shows a real image of that hair issue
-  // instead of one background photo with floating pills. Higher recognition,
-  // better conversion. Images reused from /quiz-v2 (legacy quiz assets that
-  // were already shipped to public/).
-  const SYMPTOM_CARDS = [
-    { img: '/images/quiz-v2/queda-crescimento.jpg', label: t('quizBold.symptoms.pills.hairLoss') },
-    { img: '/images/quiz-v2/ressecado-frizz.jpg',   label: t('quizBold.symptoms.pills.dryness') },
-    { img: '/images/quiz-v2/quebra-pontas.jpg',     label: t('quizBold.symptoms.pills.splitEnds') },
-    { img: '/images/quiz-v2/sem-brilho.jpg',        label: t('quizBold.symptoms.pills.noShine') },
-    { img: '/images/quiz-v2/oleoso.jpg',            label: t('quizBold.symptoms.pills.grease') },
-    { img: '/images/quiz-v2/sem-volume.jpg',        label: t('quizBold.symptoms.pills.noVolume') },
-  ]
 
   useEffect(() => {
     captureAttribution()
@@ -298,33 +286,20 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {SYMPTOM_CARDS.map((card, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="rounded-2xl overflow-hidden bg-white border border-stone-200"
-                  style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
-                >
-                  <div className="w-full bg-stone-100" style={{ aspectRatio: '7/5' }}>
-                    <img
-                      src={card.img}
-                      alt={card.label}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                      onError={e => { e.currentTarget.style.display = 'none' }}
-                    />
-                  </div>
-                  <div className="px-2 py-2.5 text-center">
-                    <p className="text-[11px] sm:text-xs font-extrabold text-stone-800 tracking-wider uppercase leading-tight">
-                      {card.label}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full rounded-2xl overflow-hidden bg-stone-100"
+              style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}
+            >
+              <img
+                src="/images/quiz-bold/symptoms.jpg"
+                alt={t('quizBold.symptoms.title')}
+                className="w-full h-auto block"
+                onError={e => { e.currentTarget.style.display = 'none' }}
+              />
+            </motion.div>
 
             <div className="flex flex-col gap-3">
               <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('30days')}>
