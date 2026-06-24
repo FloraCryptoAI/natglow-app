@@ -299,17 +299,26 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-2 gap-3">
               {SYMPTOM_CARDS.map((card, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative rounded-3xl overflow-hidden bg-white"
-                  style={{ boxShadow: '0 6px 20px rgba(28,25,23,0.08), 0 2px 6px rgba(28,25,23,0.04)' }}
+                  className="flex flex-col gap-1.5"
                 >
-                  <div className="relative w-full bg-stone-100" style={{ aspectRatio: '7/5' }}>
+                  <span
+                    className="self-start px-2 py-1 rounded-md text-white text-[10px] sm:text-[11px] font-extrabold flex items-center gap-1.5 tracking-wide uppercase leading-tight"
+                    style={{ background: '#C0392B', boxShadow: '0 2px 6px rgba(192,57,43,0.28)' }}
+                  >
+                    <span className="text-sm leading-none" aria-hidden="true">{card.emoji}</span>
+                    <span>{card.label}</span>
+                  </span>
+                  <div
+                    className="w-full rounded-2xl overflow-hidden bg-stone-100"
+                    style={{ aspectRatio: '7/5', boxShadow: '0 4px 14px rgba(0,0,0,0.08)' }}
+                  >
                     <img
                       src={card.img}
                       alt={card.label}
@@ -317,17 +326,6 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
                       className="w-full h-full object-cover"
                       onError={e => { e.currentTarget.style.display = 'none' }}
                     />
-                    <div
-                      className="absolute top-2.5 left-2.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md"
-                      style={{ background: 'rgba(255,255,255,0.85)', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
-                    >
-                      <span className="text-lg leading-none" aria-hidden="true">{card.emoji}</span>
-                    </div>
-                  </div>
-                  <div className="px-2.5 pt-3 pb-3.5 text-center">
-                    <p className="text-[11px] sm:text-xs font-extrabold text-stone-800 tracking-[0.06em] uppercase leading-tight">
-                      {card.label}
-                    </p>
                   </div>
                 </motion.div>
               ))}
