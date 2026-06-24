@@ -285,7 +285,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              src="/images/quiz/symptoms-detox.jpg"
+              src="/images/quiz/symptoms.jpg"
               alt={t('quizDetox.symptoms.title')}
               className="w-full h-auto block"
               onError={e => { e.currentTarget.style.display = 'none' }}
@@ -531,7 +531,7 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
             </div>
 
             <TestimonialCard
-              avatarUrl="/images/quiz/testimonial-maria.jpg"
+              avatarUrl="/images/quiz/testimonial-camila.jpg"
               name={t('quizDetox.socialProof.testimonialName')}
               location={t('quizDetox.socialProof.testimonialLocation')}
               text={t('quizDetox.socialProof.testimonialText')}

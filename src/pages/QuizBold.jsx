@@ -290,7 +290,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              src="/images/quiz/symptoms-bold.jpg"
+              src="/images/quiz/symptoms.jpg"
               alt={t('quizBold.symptoms.title')}
               className="w-full h-auto block"
               onError={e => { e.currentTarget.style.display = 'none' }}
@@ -566,7 +566,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             </div>
 
             <TestimonialCard
-              avatarUrl="/images/quiz/testimonial-maria.jpg"
+              avatarUrl="/images/quiz/testimonial-camila.jpg"
               name={t('quizBold.socialProof.testimonialName')}
               location={t('quizBold.socialProof.testimonialLocation')}
               text={t('quizBold.socialProof.testimonialText')}
