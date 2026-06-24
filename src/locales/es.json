@@ -485,15 +485,15 @@
         "depois": "/images/quiz/depois-2.jpg"
       },
       {
-        "name": "Lucía Hernández",
-        "location": "Ciudad de México, MX",
+        "name": "Constanza Muñoz",
+        "location": "Santiago, Chile",
         "duration": "Algunas semanas",
         "text": "Mi cabello dejó de verse opaco y empezó a verse mucho más sano. Una diferencia muy notable.",
         "antes": "/images/quiz/antes-3.jpg",
         "depois": "/images/quiz/depois-3.jpg"
       },
       {
-        "name": "Ana Rodríguez",
+        "name": "Sofía Fernández",
         "location": "Buenos Aires, Argentina",
         "duration": "Algunas semanas",
         "text": "Pensé que era solo genética. Pero al cambiar mi rutina, mi cabello empezó a verse mucho mejor. Brilla como hace años.",
@@ -501,7 +501,7 @@
         "depois": "/images/quiz/depois-4.jpg"
       },
       {
-        "name": "Sofía Castro",
+        "name": "Andrea Flores",
         "location": "Lima, Perú",
         "duration": "Algunas semanas",
         "text": "Adiós opacidad, adiós resequedad. La rutina es simple y los resultados se notan.",
@@ -509,8 +509,8 @@
         "depois": "/images/quiz/depois-5.jpg"
       },
       {
-        "name": "Isabella Silva",
-        "location": "Quito, Ecuador",
+        "name": "Valentina Cedeño",
+        "location": "Guayaquil, Ecuador",
         "duration": "Algunas semanas",
         "text": "Probé de todo. Solo esta rutina natural me trajo el resultado que esperaba. Mi cabello recuperó la vitalidad.",
         "antes": "/images/quiz/antes-6.jpg",
