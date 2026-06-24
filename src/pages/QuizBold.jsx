@@ -115,10 +115,10 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
   const [loadingProgress, setLoadingProgress] = useState(0)
 
   const HAIR_TYPES = [
-    { value: 'liso',     label: t('quiz.hairTypes.liso'),     img: '/images/quiz-v2/liso.jpg' },
-    { value: 'ondulado', label: t('quiz.hairTypes.ondulado'), img: '/images/quiz-v2/ondulado.jpg' },
-    { value: 'cacheado', label: t('quiz.hairTypes.cacheado'), img: '/images/quiz-v2/cacheado.jpg' },
-    { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz-v2/crespo.jpg' },
+    { value: 'liso',     label: t('quiz.hairTypes.liso'),     img: '/images/quiz/liso.jpg' },
+    { value: 'ondulado', label: t('quiz.hairTypes.ondulado'), img: '/images/quiz/ondulado.jpg' },
+    { value: 'cacheado', label: t('quiz.hairTypes.cacheado'), img: '/images/quiz/cacheado.jpg' },
+    { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: '/images/quiz/crespo.jpg' },
   ]
 
 
@@ -248,14 +248,14 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               <div className="flex flex-col gap-1.5">
                 <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizBold.intro.beforeLabel')}</span>
                 <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
-                  <img src="/images/quiz-v2/antes-1.jpg" alt="antes" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <img src="/images/quiz/antes-1.jpg" alt="antes" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
                 <p className="text-xs text-stone-500 text-center leading-tight">{t('quizBold.intro.beforeCaption')}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizBold.intro.afterLabel')}</span>
                 <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', background: PL2 }}>
-                  <img src="/images/quiz-v2/depois-1.jpg" alt="después" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <img src="/images/quiz/depois-1.jpg" alt="después" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
                 <p className="text-xs text-stone-500 text-center leading-tight">{t('quizBold.intro.afterCaption')}</p>
               </div>
@@ -290,7 +290,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              src="/images/quiz-bold/symptoms.jpg"
+              src="/images/quiz/symptoms-bold.jpg"
               alt={t('quizBold.symptoms.title')}
               className="w-full h-auto block"
               onError={e => { e.currentTarget.style.display = 'none' }}
@@ -328,13 +328,13 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               <div className="flex flex-col gap-1.5">
                 <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizBold.scientificFear.healthyLabel')}</span>
                 <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
-                  <img src="/images/quiz-bold/follicle-healthy.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <img src="/images/quiz/follicle-healthy.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#C0392B' }}>{t('quizBold.scientificFear.damagedLabel')}</span>
                 <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
-                  <img src="/images/quiz-bold/follicle-damaged.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <img src="/images/quiz/follicle-damaged.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
                 </div>
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
         {step === STEPS.REFRAMING && (
           <motion.div key="reframing" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
             <div className="rounded-2xl overflow-hidden bg-stone-100 w-full" style={{ aspectRatio: '16/10' }}>
-              <img src="/images/quiz-bold/woman-worried.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+              <img src="/images/quiz/woman-worried.jpg" alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
             </div>
 
             <h2 className="text-3xl font-extrabold text-stone-900 leading-tight text-center">
@@ -566,12 +566,12 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
             </div>
 
             <TestimonialCard
-              avatarUrl="/images/quiz-bold/testimonial-maria.jpg"
+              avatarUrl="/images/quiz/testimonial-maria.jpg"
               name={t('quizBold.socialProof.testimonialName')}
               location={t('quizBold.socialProof.testimonialLocation')}
               text={t('quizBold.socialProof.testimonialText')}
-              beforeUrl="/images/quiz-v2/antes-1.jpg"
-              afterUrl="/images/quiz-v2/depois-1.jpg"
+              beforeUrl="/images/quiz/antes-1.jpg"
+              afterUrl="/images/quiz/depois-1.jpg"
               beforeLabel={t('quizBold.socialProof.beforeLabel')}
               afterLabel={t('quizBold.socialProof.afterLabel')}
             />
