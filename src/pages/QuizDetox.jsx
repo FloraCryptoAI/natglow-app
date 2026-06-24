@@ -281,20 +281,15 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
               {t('quizDetox.symptoms.subtitle')}
             </p>
 
-            <motion.div
+            <motion.img
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full rounded-2xl overflow-hidden bg-stone-100"
-              style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}
-            >
-              <img
-                src="/images/quiz-detox/symptoms.jpg"
-                alt={t('quizDetox.symptoms.title')}
-                className="w-full h-auto block"
-                onError={e => { e.currentTarget.style.display = 'none' }}
-              />
-            </motion.div>
+              src="/images/quiz-detox/symptoms.jpg"
+              alt={t('quizDetox.symptoms.title')}
+              className="w-full h-auto block"
+              onError={e => { e.currentTarget.style.display = 'none' }}
+            />
 
             <div className="flex flex-col gap-3">
               <GreenButton pulse={false} onClick={() => handleSymptomsAnswer('months')}>
