@@ -107,15 +107,14 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
 
   // Grid of 6 symptom cards — each shows a real image of the issue
   // instead of one background photo with floating pills. Images reused
-  // from /quiz-v2 (legacy quiz assets already in public/). Emoji chosen
-  // to evoke the issue visually without being alarming.
+  // from /quiz-v2 (legacy quiz assets already in public/).
   const SYMPTOM_CARDS = [
-    { img: '/images/quiz-v2/queda-crescimento.jpg', emoji: '🍂', label: t('quizDetox.symptoms.pills.hairLoss') },
-    { img: '/images/quiz-v2/ressecado-frizz.jpg',   emoji: '⚡', label: t('quizDetox.symptoms.pills.nightItch') },
-    { img: '/images/quiz-v2/sem-brilho.jpg',        emoji: '🌥️', label: t('quizDetox.symptoms.pills.itch') },
-    { img: '/images/quiz-v2/oleoso.jpg',            emoji: '💧', label: t('quizDetox.symptoms.pills.grease') },
-    { img: '/images/quiz-v2/quebra-pontas.jpg',     emoji: '✂️', label: t('quizDetox.symptoms.pills.sensitive') },
-    { img: '/images/quiz-v2/sem-volume.jpg',        emoji: '🥀', label: t('quizDetox.symptoms.pills.weakHair') },
+    { img: '/images/quiz-v2/queda-crescimento.jpg', label: t('quizDetox.symptoms.pills.hairLoss') },
+    { img: '/images/quiz-v2/ressecado-frizz.jpg',   label: t('quizDetox.symptoms.pills.nightItch') },
+    { img: '/images/quiz-v2/sem-brilho.jpg',        label: t('quizDetox.symptoms.pills.itch') },
+    { img: '/images/quiz-v2/oleoso.jpg',            label: t('quizDetox.symptoms.pills.grease') },
+    { img: '/images/quiz-v2/quebra-pontas.jpg',     label: t('quizDetox.symptoms.pills.sensitive') },
+    { img: '/images/quiz-v2/sem-volume.jpg',        label: t('quizDetox.symptoms.pills.weakHair') },
   ]
 
   // Detox uses green accent for headers (lighter "wellness/cleansing" vibe vs bold's red)
@@ -300,19 +299,10 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex flex-col gap-1.5"
+                  className="rounded-2xl overflow-hidden bg-white border border-stone-200"
+                  style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
                 >
-                  <span
-                    className="self-start px-2 py-1 rounded-md text-white text-[10px] sm:text-[11px] font-extrabold flex items-center gap-1.5 tracking-wide uppercase leading-tight"
-                    style={{ background: '#C0392B', boxShadow: '0 2px 6px rgba(192,57,43,0.28)' }}
-                  >
-                    <span className="text-sm leading-none" aria-hidden="true">{card.emoji}</span>
-                    <span>{card.label}</span>
-                  </span>
-                  <div
-                    className="w-full rounded-2xl overflow-hidden bg-stone-100"
-                    style={{ aspectRatio: '7/5', boxShadow: '0 4px 14px rgba(0,0,0,0.08)' }}
-                  >
+                  <div className="w-full bg-stone-100" style={{ aspectRatio: '7/5' }}>
                     <img
                       src={card.img}
                       alt={card.label}
@@ -320,6 +310,11 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
                       className="w-full h-full object-cover"
                       onError={e => { e.currentTarget.style.display = 'none' }}
                     />
+                  </div>
+                  <div className="px-2 py-2.5 text-center">
+                    <p className="text-[11px] sm:text-xs font-extrabold text-stone-800 tracking-wider uppercase leading-tight">
+                      {card.label}
+                    </p>
                   </div>
                 </motion.div>
               ))}
