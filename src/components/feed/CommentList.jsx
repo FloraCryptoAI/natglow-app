@@ -37,18 +37,27 @@ function CommentItem({ comment, currentUserId, onReply, onDelete, lang, replies 
     }
   }
 
+  // author_name/author_avatar_url come from admin-injected fake comments;
+  // display_name + user_id avatar come from real users (resolved via nameMap).
+  const displayName = comment.author_name ?? comment.display_name ?? 'Usuária'
+  const avatarUrl   = comment.author_avatar_url ?? null
+
   return (
     <div>
       <div className="flex gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-brand/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span className="text-[10px] font-bold text-brand">
-            {(comment.display_name ?? 'U')[0].toUpperCase()}
-          </span>
+        <div className={`w-7 h-7 rounded-full flex-shrink-0 mt-0.5 overflow-hidden ${!avatarUrl ? 'bg-brand/10 flex items-center justify-center' : ''}`}>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[10px] font-bold text-brand">
+              {displayName[0].toUpperCase()}
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="bg-stone-50 rounded-2xl rounded-tl-none px-3 py-2">
             <p className="text-xs font-semibold text-stone-700 mb-0.5">
-              {comment.display_name ?? 'Usuária'}
+              {displayName}
             </p>
             <p className="text-sm text-stone-700 leading-relaxed">{comment.content}</p>
           </div>
@@ -133,8 +142,9 @@ export default function CommentList({ postId, currentUserId, lang }) {
     if (error || !data) return
     setComments(data)
 
-    // Fetch display_names for all unique users
-    const uids = [...new Set(data.map(c => c.user_id))]
+    // Fetch display_names for real users only — admin-injected fake comments
+    // have user_id=null and carry author_name/author_avatar_url on the row.
+    const uids = [...new Set(data.map(c => c.user_id).filter(Boolean))]
     if (!uids.length) return
     const { data: subs } = await supabase
       .from('subscriptions')

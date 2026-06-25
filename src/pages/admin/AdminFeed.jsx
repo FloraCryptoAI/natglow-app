@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
 
@@ -467,6 +467,272 @@ function PostTab({ apiFetch }) {
   )
 }
 
+// ── Engagement modal — fake comments + reaction counts for a post ───────────
+const REACTION_EMOJI = { heart: '❤️', love: '😍', clap: '👏', wow: '😮' }
+
+function EngagementModal({ post, apiFetch, onClose, onChanged }) {
+  const [comments, setComments]     = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [reactions, setReactions]   = useState({
+    heart: post.reactions?.heart ?? 0,
+    love:  post.reactions?.love  ?? 0,
+    clap:  post.reactions?.clap  ?? 0,
+    wow:   post.reactions?.wow   ?? 0,
+  })
+  const [savingReactions, setSavingReactions] = useState(false)
+
+  // New-comment form
+  const [cName,   setCName]   = useState('')
+  const [cText,   setCText]   = useState('')
+  const [cAvatarFile,    setCAvatarFile]    = useState(null)
+  const [cAvatarPreview, setCAvatarPreview] = useState(null)
+  const [cSubmitting, setCSubmitting] = useState(false)
+  const [cDeleting, setCDeleting]     = useState(null)
+  const cAvatarRef = useRef()
+
+  async function loadComments() {
+    setLoading(true)
+    try {
+      const data = await apiFetch(`/admin-feed?mode=get_comments&post_id=${post.id}`)
+      setComments(data?.comments ?? [])
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => { loadComments() }, [post.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleAvatar(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { toast.error('Imagem máx 5MB'); return }
+    setCAvatarFile(file)
+    setCAvatarPreview(URL.createObjectURL(file))
+  }
+
+  async function uploadAvatar(file) {
+    const ext  = file.name.split('.').pop()
+    const path = `admin/avatars/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
+    const { error } = await supabase.storage.from('feed-images').upload(path, file, { upsert: false })
+    if (error) throw error
+    const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
+    return publicUrl
+  }
+
+  async function addComment() {
+    if (!cName.trim() || !cText.trim()) return
+    setCSubmitting(true)
+    try {
+      const avatarUrl = cAvatarFile ? await uploadAvatar(cAvatarFile) : null
+      await apiFetch('/admin-feed?mode=add_comment', {
+        method: 'POST',
+        body:   JSON.stringify({
+          post_id:           post.id,
+          author_name:       cName.trim(),
+          author_avatar_url: avatarUrl,
+          content:           cText.trim(),
+        }),
+      })
+      toast.success('Comentário fake adicionado')
+      setCName(''); setCText(''); setCAvatarFile(null); setCAvatarPreview(null)
+      loadComments()
+      onChanged?.()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setCSubmitting(false)
+    }
+  }
+
+  async function deleteComment(id) {
+    setCDeleting(id)
+    try {
+      await apiFetch('/admin-feed?mode=delete_comment', {
+        method: 'POST',
+        body:   JSON.stringify({ id }),
+      })
+      setComments(prev => prev.filter(c => c.id !== id))
+      onChanged?.()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setCDeleting(null)
+    }
+  }
+
+  async function saveReactions() {
+    setSavingReactions(true)
+    try {
+      await apiFetch('/admin-feed?mode=set_reactions', {
+        method: 'POST',
+        body:   JSON.stringify({ post_id: post.id, reactions }),
+      })
+      toast.success('Reações atualizadas')
+      onChanged?.()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSavingReactions(false)
+    }
+  }
+
+  const totalReactions = reactions.heart + reactions.love + reactions.clap + reactions.wow
+  const addDisabled    = cSubmitting || !cName.trim() || !cText.trim()
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl max-h-[92vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 flex-shrink-0">
+          <div>
+            <h2 className="text-base font-bold text-stone-800">Engajamento do post</h2>
+            <p className="text-xs text-stone-400 mt-0.5 truncate max-w-md">"{post.content.slice(0, 80)}{post.content.length > 80 ? '...' : ''}"</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-5 overflow-y-auto flex-1 space-y-6">
+          {/* Reactions configurator */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Heart className="w-4 h-4 text-rose-500" />
+              <h3 className="text-sm font-bold text-stone-800">Reações ({totalReactions})</h3>
+            </div>
+            <p className="text-xs text-stone-500 mb-3">Defina contagens absolutas. Salvo direto na contagem do post (não cria registros reais em feed_reactions).</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              {(['heart','love','clap','wow']).map(key => (
+                <div key={key} className="bg-stone-50 rounded-xl p-3 flex items-center gap-2">
+                  <span className="text-xl flex-shrink-0">{REACTION_EMOJI[key]}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={reactions[key]}
+                    onChange={e => setReactions(r => ({ ...r, [key]: Math.max(0, parseInt(e.target.value) || 0) }))}
+                    className="flex-1 min-w-0 bg-white border border-stone-200 rounded-lg px-2 py-1.5 text-sm tabular-nums outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+                  />
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={saveReactions}
+              disabled={savingReactions}
+              className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
+            >
+              {savingReactions ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+              Salvar reações
+            </button>
+          </section>
+
+          {/* Comments section */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <MessageSquare className="w-4 h-4 text-violet-500" />
+              <h3 className="text-sm font-bold text-stone-800">Comentários ({comments.length})</h3>
+            </div>
+
+            {/* Existing comments */}
+            {loading ? (
+              <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 text-stone-300 animate-spin" /></div>
+            ) : comments.length === 0 ? (
+              <p className="text-xs text-stone-400 italic mb-4">Ainda sem comentários. Adicione abaixo.</p>
+            ) : (
+              <div className="space-y-2 mb-4">
+                {comments.map(c => {
+                  const name = c.author_name ?? 'Usuária real'
+                  const isFake = !c.user_id
+                  return (
+                    <div key={c.id} className="bg-stone-50 rounded-xl p-3 flex gap-3 items-start">
+                      <div className={`w-8 h-8 rounded-full flex-shrink-0 overflow-hidden ${!c.author_avatar_url ? 'bg-violet-100 flex items-center justify-center' : ''}`}>
+                        {c.author_avatar_url
+                          ? <img src={c.author_avatar_url} alt="" className="w-full h-full object-cover" />
+                          : <span className="text-xs font-bold text-violet-600">{name[0]?.toUpperCase()}</span>
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                          <span className="text-xs font-semibold text-stone-700">{name}</span>
+                          {isFake && <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[9px] font-bold rounded-full">FAKE</span>}
+                          {!isFake && <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full">REAL</span>}
+                        </div>
+                        <p className="text-sm text-stone-600 leading-relaxed break-words">{c.content}</p>
+                      </div>
+                      <button
+                        onClick={() => deleteComment(c.id)}
+                        disabled={cDeleting === c.id}
+                        className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg flex-shrink-0"
+                      >
+                        {cDeleting === c.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Add fake comment form */}
+            <div className="bg-violet-50/40 border border-violet-100 rounded-xl p-3 space-y-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600">Adicionar comentário fake</p>
+              <div className="flex items-start gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => cAvatarRef.current?.click()}
+                  className="w-10 h-10 rounded-full bg-white hover:bg-stone-50 flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-dashed border-stone-300 hover:border-violet-400"
+                >
+                  {cAvatarPreview
+                    ? <img src={cAvatarPreview} alt="" className="w-full h-full object-cover" />
+                    : <ImagePlus className="w-4 h-4 text-stone-400" />
+                  }
+                </button>
+                <input ref={cAvatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
+
+                <div className="flex-1 space-y-1.5">
+                  <input
+                    type="text"
+                    value={cName}
+                    onChange={e => setCName(e.target.value)}
+                    maxLength={40}
+                    placeholder="Nome (ex: María F.)"
+                    className="w-full bg-white border border-stone-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+                  />
+                  <textarea
+                    value={cText}
+                    onChange={e => setCText(e.target.value)}
+                    maxLength={500}
+                    rows={2}
+                    placeholder="Conteúdo do comentário..."
+                    className="w-full bg-white border border-stone-200 rounded-lg px-3 py-1.5 text-sm resize-none outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+                  />
+                  <div className="flex items-center gap-2">
+                    {cAvatarPreview && (
+                      <button
+                        type="button"
+                        onClick={() => { setCAvatarFile(null); setCAvatarPreview(null) }}
+                        className="text-[11px] text-stone-400 hover:text-red-500"
+                      >
+                        Remover avatar
+                      </button>
+                    )}
+                    <button
+                      onClick={addComment}
+                      disabled={addDisabled}
+                      className="ml-auto flex items-center gap-1.5 px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50"
+                    >
+                      {cSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      Adicionar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── All Posts ─────────────────────────────────────────────────────────────────
 const STATUS_LABELS = {
   approved: { label: 'Aprovado', cls: 'bg-emerald-100 text-emerald-700' },
@@ -480,6 +746,7 @@ function ListTab({ apiFetch }) {
   const [total, setTotal]   = useState(0)
   const [page, setPage]     = useState(1)
   const [deleting, setDeleting] = useState(null)
+  const [engagementPost, setEngagementPost] = useState(null)
 
   async function load(p = 1) {
     setLoading(true)
@@ -535,17 +802,37 @@ function ListTab({ apiFetch }) {
                       <p className="text-xs text-red-500 mt-1">Motivo: {post.rejection_reason}</p>
                     )}
                   </div>
-                  <button
-                    onClick={() => handleDelete(post.id)}
-                    disabled={deleting === post.id}
-                    className="flex-shrink-0 p-1.5 text-stone-300 hover:text-red-400 rounded-lg"
-                  >
-                    {deleting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                  </button>
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
+                    {post.status === 'approved' && (
+                      <button
+                        onClick={() => setEngagementPost(post)}
+                        className="p-1.5 text-stone-300 hover:text-violet-500 rounded-lg"
+                        title="Adicionar comentários fake / ajustar reações"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      disabled={deleting === post.id}
+                      className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg"
+                    >
+                      {deleting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               )
             })}
           </div>
+
+          {engagementPost && (
+            <EngagementModal
+              post={engagementPost}
+              apiFetch={apiFetch}
+              onClose={() => setEngagementPost(null)}
+              onChanged={() => load(page)}
+            />
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

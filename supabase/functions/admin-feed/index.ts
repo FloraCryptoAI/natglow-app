@@ -108,6 +108,60 @@ Deno.serve(async (req) => {
         return json({ ok: true, post: Array.isArray(created) ? created[0] : created })
       }
 
+      // Add a fake comment as admin (any author name + avatar)
+      if (mode === 'add_comment') {
+        const { post_id, author_name, author_avatar_url, content, parent_id } = body
+        if (!post_id || !content?.trim() || !author_name?.trim()) {
+          return json({ error: 'post_id, author_name e content são obrigatórios' }, 400)
+        }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_comments`, {
+          method:  'POST',
+          headers: dbHeaders,
+          body:    JSON.stringify({
+            post_id,
+            user_id:           null,
+            parent_id:         parent_id ?? null,
+            content:           content.trim().slice(0, 500),
+            author_name:       author_name.trim(),
+            author_avatar_url: author_avatar_url ?? null,
+          }),
+        })
+        const created = await res.json()
+        return json({ ok: true, comment: Array.isArray(created) ? created[0] : created })
+      }
+
+      // Delete a comment by id (admin moderation of fakes or real comments)
+      if (mode === 'delete_comment') {
+        const { id } = body
+        if (!id) return json({ error: 'id obrigatório' }, 400)
+        await fetch(`${SUPABASE_URL}/rest/v1/feed_comments?id=eq.${id}`, {
+          method: 'DELETE', headers: dbHeaders,
+        })
+        return json({ ok: true })
+      }
+
+      // Set absolute reaction counts on a post — directly patches the JSONB.
+      // Doesn't insert into feed_reactions (those need real user_ids and a
+      // composite PK; the frontend reads the JSONB counter for display).
+      if (mode === 'set_reactions') {
+        const { post_id, reactions } = body
+        if (!post_id || !reactions) {
+          return json({ error: 'post_id e reactions são obrigatórios' }, 400)
+        }
+        const sanitized = {
+          heart: Math.max(0, parseInt(reactions.heart) || 0),
+          love:  Math.max(0, parseInt(reactions.love)  || 0),
+          clap:  Math.max(0, parseInt(reactions.clap)  || 0),
+          wow:   Math.max(0, parseInt(reactions.wow)   || 0),
+        }
+        await fetch(`${SUPABASE_URL}/rest/v1/feed_posts?id=eq.${post_id}`, {
+          method:  'PATCH',
+          headers: dbHeaders,
+          body:    JSON.stringify({ reactions: sanitized }),
+        })
+        return json({ ok: true, reactions: sanitized })
+      }
+
       // Delete any post (admin moderation) — also removes images from Storage
       if (mode === 'delete') {
         const { id } = body
@@ -162,6 +216,16 @@ Deno.serve(async (req) => {
       }
       const enriched = posts.map(p => ({ ...p, display_name: nameMap[p.user_id] ?? 'Usuária' }))
       return json({ posts: enriched })
+    }
+
+    // Get all comments for a specific post (admin engagement view)
+    if (mode === 'get_comments') {
+      const post_id = url.searchParams.get('post_id')
+      if (!post_id) return json({ error: 'post_id obrigatório' }, 400)
+      const comments = await supabaseGet(
+        `feed_comments?post_id=eq.${post_id}&order=created_at.asc&select=*`
+      )
+      return json({ comments })
     }
 
     // All posts paginated (any status)
