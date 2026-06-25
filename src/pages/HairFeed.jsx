@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '@/api/supabaseClient'
-import { Plus, Loader2, Newspaper, RefreshCw } from 'lucide-react'
+import { Plus, Loader2, Newspaper, RefreshCw, Sparkles } from 'lucide-react'
 import PostCard from '@/components/feed/PostCard'
 import CreatePostModal from '@/components/feed/CreatePostModal'
 import { profileCache, updateProfileCache } from '@/lib/profileCache'
@@ -157,20 +157,53 @@ export default function HairFeed() {
         </button>
       </div>
 
-      {/* Loading skeleton */}
+      {/* Loading skeleton — 3 placeholder cards instead of a bare spinner */}
       {loading && (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 text-brand animate-spin" />
+        <div className="border-t border-stone-100">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="bg-white border-b border-stone-100 mb-2 animate-pulse">
+              {/* Header */}
+              <div className="flex items-start gap-3 px-4 pt-4 pb-2">
+                <div className="w-10 h-10 rounded-full bg-stone-200 flex-shrink-0" />
+                <div className="flex-1 space-y-1.5 pt-1">
+                  <div className="h-3 bg-stone-200 rounded w-32" />
+                  <div className="h-2.5 bg-stone-100 rounded w-20" />
+                </div>
+              </div>
+              {/* Content */}
+              <div className="px-4 pb-3 space-y-2">
+                <div className="h-3 bg-stone-100 rounded w-full" />
+                <div className="h-3 bg-stone-100 rounded w-4/5" />
+              </div>
+              {/* Image */}
+              <div className="w-full aspect-square bg-stone-100" />
+              {/* Reactions */}
+              <div className="flex items-center gap-2 px-4 py-3">
+                <div className="h-8 w-20 bg-stone-100 rounded-full" />
+                <div className="h-8 w-20 bg-stone-100 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty state — gives clear next action instead of just an icon */}
       {!loading && posts.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-          <div className="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center mb-4">
-            <Newspaper className="w-7 h-7 text-brand" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/15 to-brand/5 flex items-center justify-center mb-4">
+            <Sparkles className="w-7 h-7 text-brand" />
           </div>
-          <p className="text-base font-semibold text-stone-700 mb-1">{t('feed.noPostsYet')}</p>
+          <p className="text-base font-bold text-stone-800 mb-1.5">{t('feed.noPostsYet')}</p>
+          <p className="text-sm text-stone-400 mb-6 max-w-xs leading-relaxed">
+            {t('feed.noPostsCta') || 'Sé la primera en compartir tu transformación con la comunidad.'}
+          </p>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-brand text-white text-sm font-semibold rounded-full shadow-sm hover:bg-brand/90 active:scale-95 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            {t('feed.publish')}
+          </button>
         </div>
       )}
 

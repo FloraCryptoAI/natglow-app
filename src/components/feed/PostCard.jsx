@@ -22,6 +22,7 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
   const [userReaction, setUserReaction] = useState(post.user_reaction ?? null)
   const [expanded, setExpanded]         = useState(false)
 
+  const totalReactions = Object.values(reactions ?? {}).reduce((a, b) => a + (b || 0), 0)
   const contentLines = post.content.split('\n')
   const isLong = contentLines.length > 3 || post.content.length > 130
   const truncated = isLong
@@ -134,9 +135,9 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
             <span>{'... '}
               <button
                 onClick={() => setExpanded(true)}
-                className="text-sm text-stone-400 hover:text-stone-500 font-normal"
+                className="text-sm font-semibold text-brand hover:text-brand/80"
               >
-                ler mais
+                {t('feed.readMore') || 'ler más'}
               </button>
             </span>
           )}
@@ -163,26 +164,59 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
         </div>
       )}
 
-      {/* Reactions + comments toggle */}
-      <div className="flex items-center gap-3 flex-wrap px-4 py-2.5">
+      {/* Reactions bar — bigger touch targets, prominent below image (Instagram-style) */}
+      <div className="px-4 pt-3">
         <ReactionBar
           postId={post.id}
           reactions={reactions}
           userReaction={userReaction}
           onReactionChange={handleReactionChange}
         />
+      </div>
+
+      {/* Social proof line — total reactions + comments */}
+      {(totalReactions > 0 || post.comments_count > 0) && (
+        <div className="flex items-center gap-3 px-4 pt-2 text-xs text-stone-500">
+          {totalReactions > 0 && (
+            <span className="font-semibold text-stone-700">
+              {totalReactions} {totalReactions === 1
+                ? (t('feed.oneReaction') || 'reacción')
+                : (t('feed.manyReactions') || 'reacciones')}
+            </span>
+          )}
+          {post.comments_count > 0 && (
+            <button
+              onClick={() => setShowComments(v => !v)}
+              className="hover:text-stone-700"
+            >
+              {post.comments_count === 1
+                ? (t('feed.oneComment') || `${post.comments_count} comentario`)
+                : `${post.comments_count} ${t('feed.manyComments') || 'comentarios'}`}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Comments toggle button */}
+      <div className="flex items-center px-4 pt-2 pb-3">
         <button
           onClick={() => setShowComments(v => !v)}
-          className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-brand ml-auto"
+          className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-brand"
         >
           <MessageCircle className="w-4 h-4" />
-          <span>{post.comments_count > 0 ? post.comments_count : t('feed.comments')}</span>
+          <span>
+            {showComments
+              ? (t('feed.hideComments') || 'Ocultar comentarios')
+              : (post.comments_count > 0
+                  ? (t('feed.viewComments') || 'Ver comentarios')
+                  : (t('feed.addComment') || 'Comentar'))}
+          </span>
         </button>
       </div>
 
-      {/* Comments */}
+      {/* Comments — separator line for visual breathing */}
       {showComments && (
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-3 border-t border-stone-100 pt-3">
           <CommentList postId={post.id} currentUserId={currentUserId} lang={lang} />
         </div>
       )}

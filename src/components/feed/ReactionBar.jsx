@@ -24,7 +24,7 @@ export default function ReactionBar({ postId, reactions, userReaction, onReactio
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       {REACTIONS.map(({ key, emoji }) => {
         const count   = reactions?.[key] ?? 0
         const active  = userReaction === key
@@ -32,14 +32,16 @@ export default function ReactionBar({ postId, reactions, userReaction, onReactio
           <button
             key={key}
             onClick={() => handleClick(key)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold transition-all active:scale-90 ${
               active
-                ? 'bg-brand/10 text-brand ring-1 ring-brand/20'
-                : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                ? 'bg-brand/10 text-brand ring-2 ring-brand/30 shadow-sm'
+                : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
             }`}
           >
-            <span className="text-sm leading-none">{emoji}</span>
-            {count > 0 && <span>{count}</span>}
+            <span className={`leading-none transition-transform ${active ? 'text-lg scale-110' : 'text-base'}`}>
+              {emoji}
+            </span>
+            {count > 0 && <span className="tabular-nums text-xs">{count}</span>}
           </button>
         )
       })}
