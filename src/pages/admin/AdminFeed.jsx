@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
 
@@ -181,47 +181,103 @@ function QueueTab({ apiFetch }) {
 }
 
 // ── Create Admin Post ─────────────────────────────────────────────────────────
-function PostTab({ apiFetch }) {
-  const [content, setContent]     = useState('')
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
-  const fileRef = useRef()
+// Same feeling keys as user-side CreatePostModal — the DB column has a CHECK
+// constraint, must match exactly.
+const ADMIN_FEELINGS = [
+  { key: 'happy_results',     label: '😊 Feliz com os resultados' },
+  { key: 'sad_hair',          label: '😔 Triste com o cabelo' },
+  { key: 'surprised_recipes', label: '😲 Surpresa com as receitas' },
+  { key: 'loving_journey',    label: '🥰 Amando a jornada' },
+  { key: 'excited_progress',  label: '🤩 Animada com o progresso' },
+  { key: 'motivated',         label: '💪 Motivada' },
+  { key: 'hopeful',           label: '🌱 Esperançosa' },
+]
 
-  function handleFileChange(e) {
+function PostTab({ apiFetch }) {
+  // 'natglow' (official admin badge) | 'user' (fake testimonial — looks like a real user)
+  const [mode, setMode] = useState('natglow')
+
+  // Shared
+  const [content, setContent] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  // Images (both modes — natglow uses only image 1, user mode uses both)
+  const [imageFile,    setImageFile]    = useState(null)
+  const [imageFile2,   setImageFile2]   = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [imagePreview2,setImagePreview2]= useState(null)
+
+  // User-mode only
+  const [authorName,   setAuthorName]   = useState('')
+  const [avatarFile,   setAvatarFile]   = useState(null)
+  const [avatarPreview,setAvatarPreview]= useState(null)
+  const [feeling,      setFeeling]      = useState(null)
+
+  const fileRef       = useRef()
+  const fileRef2      = useRef()
+  const avatarFileRef = useRef()
+
+  function reset() {
+    setContent(''); setImageFile(null); setImageFile2(null)
+    setImagePreview(null); setImagePreview2(null)
+    setAuthorName(''); setAvatarFile(null); setAvatarPreview(null); setFeeling(null)
+  }
+
+  function handleFile(e, target) {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 5 * 1024 * 1024) { toast.error('Imagem máx 5MB'); return }
-    setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    if (target === 'image1')  { setImageFile(file);  setImagePreview(URL.createObjectURL(file)) }
+    if (target === 'image2')  { setImageFile2(file); setImagePreview2(URL.createObjectURL(file)) }
+    if (target === 'avatar')  { setAvatarFile(file); setAvatarPreview(URL.createObjectURL(file)) }
+  }
+
+  async function uploadOne(file, subfolder) {
+    const ext  = file.name.split('.').pop()
+    const path = `admin/${subfolder}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
+    const { error } = await supabase.storage
+      .from('feed-images')
+      .upload(path, file, { upsert: false })
+    if (error) throw error
+    const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
+    return publicUrl
   }
 
   async function handleSubmit() {
     if (!content.trim()) return
+    if (mode === 'user' && !authorName.trim()) {
+      toast.error('Preencha o nome da usuária'); return
+    }
     setSubmitting(true)
     try {
-      let imageUrl = null
-      if (imageFile) {
-        const ext  = imageFile.name.split('.').pop()
-        const path = `admin/${Date.now()}.${ext}`
-        const { error: uploadError } = await supabase.storage
-          .from('feed-images')
-          .upload(path, imageFile, { upsert: false })
-        if (uploadError) throw uploadError
-        const { data: { publicUrl } } = supabase.storage
-          .from('feed-images')
-          .getPublicUrl(path)
-        imageUrl = publicUrl
-      }
+      const [imageUrl, imageUrl2, avatarUrl] = await Promise.all([
+        imageFile  ? uploadOne(imageFile,  'posts')   : Promise.resolve(null),
+        imageFile2 ? uploadOne(imageFile2, 'posts')   : Promise.resolve(null),
+        avatarFile ? uploadOne(avatarFile, 'avatars') : Promise.resolve(null),
+      ])
+
+      const payload = mode === 'user'
+        ? {
+            content:           content.trim(),
+            image_url:         imageUrl,
+            image_url_2:       imageUrl2,
+            author_name:       authorName.trim(),
+            author_avatar_url: avatarUrl,
+            feeling:           feeling,
+            is_admin:          false,
+          }
+        : {
+            content:   content.trim(),
+            image_url: imageUrl,
+            is_admin:  true,
+          }
 
       await apiFetch('/admin-feed?mode=post', {
         method: 'POST',
-        body: JSON.stringify({ content: content.trim(), image_url: imageUrl }),
+        body:   JSON.stringify(payload),
       })
-      toast.success('Post publicado!')
-      setContent('')
-      setImageFile(null)
-      setImagePreview(null)
+      toast.success(mode === 'user' ? 'Depoimento publicado!' : 'Post oficial publicado!')
+      reset()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -229,55 +285,184 @@ function PostTab({ apiFetch }) {
     }
   }
 
+  const submitDisabled = submitting || !content.trim() || (mode === 'user' && !authorName.trim())
+
   return (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5 shadow-sm max-w-lg">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center">
-          <span className="text-xs font-bold text-white">N</span>
-        </div>
-        <span className="text-sm font-semibold text-stone-700">NatGlow</span>
-        <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[10px] font-bold rounded-full">Admin</span>
+    <div className="max-w-lg space-y-4">
+      {/* Mode switcher */}
+      <div className="bg-white rounded-2xl border border-stone-100 p-1 flex gap-1">
+        <button
+          onClick={() => setMode('natglow')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            mode === 'natglow'
+              ? 'bg-brand text-white shadow-sm'
+              : 'text-stone-500 hover:text-stone-800'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          NatGlow Oficial
+        </button>
+        <button
+          onClick={() => setMode('user')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            mode === 'user'
+              ? 'bg-violet-600 text-white shadow-sm'
+              : 'text-stone-500 hover:text-stone-800'
+          }`}
+        >
+          <User className="w-3.5 h-3.5" />
+          Modo Usuária (Fake)
+        </button>
       </div>
 
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        maxLength={1000}
-        rows={5}
-        placeholder="Escreva o conteúdo do post..."
-        className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-800 resize-none outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand mb-1"
-      />
-      <p className="text-right text-xs text-stone-300 mb-3">{content.length}/1000</p>
+      <div className="bg-white rounded-2xl border border-stone-100 p-5 shadow-sm">
+        {/* Author preview */}
+        {mode === 'natglow' ? (
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-9 h-9 rounded-full bg-brand flex items-center justify-center">
+              <span className="text-xs font-bold text-white">N</span>
+            </div>
+            <span className="text-sm font-semibold text-stone-700">NatGlow</span>
+            <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[10px] font-bold rounded-full">Admin</span>
+          </div>
+        ) : (
+          <div className="space-y-3 mb-4 pb-4 border-b border-stone-100">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600">Identidade da usuária fake</p>
+            <div className="flex items-start gap-3">
+              {/* Avatar upload */}
+              <button
+                type="button"
+                onClick={() => avatarFileRef.current?.click()}
+                className="w-14 h-14 rounded-full bg-stone-100 hover:bg-stone-200 flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-dashed border-stone-300 hover:border-violet-400 transition-colors"
+              >
+                {avatarPreview
+                  ? <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                  : <ImagePlus className="w-5 h-5 text-stone-400" />
+                }
+              </button>
+              <input ref={avatarFileRef} type="file" accept="image/*" className="hidden" onChange={e => handleFile(e, 'avatar')} />
 
-      {imagePreview ? (
-        <div className="relative mb-3">
-          <img src={imagePreview} alt="" className="w-full rounded-xl max-h-48 object-cover" />
+              <div className="flex-1 space-y-1.5">
+                <input
+                  type="text"
+                  value={authorName}
+                  onChange={e => setAuthorName(e.target.value)}
+                  maxLength={40}
+                  placeholder="Nome (ex: Camila R.)"
+                  className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+                />
+                {avatarPreview && (
+                  <button
+                    type="button"
+                    onClick={() => { setAvatarFile(null); setAvatarPreview(null) }}
+                    className="text-[11px] text-stone-400 hover:text-red-500"
+                  >
+                    Remover avatar
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Feeling picker */}
+            <div>
+              <p className="text-xs text-stone-400 mb-1.5 flex items-center gap-1.5">
+                <SmilePlus className="w-3 h-3" />
+                Como ela está se sentindo (opcional)
+              </p>
+              <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                {ADMIN_FEELINGS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setFeeling(feeling === key ? null : key)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs border transition-all whitespace-nowrap ${
+                      feeling === key
+                        ? 'border-violet-500 bg-violet-50 text-violet-700 font-semibold'
+                        : 'border-stone-200 text-stone-500 hover:border-stone-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content textarea */}
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          maxLength={1000}
+          rows={5}
+          placeholder={mode === 'user' ? 'Escreva o depoimento como se fosse a usuária...' : 'Escreva o conteúdo do post oficial...'}
+          className={`w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-800 resize-none outline-none focus:ring-2 ${
+            mode === 'user' ? 'focus:ring-violet-200 focus:border-violet-400' : 'focus:ring-brand/30 focus:border-brand'
+          } mb-1`}
+        />
+        <p className="text-right text-xs text-stone-300 mb-3">{content.length}/1000</p>
+
+        {/* Image previews */}
+        {(imagePreview || imagePreview2) ? (
+          <div className={`mb-4 ${imagePreview && imagePreview2 ? 'grid grid-cols-2 gap-2' : ''}`}>
+            {imagePreview && (
+              <div className="relative aspect-square">
+                <img src={imagePreview} alt="" className="w-full h-full object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={() => { setImageFile(null); setImagePreview(null) }}
+                  className="absolute top-1.5 right-1.5 p-1 bg-black/50 rounded-full text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                {mode === 'user' && !imagePreview2 && (
+                  <button
+                    type="button"
+                    onClick={() => fileRef2.current?.click()}
+                    className="absolute bottom-1.5 left-0 right-0 mx-auto w-fit px-2.5 py-1 bg-black/50 rounded-full text-white text-[10px] font-medium whitespace-nowrap"
+                  >
+                    + Segunda foto
+                  </button>
+                )}
+              </div>
+            )}
+            {imagePreview2 && (
+              <div className="relative aspect-square">
+                <img src={imagePreview2} alt="" className="w-full h-full object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={() => { setImageFile2(null); setImagePreview2(null) }}
+                  className="absolute top-1.5 right-1.5 p-1 bg-black/50 rounded-full text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
           <button
-            onClick={() => { setImageFile(null); setImagePreview(null) }}
-            className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white"
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-2 text-xs text-stone-400 hover:text-brand mb-4"
           >
-            <X className="w-3.5 h-3.5" />
+            <Image className="w-4 h-4" />
+            {mode === 'user' ? 'Adicionar foto (até 2)' : 'Adicionar foto (opcional)'}
           </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 text-xs text-stone-400 hover:text-brand mb-4"
-        >
-          <Image className="w-4 h-4" />
-          Adicionar foto (opcional)
-        </button>
-      )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+        )}
+        <input ref={fileRef}  type="file" accept="image/*" className="hidden" onChange={e => handleFile(e, 'image1')} />
+        <input ref={fileRef2} type="file" accept="image/*" className="hidden" onChange={e => handleFile(e, 'image2')} />
 
-      <button
-        onClick={handleSubmit}
-        disabled={submitting || !content.trim()}
-        className="flex items-center gap-2 px-6 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl disabled:opacity-50"
-      >
-        {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        Publicar
-      </button>
+        <button
+          onClick={handleSubmit}
+          disabled={submitDisabled}
+          className={`w-full flex items-center justify-center gap-2 px-6 py-3 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors ${
+            mode === 'user' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-brand hover:bg-brand/90'
+          }`}
+        >
+          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {mode === 'user' ? 'Publicar depoimento' : 'Publicar como NatGlow'}
+        </button>
+      </div>
     </div>
   )
 }

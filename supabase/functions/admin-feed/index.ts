@@ -66,19 +66,42 @@ Deno.serve(async (req) => {
         return json({ ok: true, post: Array.isArray(updated) ? updated[0] : updated })
       }
 
-      // Create an admin post (auto-approved)
+      // Create a feed post from admin (auto-approved).
+      // Two modes:
+      //  - NatGlow official: is_admin=true (shows admin badge "NatGlow")
+      //  - Fake user testimonial: is_admin=false + author_name + author_avatar_url
+      //    + feeling. Renders identical to a real user post.
       if (mode === 'post') {
-        const { content, image_url } = body
+        const {
+          content,
+          image_url,
+          image_url_2,
+          author_name,
+          author_avatar_url,
+          feeling,
+          is_admin,  // defaults to true (NatGlow official)
+        } = body
         if (!content?.trim()) return json({ error: 'content obrigatório' }, 400)
+
+        const isAdmin = is_admin !== false  // default true
+        if (!isAdmin && !author_name?.trim()) {
+          return json({ error: 'author_name é obrigatório no modo Usuária' }, 400)
+        }
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_posts`, {
           method:  'POST',
           headers: dbHeaders,
           body:    JSON.stringify({
-            content:     content.trim(),
-            image_url:   image_url ?? null,
-            is_admin:    true,
-            status:      'approved',
-            approved_at: new Date().toISOString(),
+            content:           content.trim(),
+            image_url:         image_url ?? null,
+            image_url_2:       image_url_2 ?? null,
+            is_admin:          isAdmin,
+            status:            'approved',
+            approved_at:       new Date().toISOString(),
+            author_name:       isAdmin ? null : author_name.trim(),
+            author_avatar_url: isAdmin ? null : (author_avatar_url ?? null),
+            feeling:           feeling ?? null,
+            user_id:           null,  // admin-created posts aren't tied to a real user
           }),
         })
         const created = await res.json()
