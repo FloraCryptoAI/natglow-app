@@ -1,6 +1,7 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { registerRoute, NavigationRoute } from 'workbox-routing'
 import { NetworkFirst, StaleWhileRevalidate, CacheFirst } from 'workbox-strategies'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -19,6 +20,31 @@ registerRoute(
   ({ url }) => url.origin === 'https://fonts.gstatic.com',
   new CacheFirst({ cacheName: 'google-fonts-webfonts' })
 )
+
+// Supabase Storage images (feed posts + avatars).
+// CacheFirst makes repeat views instant: first visit downloads + caches,
+// every subsequent view serves from the SW cache without hitting Supabase.
+// Images here are immutable (their URL contains a random filename), so we
+// can keep them cached for 30 days. Cap at 200 entries — bounded so the
+// cache doesn't grow forever on a heavy user.
+if (SUPABASE_URL) {
+  const SUPABASE_HOST = new URL(SUPABASE_URL).host
+  registerRoute(
+    ({ url, request }) =>
+      url.host === SUPABASE_HOST &&
+      url.pathname.startsWith('/storage/v1/object/public/feed-images/') &&
+      request.destination === 'image',
+    new CacheFirst({
+      cacheName: 'supabase-feed-images',
+      plugins: [
+        new ExpirationPlugin({
+          maxEntries: 200,
+          maxAgeSeconds: 30 * 24 * 60 * 60,
+        }),
+      ],
+    })
+  )
+}
 
 // Push notification recebida do servidor
 self.addEventListener('push', (event) => {
