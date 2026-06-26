@@ -448,13 +448,13 @@ function PostTab({ apiFetch }) {
                 <SmilePlus className="w-3 h-3" />
                 Como ela está se sentindo (opcional)
               </p>
-              <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex gap-1.5 flex-wrap">
                 {ADMIN_FEELINGS.map(({ key, label }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={() => setFeeling(feeling === key ? null : key)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs border transition-all whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-all whitespace-nowrap ${
                       feeling === key
                         ? 'border-violet-500 bg-violet-50 text-violet-700 font-semibold'
                         : 'border-stone-200 text-stone-500 hover:border-stone-300'
