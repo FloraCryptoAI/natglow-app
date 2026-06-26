@@ -79,7 +79,8 @@ Deno.serve(async (req) => {
           author_name,
           author_avatar_url,
           feeling,
-          is_admin,  // defaults to true (NatGlow official)
+          is_admin,    // defaults to true (NatGlow official)
+          created_at,  // optional — backdate fake posts to make the feed look mature
         } = body
         if (!content?.trim()) return json({ error: 'content obrigatório' }, 400)
 
@@ -88,43 +89,70 @@ Deno.serve(async (req) => {
           return json({ error: 'author_name é obrigatório no modo Usuária' }, 400)
         }
 
+        // Validate optional created_at — must parse to a valid date. If absent,
+        // Postgres applies the column default (now()).
+        let backdatedISO: string | null = null
+        if (created_at) {
+          const d = new Date(created_at)
+          if (!isNaN(d.getTime())) backdatedISO = d.toISOString()
+        }
+
+        const row: Record<string, unknown> = {
+          content:           content.trim(),
+          image_url:         image_url ?? null,
+          image_url_2:       image_url_2 ?? null,
+          is_admin:          isAdmin,
+          status:            'approved',
+          author_name:       isAdmin ? null : author_name.trim(),
+          author_avatar_url: isAdmin ? null : (author_avatar_url ?? null),
+          feeling:           feeling ?? null,
+          user_id:           null,  // admin-created posts aren't tied to a real user
+        }
+        // When backdating, also push approved_at to the same instant so the post
+        // looks like it was instantly approved at that historical time.
+        if (backdatedISO) {
+          row.created_at  = backdatedISO
+          row.approved_at = backdatedISO
+        } else {
+          row.approved_at = new Date().toISOString()
+        }
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_posts`, {
           method:  'POST',
           headers: dbHeaders,
-          body:    JSON.stringify({
-            content:           content.trim(),
-            image_url:         image_url ?? null,
-            image_url_2:       image_url_2 ?? null,
-            is_admin:          isAdmin,
-            status:            'approved',
-            approved_at:       new Date().toISOString(),
-            author_name:       isAdmin ? null : author_name.trim(),
-            author_avatar_url: isAdmin ? null : (author_avatar_url ?? null),
-            feeling:           feeling ?? null,
-            user_id:           null,  // admin-created posts aren't tied to a real user
-          }),
+          body:    JSON.stringify(row),
         })
         const created = await res.json()
         return json({ ok: true, post: Array.isArray(created) ? created[0] : created })
       }
 
-      // Add a fake comment as admin (any author name + avatar)
+      // Add a fake comment as admin (any author name + avatar, optional backdate)
       if (mode === 'add_comment') {
-        const { post_id, author_name, author_avatar_url, content, parent_id } = body
+        const { post_id, author_name, author_avatar_url, content, parent_id, created_at } = body
         if (!post_id || !content?.trim() || !author_name?.trim()) {
           return json({ error: 'post_id, author_name e content são obrigatórios' }, 400)
         }
+
+        let backdatedISO: string | null = null
+        if (created_at) {
+          const d = new Date(created_at)
+          if (!isNaN(d.getTime())) backdatedISO = d.toISOString()
+        }
+
+        const row: Record<string, unknown> = {
+          post_id,
+          user_id:           null,
+          parent_id:         parent_id ?? null,
+          content:           content.trim().slice(0, 500),
+          author_name:       author_name.trim(),
+          author_avatar_url: author_avatar_url ?? null,
+        }
+        if (backdatedISO) row.created_at = backdatedISO
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_comments`, {
           method:  'POST',
           headers: dbHeaders,
-          body:    JSON.stringify({
-            post_id,
-            user_id:           null,
-            parent_id:         parent_id ?? null,
-            content:           content.trim().slice(0, 500),
-            author_name:       author_name.trim(),
-            author_avatar_url: author_avatar_url ?? null,
-          }),
+          body:    JSON.stringify(row),
         })
         const created = await res.json()
         return json({ ok: true, comment: Array.isArray(created) ? created[0] : created })

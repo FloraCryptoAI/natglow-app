@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
 
@@ -14,6 +14,82 @@ const TABS = [
 
 function timeAgo(d) {
   return formatDistanceToNow(new Date(d), { addSuffix: true, locale: ptBR })
+}
+
+// Format a Date as the value that <input type="datetime-local"> expects:
+// 'YYYY-MM-DDTHH:MM' in the BROWSER's local timezone.
+function toDatetimeLocal(d) {
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+// Reusable datetime picker for backdating fake posts/comments. Shows the
+// current value as 'time ago' so admin can see what the visitor will see.
+// onChange receives an ISO string (or null when admin clears and uses 'agora').
+const BACKDATE_PRESETS = [
+  { label: 'Agora',         deltaMin: 0 },
+  { label: '−1h',           deltaMin: 60 },
+  { label: '−3h',           deltaMin: 60 * 3 },
+  { label: '−6h',           deltaMin: 60 * 6 },
+  { label: 'Ontem',         deltaMin: 60 * 24 },
+  { label: '−2 dias',       deltaMin: 60 * 24 * 2 },
+  { label: '−5 dias',       deltaMin: 60 * 24 * 5 },
+  { label: '−1 semana',     deltaMin: 60 * 24 * 7 },
+  { label: '−2 semanas',    deltaMin: 60 * 24 * 14 },
+]
+
+function DateTimePicker({ value, onChange, accent = 'violet' }) {
+  // value is ISO string or null. We display it as 'datetime-local' format.
+  const localVal = value ? toDatetimeLocal(new Date(value)) : ''
+  const accentBorder = accent === 'violet' ? 'focus:border-violet-400 focus:ring-violet-200' : 'focus:border-brand focus:ring-brand/30'
+  const accentChip   = accent === 'violet' ? 'hover:border-violet-300 hover:text-violet-700' : 'hover:border-brand hover:text-brand'
+
+  function applyPreset(deltaMin) {
+    if (deltaMin === 0) { onChange(null); return }  // 'Agora' → use server default
+    const d = new Date(Date.now() - deltaMin * 60 * 1000)
+    onChange(d.toISOString())
+  }
+
+  function handleInput(e) {
+    const v = e.target.value
+    if (!v) { onChange(null); return }
+    // datetime-local string ('YYYY-MM-DDTHH:MM') is interpreted as LOCAL time
+    const d = new Date(v)
+    if (!isNaN(d.getTime())) onChange(d.toISOString())
+  }
+
+  const preview = value
+    ? formatDistanceToNow(new Date(value), { addSuffix: true, locale: ptBR })
+    : 'Agora (data atual)'
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-2 text-[11px] text-stone-500">
+        <Calendar className="w-3 h-3" />
+        <span>Data de publicação · <span className="text-stone-700 font-semibold">{preview}</span></span>
+      </div>
+      <div className="flex gap-2 items-center">
+        <input
+          type="datetime-local"
+          value={localVal}
+          onChange={handleInput}
+          className={`flex-1 bg-white border border-stone-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 ${accentBorder}`}
+        />
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {BACKDATE_PRESETS.map(p => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => applyPreset(p.deltaMin)}
+            className={`px-2 py-0.5 text-[10px] font-semibold border border-stone-200 text-stone-500 rounded-full transition-colors ${accentChip}`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ── Moderation Queue ─────────────────────────────────────────────────────────
@@ -212,6 +288,7 @@ function PostTab({ apiFetch }) {
   const [avatarFile,   setAvatarFile]   = useState(null)
   const [avatarPreview,setAvatarPreview]= useState(null)
   const [feeling,      setFeeling]      = useState(null)
+  const [createdAt,    setCreatedAt]    = useState(null)  // ISO or null (=now)
 
   const fileRef       = useRef()
   const fileRef2      = useRef()
@@ -221,6 +298,7 @@ function PostTab({ apiFetch }) {
     setContent(''); setImageFile(null); setImageFile2(null)
     setImagePreview(null); setImagePreview2(null)
     setAuthorName(''); setAvatarFile(null); setAvatarPreview(null); setFeeling(null)
+    setCreatedAt(null)
   }
 
   function handleFile(e, target) {
@@ -265,6 +343,7 @@ function PostTab({ apiFetch }) {
             author_avatar_url: avatarUrl,
             feeling:           feeling,
             is_admin:          false,
+            created_at:        createdAt,  // null = use server now()
           }
         : {
             content:   content.trim(),
@@ -386,6 +465,9 @@ function PostTab({ apiFetch }) {
                 ))}
               </div>
             </div>
+
+            {/* Backdating */}
+            <DateTimePicker value={createdAt} onChange={setCreatedAt} accent="violet" />
           </div>
         )}
 
@@ -486,6 +568,7 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
   const [cText,   setCText]   = useState('')
   const [cAvatarFile,    setCAvatarFile]    = useState(null)
   const [cAvatarPreview, setCAvatarPreview] = useState(null)
+  const [cCreatedAt, setCCreatedAt] = useState(null)  // ISO or null (=now)
   const [cSubmitting, setCSubmitting] = useState(false)
   const [cDeleting, setCDeleting]     = useState(null)
   const cAvatarRef = useRef()
@@ -530,10 +613,11 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
           author_name:       cName.trim(),
           author_avatar_url: avatarUrl,
           content:           cText.trim(),
+          created_at:        cCreatedAt,  // null = use server now()
         }),
       })
       toast.success('Comentário fake adicionado')
-      setCName(''); setCText(''); setCAvatarFile(null); setCAvatarPreview(null)
+      setCName(''); setCText(''); setCAvatarFile(null); setCAvatarPreview(null); setCCreatedAt(null)
       loadComments()
       onChanged?.()
     } catch (e) {
@@ -704,7 +788,9 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
                     placeholder="Conteúdo do comentário..."
                     className="w-full bg-white border border-stone-200 rounded-lg px-3 py-1.5 text-sm resize-none outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
                   />
-                  <div className="flex items-center gap-2">
+                  <DateTimePicker value={cCreatedAt} onChange={setCCreatedAt} accent="violet" />
+
+                  <div className="flex items-center gap-2 pt-1">
                     {cAvatarPreview && (
                       <button
                         type="button"
