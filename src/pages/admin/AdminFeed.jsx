@@ -3,6 +3,7 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart, Calendar } from 'lucide-react'
+import { compressPostImage, compressAvatar } from '@/lib/compressImage'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
 
@@ -311,11 +312,17 @@ function PostTab({ apiFetch }) {
   }
 
   async function uploadOne(file, subfolder) {
+    // Compress to size appropriate for the destination:
+    // - 'avatars' → 400px max / ~80KB (will render as small circle)
+    // - 'posts'   → 1080px max / ~400KB (Instagram standard)
+    const compressed = subfolder === 'avatars'
+      ? await compressAvatar(file)
+      : await compressPostImage(file)
     const ext  = file.name.split('.').pop()
     const path = `admin/${subfolder}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
     const { error } = await supabase.storage
       .from('feed-images')
-      .upload(path, file, { upsert: false })
+      .upload(path, compressed, { upsert: false })
     if (error) throw error
     const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
     return publicUrl
@@ -593,9 +600,10 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
   }
 
   async function uploadAvatar(file) {
+    const compressed = await compressAvatar(file)
     const ext  = file.name.split('.').pop()
     const path = `admin/avatars/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
-    const { error } = await supabase.storage.from('feed-images').upload(path, file, { upsert: false })
+    const { error } = await supabase.storage.from('feed-images').upload(path, compressed, { upsert: false })
     if (error) throw error
     const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
     return publicUrl

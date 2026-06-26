@@ -4,6 +4,7 @@ import { supabase } from '@/api/supabaseClient'
 import { toast } from 'sonner'
 import { X, Image, Loader2, CheckCircle2, Clock, SmilePlus } from 'lucide-react'
 import SetDisplayNameModal from './SetDisplayNameModal'
+import { compressPostImage } from '@/lib/compressImage'
 
 const FEELINGS = [
   'happy_results',
@@ -47,7 +48,10 @@ export default function CreatePostModal({ currentUserId, displayName, authorAvat
   }
 
   async function uploadImage(file, path) {
-    const { error } = await supabase.storage.from('feed-images').upload(path, file, { upsert: false })
+    // Compress phone-sized photos (3-5MB) to Instagram-standard (~400KB max)
+    // before upload. Falls back to original file if compression fails.
+    const compressed = await compressPostImage(file)
+    const { error } = await supabase.storage.from('feed-images').upload(path, compressed, { upsert: false })
     if (error) throw error
     const { data: { publicUrl } } = supabase.storage.from('feed-images').getPublicUrl(path)
     return publicUrl
