@@ -7,7 +7,6 @@ import { supabase } from '@/api/supabaseClient'
 import { toast } from 'sonner'
 import ReactionBar from './ReactionBar'
 import CommentList from './CommentList'
-import LazyImage from './LazyImage'
 
 function timeAgo(dateStr, lang) {
   return formatDistanceToNow(new Date(dateStr), {
@@ -146,23 +145,28 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
       </div>
 
       {/* Images — full bleed, sem padding horizontal.
-          LazyImage reserves the aspect ratio with a stone-100 skeleton so the
-          feed doesn't reflow as each photo decodes. Single image uses 4/5
-          (Instagram portrait); dual uses 1/1 in a 2-col grid. */}
+          Plain <img> with native lazy loading lets the browser render the
+          photo progressively (line-by-line as bytes arrive). Hiding it
+          behind a skeleton + opacity-fade until onLoad ends up feeling
+          slower because the user gets zero progress feedback during the
+          download. Aspect ratio is unforced on single images so the photo
+          shows in its natural proportions. */}
       {post.image_url && (
         <div className={hasDualImages ? 'grid grid-cols-2 gap-px mb-0' : 'mb-0'}>
-          <LazyImage
+          <img
             src={post.image_url}
             alt=""
-            aspectRatio={hasDualImages ? '1/1' : '4/5'}
-            className="w-full"
+            loading="lazy"
+            decoding="async"
+            className={`w-full object-cover ${hasDualImages ? 'aspect-square' : 'max-h-[520px]'}`}
           />
           {post.image_url_2 && (
-            <LazyImage
+            <img
               src={post.image_url_2}
               alt=""
-              aspectRatio="1/1"
-              className="w-full"
+              loading="lazy"
+              decoding="async"
+              className="w-full aspect-square object-cover"
             />
           )}
         </div>
