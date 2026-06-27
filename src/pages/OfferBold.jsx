@@ -103,23 +103,34 @@ export default function OfferBold({ pricingPlan = 'bold' }) {
 
   const name = answers.name?.trim()
 
+  // Tracking guard: rapid double-click on mobile (touch + ghost-click) or a
+  // panicked user clicking 2× before navigation kicks in was firing two
+  // InitiateCheckout events with different UUIDs. Fire tracking once per
+  // page session; the URL build + nav still runs on every click so a
+  // popup-blocked first attempt isn't lost.
+  const ctaFiredRef = useRef(false)
   const handleCheckout = () => {
     setLoading(true)
 
-    const fbEventId = crypto.randomUUID()
-    const ttCompleteId = crypto.randomUUID()
     const attribution = getAttribution()
 
-    sessionStorage.setItem('tt_complete_payment_id', ttCompleteId)
-    sessionStorage.setItem('tt_complete_plan_key', plan_key)
-    sessionStorage.setItem('tt_complete_value', String(display_price))
+    if (!ctaFiredRef.current) {
+      ctaFiredRef.current = true
 
-    trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source: 'offer_bold' }, plan_key)
-    // Facebook InitiateCheckout is fired by Hotmart's native partner pixel
-    // integration when the user lands on their checkout. Firing here would
-    // create a 2nd event with a different event_id (can't be deduped).
-    // TikTok stays — Hotmart has no TikTok partner integration.
-    trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
+      const fbEventId    = crypto.randomUUID()
+      const ttCompleteId = crypto.randomUUID()
+
+      sessionStorage.setItem('tt_complete_payment_id', ttCompleteId)
+      sessionStorage.setItem('tt_complete_plan_key', plan_key)
+      sessionStorage.setItem('tt_complete_value', String(display_price))
+
+      trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source: 'offer_bold' }, plan_key)
+      // Facebook InitiateCheckout is fired by Hotmart's native partner pixel
+      // integration when the user lands on their checkout. Firing here would
+      // create a 2nd event with a different event_id (can't be deduped).
+      // TikTok stays — Hotmart has no TikTok partner integration.
+      trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
+    }
 
     let checkoutUrl = hotmart_checkout_url || '/'
     const params = new URLSearchParams()

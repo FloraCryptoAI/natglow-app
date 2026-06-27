@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles, Shield, ArrowRight, Clock, Star, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -60,26 +60,34 @@ export default function Upgrade() {
     return `${m}:${sec}`
   }
 
+  // Tracking guard — same pattern as OfferBold/OfferDetox. Prevents
+  // double-tap from firing two TikTok InitiateCheckout events with
+  // different UUIDs (both browser-side, can't be deduped).
+  const ctaFiredRef = useRef(false)
   const handleBuy = async (planKey) => {
     const plan = PRICING_PLANS[planKey]
     if (!plan?.hotmart_checkout_url) return
 
-    // Mirror the offer-page tracking so abandoned-quiz returners are still
-    // attributed in the funnel and TikTok pixel. Facebook is intentionally
-    // skipped here — Hotmart's native FB pixel partner integration fires
-    // InitiateCheckout when the user lands on their checkout.
-    const eventId = crypto.randomUUID()
-    trackFunnelEvent('cta_clicked', { source: 'upgrade', fb_event_id: eventId }, plan.plan_key)
-    try {
-      await initTikTokPixel()
-      trackTtEvent('InitiateCheckout', {
-        value:        plan.display_price,
-        currency:     'USD',
-        content_name: plan.plan_key,
-        content_id:   plan.plan_key,
-        content_type: 'product',
-      }, eventId)
-    } catch { /* never block the buy flow on tracking */ }
+    if (!ctaFiredRef.current) {
+      ctaFiredRef.current = true
+
+      // Mirror the offer-page tracking so abandoned-quiz returners are still
+      // attributed in the funnel and TikTok pixel. Facebook is intentionally
+      // skipped here — Hotmart's native FB pixel partner integration fires
+      // InitiateCheckout when the user lands on their checkout.
+      const eventId = crypto.randomUUID()
+      trackFunnelEvent('cta_clicked', { source: 'upgrade', fb_event_id: eventId }, plan.plan_key)
+      try {
+        await initTikTokPixel()
+        trackTtEvent('InitiateCheckout', {
+          value:        plan.display_price,
+          currency:     'USD',
+          content_name: plan.plan_key,
+          content_id:   plan.plan_key,
+          content_type: 'product',
+        }, eventId)
+      } catch { /* never block the buy flow on tracking */ }
+    }
 
     // Give CAPI keepalive fetches a head-start before navigation (Safari
     // is aggressive about cancelling these on user-initiated nav).

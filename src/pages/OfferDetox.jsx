@@ -103,23 +103,33 @@ export default function OfferDetox({ pricingPlan = 'detox' }) {
 
   const name = answers.name?.trim()
 
+  // Tracking guard — see OfferBold for full rationale. Prevents double-tap
+  // / ghost-click on mobile from firing two InitiateCheckout events with
+  // different UUIDs. Nav still runs on every click in case the first was
+  // blocked by a popup blocker.
+  const ctaFiredRef = useRef(false)
   const handleCheckout = () => {
     setLoading(true)
 
-    const fbEventId = crypto.randomUUID()
-    const ttCompleteId = crypto.randomUUID()
     const attribution = getAttribution()
 
-    sessionStorage.setItem('tt_complete_payment_id', ttCompleteId)
-    sessionStorage.setItem('tt_complete_plan_key', plan_key)
-    sessionStorage.setItem('tt_complete_value', String(display_price))
+    if (!ctaFiredRef.current) {
+      ctaFiredRef.current = true
 
-    trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source: 'offer_detox' }, plan_key)
-    // Facebook InitiateCheckout is fired by Hotmart's native partner pixel
-    // integration when the user lands on their checkout. Firing here would
-    // create a 2nd event with a different event_id (can't be deduped).
-    // TikTok stays — Hotmart has no TikTok partner integration.
-    trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
+      const fbEventId    = crypto.randomUUID()
+      const ttCompleteId = crypto.randomUUID()
+
+      sessionStorage.setItem('tt_complete_payment_id', ttCompleteId)
+      sessionStorage.setItem('tt_complete_plan_key', plan_key)
+      sessionStorage.setItem('tt_complete_value', String(display_price))
+
+      trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source: 'offer_detox' }, plan_key)
+      // Facebook InitiateCheckout is fired by Hotmart's native partner pixel
+      // integration when the user lands on their checkout. Firing here would
+      // create a 2nd event with a different event_id (can't be deduped).
+      // TikTok stays — Hotmart has no TikTok partner integration.
+      trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
+    }
 
     let checkoutUrl = hotmart_checkout_url || '/'
     const params = new URLSearchParams()
