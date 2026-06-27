@@ -458,19 +458,25 @@ function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading })
 }
 
 // ── Per-age cohort analysis ──────────────────────────────────────────────────
-// For each age bucket: conversion rate + the predominant value in 5 key
-// fields. Tells the admin which age converts best and what creative copy
-// to write per cohort ('30-39 are mostly curly hair with frizz' etc.).
-function AgeBreakdownSection({ ageBreakdown, loading }) {
+// Hero-style conversion card per age bucket: huge conv-rate at the top
+// (the metric the user actually cares about), then a quick stats line,
+// then 5 visual progress bars showing the predominant trait for each
+// dimension. Scannable in ~1 second per card.
+const TRAIT_DIMENSIONS = [
+  { key: 'hairType',          label: 'Cabelo',     emoji: '🌀' },
+  { key: 'symptomsIntensity', label: 'Sintomas',   emoji: '⚡' },
+  { key: 'heatTools',         label: 'Calor',      emoji: '🔥' },
+  { key: 'chemProducts',      label: 'Químicos',   emoji: '🧪' },
+  { key: 'hydration',         label: 'Hidratação', emoji: '💧' },
+]
+
+function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
   if (loading) return null
   const buckets = AGE_ORDER
     .map(age => ({ age, ...(ageBreakdown[age] ?? null) }))
     .filter(b => b.started)  // skip empty buckets
 
   if (buckets.length === 0) return null
-
-  // For relative bar widths in the conv-rate visualization
-  const maxConv = Math.max(...buckets.map(b => b.conv_rate ?? 0), 1)
 
   return (
     <section>
@@ -480,76 +486,64 @@ function AgeBreakdownSection({ ageBreakdown, loading }) {
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {buckets.map(b => {
-          const hairTop      = topValue(b.hairType,          QUESTION_LABELS.hairType.options)
-          const intensityTop = topValue(b.symptomsIntensity, QUESTION_LABELS.symptomsIntensity.options)
-          const heatTop      = topValue(b.heatTools,         QUESTION_LABELS.heatTools.options)
-          const chemTop      = topValue(b.chemProducts,      QUESTION_LABELS.chemProducts.options)
-          const hydrTop      = topValue(b.hydration,         QUESTION_LABELS.hydration.options)
-          const convPct      = b.conv_rate ?? 0
-          const convColor    = convPct >= 5  ? 'text-emerald-600'
-                              : convPct >= 2 ? 'text-amber-600'
-                              :                'text-rose-500'
+          const convPct = b.conv_rate ?? 0
+          const convCls = convPct >= 5  ? { dot: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50/60' }
+                        : convPct >= 2 ? { dot: 'bg-amber-500',   text: 'text-amber-600',   bg: 'bg-amber-50/60'   }
+                        :                { dot: 'bg-rose-400',    text: 'text-rose-500',    bg: 'bg-rose-50/60'    }
+          const revenue = (b.converted ?? 0) * productPrice
 
           return (
-            <div key={b.age} className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-              {/* Header */}
-              <div className="flex items-baseline justify-between">
-                <p className="text-base font-bold text-gray-900">{AGE_LABELS[b.age] ?? b.age}</p>
-                <p className="text-xs text-gray-400 tabular-nums">{b.started} quizzes</p>
-              </div>
-
-              {/* Conversion rate */}
-              <div>
-                <div className="flex items-baseline justify-between mb-1">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Conversão</p>
-                  <p className={`text-2xl font-extrabold tabular-nums ${convColor}`}>
-                    {convPct}%
-                  </p>
-                </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-violet-500 rounded-full transition-all"
-                    style={{ width: `${(convPct / maxConv) * 100}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-gray-400 mt-1 tabular-nums">
-                  {b.converted} compras de {b.started} {b.started === 1 ? 'lead' : 'leads'}
+            <div key={b.age} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              {/* Age label */}
+              <div className="px-5 pt-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  {AGE_LABELS[b.age] ?? b.age}
                 </p>
               </div>
 
-              {/* Predominant traits */}
-              <div className="pt-2 border-t border-gray-50 space-y-1.5">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Perfil predominante</p>
-                {hairTop && (
-                  <div className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="text-gray-500 flex-shrink-0">Tipo de cabelo</span>
-                    <span className="text-gray-800 font-semibold text-right">{hairTop.label} <span className="text-gray-400 font-normal">({hairTop.pct}%)</span></span>
-                  </div>
-                )}
-                {intensityTop && (
-                  <div className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="text-gray-500 flex-shrink-0">Intensidade sintomas</span>
-                    <span className="text-gray-800 font-semibold text-right">{intensityTop.label} <span className="text-gray-400 font-normal">({intensityTop.pct}%)</span></span>
-                  </div>
-                )}
-                {heatTop && (
-                  <div className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="text-gray-500 flex-shrink-0">Uso de calor</span>
-                    <span className="text-gray-800 font-semibold text-right">{heatTop.label} <span className="text-gray-400 font-normal">({heatTop.pct}%)</span></span>
-                  </div>
-                )}
-                {chemTop && (
-                  <div className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="text-gray-500 flex-shrink-0">Químicos</span>
-                    <span className="text-gray-800 font-semibold text-right">{chemTop.label} <span className="text-gray-400 font-normal">({chemTop.pct}%)</span></span>
-                  </div>
-                )}
-                {hydrTop && (
-                  <div className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="text-gray-500 flex-shrink-0">Hidratação</span>
-                    <span className="text-gray-800 font-semibold text-right">{hydrTop.label} <span className="text-gray-400 font-normal">({hydrTop.pct}%)</span></span>
-                  </div>
-                )}
+              {/* HERO: conv rate */}
+              <div className={`px-5 pt-1 pb-4 ${convCls.bg}`}>
+                <div className="flex items-baseline gap-2.5">
+                  <span className={`w-3 h-3 rounded-full ${convCls.dot} flex-shrink-0`} />
+                  <span className={`text-4xl sm:text-5xl font-extrabold tabular-nums leading-none ${convCls.text}`}>
+                    {convPct}%
+                  </span>
+                  <span className="text-xs text-gray-500 font-medium">conversão</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 tabular-nums">
+                  <span className="font-bold text-gray-800">{b.converted}</span> vendas ·
+                  {' '}<span className="font-semibold text-gray-700">{b.started}</span> leads ·
+                  {' '}<span className="font-bold text-emerald-600">${revenue}</span>
+                </p>
+              </div>
+
+              {/* Trait bars */}
+              <div className="px-5 py-4 space-y-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  Perfil predominante
+                </p>
+                {TRAIT_DIMENSIONS.map(({ key, label, emoji }) => {
+                  const top = topValue(b[key], QUESTION_LABELS[key]?.options)
+                  if (!top) return null
+                  return (
+                    <div key={key} className="space-y-1">
+                      <div className="flex items-baseline justify-between gap-3 text-xs">
+                        <span className="flex items-center gap-1.5 text-gray-600 flex-shrink-0">
+                          <span aria-hidden="true">{emoji}</span>
+                          <span className="font-medium">{label}:</span>
+                          <span className="text-gray-800 font-semibold truncate">{top.label}</span>
+                        </span>
+                        <span className="text-gray-500 font-semibold tabular-nums">{top.pct}%</span>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-violet-400 rounded-full"
+                          style={{ width: `${top.pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )

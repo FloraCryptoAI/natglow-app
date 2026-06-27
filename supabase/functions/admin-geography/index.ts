@@ -68,7 +68,8 @@ Deno.serve(async (req) => {
 
     const [startedEvents, completedEvents, payEvents, ctaEvents] = await Promise.all([
       fetchEvents(`event_type=${STARTED_TYPES}&select=session_id,pais,event_type,created_at`),
-      fetchEvents(`event_type=${COMPLETED_TYPES}&select=session_id,event_type,created_at`),
+      // metadata included so we can extract answers.age for the country×age cross-tab
+      fetchEvents(`event_type=${COMPLETED_TYPES}&select=session_id,event_type,metadata,created_at`),
       fetchEvents('event_type=eq.payment_completed&select=session_id,user_id,metadata,created_at'),
       fetchEvents('event_type=eq.cta_clicked&select=session_id,metadata'),
     ])
@@ -79,6 +80,18 @@ Deno.serve(async (req) => {
       const sid  = e.session_id as string
       const pais = e.pais as string | null
       if (sid && pais && pais !== 'XX' && pais !== 'T1') sessionCountry[sid] = pais
+    }
+
+    // Build session → age map (from quiz_*_completed.metadata.answers.age).
+    // Used below for the country × age cross-tab. age values are buckets:
+    // '18_29' | '30_39' | '40_49' | '50_plus'.
+    const sessionAge: Record<string, string> = {}
+    for (const e of completedEvents) {
+      const sid = e.session_id as string
+      if (!sid) continue
+      const raw = e.metadata as { answers?: Record<string, string> } | null
+      const age = raw?.answers?.age
+      if (age) sessionAge[sid] = age
     }
 
     // Build session → funnel map (from cta_clicked metadata.source).
@@ -240,6 +253,66 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Country × Age cross-tab ──────────────────────────────────────────
+    // For each country with traffic, per-age breakdown of started/paid/conv_rate.
+    // Lets the admin answer "in México, which age converts best?" — critical
+    // for FB Ads targeting since the winning age cohort varies by country.
+    const AGE_BUCKETS = ['18_29', '30_39', '40_49', '50_plus'] as const
+    type AgeBucket = typeof AGE_BUCKETS[number]
+    const byCountryAge: Record<string, Record<string, { started: Set<string>; paid: Set<string> }>> = {}
+    const ensureCA = (c: string, age: string) => {
+      if (!byCountryAge[c]) byCountryAge[c] = {}
+      if (!byCountryAge[c][age]) byCountryAge[c][age] = { started: new Set(), paid: new Set() }
+      return byCountryAge[c][age]
+    }
+
+    for (const e of startedEvents) {
+      const sid  = e.session_id as string
+      const pais = sessionCountry[sid]
+      const age  = sessionAge[sid]
+      if (!sid || !pais || !age) continue
+      ensureCA(pais, age).started.add(sid)
+    }
+    for (const e of payEvents) {
+      const sid  = e.session_id as string
+      const pais = sessionCountry[sid]
+      const age  = sessionAge[sid]
+      if (!sid || !pais || !age) continue
+      ensureCA(pais, age).paid.add(sid)
+    }
+
+    const countryAgeBreakdown = Object.entries(byCountryAge).map(([pais, byAge]) => {
+      const by_age: Record<string, { started: number; paid: number; conv_rate: number }> = {}
+      let countryStarted = 0
+      let countryPaid    = 0
+      for (const age of AGE_BUCKETS) {
+        const slot   = byAge[age]
+        const start  = slot?.started.size ?? 0
+        const paid   = slot?.paid.size    ?? 0
+        const conv   = start > 0 ? parseFloat(((paid / start) * 100).toFixed(2)) : 0
+        by_age[age]  = { started: start, paid, conv_rate: conv }
+        countryStarted += start
+        countryPaid    += paid
+      }
+      // Best converting age that has at least 5 starts (avoid noise from tiny cohorts)
+      const topAgeEntry = AGE_BUCKETS
+        .filter(age => by_age[age].started >= 5)
+        .sort((a, b) => by_age[b].conv_rate - by_age[a].conv_rate)[0]
+      return {
+        pais,
+        nome:          COUNTRY_NAMES[pais] ?? pais,
+        total_started: countryStarted,
+        total_paid:    countryPaid,
+        conv_rate:     countryStarted > 0 ? parseFloat(((countryPaid / countryStarted) * 100).toFixed(2)) : 0,
+        revenue:       countryPaid * PRODUCT_PRICE_USD,
+        by_age,
+        top_age:       topAgeEntry ?? null,
+      }
+    })
+    // Keep only countries with at least 10 starts; sort by total_paid desc
+    .filter(c => c.total_started >= 10)
+    .sort((a, b) => b.total_paid - a.total_paid)
+
     return new Response(JSON.stringify({
       countries,
       totals: {
@@ -253,6 +326,7 @@ Deno.serve(async (req) => {
       bestConverter,
       monthlyTrend,
       recent: { weekBold, weekDetox, monthBold, monthDetox },
+      countryAgeBreakdown,
       product_price_usd: PRODUCT_PRICE_USD,
     }), { headers: { ...cors, 'Content-Type': 'application/json' } })
 

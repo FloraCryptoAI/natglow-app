@@ -65,6 +65,15 @@ function SectionHeader({ title, hint }) {
   )
 }
 
+// Age bucket labels — must match the buckets used by QuizBold/QuizDetox
+const AGE_BUCKETS = ['18_29', '30_39', '40_49', '50_plus']
+const AGE_LABELS = {
+  '18_29':   '18–29 anos',
+  '30_39':   '30–39 anos',
+  '40_49':   '40–49 anos',
+  '50_plus': '50+ anos',
+}
+
 // Color-code conversion rates so it's obvious which countries are winners/losers.
 function convBadge(rate) {
   if (rate >= 5) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' }
@@ -111,7 +120,8 @@ export default function AdminGeography() {
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const totals        = data?.totals        ?? { started: 0, completed: 0, paid: 0, revenue: 0, conv_rate: 0, countries_with_traffic: 0 }
-  const countries     = data?.countries     ?? []
+  const countries           = data?.countries           ?? []
+  const countryAgeBreakdown = data?.countryAgeBreakdown ?? []
   const bestConverter = data?.bestConverter ?? null
   const monthlyTrend  = data?.monthlyTrend  ?? []
   const recent        = data?.recent        ?? { weekBold: 0, weekDetox: 0, monthBold: 0, monthDetox: 0 }
@@ -354,6 +364,93 @@ export default function AdminGeography() {
           </div>
         )}
       </section>
+
+      {/* Per-country age cross-tab — which age converts best in each country.
+          Required for FB Ads targeting where winning age varies by country
+          (e.g. México 30-39 vs Argentina 40-49). Only renders countries
+          with ≥10 leads (server-side filter) to avoid noise. */}
+      {!loading && countryAgeBreakdown.length > 0 && (
+        <section className="bg-white rounded-2xl border border-gray-100 p-5">
+          <SectionHeader
+            title="Conversão por idade em cada país"
+            hint="Qual faixa etária converte melhor em cada país — use para segmentar audiência por idade no Facebook Ads"
+          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {countryAgeBreakdown.map(c => {
+              const topAge      = c.top_age
+              const topAgeData  = topAge ? c.by_age[topAge] : null
+              const maxConvRate = Math.max(...AGE_BUCKETS.map(a => c.by_age[a]?.conv_rate ?? 0), 0.1)
+              return (
+                <div key={c.pais} className="border border-gray-100 rounded-xl p-4">
+                  {/* Country header */}
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      <span className="font-bold text-gray-800 truncate">{c.nome}</span>
+                      <span className="text-[10px] text-gray-400 font-mono">{c.pais}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 tabular-nums flex-shrink-0">
+                      {c.conv_rate}% · {fmt$(c.revenue)}
+                    </span>
+                  </div>
+
+                  {/* Highlight: best-converting age */}
+                  {topAge && topAgeData && topAgeData.paid > 0 ? (
+                    <div className="my-3 px-3 py-2 rounded-lg bg-emerald-50/70 border border-emerald-100">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                        Idade que mais converte
+                      </p>
+                      <p className="text-sm font-bold text-emerald-700 tabular-nums">
+                        {AGE_LABELS[topAge]} · {topAgeData.conv_rate}%
+                        <span className="text-emerald-600 font-normal text-xs ml-1.5">
+                          ({topAgeData.paid} de {topAgeData.started})
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="my-3 text-[11px] text-gray-400 italic">Ainda sem conversão neste país.</p>
+                  )}
+
+                  {/* All ages */}
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                    Todas as idades
+                  </p>
+                  <div className="space-y-1.5">
+                    {AGE_BUCKETS.map(age => {
+                      const slot   = c.by_age[age]
+                      if (!slot || slot.started === 0) return null
+                      const isTop  = age === topAge
+                      const pctBar = (slot.conv_rate / maxConvRate) * 100
+                      return (
+                        <div key={age} className="space-y-0.5">
+                          <div className="flex items-baseline justify-between gap-2 text-xs">
+                            <span className={`tabular-nums ${isTop ? 'font-bold text-emerald-700' : 'text-gray-600'}`}>
+                              {AGE_LABELS[age]}
+                            </span>
+                            <span className={`tabular-nums ${isTop ? 'font-bold text-emerald-700' : 'text-gray-500'}`}>
+                              {slot.conv_rate}%
+                              <span className="text-gray-400 font-normal ml-1">({slot.paid}/{slot.started})</span>
+                            </span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${isTop ? 'bg-emerald-500' : 'bg-violet-400'}`}
+                              style={{ width: `${pctBar}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-4 text-center">
+            Só países com ≥10 leads aparecem · Idade que mais converte exige ≥5 leads naquela faixa
+          </p>
+        </section>
+      )}
     </div>
   )
 }

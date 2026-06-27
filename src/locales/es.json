@@ -473,48 +473,48 @@
         "location": "Ciudad de México, MX",
         "duration": "Algunas semanas",
         "text": "Mi cabello, antes opaco y sin vida, recuperó el brillo y la suavidad. La rutina casera me sorprendió mucho.",
-        "antes": "/images/quiz/antes-1.jpg",
-        "depois": "/images/quiz/depois-1.jpg"
+        "antes": "/images/quiz/antes-1.webp",
+        "depois": "/images/quiz/depois-1.webp"
       },
       {
         "name": "Carolina Mendoza",
         "location": "Bogotá, Colombia",
         "duration": "Algunas semanas",
         "text": "Después de incluir esta rutina natural en mi día a día, mi cabello se vio mucho mejor. No vuelvo a los productos comerciales.",
-        "antes": "/images/quiz/antes-2.jpg",
-        "depois": "/images/quiz/depois-2.jpg"
+        "antes": "/images/quiz/antes-2.webp",
+        "depois": "/images/quiz/depois-2.webp"
       },
       {
         "name": "Constanza Muñoz",
         "location": "Santiago, Chile",
         "duration": "Algunas semanas",
         "text": "Mi cabello dejó de verse opaco y empezó a verse mucho más sano. Una diferencia muy notable.",
-        "antes": "/images/quiz/antes-3.jpg",
-        "depois": "/images/quiz/depois-3.jpg"
+        "antes": "/images/quiz/antes-3.webp",
+        "depois": "/images/quiz/depois-3.webp"
       },
       {
         "name": "Sofía Fernández",
         "location": "Buenos Aires, Argentina",
         "duration": "Algunas semanas",
         "text": "Pensé que era solo genética. Pero al cambiar mi rutina, mi cabello empezó a verse mucho mejor. Brilla como hace años.",
-        "antes": "/images/quiz/antes-4.jpg",
-        "depois": "/images/quiz/depois-4.jpg"
+        "antes": "/images/quiz/antes-4.webp",
+        "depois": "/images/quiz/depois-4.webp"
       },
       {
         "name": "Andrea Flores",
         "location": "Lima, Perú",
         "duration": "Algunas semanas",
         "text": "Adiós opacidad, adiós resequedad. La rutina es simple y los resultados se notan.",
-        "antes": "/images/quiz/antes-5.jpg",
-        "depois": "/images/quiz/depois-5.jpg"
+        "antes": "/images/quiz/antes-5.webp",
+        "depois": "/images/quiz/depois-5.webp"
       },
       {
         "name": "Valentina Cedeño",
         "location": "Guayaquil, Ecuador",
         "duration": "Algunas semanas",
         "text": "Probé de todo. Solo esta rutina natural me trajo el resultado que esperaba. Mi cabello recuperó la vitalidad.",
-        "antes": "/images/quiz/antes-6.jpg",
-        "depois": "/images/quiz/depois-6.jpg"
+        "antes": "/images/quiz/antes-6.webp",
+        "depois": "/images/quiz/depois-6.webp"
       }
     ],
     "verifiedBadge": "🌿 EXPERIENCIA COMPARTIDA · {{duration}}",
