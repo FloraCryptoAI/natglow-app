@@ -187,18 +187,16 @@ function QueueTab({ apiFetch }) {
               {/* Texto */}
               <p className="text-sm text-stone-700 leading-relaxed px-4 pb-3 whitespace-pre-wrap">{post.content}</p>
 
-              {/* Imagens — full-width */}
+              {/* Imagens — full-width. Dual share one 1:1 square (same as feed). */}
               {post.image_url && (
-                <div className={hasDual ? 'grid grid-cols-2 gap-px mb-0' : 'mb-0'}>
-                  <img
-                    src={post.image_url}
-                    alt=""
-                    className={`w-full object-cover ${hasDual ? 'aspect-square' : 'max-h-[420px]'}`}
-                  />
-                  {post.image_url_2 && (
-                    <img src={post.image_url_2} alt="" className="w-full aspect-square object-cover" />
-                  )}
-                </div>
+                hasDual ? (
+                  <div className="grid grid-cols-2 gap-px aspect-square">
+                    <img src={post.image_url}   alt="" className="w-full h-full object-cover" />
+                    <img src={post.image_url_2} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <img src={post.image_url} alt="" className="w-full max-h-[420px] object-cover" />
+                )
               )}
             </div>
 

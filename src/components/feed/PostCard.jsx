@@ -145,31 +145,38 @@ export default function PostCard({ post, currentUserId, lang, onDelete }) {
       </div>
 
       {/* Images — full bleed, sem padding horizontal.
-          Plain <img> with native lazy loading lets the browser render the
-          photo progressively (line-by-line as bytes arrive). Hiding it
-          behind a skeleton + opacity-fade until onLoad ends up feeling
-          slower because the user gets zero progress feedback during the
-          download. Aspect ratio is unforced on single images so the photo
-          shows in its natural proportions. */}
+          Single image: natural aspect with max-h to avoid super tall photos.
+          Dual images: the PAIR shares a single 1:1 square (each photo takes
+            half the width, full square height) — typical before/after layout
+            similar to Instagram side-by-side comparison.
+          Plain <img> w/ native lazy + async decode for progressive render. */}
       {post.image_url && (
-        <div className={hasDualImages ? 'grid grid-cols-2 gap-px mb-0' : 'mb-0'}>
-          <img
-            src={post.image_url}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className={`w-full object-cover ${hasDualImages ? 'aspect-square' : 'max-h-[520px]'}`}
-          />
-          {post.image_url_2 && (
+        hasDualImages ? (
+          <div className="grid grid-cols-2 gap-px aspect-square">
+            <img
+              src={post.image_url}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
             <img
               src={post.image_url_2}
               alt=""
               loading="lazy"
               decoding="async"
-              className="w-full aspect-square object-cover"
+              className="w-full h-full object-cover"
             />
-          )}
-        </div>
+          </div>
+        ) : (
+          <img
+            src={post.image_url}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="w-full max-h-[520px] object-cover"
+          />
+        )
       )}
 
       {/* Reactions bar — bigger touch targets, prominent below image (Instagram-style) */}
