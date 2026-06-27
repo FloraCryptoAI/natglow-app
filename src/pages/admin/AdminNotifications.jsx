@@ -26,9 +26,9 @@ const TABS = [
 const TEMPLATE_LABELS = {
   routine_reminder: { title: 'Lembrete de Rotina', desc: 'Enviado quando a usuária não atualiza o plano em X dias' },
   daily_tip:        { title: 'Dica Diária',         desc: 'Enviado a cada X dias para todas as assinantes com push' },
-  reactivation_7:   { title: 'Reativação — 7 dias', desc: 'Usuárias sem acesso há 7+ dias' },
-  reactivation_14:  { title: 'Reativação — 14 dias',desc: 'Usuárias sem acesso há 14+ dias' },
-  reactivation_30:  { title: 'Reativação — 30 dias',desc: 'Usuárias sem acesso há 30+ dias' },
+  reactivation_7:   { title: 'Reativação (7 dias)',  desc: 'Usuárias sem acesso há 7+ dias' },
+  reactivation_14:  { title: 'Reativação (14 dias)', desc: 'Usuárias sem acesso há 14+ dias' },
+  reactivation_30:  { title: 'Reativação (30 dias)', desc: 'Usuárias sem acesso há 30+ dias' },
 }
 
 const SEGMENTS = [

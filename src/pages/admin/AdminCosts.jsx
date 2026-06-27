@@ -344,7 +344,7 @@ function DeleteModal({ open, cost, onClose, onConfirm, deleting }) {
         <p className="font-bold text-gray-900 text-center mb-1">Excluir custo?</p>
         <p className="text-sm text-gray-500 text-center mb-5">
           {catInfo?.emoji} {catInfo?.label}
-          {cost.descricao_outros ? ` — ${cost.descricao_outros}` : ''}
+          {cost.descricao_outros ? ` (${cost.descricao_outros})` : ''}
           {' '}· <strong>${Number(cost.valor).toFixed(2)}</strong>
         </p>
         <div className="flex gap-2">
@@ -591,7 +591,7 @@ export default function AdminCosts() {
         </div>
 
         {/* ══════════════════════════════════════════════
-            SEÇÃO A — Registro de Custos
+            SEÇÃO A: Registro de Custos
         ══════════════════════════════════════════════ */}
         <section>
           <SectionHeader title="Registro de custos" />
@@ -781,7 +781,7 @@ export default function AdminCosts() {
         </section>
 
         {/* ══════════════════════════════════════════════
-            SEÇÃO B — Dashboard de ROI
+            SEÇÃO B: Dashboard de ROI
         ══════════════════════════════════════════════ */}
         <section>
           <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
@@ -973,7 +973,7 @@ export default function AdminCosts() {
 
             {/* Line: ROI tráfego pago por mês */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <p className="font-bold text-gray-800 mb-1">ROI — Tráfego pago</p>
+              <p className="font-bold text-gray-800 mb-1">ROI (Tráfego pago)</p>
               <p className="text-xs text-gray-400 mb-4">Receita ÷ custo de anúncios por mês</p>
               {loadingRoi ? (
                 <ChartSkeleton h={200} />

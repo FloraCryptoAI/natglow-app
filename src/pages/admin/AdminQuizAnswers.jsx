@@ -31,9 +31,9 @@ const PERIODS = [
 ]
 
 const DIAG_CONFIG = {
-  red:   { label: 'Vermelho — Cabelo muito danificado', bg: 'bg-red-50',    text: 'text-red-600',    bar: '#f87171' },
-  amber: { label: 'Âmbar — Cabelo com danos moderados', bg: 'bg-amber-50',  text: 'text-amber-600',  bar: '#fbbf24' },
-  green: { label: 'Verde — Cabelo em bom estado',       bg: 'bg-emerald-50',text: 'text-emerald-600',bar: '#34d399' },
+  red:   { label: 'Vermelho (cabelo muito danificado)', bg: 'bg-red-50',    text: 'text-red-600',    bar: '#f87171' },
+  amber: { label: 'Âmbar (cabelo com danos moderados)', bg: 'bg-amber-50',  text: 'text-amber-600',  bar: '#fbbf24' },
+  green: { label: 'Verde (cabelo em bom estado)',       bg: 'bg-emerald-50',text: 'text-emerald-600',bar: '#34d399' },
 }
 
 const QUESTION_LABELS = {
@@ -302,7 +302,7 @@ function IndividualFunnel({ planData }) {
   if (!planData) return null
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <p className="font-bold text-gray-800 mb-4">Funil — {PLANS.find(p => p.key === planData.plan_key)?.label}</p>
+      <p className="font-bold text-gray-800 mb-4">Funil: {PLANS.find(p => p.key === planData.plan_key)?.label}</p>
       <FunnelBars
         steps={INDIVIDUAL_STEPS.map(s => ({ label: s.label, color: s.color, count: planData[s.key] ?? 0 }))}
       />
@@ -636,7 +636,7 @@ export default function AdminQuizAnswers() {
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Respostas do Quiz</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {mode === 'comparison' ? 'Comparação dos 3 produtos' : `Análise individual — ${PLANS.find(p => p.key === mode)?.label}`}
+            {mode === 'comparison' ? 'Comparação dos 3 produtos' : `Análise individual (${PLANS.find(p => p.key === mode)?.label})`}
           </p>
         </div>
         <button
@@ -707,7 +707,7 @@ export default function AdminQuizAnswers() {
 
           {/* Comparison table */}
           <section>
-            <SectionHeader title={`Comparação detalhada — últimos ${period === '7d' ? '7' : period === '30d' ? '30' : '90'} dias`} />
+            <SectionHeader title={`Comparação detalhada (últimos ${period === '7d' ? '7' : period === '30d' ? '30' : '90'} dias)`} />
             <ComparisonTable plans={plans} loading={compLoading} />
           </section>
         </>
@@ -821,9 +821,12 @@ export default function AdminQuizAnswers() {
             </div>
           </section>
 
+          {/* Per-age cohort analysis (informs ad targeting + creative copy) */}
+          <AgeBreakdownSection ageBreakdown={ageBreakdown} loading={quizLoading} />
+
           {/* Converted vs abandoned */}
           <section>
-            <SectionHeader title="Perfil comparativo — assinaram vs. abandonaram" />
+            <SectionHeader title="Perfil comparativo: assinaram vs. abandonaram" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Object.keys(QUESTION_LABELS).map(field => (
                 <ComparisonChart
@@ -837,13 +840,10 @@ export default function AdminQuizAnswers() {
             </div>
             {!quizLoading && (
               <p className="text-xs text-gray-400 mt-2 text-center">
-                "Assinaram" = mesma sessão que depois completou pagamento · "Abandonaram" = viram /Results mas não converteram
+                "Assinaram" (mesma sessão que depois completou pagamento), "Abandonaram" (viram /Results mas não converteram)
               </p>
             )}
           </section>
-
-          {/* Per-age cohort analysis — informs ad targeting + creative copy */}
-          <AgeBreakdownSection ageBreakdown={ageBreakdown} loading={quizLoading} />
         </>
       )}
     </div>

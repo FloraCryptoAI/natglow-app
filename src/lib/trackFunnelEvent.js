@@ -1,4 +1,5 @@
 import { getLang } from '@/lib/i18n'
+import { detectCountry } from '@/lib/detectCountry'
 
 const SESSION_KEY = 'natglow_funnel_session'
 
@@ -30,6 +31,9 @@ export async function trackFunnelEvent(event_type, metadata = null, pricing_plan
         event_type,
         session_id: getSessionId(),
         idioma: getLang(),
+        // Browser-derived country (used as fallback when CF-IPCountry header
+        // isn't set by Supabase Edge — see src/lib/detectCountry.js).
+        pais: detectCountry(),
         metadata,
         pricing_plan,
       }),

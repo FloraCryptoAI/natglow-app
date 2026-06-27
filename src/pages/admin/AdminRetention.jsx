@@ -127,7 +127,7 @@ export default function AdminRetention() {
 
       {/* At-risk users */}
       <section>
-        <SectionHeader title="Em risco — ativas sem acesso há 7+ dias" />
+        <SectionHeader title="Em risco (ativas sem acesso há 7+ dias)" />
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -177,7 +177,7 @@ export default function AdminRetention() {
 
       {/* Engaged users */}
       <section>
-        <SectionHeader title="Mais engajadas — acessaram nos últimos 7 dias" />
+        <SectionHeader title="Mais engajadas (acessaram nos últimos 7 dias)" />
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">

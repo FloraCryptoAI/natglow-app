@@ -233,7 +233,7 @@ export default function AdminOverview() {
         <div className="flex items-start justify-between mb-6">
           <div>
             <p className="font-bold text-gray-900 text-base">Receita por mês</p>
-            <p className="text-xs text-gray-400 mt-0.5">Compras confirmadas — histórico mensal</p>
+            <p className="text-xs text-gray-400 mt-0.5">Compras confirmadas (histórico mensal)</p>
           </div>
           {!loading && currentMonthEntry && (
             <div className="text-right">

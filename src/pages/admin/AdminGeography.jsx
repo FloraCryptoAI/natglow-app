@@ -147,7 +147,7 @@ export default function AdminGeography() {
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Geografia & Conversão por País</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            Onde investir mais em ads — taxa de conversão e receita por país
+            Onde investir mais em ads: taxa de conversão e receita por país
           </p>
         </div>
         <button
@@ -208,22 +208,22 @@ export default function AdminGeography() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="Bold — esta semana" value={recent.weekBold} loading={loading}
+            label="Bold (esta semana)" value={recent.weekBold} loading={loading}
             sub={`${fmt$(recent.weekBold * productPrice)} arrecadado`}
           />
           <MetricCard
             icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Detox — esta semana" value={recent.weekDetox} loading={loading}
+            label="Detox (esta semana)" value={recent.weekDetox} loading={loading}
             sub={`${fmt$(recent.weekDetox * productPrice)} arrecadado`}
           />
           <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="Bold — este mês" value={recent.monthBold} loading={loading}
+            label="Bold (este mês)" value={recent.monthBold} loading={loading}
             sub={`${fmt$(recent.monthBold * productPrice)} arrecadado`}
           />
           <MetricCard
             icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Detox — este mês" value={recent.monthDetox} loading={loading}
+            label="Detox (este mês)" value={recent.monthDetox} loading={loading}
             sub={`${fmt$(recent.monthDetox * productPrice)} arrecadado`}
           />
         </div>
@@ -286,7 +286,7 @@ export default function AdminGeography() {
           <ChartSkeleton h={260} />
         ) : filteredSortedCountries.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-12">
-            Sem dados ainda — espere algumas sessões chegarem.
+            Sem dados ainda. Espere algumas sessões chegarem.
           </p>
         ) : (
           <div className="overflow-x-auto -mx-5 px-5">
@@ -373,7 +373,7 @@ export default function AdminGeography() {
         <section className="bg-white rounded-2xl border border-gray-100 p-5">
           <SectionHeader
             title="Conversão por idade em cada país"
-            hint="Qual faixa etária converte melhor em cada país — use para segmentar audiência por idade no Facebook Ads"
+            hint="Qual faixa etária converte melhor em cada país. Use para segmentar audiência por idade no Facebook Ads"
           />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {countryAgeBreakdown.map(c => {

@@ -97,7 +97,7 @@ function ConfigTab({ apiFetch }) {
         fields={[
           { key: 'tracking.facebook.pixel_id',        label: 'Pixel ID',        type: 'text',    hint: '15–17 dígitos, ex: 1234567890123456' },
           { key: 'tracking.facebook.capi_token',      label: 'CAPI Token',      type: 'secret',  hint: 'Conversions API Access Token' },
-          { key: 'tracking.facebook.test_event_code', label: 'Test Event Code', type: 'text',    hint: 'Ex: TEST12345 — remover em produção' },
+          { key: 'tracking.facebook.test_event_code', label: 'Test Event Code', type: 'text',    hint: 'Ex: TEST12345 (remover em produção)' },
         ]}
         enabledKey="tracking.facebook.enabled"
         cfg={cfg}
@@ -118,7 +118,7 @@ function ConfigTab({ apiFetch }) {
         fields={[
           { key: 'tracking.tiktok.pixel_id',         label: 'Pixel ID',        type: 'text',   hint: 'ID do Web Pixel TikTok' },
           { key: 'tracking.tiktok.access_token',    label: 'Access Token',    type: 'secret', hint: 'Events API Access Token' },
-          { key: 'tracking.tiktok.test_event_code', label: 'Test Event Code', type: 'text',   hint: 'Ex: TEST73936 — remover em produção' },
+          { key: 'tracking.tiktok.test_event_code', label: 'Test Event Code', type: 'text',   hint: 'Ex: TEST73936 (remover em produção)' },
         ]}
         enabledKey="tracking.tiktok.enabled"
         cfg={cfg}
@@ -212,7 +212,7 @@ function ConfigField({ field, value, saving, showSecret, onUpdate, onSave, onTog
       <div className="flex items-center gap-1.5 mb-1">
         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">{field.label}</label>
         {isSecret && isSaved && <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
-        {isSecret && !isSaved && <span className="text-xs text-orange-500 font-medium">— não configurado</span>}
+        {isSecret && !isSaved && <span className="text-xs text-orange-500 font-medium">(não configurado)</span>}
       </div>
       <div className="flex gap-2">
         <div className="relative flex-1">

@@ -17,8 +17,15 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Country from Cloudflare header (available on Deno Deploy / Supabase Edge)
-    const pais = req.headers.get('CF-IPCountry') ?? req.headers.get('x-country') ?? null
+    // Country detection: prefer CF-IPCountry header (server-side IP geo, most
+    // accurate). Fall back to body.pais (browser timezone-derived) when the
+    // header isn't forwarded — without this fallback the Geografia admin tab
+    // stays at 0 countries because Supabase Edge doesn't always pass through
+    // the CF header.
+    const headerPais     = req.headers.get('CF-IPCountry') ?? req.headers.get('x-country')
+    const cleanHeader    = headerPais && headerPais !== 'XX' && headerPais !== 'T1' ? headerPais : null
+    const fallbackPais   = typeof body.pais === 'string' ? body.pais : null
+    const pais           = cleanHeader ?? fallbackPais ?? null
 
     await fetch(`${SUPABASE_URL}/rest/v1/funnel_events`, {
       method: 'POST',

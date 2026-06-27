@@ -230,7 +230,7 @@ export default function AdminSettings() {
       <ConfigCard
         icon={DollarSign} iconBg="bg-blue-50" iconColor="text-blue-500"
         title='Texto "você economiza" por plano'
-        desc="Sobrescreve o cálculo automático — deixe vazio para usar o valor calculado"
+        desc="Sobrescreve o cálculo automático. Deixe vazio para usar o valor calculado"
         saveState={
           saveStates.savings_one_time_basic ??
           saveStates.savings_one_time_standard ??
@@ -319,7 +319,7 @@ export default function AdminSettings() {
       <ConfigCard
         icon={WrenchIcon} iconBg={maintenanceMode ? 'bg-red-50' : 'bg-gray-100'} iconColor={maintenanceMode ? 'text-red-500' : 'text-gray-400'}
         title="Modo manutenção"
-        desc={maintenanceMode ? '⚠️ ATIVO — a /Results está mostrando a tela de manutenção' : 'Inativo — a /Results está funcionando normalmente'}
+        desc={maintenanceMode ? '⚠️ ATIVO: a /Results está mostrando a tela de manutenção' : 'Inativo: a /Results está funcionando normalmente'}
         saveState={saveStates.maintenance_mode ?? saveStates.maintenance_text}
       >
         <div className="flex flex-col gap-4">
