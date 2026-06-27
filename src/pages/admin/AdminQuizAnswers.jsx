@@ -37,6 +37,8 @@ const DIAG_CONFIG = {
 }
 
 const QUESTION_LABELS = {
+  age:          { title: 'Faixa etária',            options: { '18_29': '18–29 anos', '30_39': '30–39 anos', '40_49': '40–49 anos', '50_plus': '50+ anos' } },
+  hairType:     { title: 'Tipo de cabelo',          options: { liso: 'Liso', ondulado: 'Ondulado', cacheado: 'Cacheado', crespo: 'Crespo' } },
   washFreq:     { title: 'Frequência de lavagem',   options: { daily: 'Todo dia', '3_4': '3-4x/semana', '1_2': '1-2x/semana' } },
   waterTemp:    { title: 'Temperatura da água',     options: { hot: 'Quente', warm: 'Morna', cold: 'Fria' } },
   heatTools:    { title: 'Uso de calor',            options: { daily: 'Todo dia', few: 'Algumas vezes', rarely: 'Raramente' } },
@@ -45,6 +47,24 @@ const QUESTION_LABELS = {
   // New fields from persuasive funnels
   symptomsIntensity: { title: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
   finalChoice:       { title: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
+}
+
+const AGE_LABELS = QUESTION_LABELS.age.options
+const AGE_ORDER  = ['18_29', '30_39', '40_49', '50_plus']
+
+// Build a "top value" helper for displaying the predominant answer in each
+// cross-tabulated field on the per-age breakdown cards.
+function topValue(distObj, optionLabels) {
+  const entries = Object.entries(distObj || {})
+  if (!entries.length) return null
+  entries.sort((a, b) => b[1] - a[1])
+  const [key, count] = entries[0]
+  const total = entries.reduce((a, [, n]) => a + n, 0)
+  return {
+    label: optionLabels?.[key] ?? key,
+    count,
+    pct: total > 0 ? Math.round((count / total) * 100) : 0,
+  }
 }
 
 // Comparison table metric definitions
@@ -437,6 +457,108 @@ function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading })
   )
 }
 
+// ── Per-age cohort analysis ──────────────────────────────────────────────────
+// For each age bucket: conversion rate + the predominant value in 5 key
+// fields. Tells the admin which age converts best and what creative copy
+// to write per cohort ('30-39 are mostly curly hair with frizz' etc.).
+function AgeBreakdownSection({ ageBreakdown, loading }) {
+  if (loading) return null
+  const buckets = AGE_ORDER
+    .map(age => ({ age, ...(ageBreakdown[age] ?? null) }))
+    .filter(b => b.started)  // skip empty buckets
+
+  if (buckets.length === 0) return null
+
+  // For relative bar widths in the conv-rate visualization
+  const maxConv = Math.max(...buckets.map(b => b.conv_rate ?? 0), 1)
+
+  return (
+    <section>
+      <SectionHeader title="Análise por faixa etária" />
+      <p className="text-xs text-gray-400 mb-4 -mt-2">
+        Qual idade converte mais e quais perfis predominam em cada cohort — use pra mirar criativos por idade
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {buckets.map(b => {
+          const hairTop      = topValue(b.hairType,          QUESTION_LABELS.hairType.options)
+          const intensityTop = topValue(b.symptomsIntensity, QUESTION_LABELS.symptomsIntensity.options)
+          const heatTop      = topValue(b.heatTools,         QUESTION_LABELS.heatTools.options)
+          const chemTop      = topValue(b.chemProducts,      QUESTION_LABELS.chemProducts.options)
+          const hydrTop      = topValue(b.hydration,         QUESTION_LABELS.hydration.options)
+          const convPct      = b.conv_rate ?? 0
+          const convColor    = convPct >= 5  ? 'text-emerald-600'
+                              : convPct >= 2 ? 'text-amber-600'
+                              :                'text-rose-500'
+
+          return (
+            <div key={b.age} className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+              {/* Header */}
+              <div className="flex items-baseline justify-between">
+                <p className="text-base font-bold text-gray-900">{AGE_LABELS[b.age] ?? b.age}</p>
+                <p className="text-xs text-gray-400 tabular-nums">{b.started} quizzes</p>
+              </div>
+
+              {/* Conversion rate */}
+              <div>
+                <div className="flex items-baseline justify-between mb-1">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Conversão</p>
+                  <p className={`text-2xl font-extrabold tabular-nums ${convColor}`}>
+                    {convPct}%
+                  </p>
+                </div>
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-violet-500 rounded-full transition-all"
+                    style={{ width: `${(convPct / maxConv) * 100}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1 tabular-nums">
+                  {b.converted} compras de {b.started} {b.started === 1 ? 'lead' : 'leads'}
+                </p>
+              </div>
+
+              {/* Predominant traits */}
+              <div className="pt-2 border-t border-gray-50 space-y-1.5">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Perfil predominante</p>
+                {hairTop && (
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="text-gray-500 flex-shrink-0">Tipo de cabelo</span>
+                    <span className="text-gray-800 font-semibold text-right">{hairTop.label} <span className="text-gray-400 font-normal">({hairTop.pct}%)</span></span>
+                  </div>
+                )}
+                {intensityTop && (
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="text-gray-500 flex-shrink-0">Intensidade sintomas</span>
+                    <span className="text-gray-800 font-semibold text-right">{intensityTop.label} <span className="text-gray-400 font-normal">({intensityTop.pct}%)</span></span>
+                  </div>
+                )}
+                {heatTop && (
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="text-gray-500 flex-shrink-0">Uso de calor</span>
+                    <span className="text-gray-800 font-semibold text-right">{heatTop.label} <span className="text-gray-400 font-normal">({heatTop.pct}%)</span></span>
+                  </div>
+                )}
+                {chemTop && (
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="text-gray-500 flex-shrink-0">Químicos</span>
+                    <span className="text-gray-800 font-semibold text-right">{chemTop.label} <span className="text-gray-400 font-normal">({chemTop.pct}%)</span></span>
+                  </div>
+                )}
+                {hydrTop && (
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="text-gray-500 flex-shrink-0">Hidratação</span>
+                    <span className="text-gray-800 font-semibold text-right">{hydrTop.label} <span className="text-gray-400 font-normal">({hydrTop.pct}%)</span></span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminQuizAnswers() {
@@ -516,6 +638,7 @@ export default function AdminQuizAnswers() {
   const diagConversion   = quizData?.diagConversion   ?? {}
   const convertedAnswers = quizData?.convertedAnswers ?? {}
   const abandonedAnswers = quizData?.abandonedAnswers ?? {}
+  const ageBreakdown     = quizData?.ageBreakdown     ?? {}
   const totalDiag = (diagDist.red ?? 0) + (diagDist.amber ?? 0) + (diagDist.green ?? 0)
 
   const isLoading = compLoading || (mode !== 'comparison' && quizLoading)
@@ -732,6 +855,9 @@ export default function AdminQuizAnswers() {
               </p>
             )}
           </section>
+
+          {/* Per-age cohort analysis — informs ad targeting + creative copy */}
+          <AgeBreakdownSection ageBreakdown={ageBreakdown} loading={quizLoading} />
         </>
       )}
     </div>

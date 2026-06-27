@@ -109,10 +109,40 @@ Deno.serve(async (req) => {
       green: { total: 0, converted: 0, rate: 0 },
     }
 
-    const mainFields = ['washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts'] as const
+    // mainFields are the dimensions we cut Converted vs Abandoned by.
+    // Adding age + hairType lets the admin see which demographics convert
+    // best, not just which habits correlate with conversion.
+    const mainFields = ['age', 'hairType', 'washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts'] as const
     const convertedAnswers: Record<string, Record<string, number>> = {}
     const abandonedAnswers: Record<string, Record<string, number>> = {}
     for (const f of mainFields) { convertedAnswers[f] = {}; abandonedAnswers[f] = {} }
+
+    // Per-age cross-tabulation: for each age bucket, distribution of the
+    // other quiz answers + conversion rate. Powers the 'Análise por faixa
+    // etária' section in the admin — lets the user see *what problems* each
+    // age group has and which age converts best, so ad targeting + creative
+    // copy can be tailored per cohort.
+    const ageBreakdown: Record<string, {
+      started: number
+      converted: number
+      hairType: Record<string, number>
+      symptomsIntensity: Record<string, number>
+      heatTools: Record<string, number>
+      chemProducts: Record<string, number>
+      hydration: Record<string, number>
+      finalChoice: Record<string, number>
+    }> = {}
+    const ensureAgeBucket = (k: string) => {
+      if (!ageBreakdown[k]) {
+        ageBreakdown[k] = {
+          started: 0, converted: 0,
+          hairType: {}, symptomsIntensity: {}, heatTools: {},
+          chemProducts: {}, hydration: {}, finalChoice: {},
+        }
+      }
+      return ageBreakdown[k]
+    }
+    const crossFields = ['hairType', 'symptomsIntensity', 'heatTools', 'chemProducts', 'hydration', 'finalChoice'] as const
 
     for (const e of quizEvents) {
       const raw = e.metadata as Record<string, unknown> | null
@@ -135,6 +165,30 @@ Deno.serve(async (req) => {
         if (!val) continue
         const bucket = isConverted ? convertedAnswers : abandonedAnswers
         bucket[field][val] = (bucket[field][val] ?? 0) + 1
+      }
+
+      // Cross-tab by age
+      const ageVal = answers.age
+      if (ageVal) {
+        const ageStats = ensureAgeBucket(ageVal)
+        ageStats.started++
+        if (isConverted) ageStats.converted++
+        for (const cf of crossFields) {
+          const v = answers[cf]
+          if (!v) continue
+          ageStats[cf][v] = (ageStats[cf][v] ?? 0) + 1
+        }
+      }
+    }
+
+    // Compute per-age conversion rate (used by frontend for sorting / display)
+    const ageBreakdownWithRates: Record<string, typeof ageBreakdown[string] & { conv_rate: number }> = {}
+    for (const [age, stats] of Object.entries(ageBreakdown)) {
+      ageBreakdownWithRates[age] = {
+        ...stats,
+        conv_rate: stats.started > 0
+          ? parseFloat(((stats.converted / stats.started) * 100).toFixed(1))
+          : 0,
       }
     }
 
@@ -177,6 +231,7 @@ Deno.serve(async (req) => {
       abandonedAnswers,
       langDist,
       countryDist,
+      ageBreakdown: ageBreakdownWithRates,
     }), { headers: { ...cors, 'Content-Type': 'application/json' } })
 
   } catch (err) {
