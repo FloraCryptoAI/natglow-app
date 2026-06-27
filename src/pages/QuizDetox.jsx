@@ -405,12 +405,10 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
                   className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
                   onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1) }}
                 >
-                  <div className="w-full overflow-hidden aspect-[3/2]" style={{ background: PL2 }}>
+                  <div className="w-full h-36 overflow-hidden" style={{ background: PL2 }}>
                     <img
                       src={opt.img}
                       alt={opt.label}
-                      width={300}
-                      height={200}
                       className="block w-full h-full object-cover"
                       onError={e => { e.currentTarget.style.display = 'none' }}
                     />

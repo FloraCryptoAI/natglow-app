@@ -411,12 +411,13 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               title={t('quizBold.questions.hairType.title')}
               context={t('quizBold.questions.hairType.context')}
             />
-            {/* items-start: prevent Safari from stretching cards to fill row
-                height when one cell's intrinsic size differs (Safari treats
-                grid items as align-self:stretch and miscalculates the row
-                height when child uses aspect-ratio + img w-full/h-full).
-                Explicit width/height attrs on <img> give Safari intrinsic
-                dimensions so it doesn't blow up the aspect-ratio container. */}
+            {/* Safari has a known bug where grid track height is miscalculated
+                when a cell contains aspect-ratio + img.w-full.h-full — even
+                with items-start the track stays tall, pushing row 2 way down.
+                Switched to a fixed pixel height (h-36 = 144px) for the image
+                container. Cards inside max-w-lg are ~234px wide, so 144px
+                gives roughly the same 3:2 visual as before, and Safari has
+                an unambiguous height to allocate. */}
             <div className="grid grid-cols-2 gap-3 items-start">
               {HAIR_TYPES.map(opt => (
                 <div
@@ -424,12 +425,10 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
                   className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
                   onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1) }}
                 >
-                  <div className="w-full overflow-hidden aspect-[3/2]" style={{ background: PL2 }}>
+                  <div className="w-full h-36 overflow-hidden" style={{ background: PL2 }}>
                     <img
                       src={opt.img}
                       alt={opt.label}
-                      width={300}
-                      height={200}
                       className="block w-full h-full object-cover"
                       onError={e => { e.currentTarget.style.display = 'none' }}
                     />
