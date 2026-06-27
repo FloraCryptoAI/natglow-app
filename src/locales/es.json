@@ -1154,11 +1154,13 @@
     "settingsDescIos": "Agrega NatGlow a tu pantalla de inicio desde Safari para usarla como app nativa.",
     "ios": {
       "title": "Agrega NatGlow a tu pantalla de inicio",
-      "step1": "1. Toca el botón",
-      "step1b": "Compartir en la parte inferior del navegador",
-      "step2": "2. Desplázate y toca",
-      "step2b": "\"Agregar a pantalla de inicio\"",
-      "step3": "3. Toca \"Agregar\" para confirmar"
+      "step1": "Toca el botón",
+      "step1b": "(tres puntos) en la esquina inferior derecha de Safari",
+      "step2": "Luego toca",
+      "step2b": "Compartir",
+      "step3": "Desplázate y toca",
+      "step3b": "\"Agregar a pantalla de inicio\"",
+      "step4": "Toca \"Agregar\" para confirmar"
     }
   },
 

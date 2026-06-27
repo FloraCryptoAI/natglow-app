@@ -1,7 +1,44 @@
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Download, Share, X } from 'lucide-react'
+import { Download, Share, X, MoreHorizontal } from 'lucide-react'
+
+// 4-step iOS install instructions. Step 1 (tap the ⋯ button) was added
+// because modern iOS Safari hides Share behind the More menu in some
+// layouts — users couldn't find Share without this hint.
+function IOSInstructionSteps({ t }) {
+  return (
+    <div className="space-y-3 text-sm text-stone-600">
+      <div className="flex items-start gap-3">
+        <span className="text-brand font-bold text-base">1</span>
+        <p>
+          {t('installPrompt.ios.step1')}{' '}
+          <MoreHorizontal className="w-4 h-4 text-blue-500 inline" />{' '}
+          {t('installPrompt.ios.step1b')}
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="text-brand font-bold text-base">2</span>
+        <p>
+          {t('installPrompt.ios.step2')}{' '}
+          <Share className="w-4 h-4 text-blue-500 inline" />{' '}
+          {t('installPrompt.ios.step2b')}
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="text-brand font-bold text-base">3</span>
+        <p>
+          {t('installPrompt.ios.step3')}{' '}
+          <strong className="text-stone-800">{t('installPrompt.ios.step3b')}</strong>
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="text-brand font-bold text-base">4</span>
+        <p>{t('installPrompt.ios.step4')}</p>
+      </div>
+    </div>
+  )
+}
 
 function isIOS() {
   return /iPhone|iPad|iPod/i.test(navigator.userAgent)
@@ -85,20 +122,7 @@ export function InstallHeaderButton() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3 text-sm text-stone-600">
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">1</span>
-                <p>{t('installPrompt.ios.step1')} <Share className="w-4 h-4 text-blue-500 inline" /> {t('installPrompt.ios.step1b')}</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">2</span>
-                <p>{t('installPrompt.ios.step2')} <strong className="text-stone-800">{t('installPrompt.ios.step2b')}</strong></p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">3</span>
-                <p>{t('installPrompt.ios.step3')}</p>
-              </div>
-            </div>
+            <IOSInstructionSteps t={t} />
             <button
               onClick={() => setIosModalOpen(false)}
               className="w-full py-3 bg-brand text-white font-semibold rounded-xl text-sm"
@@ -177,20 +201,7 @@ export function InstallSettingsSection() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3 text-sm text-stone-600">
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">1</span>
-                <p>{t('installPrompt.ios.step1')} <Share className="w-4 h-4 text-blue-500 inline" /> {t('installPrompt.ios.step1b')}</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">2</span>
-                <p>{t('installPrompt.ios.step2')} <strong className="text-stone-800">{t('installPrompt.ios.step2b')}</strong></p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">3</span>
-                <p>{t('installPrompt.ios.step3')}</p>
-              </div>
-            </div>
+            <IOSInstructionSteps t={t} />
             <button
               onClick={() => setIosModalOpen(false)}
               className="w-full py-3 bg-brand text-white font-semibold rounded-xl text-sm"
@@ -337,29 +348,7 @@ export default function InstallPrompt({ onResolved }) {
               </button>
             </div>
 
-            <div className="space-y-3 text-sm text-stone-600">
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">1</span>
-                <p>
-                  {t('installPrompt.ios.step1')}{' '}
-                  <span className="inline-flex items-center gap-1">
-                    <Share className="w-4 h-4 text-blue-500 inline" />
-                  </span>{' '}
-                  {t('installPrompt.ios.step1b')}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">2</span>
-                <p>
-                  {t('installPrompt.ios.step2')}{' '}
-                  <strong className="text-stone-800">{t('installPrompt.ios.step2b')}</strong>
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-brand font-bold text-base">3</span>
-                <p>{t('installPrompt.ios.step3')}</p>
-              </div>
-            </div>
+            <IOSInstructionSteps t={t} />
 
             <button
               onClick={handleIOSClose}
