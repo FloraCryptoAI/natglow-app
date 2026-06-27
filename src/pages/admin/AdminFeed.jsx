@@ -489,12 +489,12 @@ function PostTab({ apiFetch }) {
         />
         <p className="text-right text-xs text-stone-300 mb-3">{content.length}/1000</p>
 
-        {/* Image previews */}
+        {/* Image previews — mirrors the final feed render (dual = shared 1:1 square) */}
         {(imagePreview || imagePreview2) ? (
-          <div className={`mb-4 ${imagePreview && imagePreview2 ? 'grid grid-cols-2 gap-2' : ''}`}>
-            {imagePreview && (
-              <div className="relative aspect-square">
-                <img src={imagePreview} alt="" className="w-full h-full object-cover rounded-xl" />
+          imagePreview && imagePreview2 ? (
+            <div className="mb-4 grid grid-cols-2 gap-px aspect-square rounded-xl overflow-hidden">
+              <div className="relative bg-stone-100">
+                <img src={imagePreview} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => { setImageFile(null); setImagePreview(null) }}
@@ -502,20 +502,9 @@ function PostTab({ apiFetch }) {
                 >
                   <X className="w-3 h-3" />
                 </button>
-                {mode === 'user' && !imagePreview2 && (
-                  <button
-                    type="button"
-                    onClick={() => fileRef2.current?.click()}
-                    className="absolute bottom-1.5 left-0 right-0 mx-auto w-fit px-2.5 py-1 bg-black/50 rounded-full text-white text-[10px] font-medium whitespace-nowrap"
-                  >
-                    + Segunda foto
-                  </button>
-                )}
               </div>
-            )}
-            {imagePreview2 && (
-              <div className="relative aspect-square">
-                <img src={imagePreview2} alt="" className="w-full h-full object-cover rounded-xl" />
+              <div className="relative bg-stone-100">
+                <img src={imagePreview2} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => { setImageFile2(null); setImagePreview2(null) }}
@@ -524,8 +513,35 @@ function PostTab({ apiFetch }) {
                   <X className="w-3 h-3" />
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="mb-4 relative aspect-square">
+              <img
+                src={imagePreview || imagePreview2}
+                alt=""
+                className="w-full h-full object-cover rounded-xl"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (imagePreview) { setImageFile(null); setImagePreview(null) }
+                  else { setImageFile2(null); setImagePreview2(null) }
+                }}
+                className="absolute top-1.5 right-1.5 p-1 bg-black/50 rounded-full text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+              {mode === 'user' && imagePreview && !imagePreview2 && (
+                <button
+                  type="button"
+                  onClick={() => fileRef2.current?.click()}
+                  className="absolute bottom-1.5 left-0 right-0 mx-auto w-fit px-2.5 py-1 bg-black/50 rounded-full text-white text-[10px] font-medium whitespace-nowrap"
+                >
+                  + Segunda foto
+                </button>
+              )}
+            </div>
+          )
         ) : (
           <button
             type="button"
