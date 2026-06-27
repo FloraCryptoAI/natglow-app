@@ -458,16 +458,16 @@ function ComparisonChart({ field, convertedAnswers, abandonedAnswers, loading })
 }
 
 // ── Per-age cohort analysis ──────────────────────────────────────────────────
-// Hero-style conversion card per age bucket: huge conv-rate at the top
-// (the metric the user actually cares about), then a quick stats line,
-// then 5 visual progress bars showing the predominant trait for each
-// dimension. Scannable in ~1 second per card.
+// Same design language as QuestionChart / LangCountryPanel / IndividualFunnel
+// elsewhere in this page: white card, gray-100 border, violet-500 bars,
+// gray-50 stat boxes. No emojis, no colored backdrops — keeps the page
+// scannable as one consistent surface.
 const TRAIT_DIMENSIONS = [
-  { key: 'hairType',          label: 'Cabelo',     emoji: '🌀' },
-  { key: 'symptomsIntensity', label: 'Sintomas',   emoji: '⚡' },
-  { key: 'heatTools',         label: 'Calor',      emoji: '🔥' },
-  { key: 'chemProducts',      label: 'Químicos',   emoji: '🧪' },
-  { key: 'hydration',         label: 'Hidratação', emoji: '💧' },
+  { key: 'hairType',          label: 'Cabelo' },
+  { key: 'symptomsIntensity', label: 'Sintomas' },
+  { key: 'heatTools',         label: 'Calor' },
+  { key: 'chemProducts',      label: 'Químicos' },
+  { key: 'hydration',         label: 'Hidratação' },
 ]
 
 function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
@@ -482,65 +482,57 @@ function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
     <section>
       <SectionHeader title="Análise por faixa etária" />
       <p className="text-xs text-gray-400 mb-4 -mt-2">
-        Qual idade converte mais e quais perfis predominam em cada cohort — use pra mirar criativos por idade
+        Qual idade converte mais e quais perfis predominam em cada cohort
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {buckets.map(b => {
           const convPct = b.conv_rate ?? 0
-          const convCls = convPct >= 5  ? { dot: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50/60' }
-                        : convPct >= 2 ? { dot: 'bg-amber-500',   text: 'text-amber-600',   bg: 'bg-amber-50/60'   }
-                        :                { dot: 'bg-rose-400',    text: 'text-rose-500',    bg: 'bg-rose-50/60'    }
           const revenue = (b.converted ?? 0) * productPrice
 
           return (
-            <div key={b.age} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              {/* Age label */}
-              <div className="px-5 pt-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                  {AGE_LABELS[b.age] ?? b.age}
-                </p>
+            <div key={b.age} className="bg-white rounded-2xl border border-gray-100 p-5">
+              {/* Header — same pattern as QuestionChart */}
+              <div className="flex items-center justify-between mb-4">
+                <p className="font-bold text-gray-800 text-sm">{AGE_LABELS[b.age] ?? b.age}</p>
+                <span className="text-xs text-gray-400">{b.converted} de {b.started}</span>
               </div>
 
-              {/* HERO: conv rate */}
-              <div className={`px-5 pt-1 pb-4 ${convCls.bg}`}>
-                <div className="flex items-baseline gap-2.5">
-                  <span className={`w-3 h-3 rounded-full ${convCls.dot} flex-shrink-0`} />
-                  <span className={`text-4xl sm:text-5xl font-extrabold tabular-nums leading-none ${convCls.text}`}>
-                    {convPct}%
-                  </span>
-                  <span className="text-xs text-gray-500 font-medium">conversão</span>
+              {/* Two stat tiles — same pattern as IndividualFunnel */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="bg-gray-50 rounded-xl p-3 text-center">
+                  <p className="text-xs text-gray-500 mb-0.5">Conversão</p>
+                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">{convPct}%</p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 tabular-nums">
-                  <span className="font-bold text-gray-800">{b.converted}</span> vendas ·
-                  {' '}<span className="font-semibold text-gray-700">{b.started}</span> leads ·
-                  {' '}<span className="font-bold text-emerald-600">${revenue}</span>
-                </p>
+                <div className="bg-gray-50 rounded-xl p-3 text-center">
+                  <p className="text-xs text-gray-500 mb-0.5">Receita</p>
+                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">${revenue}</p>
+                </div>
               </div>
 
-              {/* Trait bars */}
-              <div className="px-5 py-4 space-y-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  Perfil predominante
-                </p>
-                {TRAIT_DIMENSIONS.map(({ key, label, emoji }) => {
+              {/* Predominant trait per dimension — same row pattern as
+                  QuestionChart (label / bar / value / %) */}
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-3">
+                Perfil predominante
+              </p>
+              <div className="space-y-3">
+                {TRAIT_DIMENSIONS.map(({ key, label }) => {
                   const top = topValue(b[key], QUESTION_LABELS[key]?.options)
                   if (!top) return null
                   return (
-                    <div key={key} className="space-y-1">
-                      <div className="flex items-baseline justify-between gap-3 text-xs">
-                        <span className="flex items-center gap-1.5 text-gray-600 flex-shrink-0">
-                          <span aria-hidden="true">{emoji}</span>
-                          <span className="font-medium">{label}:</span>
-                          <span className="text-gray-800 font-semibold truncate">{top.label}</span>
-                        </span>
-                        <span className="text-gray-500 font-semibold tabular-nums">{top.pct}%</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div key={key} className="flex items-center gap-3">
+                      <span className="text-xs font-semibold text-gray-600 w-20 flex-shrink-0 truncate">
+                        {label}
+                      </span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-violet-400 rounded-full"
+                          className="h-full bg-violet-500 rounded-full transition-all duration-500"
                           style={{ width: `${top.pct}%` }}
                         />
                       </div>
+                      <span className="text-xs font-medium text-gray-700 w-20 text-right truncate" title={top.label}>
+                        {top.label}
+                      </span>
+                      <span className="text-xs text-gray-400 w-10 text-right tabular-nums">{top.pct}%</span>
                     </div>
                   )
                 })}
