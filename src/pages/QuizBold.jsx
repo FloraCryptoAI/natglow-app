@@ -411,15 +411,28 @@ export default function QuizBold({ pricingPlan = 'bold' }) {
               title={t('quizBold.questions.hairType.title')}
               context={t('quizBold.questions.hairType.context')}
             />
-            <div className="grid grid-cols-2 gap-3">
+            {/* items-start: prevent Safari from stretching cards to fill row
+                height when one cell's intrinsic size differs (Safari treats
+                grid items as align-self:stretch and miscalculates the row
+                height when child uses aspect-ratio + img w-full/h-full).
+                Explicit width/height attrs on <img> give Safari intrinsic
+                dimensions so it doesn't blow up the aspect-ratio container. */}
+            <div className="grid grid-cols-2 gap-3 items-start">
               {HAIR_TYPES.map(opt => (
                 <div
                   key={opt.value}
                   className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
                   onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1) }}
                 >
-                  <div className="w-full overflow-hidden" style={{ aspectRatio: '3/2', background: PL2 }}>
-                    <img src={opt.img} alt={opt.label} className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <div className="w-full overflow-hidden aspect-[3/2]" style={{ background: PL2 }}>
+                    <img
+                      src={opt.img}
+                      alt={opt.label}
+                      width={300}
+                      height={200}
+                      className="block w-full h-full object-cover"
+                      onError={e => { e.currentTarget.style.display = 'none' }}
+                    />
                   </div>
                   <div className="px-3 py-3.5 flex items-center justify-center gap-2">
                     <span className="text-sm font-semibold text-stone-700 text-center">{opt.label}</span>

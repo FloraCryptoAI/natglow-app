@@ -47,7 +47,15 @@ function computeDiagnosis(a: Record<string, string>): DiagColor {
   return 'green'
 }
 
-const QUESTION_FIELDS = ['washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts', 'hairType', 'age'] as const
+// Includes both legacy quiz fields AND persuasive-funnel fields
+// (symptomsIntensity = step 1 'há quanto tempo'; finalChoice = step 14
+// 'sí lo quiero / dudas'). Admin UI renders cards for both, so the
+// distribution counter must populate both keys.
+const QUESTION_FIELDS = [
+  'washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts',
+  'hairType', 'age',
+  'symptomsIntensity', 'finalChoice',
+] as const
 
 Deno.serve(async (req) => {
   const cors = corsHeaders(req.headers.get('Origin'))

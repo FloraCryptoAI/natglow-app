@@ -397,15 +397,23 @@ export default function QuizDetox({ pricingPlan = 'detox' }) {
         {step === STEPS.HAIR_TYPE && (
           <motion.div key="hair-type" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
             {stepHeader(3, t('quizDetox.questions.hairType.title'), t('quizDetox.questions.hairType.context'))}
-            <div className="grid grid-cols-2 gap-3">
+            {/* See QuizBold for the Safari-specific layout notes. */}
+            <div className="grid grid-cols-2 gap-3 items-start">
               {HAIR_TYPES.map(opt => (
                 <div
                   key={opt.value}
                   className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
                   onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1) }}
                 >
-                  <div className="w-full overflow-hidden" style={{ aspectRatio: '3/2', background: PL2 }}>
-                    <img src={opt.img} alt={opt.label} className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <div className="w-full overflow-hidden aspect-[3/2]" style={{ background: PL2 }}>
+                    <img
+                      src={opt.img}
+                      alt={opt.label}
+                      width={300}
+                      height={200}
+                      className="block w-full h-full object-cover"
+                      onError={e => { e.currentTarget.style.display = 'none' }}
+                    />
                   </div>
                   <div className="px-3 py-3.5 flex items-center justify-center gap-2">
                     <span className="text-sm font-semibold text-stone-700 text-center">{opt.label}</span>
