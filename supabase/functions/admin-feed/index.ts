@@ -158,6 +158,45 @@ Deno.serve(async (req) => {
         return json({ ok: true, comment: Array.isArray(created) ? created[0] : created })
       }
 
+      // Edit a post — content (always) and author_name (only for fake user posts).
+      // Image, date, and is_admin stay untouched.
+      if (mode === 'edit_post') {
+        const { id, content, author_name } = body
+        if (!id || !content?.trim()) {
+          return json({ error: 'id e content são obrigatórios' }, 400)
+        }
+        const patch: Record<string, unknown> = { content: content.trim().slice(0, 1000) }
+        if (typeof author_name === 'string' && author_name.trim()) {
+          patch.author_name = author_name.trim().slice(0, 40)
+        }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_posts?id=eq.${id}`, {
+          method:  'PATCH',
+          headers: dbHeaders,
+          body:    JSON.stringify(patch),
+        })
+        const updated = await res.json()
+        return json({ ok: true, post: Array.isArray(updated) ? updated[0] : updated })
+      }
+
+      // Edit a comment — content (always) and author_name (only for fake comments).
+      if (mode === 'edit_comment') {
+        const { id, content, author_name } = body
+        if (!id || !content?.trim()) {
+          return json({ error: 'id e content são obrigatórios' }, 400)
+        }
+        const patch: Record<string, unknown> = { content: content.trim().slice(0, 500) }
+        if (typeof author_name === 'string' && author_name.trim()) {
+          patch.author_name = author_name.trim().slice(0, 40)
+        }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/feed_comments?id=eq.${id}`, {
+          method:  'PATCH',
+          headers: dbHeaders,
+          body:    JSON.stringify(patch),
+        })
+        const updated = await res.json()
+        return json({ ok: true, comment: Array.isArray(updated) ? updated[0] : updated })
+      }
+
       // Delete a comment by id (admin moderation of fakes or real comments)
       if (mode === 'delete_comment') {
         const { id } = body

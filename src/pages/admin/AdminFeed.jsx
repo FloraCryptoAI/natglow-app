@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useAdminFetch } from './hooks/useAdminFetch'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart, Calendar } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Image, X, Trash2, Clock, LayoutList, PenLine, User, Sparkles, SmilePlus, ImagePlus, MessageSquare, Heart, Calendar, Pencil } from 'lucide-react'
 import { compressPostImage, compressAvatar } from '@/lib/compressImage'
 import { toast } from 'sonner'
 import { supabase } from '@/api/supabaseClient'
@@ -592,6 +592,11 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
   const [cCreatedAt, setCCreatedAt] = useState(null)  // ISO or null (=now)
   const [cSubmitting, setCSubmitting] = useState(false)
   const [cDeleting, setCDeleting]     = useState(null)
+  const [editingId, setEditingId]     = useState(null)
+  const [editingText, setEditingText] = useState('')
+  const [editingName, setEditingName] = useState('')
+  const [editingIsFake, setEditingIsFake] = useState(false)
+  const [editingSaving, setEditingSaving] = useState(false)
   const cAvatarRef = useRef()
 
   async function loadComments() {
@@ -646,6 +651,46 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
       toast.error(e.message)
     } finally {
       setCSubmitting(false)
+    }
+  }
+
+  function startEdit(c) {
+    const isFake = !c.user_id
+    setEditingId(c.id)
+    setEditingText(c.content ?? '')
+    setEditingName(c.author_name ?? '')
+    setEditingIsFake(isFake)
+  }
+  function cancelEdit() {
+    setEditingId(null)
+    setEditingText('')
+    setEditingName('')
+    setEditingIsFake(false)
+  }
+  async function saveEdit() {
+    if (!editingText.trim()) return
+    if (editingIsFake && !editingName.trim()) {
+      toast.error('Nome não pode ficar vazio')
+      return
+    }
+    setEditingSaving(true)
+    try {
+      const payload = { id: editingId, content: editingText.trim() }
+      if (editingIsFake) payload.author_name = editingName.trim()
+      await apiFetch('/admin-feed?mode=edit_comment', {
+        method: 'POST',
+        body:   JSON.stringify(payload),
+      })
+      setComments(prev => prev.map(c => c.id === editingId
+        ? { ...c, content: editingText.trim(), ...(editingIsFake ? { author_name: editingName.trim() } : {}) }
+        : c
+      ))
+      toast.success('Comentário atualizado')
+      cancelEdit()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setEditingSaving(false)
     }
   }
 
@@ -748,6 +793,7 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
                 {comments.map(c => {
                   const name = c.author_name ?? 'Usuária real'
                   const isFake = !c.user_id
+                  const isEditing = editingId === c.id
                   return (
                     <div key={c.id} className="bg-stone-50 rounded-xl p-3 flex gap-3 items-start">
                       <div className={`w-8 h-8 rounded-full flex-shrink-0 overflow-hidden ${!c.author_avatar_url ? 'bg-violet-100 flex items-center justify-center' : ''}`}>
@@ -762,15 +808,66 @@ function EngagementModal({ post, apiFetch, onClose, onChanged }) {
                           {isFake && <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[9px] font-bold rounded-full">FAKE</span>}
                           {!isFake && <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full">REAL</span>}
                         </div>
-                        <p className="text-sm text-stone-600 leading-relaxed break-words">{c.content}</p>
+                        {isEditing ? (
+                          <div className="space-y-2 mt-1">
+                            {editingIsFake && (
+                              <input
+                                type="text"
+                                value={editingName}
+                                onChange={e => setEditingName(e.target.value)}
+                                maxLength={40}
+                                placeholder="Nome"
+                                className="w-full bg-white border border-violet-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-violet-200"
+                              />
+                            )}
+                            <textarea
+                              value={editingText}
+                              onChange={e => setEditingText(e.target.value)}
+                              maxLength={500}
+                              rows={2}
+                              autoFocus
+                              className="w-full bg-white border border-violet-300 rounded-lg px-2.5 py-1.5 text-sm resize-none outline-none focus:ring-2 focus:ring-violet-200"
+                            />
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={saveEdit}
+                                disabled={editingSaving || !editingText.trim()}
+                                className="flex items-center gap-1.5 px-3 py-1 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50"
+                              >
+                                {editingSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                                Salvar
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                disabled={editingSaving}
+                                className="px-3 py-1 border border-stone-200 text-stone-500 text-xs font-semibold rounded-lg bg-white"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-stone-600 leading-relaxed break-words">{c.content}</p>
+                        )}
                       </div>
-                      <button
-                        onClick={() => deleteComment(c.id)}
-                        disabled={cDeleting === c.id}
-                        className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg flex-shrink-0"
-                      >
-                        {cDeleting === c.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                      </button>
+                      {!isEditing && (
+                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                          <button
+                            onClick={() => startEdit(c)}
+                            className="p-1.5 text-stone-300 hover:text-violet-500 rounded-lg"
+                            title="Editar texto"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => deleteComment(c.id)}
+                            disabled={cDeleting === c.id}
+                            className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg"
+                          >
+                            {cDeleting === c.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -855,6 +952,11 @@ function ListTab({ apiFetch }) {
   const [page, setPage]     = useState(1)
   const [deleting, setDeleting] = useState(null)
   const [engagementPost, setEngagementPost] = useState(null)
+  const [editingId, setEditingId]       = useState(null)
+  const [editingText, setEditingText]   = useState('')
+  const [editingName, setEditingName]   = useState('')
+  const [editingCanEditName, setEditingCanEditName] = useState(false)
+  const [editingSaving, setEditingSaving] = useState(false)
 
   async function load(p = 1) {
     setLoading(true)
@@ -868,6 +970,48 @@ function ListTab({ apiFetch }) {
   }
 
   useEffect(() => { load(page) }, [page])
+
+  function startEdit(post) {
+    // Fake user post (is_admin=false + author_name) — name is editable.
+    // NatGlow official post or real user post — name is NOT editable (uses badge or subscription display_name).
+    const canEditName = !post.is_admin && !!post.author_name
+    setEditingId(post.id)
+    setEditingText(post.content ?? '')
+    setEditingName(post.author_name ?? '')
+    setEditingCanEditName(canEditName)
+  }
+  function cancelEdit() {
+    setEditingId(null)
+    setEditingText('')
+    setEditingName('')
+    setEditingCanEditName(false)
+  }
+  async function saveEdit() {
+    if (!editingText.trim()) return
+    if (editingCanEditName && !editingName.trim()) {
+      toast.error('Nome não pode ficar vazio')
+      return
+    }
+    setEditingSaving(true)
+    try {
+      const payload = { id: editingId, content: editingText.trim() }
+      if (editingCanEditName) payload.author_name = editingName.trim()
+      await apiFetch('/admin-feed?mode=edit_post', {
+        method: 'POST',
+        body:   JSON.stringify(payload),
+      })
+      setPosts(prev => prev.map(p => p.id === editingId
+        ? { ...p, content: editingText.trim(), ...(editingCanEditName ? { author_name: editingName.trim() } : {}) }
+        : p
+      ))
+      toast.success('Post atualizado')
+      cancelEdit()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setEditingSaving(false)
+    }
+  }
 
   async function handleDelete(id) {
     if (!confirm('Excluir este post permanentemente?')) return
@@ -895,6 +1039,7 @@ function ListTab({ apiFetch }) {
           <div className="space-y-3">
             {posts.map(post => {
               const { label, cls } = STATUS_LABELS[post.status] ?? STATUS_LABELS.pending
+              const isEditing = editingId === post.id
               return (
                 <div key={post.id} className="bg-white rounded-xl border border-stone-100 p-4 flex gap-3 items-start">
                   <div className="flex-1 min-w-0">
@@ -905,29 +1050,81 @@ function ListTab({ apiFetch }) {
                       <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${cls}`}>{label}</span>
                       <span className="text-[10px] text-stone-400 ml-auto">{timeAgo(post.created_at)}</span>
                     </div>
-                    <p className="text-sm text-stone-600 line-clamp-2">{post.content}</p>
-                    {post.rejection_reason && (
-                      <p className="text-xs text-red-500 mt-1">Motivo: {post.rejection_reason}</p>
+                    {isEditing ? (
+                      <div className="space-y-2 mt-1">
+                        {editingCanEditName && (
+                          <input
+                            type="text"
+                            value={editingName}
+                            onChange={e => setEditingName(e.target.value)}
+                            maxLength={40}
+                            placeholder="Nome da usuária"
+                            className="w-full bg-white border border-violet-300 rounded-lg px-3 py-1.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-violet-200"
+                          />
+                        )}
+                        <textarea
+                          value={editingText}
+                          onChange={e => setEditingText(e.target.value)}
+                          maxLength={1000}
+                          rows={4}
+                          autoFocus
+                          className="w-full bg-white border border-violet-300 rounded-lg px-3 py-2 text-sm resize-none outline-none focus:ring-2 focus:ring-violet-200"
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={saveEdit}
+                            disabled={editingSaving || !editingText.trim()}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50"
+                          >
+                            {editingSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                            Salvar
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            disabled={editingSaving}
+                            className="px-3 py-1.5 border border-stone-200 text-stone-500 text-xs font-semibold rounded-lg bg-white"
+                          >
+                            Cancelar
+                          </button>
+                          <span className="text-[10px] text-stone-400 ml-auto tabular-nums">{editingText.length}/1000</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-sm text-stone-600 line-clamp-2">{post.content}</p>
+                        {post.rejection_reason && (
+                          <p className="text-xs text-red-500 mt-1">Motivo: {post.rejection_reason}</p>
+                        )}
+                      </>
                     )}
                   </div>
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    {post.status === 'approved' && (
+                  {!isEditing && (
+                    <div className="flex items-center gap-0.5 flex-shrink-0">
                       <button
-                        onClick={() => setEngagementPost(post)}
+                        onClick={() => startEdit(post)}
                         className="p-1.5 text-stone-300 hover:text-violet-500 rounded-lg"
-                        title="Adicionar comentários fake / ajustar reações"
+                        title="Editar texto"
                       >
-                        <MessageSquare className="w-4 h-4" />
+                        <Pencil className="w-4 h-4" />
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      disabled={deleting === post.id}
-                      className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg"
-                    >
-                      {deleting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                    </button>
-                  </div>
+                      {post.status === 'approved' && (
+                        <button
+                          onClick={() => setEngagementPost(post)}
+                          className="p-1.5 text-stone-300 hover:text-violet-500 rounded-lg"
+                          title="Adicionar comentários fake / ajustar reações"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        disabled={deleting === post.id}
+                        className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg"
+                      >
+                        {deleting === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })}
