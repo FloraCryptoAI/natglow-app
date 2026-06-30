@@ -19,7 +19,7 @@ const STATUS_BADGE = {
 
 const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸' }
 
-// Currently both /quiz-bold and /quiz-detox write 'one_time_basic' as pricing_plan.
+// Currently /quiz, /quiz-bold, /quiz-meta and /quiz-detox all write 'one_time_basic' as pricing_plan.
 // The funnel is differentiated by event_type prefix in funnel_events, not by plan_key.
 // Legacy plans kept so historical orders still display correctly.
 const PLAN_BADGE = {
@@ -42,7 +42,7 @@ const QUIZ_LABELS = {
   chemProducts: { label: 'Produtos químicos', options: { yes_heavy: 'Sim (fortes)', yes_mild: 'Sim (suaves)', no: 'Não' } },
   hairType:     { label: 'Tipo de cabelo',    options: { liso: 'Liso', ondulado: 'Ondulado', cacheado: 'Cacheado', crespo: 'Crespo' } },
   age:          { label: 'Faixa etária',      options: { '18_29': '18–29', '30_39': '30–39', '40_49': '40–49', '50_plus': '50+' } },
-  // New fields from persuasive funnels (quiz-bold / quiz-detox)
+  // New fields from persuasive funnels (quiz / quiz-bold / quiz-meta / quiz-detox)
   symptomsIntensity: { label: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
   finalChoice:       { label: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
 }

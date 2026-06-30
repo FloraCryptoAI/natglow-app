@@ -13,7 +13,7 @@ const P    = '#FB45A9'
 const PD   = '#E03594'
 const GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 
-// Single plan now — both /quiz-bold and /quiz-detox share the same $17 product.
+// Single plan now — all funnels (/quiz, /quiz-bold, /quiz-meta, /quiz-detox) share the same $17 product.
 // Standard/Premium tiers were retired when the standard funnels were removed.
 const PLANS = [
   {

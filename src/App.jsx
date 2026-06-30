@@ -8,7 +8,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/AdminAuthContext';
 import Layout from './components/Layout';
-import QuizBold from './pages/QuizBold';
+import QuizMeta from './pages/QuizMeta';
+import QuizClean from './pages/QuizClean';
 import QuizDetox from './pages/QuizDetox';
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
@@ -60,7 +61,7 @@ function ScrollToTop() {
 
 function LandingRedirect() {
   const { search } = useLocation();
-  return <Navigate to={`/quiz-bold${search}`} replace />;
+  return <Navigate to={`/quiz-meta${search}`} replace />;
 }
 
 function Spinner() {
@@ -112,8 +113,16 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/Login" replace />} />
 
-      {/* ── Quiz routes — only the 2 persuasive funnels are active ── */}
-      <Route path="/quiz-bold"    element={<QuizBold pricingPlan="bold" />} />
+      {/* ── Quiz routes ──
+          /quiz       → QuizClean (compliant version for TikTok ads)
+          /quiz-bold  → QuizClean (same component, kept on the legacy URL so
+                        TikTok appeal reviewers see compliant content)
+          /quiz-meta  → QuizMeta  (legacy persuasive version, reserved for Meta/FB ads)
+          /quiz-detox → QuizDetox (heavier copy, reserved for direct paid traffic)
+      */}
+      <Route path="/quiz"         element={<QuizClean pricingPlan="bold" />} />
+      <Route path="/quiz-bold"    element={<QuizClean pricingPlan="bold" />} />
+      <Route path="/quiz-meta"    element={<QuizMeta  pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
@@ -122,17 +131,15 @@ const AppRoutes = () => {
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
 
-      {/* Legacy redirects — default everywhere is /quiz-bold (safer copy, used for ads).
-          /quiz-detox is reserved for direct paid traffic only — accessed by typing the URL. */}
-      <Route path="/quiz"           element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/quiz-cheap"     element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/quiz-premium"   element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/quiz-weekly"    element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/results"        element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/results-cheap"  element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/results-premium" element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/results-weekly" element={<Navigate to="/quiz-bold" replace />} />
-      <Route path="/Results"        element={<Navigate to="/quiz-bold" replace />} />
+      {/* Legacy redirects — old ad URLs now point to /quiz-meta (Meta/FB funnel). */}
+      <Route path="/quiz-cheap"     element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/quiz-premium"   element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/quiz-weekly"    element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/results"        element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/results-cheap"  element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/results-premium" element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/results-weekly" element={<Navigate to="/quiz-meta" replace />} />
+      <Route path="/Results"        element={<Navigate to="/quiz-meta" replace />} />
 
       <Route path="/Landing" element={<LandingRedirect />} />
       <Route path="/Login"          element={<Login />} />

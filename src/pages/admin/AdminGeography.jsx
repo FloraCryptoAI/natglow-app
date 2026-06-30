@@ -65,7 +65,7 @@ function SectionHeader({ title, hint }) {
   )
 }
 
-// Age bucket labels — must match the buckets used by QuizBold/QuizDetox
+// Age bucket labels — must match the buckets used by QuizClean/QuizMeta/QuizDetox
 const AGE_BUCKETS = ['18_29', '30_39', '40_49', '50_plus']
 const AGE_LABELS = {
   '18_29':   '18–29 anos',

@@ -6,7 +6,7 @@ export const PRICING_PLANS = {
     label_es: '$17 USD',
     cta_es: '¡Sí, lo quiero ya!',
     plan_key: 'one_time_basic',
-    route_path: '/quiz-bold',
+    route_path: '/quiz-meta',
     results_path: '/results-bold',
   },
   detox: {

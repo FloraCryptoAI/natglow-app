@@ -191,6 +191,72 @@
       }
     }
   },
+  "quizClean": {
+    "intro": {
+      "title": "Descubre tu rutina capilar natural",
+      "subtitle": "Responde 7 preguntas y arma una rutina personalizada según tu tipo de cabello y tu día a día.",
+      "feature1": "Ingredientes naturales que ya tienes en casa",
+      "feature2": "Recetas adaptadas a tu tipo de cabello",
+      "feature3": "Pasos sencillos para incorporar a tu rutina",
+      "cta": "Comenzar el test"
+    },
+    "symptoms": {
+      "title": "¿Hace cuánto te interesa cuidar mejor tu cabello?",
+      "subtitle": "Cuéntanos cuándo empezó tu interés. Esto nos ayuda a adaptar las recomendaciones.",
+      "ctaShort": "Hace algunas semanas",
+      "ctaLong": "Hace bastante tiempo"
+    },
+    "reframing": {
+      "headline1": "Cuidar el cabello",
+      "headline2": "es cuestión de método.",
+      "explanation": "El cabello responde a la rutina diaria: los ingredientes que usas, la frecuencia con que lo lavas y los hábitos que mantienes en casa. Una rutina sencilla y consistente, con cuidados naturales, puede marcar la diferencia.",
+      "denial1": "No depende solo de la genética",
+      "denial2": "No necesita productos costosos",
+      "denial3": "No requiere salones especializados",
+      "affirmation": "Lo importante es la constancia y el método correcto",
+      "cta": "Continuar"
+    },
+    "finalQuestion": {
+      "headline1": "¿Estás lista para conocer",
+      "headlineHighlight1": "tu rutina personalizada",
+      "headline2": "según las respuestas",
+      "headlineHighlight2": "que nos diste?",
+      "headline3": "",
+      "ctaYes": "¡Sí, quiero verla!",
+      "ctaDoubts": "Quiero saber más antes"
+    },
+    "questions": {
+      "age": {
+        "title": "¿Cuántos años tienes?",
+        "context": "Tu edad nos ayuda a personalizar las recomendaciones"
+      },
+      "hairType": {
+        "title": "¿Cuál es tu tipo de cabello?",
+        "context": "Cada tipo de cabello combina mejor con ciertos ingredientes"
+      },
+      "washFreq": {
+        "title": "¿Con qué frecuencia lavas tu cabello?",
+        "context": "La frecuencia ideal varía según el tipo de cabello"
+      },
+      "waterTemp": {
+        "title": "¿A qué temperatura usas el agua?",
+        "context": "La temperatura influye en cómo el cabello absorbe los nutrientes"
+      },
+      "heatTools": {
+        "title": "¿Usas plancha, secador o rizador?",
+        "context": "Saber esto nos ayuda a recomendar cuidados específicos para tu rutina"
+      },
+      "hydration": {
+        "title": "¿Haces hidratación capilar profunda?",
+        "context": "La hidratación es parte clave de cualquier rutina natural"
+      },
+      "chemProducts": {
+        "title": "¿Usas alisado, decoloración o tintes?",
+        "subtitle": "Esto nos ayuda a sugerir los ingredientes más adecuados para ti",
+        "context": ""
+      }
+    }
+  },
   "quizDetox": {
     "intro": {
       "urgencyBanner": "🌿 IMPORTANTE · LEE ANTES DE CONTINUAR",
