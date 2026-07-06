@@ -362,11 +362,6 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               {t('natglowFlow.offer.testimonials.disclaimer')}
             </p>
           </FadeIn>
-          <FadeIn delay={0.1}>
-            <div className="mt-6">
-              <PrimaryCTA label={t('natglowFlow.offer.testimonials.cta')} loading={loading} onClick={() => handleCheckout('offer_testimonials')} />
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -421,12 +416,6 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               </div>
             </FadeIn>
           </div>
-
-          <FadeIn delay={0.15}>
-            <div className="mt-6 max-w-sm mx-auto">
-              <PrimaryCTA label={t('natglowFlow.offer.compare.cta')} loading={loading} onClick={() => handleCheckout('offer_compare')} />
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -460,6 +449,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
           loading={loading}
           gradient={PINK_GRAD}
           shadow={PINK_SHADOW}
+          pulse
         />
       )}
     </div>
