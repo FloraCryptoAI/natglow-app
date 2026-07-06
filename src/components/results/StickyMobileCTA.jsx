@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-export default function StickyMobileCTA({ price, label, onClick, loading = false }) {
+export default function StickyMobileCTA({ price, label, onClick, loading = false, gradient = 'linear-gradient(135deg, #27AE60, #1E8449)', shadow = 'rgba(39,174,96,0.4)' }) {
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
@@ -14,8 +14,8 @@ export default function StickyMobileCTA({ price, label, onClick, loading = false
         disabled={loading}
         className="w-full py-4 text-white font-extrabold rounded-full flex items-center justify-center gap-2.5 text-sm"
         style={{
-          background: 'linear-gradient(135deg, #27AE60, #1E8449)',
-          boxShadow: '0 4px 16px rgba(39,174,96,0.4)',
+          background: gradient,
+          boxShadow: `0 4px 16px ${shadow}`,
           opacity: loading ? 0.7 : 1,
         }}
       >

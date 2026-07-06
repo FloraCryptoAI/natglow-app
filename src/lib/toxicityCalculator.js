@@ -120,6 +120,102 @@ export function getDiagnosticFactors(answers = {}) {
   return factors
 }
 
+// Meta/FB-safe factor list for the /quiz-natglow funnel. Mirrors the answers of
+// getDiagnosticFactors but uses neutral, non-medical language (no "tóxico",
+// "folículo", "daño", "químicos dentro del folículo"). Always returns the same
+// set of cards echoing the user's own answers, so nothing reads as a diagnosis.
+const SAFE_AGE_LABELS = {
+  '18_29': '18 a 29 años',
+  '30_39': '30 a 39 años',
+  '40_49': '40 a 49 años',
+  '50_plus': '50 años o más',
+}
+const SAFE_HAIRTYPE_LABELS = {
+  liso: 'Liso',
+  ondulado: 'Ondulado',
+  cacheado: 'Rizado',
+  crespo: 'Muy rizado',
+}
+const SAFE_WASH_LABELS = {
+  daily: 'Todos los días',
+  '3_4': '3 a 4 veces por semana',
+  '1_2': '1 a 2 veces por semana',
+}
+const SAFE_HEAT_LABELS = {
+  daily: 'Uso diario',
+  few: 'Algunas veces por semana',
+  rarely: 'Uso ocasional',
+}
+const SAFE_HYDRATION_LABELS = {
+  regularly: 'Hidratación regular',
+  sometimes: 'Hidratación ocasional',
+  never: 'Sin hábito de hidratación aún',
+}
+const SAFE_GOAL_LABELS = {
+  brillo: 'Más brillo',
+  movimiento: 'Más movimiento',
+  frizz: 'Menos frizz visual',
+  puntas: 'Puntas con mejor apariencia',
+  resequedad: 'Sensación de resequedad',
+  oleosidad: 'Sensación de oleosidad',
+  volumen: 'Más volumen',
+  cuero: 'Cuidado del cuero cabelludo',
+}
+
+export function getSafeDiagnosticFactors(answers = {}) {
+  const factors = []
+
+  if (answers.age) {
+    factors.push({
+      icon: '📅',
+      label: 'Edad',
+      detail: SAFE_AGE_LABELS[answers.age] ?? '—',
+    })
+  }
+
+  if (answers.hairType) {
+    factors.push({
+      icon: '💇',
+      label: 'Tipo de cabello informado',
+      detail: SAFE_HAIRTYPE_LABELS[answers.hairType] ?? '—',
+    })
+  }
+
+  if (answers.washFreq) {
+    factors.push({
+      icon: '🚿',
+      label: 'Frecuencia de lavado',
+      detail: SAFE_WASH_LABELS[answers.washFreq] ?? '—',
+    })
+  }
+
+  if (answers.heatTools) {
+    factors.push({
+      icon: '💨',
+      label: 'Uso de calor en la rutina',
+      detail: SAFE_HEAT_LABELS[answers.heatTools] ?? '—',
+    })
+  }
+
+  if (answers.hydration) {
+    factors.push({
+      icon: '💧',
+      label: 'Nivel de hidratación informado',
+      detail: SAFE_HYDRATION_LABELS[answers.hydration] ?? '—',
+    })
+  }
+
+  if (answers.hairGoal) {
+    factors.push({
+      icon: '🎯',
+      label: 'Objetivo capilar principal',
+      detail: SAFE_GOAL_LABELS[answers.hairGoal] ?? '—',
+    })
+  }
+
+  return factors
+}
+
 export function getToxicityLevel(score) {
   if (score >= 85) return { label: 'CRÍTICO', color: '#C0392B', bg: '#FDEDEC' }
   if (score >= 70) return { label: 'ALTO', color: '#E67E22', bg: '#FEF5E7' }

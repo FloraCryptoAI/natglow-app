@@ -444,6 +444,257 @@
       "finePrint": "Al comprar aceptas los términos de uso. Pago único en dólares americanos. Garantía total de 7 días. Si por cualquier motivo no estás satisfecha, te devolvemos el 100% sin preguntas."
     }
   },
+  "quizNatglow": {
+    "intro": {
+      "infoBanner": "INFORMACIÓN IMPORTANTE",
+      "title": "Descubre una rutina capilar natural según tu tipo de cabello",
+      "subtitle": "Responde una evaluación rápida y recibe una sugerencia de cuidados caseros para probar en casa.",
+      "support": "Recetas simples, ingredientes naturales y recomendaciones pensadas para tu perfil capilar.",
+      "didYouKnowBadge": "¿SABÍAS QUE?",
+      "didYouKnowBody": "Algunos hábitos diarios pueden influir en cómo el cabello se ve y se siente. Por eso, una rutina personalizada puede ayudar a organizar mejor los cuidados del día a día.",
+      "cta": "COMENZAR EVALUACIÓN",
+      "footer": "Al continuar, aceptas nuestros Términos y Privacidad.",
+      "disclaimer": "Los resultados pueden variar de persona a persona."
+    },
+    "symptoms": {
+      "title": "¿Reconoces alguna de estas señales en tu cabello?",
+      "subtitle": "Identifica lo que sientes, esto nos ayuda a personalizar tu sugerencia de rutina.",
+      "ctaShort": "Lo noto hace algunas semanas",
+      "ctaLong": "Lo noto hace mucho tiempo"
+    },
+    "educational": {
+      "title": "La rutina diaria puede influir en la apariencia del cabello",
+      "body": "Factores como el uso frecuente de productos, calor y rutinas poco constantes pueden influir en cómo el cabello se ve y se siente.",
+      "darkBox": "Una rutina adecuada de limpieza, hidratación y cuidado puede ayudar a mantener una apariencia más saludable y cuidada.",
+      "labelGood": "Rutina equilibrada",
+      "labelBad": "Acumulación de productos",
+      "caption": "Ilustración visual sobre cómo algunos hábitos pueden influir en la apariencia del cabello.",
+      "cta": "continuar"
+    },
+    "notKnown": {
+      "title": "Lo que muchas personas no saben sobre el cabello",
+      "explanation": "Muchas personas creen que solo necesitan cambiar de producto. Pero algunos hábitos diarios también pueden influir en la apariencia, el toque y el movimiento del cabello.",
+      "denial1": "No es solo el producto que usas",
+      "denial2": "No es solo lavar más veces",
+      "denial3": "No es solo copiar recetas de internet",
+      "affirmation": "La rutina diaria también tiene un papel importante",
+      "cta": "continuar"
+    },
+    "socialProof": {
+      "title": "Experiencias compartidas por usuarias",
+      "subtitle": "Cada cabello responde de una forma. Estos son ejemplos de personas que incluyeron cuidados naturales en su rutina.",
+      "testimonialName": "Camila Vargas",
+      "testimonialLocation": "Ciudad de México, MX",
+      "testimonialText": "Durante un tiempo sentí mi cabello con menos brillo y movimiento. Después de incluir una rutina natural en mi día a día, noté una apariencia más cuidada y el cabello con mejor toque. Me gustó la experiencia y la recomendé a algunas amigas.",
+      "beforeLabel": "Antes de la rutina",
+      "afterLabel": "Después de incluir la rutina",
+      "caption": "Experiencia individual. Los resultados pueden variar.",
+      "cta": "continuar"
+    },
+    "stepBadge": "PASO {{current}} DE {{total}}",
+    "questions": {
+      "age": { "title": "¿Cuántos años tienes?" },
+      "hairType": { "title": "¿Cuál es tu tipo de cabello?" },
+      "washFreq": { "title": "¿Con qué frecuencia lavas tu cabello?" },
+      "waterTemp": { "title": "¿A qué temperatura usas el agua normalmente?" },
+      "heatTools": { "title": "¿Usas plancha, secador o rizador?" },
+      "hydration": { "title": "¿Sueles hacer hidratación en tu cabello?" },
+      "chemProducts": {
+        "title": "¿Usas alisado, coloración o tintes?",
+        "subtitle": "Esto nos ayuda a sugerir los cuidados más adecuados para ti."
+      }
+    },
+    "name": {
+      "title": "¡Ya casi! ¿Cómo te llamas?",
+      "subtitle": "Tu rutina será personalizada especialmente para ti.",
+      "placeholder": "Tu primer nombre",
+      "cta": "Ver mi rutina personalizada"
+    },
+    "final": {
+      "headline1": "¿Te gustaría recibir una",
+      "headlineHighlight1": "rutina personalizada",
+      "headline2": "con cuidados naturales pensados",
+      "headlineHighlight2": "según tus respuestas",
+      "headline3": "?",
+      "ctaYes": "¡Sí, me interesa!",
+      "ctaDoubts": "Quiero saber más antes"
+    },
+    "loading": {
+      "title": "Preparando tu rutina personalizada…",
+      "subtitle": "Esto tarda solo unos segundos",
+      "step1": "Organizando tus respuestas",
+      "step2": "Seleccionando cuidados según tu perfil",
+      "step3": "Preparando tu sugerencia de rutina"
+    }
+  },
+  "natglowFlow": {
+    "diagnosis": {
+      "titleWithName": "{{name}}, preparamos una",
+      "titleNoName": "Preparamos una",
+      "titleHighlight": "rutina personalizada",
+      "titleEnd": "para tu cabello",
+      "subtitle": "Analizamos tus respuestas y separamos recetas caseras, ingredientes simples y pasos de cuidado pensados para tu perfil capilar.",
+      "factorsHeading": "Aspectos considerados en tu rutina",
+      "cta": "Quiero ver mi rutina personalizada",
+      "reassurance": "Sin productos caros · Sin visitas al salón · Con ingredientes simples",
+      "transitionTitle": "Preparando tu rutina personalizada...",
+      "transitionSteps": [
+        "Organizando tus respuestas",
+        "Seleccionando cuidados para tu perfil",
+        "Preparando tu rutina personalizada"
+      ]
+    },
+    "offer": {
+      "hero": {
+        "tag": "🤩 ¡Protocolo generado con éxito!",
+        "titlePreName": "{{name}}, tu",
+        "titlePreNoName": "Tu",
+        "titleHighlight": "rutina capilar personalizada",
+        "titlePost": "ya está lista",
+        "subtitle": "Según tus respuestas, separamos recetas compatibles, hábitos para ajustar y una rutina simple para cuidar tu cabello desde casa.",
+        "phaseLabel": "Fase 1 de 4",
+        "phaseValue": "Hidratación intensa y limpieza profunda",
+        "durationLabel": "Duración de la fase",
+        "durationValue": "21 días"
+      },
+      "personalCards": [
+        { "icon": "🌿", "title": "3 recetas para tu cabello", "desc": "Seleccionadas según tus respuestas" },
+        { "icon": "✨", "title": "1 receta de suavizado casero", "desc": "Un cabello más alineado, en casa" },
+        { "icon": "⚠️", "title": "Hábitos para ajustar", "desc": "Identificamos áreas a mejorar" },
+        { "icon": "📅", "title": "Rutina semanal", "desc": "Pasos simples a seguir" }
+      ],
+      "card": {
+        "appLabel": "Tu rutina, en tu celular",
+        "title": "Activa ahora tu rutina personalizada",
+        "subtitle": "Desbloquea el plan que preparamos según tus respuestas y empieza desde tu celular.",
+        "priceCurrency": "US$",
+        "priceValue": "7,90",
+        "offerTag": "OFERTA",
+        "priceAnchor": "US$29,90",
+        "priceMicro": "Pago único • Sin suscripción • Acceso inmediato",
+        "includesTitle": "Tu acceso incluye:",
+        "includes": [
+          "Rutina personalizada según tus respuestas",
+          "Recetas naturales dentro de la app",
+          "Plan semanal con pasos simples",
+          "Acceso desde tu celular",
+          "Pago único, sin mensualidades",
+          "Garantía de 7 días"
+        ],
+        "cta": "Activar mi rutina personalizada",
+        "ctaSub1": "Acceso inmediato después del pago.",
+        "ctaSub2": "El checkout puede mostrar el valor equivalente en tu moneda local."
+      },
+      "compare": {
+        "titlePre": "Probar al azar",
+        "titleVs": "vs",
+        "titlePost": "seguir una rutina guiada",
+        "subtitle": "Cuando tienes una guía clara, es más fácil saber qué hacer, qué evitar y cómo organizar tus cuidados semana a semana.",
+        "sinTitle": "Sin una rutina guiada",
+        "sin": [
+          "Recetas al azar de internet",
+          "No saber qué hacer cada semana",
+          "Productos que quizá no combinan",
+          "Gastar en cada intento suelto"
+        ],
+        "conTitle": "Con NatGlow",
+        "con": [
+          "Recetas según tu perfil",
+          "Rutina semanal paso a paso",
+          "Ingredientes simples y accesibles",
+          "Todo organizado en un app"
+        ],
+        "cta": "Activar mi rutina por US$7,90"
+      },
+      "screens": {
+        "title": "Así se ve tu rutina por dentro",
+        "subtitle": "Un espacio simple para ver tus recetas, tu plan capilar y tu progreso desde el celular.",
+        "items": [
+          { "label": "Mi Rutina", "img": "/images/quiz-natglow/app-rutina.webp", "screen": "rutina" },
+          { "label": "Recetas Naturales", "img": "/images/quiz-natglow/app-recetas.webp", "screen": "recetas" },
+          { "label": "Plan Capilar", "img": "/images/quiz-natglow/app-plan.webp", "screen": "plan" }
+        ]
+      },
+      "testimonials": {
+        "title": "Experiencias compartidas por usuarias",
+        "subtitle": "Personas que incluyeron una rutina guiada en su cuidado capilar. Cada cabello responde de forma diferente.",
+        "beforeLabel": "Antes de la rutina",
+        "afterLabel": "Con la rutina",
+        "disclaimer": "Experiencia individual. Los resultados pueden variar.",
+        "cta": "Quiero activar mi rutina personalizada"
+      },
+      "guarantee": {
+        "title": "Garantía de 7 días sin preguntas",
+        "text": "Riesgo cero, pruébalo y decide"
+      },
+      "faq": {
+        "title": "Preguntas frecuentes",
+        "subtitle": "Todo lo que necesitas saber antes de activar tu acceso.",
+        "items": [
+          { "q": "¿Qué recibiré al activar mi acceso?", "a": "Recibirás acceso a tu rutina personalizada dentro de NatGlow, con recetas naturales, recomendaciones prácticas y pasos organizados según tus respuestas." },
+          { "q": "¿Es un pago único?", "a": "Sí. El acceso se activa con un solo pago de US$7,90. No hay mensualidades ni suscripciones." },
+          { "q": "¿Cuándo recibo acceso?", "a": "El acceso se libera después de completar tu compra en Hotmart." },
+          { "q": "¿Sirve para cualquier tipo de cabello?", "a": "NatGlow fue pensado para diferentes perfiles capilares. La rutina se organiza según la información que diste en la evaluación." },
+          { "q": "¿Necesito comprar productos caros?", "a": "No. La propuesta de NatGlow es ayudarte con cuidados simples, recetas caseras e ingredientes accesibles." },
+          { "q": "¿Y si no me gusta?", "a": "Tienes una garantía de 7 días. Si dentro de ese plazo sientes que NatGlow no es para ti, puedes solicitar el reembolso según las condiciones de Hotmart." },
+          { "q": "¿Puedo usarlo desde el celular?", "a": "Sí. Puedes acceder desde tu celular y consultar tu rutina cuando quieras." },
+          { "q": "¿El valor aparece en mi moneda local?", "a": "El precio de la oferta es US$7,90. En el checkout, Hotmart puede mostrar el valor equivalente en tu moneda local." }
+        ]
+      },
+      "stickyLabel": "Activar mi rutina · US$7,90"
+    },
+    "verifiedBadge": "🌿 EXPERIENCIA COMPARTIDA · {{duration}}",
+    "testimonials": [
+      {
+        "name": "Camila Vargas",
+        "location": "Ciudad de México, MX",
+        "duration": "Algunas semanas",
+        "text": "Mi cabello, antes opaco, recuperó el brillo y la suavidad. La rutina casera me sorprendió mucho.",
+        "antes": "/images/quiz-natglow/antes-1.webp",
+        "depois": "/images/quiz-natglow/depois-1.webp"
+      },
+      {
+        "name": "Carolina Mendoza",
+        "location": "Bogotá, Colombia",
+        "duration": "Algunas semanas",
+        "text": "Después de incluir esta rutina natural en mi día a día, mi cabello se vio mucho mejor. No vuelvo a los productos comerciales.",
+        "antes": "/images/quiz-natglow/antes-2.webp",
+        "depois": "/images/quiz-natglow/depois-2.webp"
+      },
+      {
+        "name": "Constanza Muñoz",
+        "location": "Santiago, Chile",
+        "duration": "Algunas semanas",
+        "text": "Mi cabello dejó de verse opaco y empezó a verse mucho más cuidado. Una diferencia muy notable.",
+        "antes": "/images/quiz-natglow/antes-3.webp",
+        "depois": "/images/quiz-natglow/depois-3.webp"
+      },
+      {
+        "name": "Sofía Fernández",
+        "location": "Buenos Aires, Argentina",
+        "duration": "Algunas semanas",
+        "text": "Pensé que era solo genética. Pero al cambiar mi rutina, mi cabello empezó a verse mucho mejor. Brilla como hace años.",
+        "antes": "/images/quiz-natglow/antes-4.webp",
+        "depois": "/images/quiz-natglow/depois-4.webp"
+      },
+      {
+        "name": "Andrea Flores",
+        "location": "Lima, Perú",
+        "duration": "Algunas semanas",
+        "text": "Adiós opacidad, adiós resequedad. La rutina es simple y los resultados se notan.",
+        "antes": "/images/quiz-natglow/antes-5.webp",
+        "depois": "/images/quiz-natglow/depois-5.webp"
+      },
+      {
+        "name": "Valentina Cedeño",
+        "location": "Guayaquil, Ecuador",
+        "duration": "Algunas semanas",
+        "text": "Probé de todo. Solo esta rutina natural me trajo el resultado que esperaba. Mi cabello recuperó el brillo.",
+        "antes": "/images/quiz-natglow/antes-6.webp",
+        "depois": "/images/quiz-natglow/depois-6.webp"
+      }
+    ]
+  },
   "detoxFlow": {
     "diagnosis": {
       "urgencyBanner": "TU ANÁLISIS PERSONALIZADO ESTÁ LISTO",

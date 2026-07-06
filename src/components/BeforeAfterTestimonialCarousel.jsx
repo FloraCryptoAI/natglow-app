@@ -5,7 +5,7 @@ import { Star } from 'lucide-react'
 const GREEN = '#27AE60'
 const RED = '#C0392B'
 
-export default function BeforeAfterTestimonialCarousel({ testimonials = [], verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO' }) {
+export default function BeforeAfterTestimonialCarousel({ testimonials = [], verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO', beforeLabel = 'ANTES', afterLabel = 'DESPUÉS' }) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
 
           <div className="grid grid-cols-2 gap-0.5 bg-stone-100 mt-2">
             <div className="relative">
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: RED }}>ANTES</span>
+              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: RED }}>{beforeLabel}</span>
               <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
                 <img
                   src={t.antes}
@@ -65,7 +65,7 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
               </div>
             </div>
             <div className="relative">
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: GREEN }}>DESPUÉS</span>
+              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: GREEN }}>{afterLabel}</span>
               <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
                 <img
                   src={t.depois}

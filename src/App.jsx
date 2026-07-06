@@ -11,8 +11,11 @@ import Layout from './components/Layout';
 import QuizMeta from './pages/QuizMeta';
 import QuizClean from './pages/QuizClean';
 import QuizDetox from './pages/QuizDetox';
+import QuizNatglow from './pages/QuizNatglow';
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
+import ResultsNatglow from './pages/ResultsNatglow';
+import OfferNatglow from './pages/OfferNatglow';
 import ResultsDetox from './pages/ResultsDetox';
 import OfferDetox from './pages/OfferDetox';
 import Login from './pages/Login';
@@ -124,12 +127,16 @@ const AppRoutes = () => {
       <Route path="/quiz-bold"    element={<QuizClean pricingPlan="bold" />} />
       <Route path="/quiz-meta"    element={<QuizMeta  pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
+      {/* /quiz-natglow → Meta/FB-safe funnel (Spanish LatAm, neutral copy) */}
+      <Route path="/quiz-natglow" element={<QuizNatglow pricingPlan="natglow" />} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
       <Route path="/results-bold"    element={<ResultsBold pricingPlan="bold" />} />
       <Route path="/offer-bold"      element={<OfferBold pricingPlan="bold" />} />
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
+      <Route path="/results-natglow" element={<ResultsNatglow pricingPlan="natglow" />} />
+      <Route path="/offer-natglow"   element={<OfferNatglow pricingPlan="natglow" />} />
 
       {/* Legacy redirects — old ad URLs now point to /quiz-meta (Meta/FB funnel). */}
       <Route path="/quiz-cheap"     element={<Navigate to="/quiz-meta" replace />} />

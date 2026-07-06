@@ -1,7 +1,7 @@
-export default function ReframingCard({ explanation, denials = [], affirmation }) {
+export default function ReframingCard({ explanation, denials = [], affirmation, borderColor = '#27AE60', bgColor = '#E8F8F0' }) {
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="rounded-2xl p-4 border-2" style={{ borderColor: '#27AE60', background: '#E8F8F0' }}>
+      <div className="rounded-2xl p-4 border-2" style={{ borderColor, background: bgColor }}>
         <p className="text-sm text-stone-800 leading-snug font-medium text-center">{explanation}</p>
       </div>
       <ul className="flex flex-col gap-2">
