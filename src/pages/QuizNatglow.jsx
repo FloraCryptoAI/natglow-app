@@ -152,6 +152,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   }, [user, isSubscribed, navigate])
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
   }, [step])
@@ -218,7 +219,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
 
         {/* ═══ INTRO (safe) ═══ */}
         {step === STEPS.INTRO && (

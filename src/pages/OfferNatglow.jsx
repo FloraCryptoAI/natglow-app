@@ -94,6 +94,8 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   const { plan_key, route_path, display_price, hotmart_checkout_url } = planConfig
 
   const [loading, setLoading] = useState(false)
+  const [showSticky, setShowSticky] = useState(false)
+  const testimonialsRef = useRef(null)
 
   useEffect(() => {
     trackFunnelEvent('offer_natglow_viewed', null, plan_key)
@@ -106,6 +108,19 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   useEffect(() => {
     if (user && isSubscribed) navigate('/HairDashboard', { replace: true })
   }, [user, isSubscribed, navigate])
+
+  // Sticky CTA stays hidden until the testimonials scroll into view, then it
+  // shows and stays fixed (observer disconnects after the first intersection).
+  useEffect(() => {
+    const el = testimonialsRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setShowSticky(true); obs.disconnect() } },
+      { rootMargin: '0px 0px -25% 0px' },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   const storedAnswers = (() => {
     try { return JSON.parse(sessionStorage.getItem(`glow_results_answers_${STORE}`) ?? '') } catch { return null }
@@ -230,7 +245,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               {/* pink header (mirrors the "Mi Rutina" gradient) with app mockup.
                   Image bottom sits flush on the pink→white boundary (no pb). */}
               <div className="pt-6 text-center" style={{ background: BRAND_GRAD }}>
-                <p className="px-6 text-white/85 text-[11px] font-bold uppercase tracking-widest mb-4">
+                <p className="text-white font-bold text-xl uppercase tracking-wide leading-tight mb-5 max-w-[18rem] mx-auto">
                   {t('natglowFlow.offer.card.appLabel')}
                 </p>
                 <div className="flex justify-center">
@@ -324,7 +339,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
       </section>
 
       {/* ═══ SECTION 5 · TESTIMONIALS ═══ */}
-      <section className="bg-stone-50 py-10">
+      <section ref={testimonialsRef} className="bg-stone-50 py-10">
         <div className="max-w-md mx-auto px-5">
           <FadeIn>
             <div className="text-center mb-5">
@@ -438,13 +453,15 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
 
       <LegalLine />
 
-      <StickyMobileCTA
-        label={t('natglowFlow.offer.stickyLabel')}
-        onClick={() => handleCheckout('offer_sticky')}
-        loading={loading}
-        gradient={PINK_GRAD}
-        shadow={PINK_SHADOW}
-      />
+      {showSticky && (
+        <StickyMobileCTA
+          label={t('natglowFlow.offer.stickyLabel')}
+          onClick={() => handleCheckout('offer_sticky')}
+          loading={loading}
+          gradient={PINK_GRAD}
+          shadow={PINK_SHADOW}
+        />
+      )}
     </div>
   )
 }
