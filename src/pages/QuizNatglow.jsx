@@ -496,7 +496,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduScientific.body')}</p>
             </div>
 
-            <div className="rounded-2xl p-4 text-center font-bold text-sm text-stone-700 border border-stone-100" style={{ background: '#FFF5FA' }}>
+            <div className="rounded-2xl p-4 text-center text-sm text-stone-500 leading-relaxed border" style={{ borderColor: P, background: '#FFF5FA' }}>
               {t('quizNatglow.eduScientific.darkBox')}
             </div>
 
@@ -594,9 +594,9 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           <motion.div key="social-proof" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
             <StepProgress current={6} total={TOTAL_QUIZ_STEPS} t={t} />
 
-            <div className="rounded-2xl p-4 text-center border border-stone-100" style={{ background: '#FFF5FA' }}>
-              <p className="font-extrabold text-stone-900 text-sm">{t('quizNatglow.socialProof.title')}</p>
-              <p className="text-xs text-stone-600 mt-1">{t('quizNatglow.socialProof.subtitle')}</p>
+            <div className="rounded-2xl p-4 text-center border" style={{ borderColor: P, background: '#FFF5FA' }}>
+              <p className="font-extrabold text-sm mb-1" style={{ color: P_DARK }}>{t('quizNatglow.socialProof.title')}</p>
+              <p className="text-sm text-stone-700 leading-relaxed">{t('quizNatglow.socialProof.subtitle')}</p>
             </div>
 
             <TestimonialCard
@@ -604,10 +604,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               name={t('quizNatglow.socialProof.testimonialName')}
               location={t('quizNatglow.socialProof.testimonialLocation')}
               text={t('quizNatglow.socialProof.testimonialText')}
-              beforeUrl={`${IMG}/antes-1.webp`}
-              afterUrl={`${IMG}/depois-1.webp`}
-              beforeLabel={t('quizNatglow.socialProof.beforeLabel')}
-              afterLabel={t('quizNatglow.socialProof.afterLabel')}
+              beforeUrl={`${IMG}/foto-a-1.webp`}
+              afterUrl={`${IMG}/foto-b-1.webp`}
+              showLabels={false}
+              cardBorder="border-stone-100"
             />
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.socialProof.caption')}</p>

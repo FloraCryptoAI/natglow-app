@@ -484,7 +484,7 @@
       "body": "Factores como el uso frecuente de productos, calor y rutinas poco constantes pueden influir en cómo el cabello se ve y se siente.",
       "darkBox": "Una rutina adecuada de limpieza, hidratación y cuidado puede ayudar a mantener una apariencia más saludable y cuidada.",
       "labelGood": "Rutina equilibrada",
-      "labelBad": "Acumulación de productos",
+      "labelBad": "Productos acumulados",
       "caption": "Ilustración visual sobre cómo algunos hábitos pueden influir en la apariencia del cabello.",
       "cta": "Continuar"
     },
@@ -509,8 +509,6 @@
       "testimonialName": "Camila Vargas",
       "testimonialLocation": "Ciudad de México, MX",
       "testimonialText": "Durante un tiempo sentí mi cabello con menos brillo y movimiento. Después de incluir una rutina natural en mi día a día, noté una apariencia más cuidada y el cabello con mejor toque. Me gustó la experiencia y la recomendé a algunas amigas.",
-      "beforeLabel": "Antes de la rutina",
-      "afterLabel": "Después de incluir la rutina",
       "caption": "Experiencia individual. Los resultados pueden variar.",
       "cta": "Continuar"
     },
@@ -673,48 +671,48 @@
         "location": "Ciudad de México, MX",
         "duration": "Algunas semanas",
         "text": "Mi cabello, antes opaco, recuperó el brillo y la suavidad. La rutina casera me sorprendió mucho.",
-        "antes": "/images/quiz-natglow/antes-1.webp",
-        "depois": "/images/quiz-natglow/depois-1.webp"
+        "antes": "/images/quiz-natglow/foto-a-1.webp",
+        "depois": "/images/quiz-natglow/foto-b-1.webp"
       },
       {
         "name": "Carolina Mendoza",
         "location": "Bogotá, Colombia",
         "duration": "Algunas semanas",
         "text": "Después de incluir esta rutina natural en mi día a día, mi cabello se vio mucho mejor. No vuelvo a los productos comerciales.",
-        "antes": "/images/quiz-natglow/antes-2.webp",
-        "depois": "/images/quiz-natglow/depois-2.webp"
+        "antes": "/images/quiz-natglow/foto-a-2.webp",
+        "depois": "/images/quiz-natglow/foto-b-2.webp"
       },
       {
         "name": "Constanza Muñoz",
         "location": "Santiago, Chile",
         "duration": "Algunas semanas",
         "text": "Mi cabello dejó de verse opaco y empezó a verse mucho más cuidado. Una diferencia muy notable.",
-        "antes": "/images/quiz-natglow/antes-3.webp",
-        "depois": "/images/quiz-natglow/depois-3.webp"
+        "antes": "/images/quiz-natglow/foto-a-3.webp",
+        "depois": "/images/quiz-natglow/foto-b-3.webp"
       },
       {
         "name": "Sofía Fernández",
         "location": "Buenos Aires, Argentina",
         "duration": "Algunas semanas",
         "text": "Pensé que era solo genética. Pero al cambiar mi rutina, mi cabello empezó a verse mucho mejor. Brilla como hace años.",
-        "antes": "/images/quiz-natglow/antes-4.webp",
-        "depois": "/images/quiz-natglow/depois-4.webp"
+        "antes": "/images/quiz-natglow/foto-a-4.webp",
+        "depois": "/images/quiz-natglow/foto-b-4.webp"
       },
       {
         "name": "Andrea Flores",
         "location": "Lima, Perú",
         "duration": "Algunas semanas",
         "text": "Adiós opacidad, adiós resequedad. La rutina es simple y los resultados se notan.",
-        "antes": "/images/quiz-natglow/antes-5.webp",
-        "depois": "/images/quiz-natglow/depois-5.webp"
+        "antes": "/images/quiz-natglow/foto-a-5.webp",
+        "depois": "/images/quiz-natglow/foto-b-5.webp"
       },
       {
         "name": "Valentina Cedeño",
         "location": "Guayaquil, Ecuador",
         "duration": "Algunas semanas",
         "text": "Probé de todo. Solo esta rutina natural me trajo el resultado que esperaba. Mi cabello recuperó el brillo.",
-        "antes": "/images/quiz-natglow/antes-6.webp",
-        "depois": "/images/quiz-natglow/depois-6.webp"
+        "antes": "/images/quiz-natglow/foto-a-6.webp",
+        "depois": "/images/quiz-natglow/foto-b-6.webp"
       }
     ]
   },

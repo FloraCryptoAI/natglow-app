@@ -9,9 +9,11 @@ export default function TestimonialCard({
   afterUrl,
   beforeLabel = 'ANTES',
   afterLabel = 'DESPUÉS',
+  showLabels = true,
+  cardBorder = 'border-stone-200',
 }) {
   return (
-    <div className="w-full rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-sm flex flex-col">
+    <div className={`w-full rounded-2xl overflow-hidden border ${cardBorder} bg-white shadow-sm flex flex-col`}>
       <div className="px-4 py-4 flex items-center gap-3">
         <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-200 flex-shrink-0">
           {avatarUrl && (
@@ -37,12 +39,12 @@ export default function TestimonialCard({
       {(beforeUrl || afterUrl) && (
         <div className="grid grid-cols-2 gap-0.5 bg-stone-100">
           <div className="relative">
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: '#C0392B' }}>{beforeLabel}</span>
+            {showLabels && <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: '#C0392B' }}>{beforeLabel}</span>}
             <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
               {beforeUrl && (
                 <img
                   src={beforeUrl}
-                  alt={beforeLabel}
+                  alt=""
                   className="w-full h-full object-cover"
                   onError={e => { e.currentTarget.style.display = 'none' }}
                 />
@@ -50,12 +52,12 @@ export default function TestimonialCard({
             </div>
           </div>
           <div className="relative">
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: '#27AE60' }}>{afterLabel}</span>
+            {showLabels && <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs font-extrabold z-10" style={{ background: '#27AE60' }}>{afterLabel}</span>}
             <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
               {afterUrl && (
                 <img
                   src={afterUrl}
-                  alt={afterLabel}
+                  alt=""
                   className="w-full h-full object-cover"
                   onError={e => { e.currentTarget.style.display = 'none' }}
                 />
