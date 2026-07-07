@@ -5,7 +5,7 @@ import { Star } from 'lucide-react'
 const GREEN = '#27AE60'
 const RED = '#C0392B'
 
-export default function BeforeAfterTestimonialCarousel({ testimonials = [], verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO', beforeLabel = 'ANTES', afterLabel = 'DESPUÉS' }) {
+export default function BeforeAfterTestimonialCarousel({ testimonials = [], verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO', beforeLabel = 'ANTES', afterLabel = 'DESPUÉS', cardBorder = 'border-stone-200' }) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.4 }}
-          className="w-full rounded-2xl overflow-hidden bg-white border border-stone-200 shadow-sm flex flex-col"
+          className={`w-full rounded-2xl overflow-hidden bg-white border ${cardBorder} shadow-sm flex flex-col`}
         >
           <div className="px-5 py-4 flex items-center gap-3">
             <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-extrabold text-white text-lg" style={{ background: `linear-gradient(135deg, ${GREEN}, #1E8449)` }}>

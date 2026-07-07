@@ -135,16 +135,19 @@ const SAFE_HAIRTYPE_LABELS = {
   ondulado: 'Ondulado',
   cacheado: 'Rizado',
   crespo: 'Muy rizado',
+  no_segura: 'Aún por definir',
 }
 const SAFE_WASH_LABELS = {
   daily: 'Todos los días',
   '3_4': '3 a 4 veces por semana',
   '1_2': '1 a 2 veces por semana',
+  variable: 'Según la semana',
 }
 const SAFE_HEAT_LABELS = {
-  daily: 'Uso diario',
-  few: 'Algunas veces por semana',
+  daily: 'Uso frecuente',
+  few: 'Algunas veces',
   rarely: 'Uso ocasional',
+  none: 'No usa calor',
 }
 const SAFE_HYDRATION_LABELS = {
   regularly: 'Hidratación regular',
@@ -152,14 +155,30 @@ const SAFE_HYDRATION_LABELS = {
   never: 'Sin hábito de hidratación aún',
 }
 const SAFE_GOAL_LABELS = {
-  brillo: 'Más brillo',
-  movimiento: 'Más movimiento',
+  hidratacion: 'Más hidratación y suavidad',
+  brillo: 'Más brillo y movimiento',
   frizz: 'Menos frizz visual',
   puntas: 'Puntas con mejor apariencia',
+  rutina: 'Rutina más natural y organizada',
+  procesos: 'Cuidado después de calor o procesos',
+  movimiento: 'Más movimiento',
   resequedad: 'Sensación de resequedad',
   oleosidad: 'Sensación de oleosidad',
   volumen: 'Más volumen',
   cuero: 'Cuidado del cuero cabelludo',
+}
+const SAFE_ROUTINE_LABELS = {
+  basicos: 'Productos básicos, sin rutina fija',
+  internet: 'Recetas de internet de vez en cuando',
+  aveces: 'Hidratación de vez en cuando',
+  organizar: 'Con cuidados, buscando organizar',
+  sinrutina: 'Casi sin rutina definida',
+}
+const SAFE_TIME_LABELS = {
+  '10': '10 minutos',
+  '20': '20 minutos',
+  '30': '30 minutos o más',
+  flexible: 'Algo flexible',
 }
 
 export function getSafeDiagnosticFactors(answers = {}) {
@@ -181,6 +200,22 @@ export function getSafeDiagnosticFactors(answers = {}) {
     })
   }
 
+  if (answers.hairGoal) {
+    factors.push({
+      icon: '🎯',
+      label: 'Objetivo capilar principal',
+      detail: SAFE_GOAL_LABELS[answers.hairGoal] ?? '—',
+    })
+  }
+
+  if (answers.currentRoutine) {
+    factors.push({
+      icon: '🧴',
+      label: 'Rutina actual',
+      detail: SAFE_ROUTINE_LABELS[answers.currentRoutine] ?? '—',
+    })
+  }
+
   if (answers.washFreq) {
     factors.push({
       icon: '🚿',
@@ -197,19 +232,20 @@ export function getSafeDiagnosticFactors(answers = {}) {
     })
   }
 
+  if (answers.timeAvailable) {
+    factors.push({
+      icon: '⏰',
+      label: 'Tiempo disponible para la rutina',
+      detail: SAFE_TIME_LABELS[answers.timeAvailable] ?? '—',
+    })
+  }
+
+  // Legacy key kept for backward-compat (older sessions / other funnels).
   if (answers.hydration) {
     factors.push({
       icon: '💧',
       label: 'Nivel de hidratación informado',
       detail: SAFE_HYDRATION_LABELS[answers.hydration] ?? '—',
-    })
-  }
-
-  if (answers.hairGoal) {
-    factors.push({
-      icon: '🎯',
-      label: 'Objetivo capilar principal',
-      detail: SAFE_GOAL_LABELS[answers.hairGoal] ?? '—',
     })
   }
 

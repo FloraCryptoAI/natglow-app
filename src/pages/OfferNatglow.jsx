@@ -49,7 +49,7 @@ const CARD_TILES = [
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-2xl overflow-hidden border border-stone-200 bg-white">
+    <div className="rounded-2xl overflow-hidden border border-stone-100 bg-white">
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-5 py-4 text-left">
         <span className="font-bold text-stone-800 text-sm pr-4 leading-snug">{q}</span>
         {open
@@ -222,8 +222,8 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               const Icon = tile.icon
               return (
                 <FadeIn key={i} delay={i * 0.06}>
-                  <div className="h-full bg-white rounded-2xl p-4 border border-stone-200">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: tile.chip }}>
+                  <div className="h-full bg-white rounded-2xl p-4 border border-stone-100">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: tile.chip }}>
                       <Icon className="w-5 h-5" strokeWidth={2.2} style={{ color: tile.color }} />
                     </div>
                     <p className="font-bold text-stone-800 text-sm leading-snug">{c.title}</p>
@@ -240,7 +240,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
       <section className="bg-stone-50 pb-10 pt-1">
         <div className="max-w-md mx-auto px-5">
           <FadeIn>
-            <div className="rounded-3xl overflow-hidden bg-white border border-stone-200" style={{ boxShadow: '0 14px 44px rgba(0,0,0,0.07)' }}>
+            <div className="rounded-3xl overflow-hidden bg-white border border-stone-100" style={{ boxShadow: '0 14px 44px rgba(0,0,0,0.07)' }}>
 
               {/* pink header (mirrors the "Mi Rutina" gradient) with app mockup.
                   Image bottom sits flush on the pink→white boundary (no pb). */}
@@ -327,7 +327,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
       <section className="bg-stone-50 pb-8">
         <div className="max-w-md mx-auto px-5">
           <FadeIn>
-            <div className="bg-white rounded-2xl p-5 border border-stone-200 flex items-center gap-4">
+            <div className="bg-white rounded-2xl p-5 border border-stone-100 flex items-center gap-4">
               <span className="text-3xl flex-shrink-0 leading-none">🛡️</span>
               <div className="flex-1 min-w-0">
                 <p className="font-extrabold text-stone-900 text-base leading-snug">{t('natglowFlow.offer.guarantee.title')}</p>
@@ -356,6 +356,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
                 verifiedBadgeTemplate={verifiedBadge}
                 beforeLabel={t('natglowFlow.offer.testimonials.beforeLabel')}
                 afterLabel={t('natglowFlow.offer.testimonials.afterLabel')}
+                cardBorder="border-stone-100"
               />
             )}
             <p className="text-[11px] text-stone-400 text-center italic mt-4">
