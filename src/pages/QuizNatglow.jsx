@@ -47,14 +47,12 @@ const PINK_BAR = 'linear-gradient(90deg, #FB45A9, #E03594)'
 const GREEN = '#27AE60' // kept only for the educational "rutina equilibrada" label
 const PL2 = '#FFE4F2'
 
-// Opacity-only (no x/transform). iOS/WebKit ignores window.scrollTo while a
-// transform animation is running on the page, which broke the scroll-to-top
-// between questions. A plain fade behaves like the app's route swaps (no exit
-// transform), so scroll resets work on iPhone too.
+// Enter-only fade: no exit and no transform. The old step unmounts instantly
+// (like the app's route swaps that DO scroll to top on iOS), and there is no
+// transform animation to block the scroll reset on WebKit.
 const slide = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit:    { opacity: 0 },
   transition: { duration: 0.25 },
 }
 
@@ -155,23 +153,28 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     if (user && isSubscribed) navigate('/HairDashboard')
   }, [user, isSubscribed, navigate])
 
-  const topRef = useRef(null)
   useEffect(() => {
-    // A single reset can be undone as the next question mounts (AnimatePresence
-    // mode="wait" + browser scroll anchoring). So pin the viewport to the top on
-    // every frame for the whole transition (~0.7s), covering both the window
-    // scroller and any container (via scrollIntoView on a top sentinel).
-    let raf
-    const start = performance.now()
-    const pin = (now) => {
+    // iOS/WebKit ignores window.scrollTo while there is scroll momentum — every
+    // reset was dropped (it only "worked" when the next step was shorter than the
+    // viewport, forcing a natural clamp to the top). Locking the page (overflow
+    // hidden) for a beat forces that same clamp even when both steps are tall,
+    // then we restore scrolling. This is what finally sticks on iPhone.
+    const html = document.documentElement
+    const body = document.body
+    const prevH = html.style.overflow
+    const prevB = body.style.overflow
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+    window.scrollTo(0, 0)
+    html.scrollTop = 0
+    body.scrollTop = 0
+    const restore = () => {
+      html.style.overflow = prevH
+      body.style.overflow = prevB
       window.scrollTo(0, 0)
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
-      topRef.current?.scrollIntoView({ block: 'start' })
-      if (now - start < 700) raf = requestAnimationFrame(pin)
     }
-    raf = requestAnimationFrame(pin)
-    return () => cancelAnimationFrame(raf)
+    const t = setTimeout(restore, 160)
+    return () => { clearTimeout(t); restore() }
   }, [step])
 
   useEffect(() => {
@@ -236,7 +239,6 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   return (
     <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif', overflowAnchor: 'none' }}>
       {/* top sentinel — scroll target when advancing between questions */}
-      <span ref={topRef} aria-hidden="true" className="block" style={{ height: 0 }} />
       <style>{`
         body { overflow-anchor: none; }
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
@@ -250,7 +252,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
 
-      <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
+      <AnimatePresence>
 
         {/* ═══ INTRO (safe) ═══ */}
         {step === STEPS.INTRO && (
