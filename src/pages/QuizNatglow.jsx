@@ -189,14 +189,25 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
   const ans = (field, value) => setAnswers(a => ({ ...a, [field]: value }))
 
+  // iOS Safari/Chrome (WebKit) ignore programmatic scroll while a transform
+  // animation runs, so scroll to the top BEFORE changing the step — while the
+  // current content is still and not animating, WebKit honors it. The rAF pin
+  // effect above then keeps it pinned through the transition.
+  const goStep = (s) => {
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    setStep(s)
+  }
+
   const handleStartIntro = () => {
     trackFunnelEvent('quiz_natglow_started', null, plan_key)
-    setStep(STEPS.SYMPTOMS)
+    goStep(STEPS.SYMPTOMS)
   }
 
   const handleSymptomsAnswer = (intensity) => {
     ans('symptomsIntensity', intensity)
-    setStep(STEPS.EDUCATIONAL)
+    goStep(STEPS.EDUCATIONAL)
   }
 
   // TikTok SubmitForm on name submit (stable page). Facebook Lead is intentionally
@@ -209,13 +220,13 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
       leadFiredRef.current = true
       trackTtEvent('SubmitForm', { content_name: 'quiz_natglow_name', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     }
-    setStep(STEPS.FINAL)
+    goStep(STEPS.FINAL)
   }
 
   const handleFinalAnswer = (choice) => {
     ans('finalChoice', choice)
     trackFunnelEvent(choice === 'yes' ? 'quiz_natglow_final_yes' : 'quiz_natglow_final_doubts', null, plan_key)
-    setStep(STEPS.LOADING)
+    goStep(STEPS.LOADING)
   }
 
   return (
@@ -350,7 +361,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.educational.caption')}</p>
 
-            <GreenButton onClick={() => setStep(STEPS.NOTKNOWN)}>
+            <GreenButton onClick={() => goStep(STEPS.NOTKNOWN)}>
               {t('quizNatglow.educational.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
@@ -379,7 +390,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               affirmation={t('quizNatglow.notKnown.affirmation')}
             />
 
-            <GreenButton onClick={() => setStep(STEPS.AGE)}>
+            <GreenButton onClick={() => goStep(STEPS.AGE)}>
               {t('quizNatglow.notKnown.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
@@ -404,7 +415,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.age === opt.value}
-                  onClick={() => { ans('age', opt.value); setStep(STEPS.HAIR_TYPE) }}
+                  onClick={() => { ans('age', opt.value); goStep(STEPS.HAIR_TYPE) }}
                 />
               ))}
             </div>
@@ -424,7 +435,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                 <div
                   key={opt.value}
                   className={`img-card ${answers.hairType === opt.value ? 'selected' : ''}`}
-                  onClick={() => { ans('hairType', opt.value); setStep(STEPS.Q1) }}
+                  onClick={() => { ans('hairType', opt.value); goStep(STEPS.Q1) }}
                 >
                   <div className="w-full h-36 overflow-hidden" style={{ background: PL2 }}>
                     <img
@@ -464,7 +475,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.washFreq === opt.value}
-                  onClick={() => { ans('washFreq', opt.value); setStep(STEPS.Q2) }}
+                  onClick={() => { ans('washFreq', opt.value); goStep(STEPS.Q2) }}
                 />
               ))}
             </div>
@@ -489,7 +500,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.waterTemp === opt.value}
-                  onClick={() => { ans('waterTemp', opt.value); setStep(STEPS.Q3) }}
+                  onClick={() => { ans('waterTemp', opt.value); goStep(STEPS.Q3) }}
                 />
               ))}
             </div>
@@ -514,7 +525,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.heatTools === opt.value}
-                  onClick={() => { ans('heatTools', opt.value); setStep(STEPS.Q4) }}
+                  onClick={() => { ans('heatTools', opt.value); goStep(STEPS.Q4) }}
                 />
               ))}
             </div>
@@ -539,7 +550,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.hydration === opt.value}
-                  onClick={() => { ans('hydration', opt.value); setStep(STEPS.Q5) }}
+                  onClick={() => { ans('hydration', opt.value); goStep(STEPS.Q5) }}
                 />
               ))}
             </div>
@@ -565,7 +576,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   key={opt.value}
                   {...opt}
                   selected={answers.chemProducts === opt.value}
-                  onClick={() => { ans('chemProducts', opt.value); setStep(STEPS.SOCIAL_PROOF) }}
+                  onClick={() => { ans('chemProducts', opt.value); goStep(STEPS.SOCIAL_PROOF) }}
                 />
               ))}
             </div>
@@ -593,7 +604,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.socialProof.caption')}</p>
 
-            <GreenButton onClick={() => setStep(STEPS.NAME)}>
+            <GreenButton onClick={() => goStep(STEPS.NAME)}>
               {t('quizNatglow.socialProof.cta')} <ArrowRight className="w-4 h-4" />
             </GreenButton>
           </motion.div>
