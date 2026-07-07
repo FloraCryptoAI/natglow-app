@@ -9,6 +9,13 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
+// Take over immediately on every new deploy so devices (especially iOS, which
+// keeps the PWA/service worker alive) stop serving the previous cached bundle.
+// Without this the new service worker stays "waiting" and users keep the old
+// JS until every tab/PWA instance is closed — which on iPhone rarely happens.
+self.skipWaiting()
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+
 // Navigation: NetworkFirst para HTML, excluindo /admin
 registerRoute(
   ({ request }) => request.mode === 'navigate',

@@ -47,11 +47,15 @@ const PINK_BAR = 'linear-gradient(90deg, #FB45A9, #E03594)'
 const GREEN = '#27AE60' // kept only for the educational "rutina equilibrada" label
 const PL2 = '#FFE4F2'
 
+// Opacity-only (no x/transform). iOS/WebKit ignores window.scrollTo while a
+// transform animation is running on the page, which broke the scroll-to-top
+// between questions. A plain fade behaves like the app's route swaps (no exit
+// transform), so scroll resets work on iPhone too.
 const slide = {
-  initial: { opacity: 0, x: 40 },
-  animate: { opacity: 1, x: 0 },
-  exit:    { opacity: 0, x: -40 },
-  transition: { duration: 0.3 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit:    { opacity: 0 },
+  transition: { duration: 0.25 },
 }
 
 function ProgressBar({ current, total }) {
