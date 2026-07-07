@@ -6,12 +6,15 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 // Funnel-specific event maps. Each step accepts an array of event_types
 // to count (Set-union of session_ids across them).
+// natglow (/quiz) has NO separate results/diagnosis page — the quiz goes
+// straight from completion to the offer — so its definition has 5 steps,
+// not 6. Any code reading `steps` must key off `event_type`, never a
+// positional index, since funnels can have different step counts.
 const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }>> = {
-  bold: [
-    { key: 'quiz_started',      events: ['quiz_bold_started'] },
-    { key: 'quiz_completed',    events: ['quiz_bold_completed'] },
-    { key: 'results_viewed',    events: ['results_bold_viewed'] },
-    { key: 'offer_viewed',      events: ['offer_bold_viewed'] },
+  natglow: [
+    { key: 'quiz_started',      events: ['quiz_natglow_started'] },
+    { key: 'quiz_completed',    events: ['quiz_natglow_completed'] },
+    { key: 'offer_viewed',      events: ['offer_natglow_viewed'] },
     { key: 'cta_clicked',       events: ['cta_clicked'] }, // metadata.source filtered below
     { key: 'payment_completed', events: ['payment_completed'] },
   ],
@@ -23,23 +26,23 @@ const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }
     { key: 'cta_clicked',       events: ['cta_clicked'] },
     { key: 'payment_completed', events: ['payment_completed'] },
   ],
-  // Combined view: counts both bold + detox
+  // Combined view: counts both natglow + detox
   all: [
-    { key: 'quiz_started',      events: ['quiz_bold_started', 'quiz_detox_started'] },
-    { key: 'quiz_completed',    events: ['quiz_bold_completed', 'quiz_detox_completed'] },
-    { key: 'results_viewed',    events: ['results_bold_viewed', 'results_detox_viewed'] },
-    { key: 'offer_viewed',      events: ['offer_bold_viewed', 'offer_detox_viewed'] },
+    { key: 'quiz_started',      events: ['quiz_natglow_started', 'quiz_detox_started'] },
+    { key: 'quiz_completed',    events: ['quiz_natglow_completed', 'quiz_detox_completed'] },
+    { key: 'results_viewed',    events: ['results_detox_viewed'] },
+    { key: 'offer_viewed',      events: ['offer_natglow_viewed', 'offer_detox_viewed'] },
     { key: 'cta_clicked',       events: ['cta_clicked'] },
     { key: 'payment_completed', events: ['payment_completed'] },
   ],
 }
 
 // Events that need source-based filtering when a specific funnel is selected.
-// Both cta_clicked and payment_completed carry metadata.source = 'offer_bold' or 'offer_detox'
+// Both cta_clicked and payment_completed carry metadata.source = 'offer_natglow' or 'offer_detox'
 const SOURCE_FILTERED_STEPS = new Set(['cta_clicked', 'payment_completed'])
 const FUNNEL_SOURCE: Record<string, string> = {
-  bold:  'offer_bold',
-  detox: 'offer_detox',
+  natglow: 'offer_natglow',
+  detox:   'offer_detox',
 }
 
 async function countSessionsForEvents(
@@ -98,7 +101,7 @@ Deno.serve(async (req) => {
     const customStart = url.searchParams.get('start')
     const customEnd   = url.searchParams.get('end')
     // Accept legacy `plan` param (defaulted to 'all'), and also new `funnel` param.
-    // 'bold' | 'detox' | 'all'
+    // 'natglow' | 'detox' | 'all'
     const funnel      = url.searchParams.get('funnel') ?? url.searchParams.get('plan') ?? 'all'
 
     const definition = FUNNEL_DEFINITIONS[funnel] ?? FUNNEL_DEFINITIONS.all

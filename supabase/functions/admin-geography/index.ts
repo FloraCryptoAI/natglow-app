@@ -9,7 +9,11 @@ const dbHeaders = {
   apikey: SUPABASE_SERVICE_KEY,
 }
 
-const PRODUCT_PRICE_USD = 17  // single product, both Bold and Detox funnels
+// Flat price — correct for detox (always $17), but natglow's price varies by
+// country ($7.90 USD to $149 MXN etc). Used only as a fallback for legacy
+// rows without a real purchase_amount; natglow revenue is computed from the
+// real purchase_amount below instead of count × this constant.
+const PRODUCT_PRICE_USD = 17
 
 async function fetchEvents(filter: string): Promise<Record<string, unknown>[]> {
   const res = await fetch(
@@ -41,10 +45,10 @@ function getMonths(n: number) {
   })
 }
 
-// Distinguish bold vs detox by the cta_clicked metadata.source value
-function funnelFromSource(source: string | null | undefined): 'bold' | 'detox' | 'unknown' {
-  if (source === 'offer_bold')  return 'bold'
-  if (source === 'offer_detox') return 'detox'
+// Distinguish natglow vs detox by the cta_clicked metadata.source value
+function funnelFromSource(source: string | null | undefined): 'natglow' | 'detox' | 'unknown' {
+  if (source === 'offer_natglow') return 'natglow'
+  if (source === 'offer_detox')   return 'detox'
   return 'unknown'
 }
 
@@ -61,18 +65,31 @@ Deno.serve(async (req) => {
     }
 
     // Fetch every event we need to build per-country funnel metrics.
-    // Both legacy (quiz_started/quiz_completed) and persuasive (quiz_*_started/completed)
-    // events are unioned so historical data remains visible.
-    const STARTED_TYPES   = 'in.(quiz_started,quiz_bold_started,quiz_detox_started)'
-    const COMPLETED_TYPES = 'in.(quiz_completed,quiz_bold_completed,quiz_detox_completed)'
+    // Legacy (quiz_started/quiz_completed), detox, and natglow events are all
+    // unioned so historical data remains visible. natglow's event types MUST
+    // be included here — omitting them would exclude its visitors from
+    // started/completed counts while still counting its purchases, silently
+    // inflating conv_rate/completion_rate per country.
+    const STARTED_TYPES   = 'in.(quiz_started,quiz_natglow_started,quiz_detox_started)'
+    const COMPLETED_TYPES = 'in.(quiz_completed,quiz_natglow_completed,quiz_detox_completed)'
 
-    const [startedEvents, completedEvents, payEvents, ctaEvents] = await Promise.all([
+    const [startedEvents, completedEvents, payEvents, ctaEvents, subsRes] = await Promise.all([
       fetchEvents(`event_type=${STARTED_TYPES}&select=session_id,pais,event_type,created_at`),
       // metadata included so we can extract answers.age for the country×age cross-tab
       fetchEvents(`event_type=${COMPLETED_TYPES}&select=session_id,event_type,metadata,created_at`),
       fetchEvents('event_type=eq.payment_completed&select=session_id,user_id,metadata,created_at'),
       fetchEvents('event_type=eq.cta_clicked&select=session_id,metadata'),
+      fetch(`${SUPABASE_URL}/rest/v1/subscriptions?select=user_id,purchase_amount,status&status=eq.active&limit=5000`, { headers: dbHeaders }),
     ])
+
+    // Real per-sale amount by user_id — natglow's price varies by country, so
+    // a flat constant would misreport its revenue. Detox keeps the flat price
+    // (correct for it) via the fallback below.
+    const subs: { user_id?: string; purchase_amount?: number | null }[] = await subsRes.json().then((d: unknown) => Array.isArray(d) ? d : [])
+    const revenueByUser: Record<string, number> = {}
+    for (const s of subs) {
+      if (s.user_id && typeof s.purchase_amount === 'number') revenueByUser[s.user_id] = s.purchase_amount
+    }
 
     // Build session → country map (from quiz_started, the only event with pais)
     const sessionCountry: Record<string, string> = {}
@@ -95,14 +112,14 @@ Deno.serve(async (req) => {
     }
 
     // Build session → funnel map (from cta_clicked metadata.source).
-    // The event_type prefix on quiz_started/completed also tells us bold vs detox.
-    const sessionFunnel: Record<string, 'bold' | 'detox' | 'unknown'> = {}
+    // The event_type prefix on quiz_started/completed also tells us natglow vs detox.
+    const sessionFunnel: Record<string, 'natglow' | 'detox' | 'unknown'> = {}
     for (const e of startedEvents) {
       const sid = e.session_id as string
       const t   = e.event_type as string
       if (!sid) continue
-      if (t === 'quiz_bold_started')  sessionFunnel[sid] = 'bold'
-      if (t === 'quiz_detox_started') sessionFunnel[sid] = 'detox'
+      if (t === 'quiz_natglow_started') sessionFunnel[sid] = 'natglow'
+      if (t === 'quiz_detox_started')   sessionFunnel[sid] = 'detox'
     }
     for (const e of ctaEvents) {
       const sid = e.session_id as string
@@ -127,13 +144,13 @@ Deno.serve(async (req) => {
       completed: number
       paid: number
       revenue: number
-      bold_paid: number
+      natglow_paid: number
       detox_paid: number
     }
     const byCountry: Record<string, CountryStats> = {}
     const ensure = (c: string): CountryStats => {
       if (!byCountry[c]) {
-        byCountry[c] = { started: 0, completed: 0, paid: 0, revenue: 0, bold_paid: 0, detox_paid: 0 }
+        byCountry[c] = { started: 0, completed: 0, paid: 0, revenue: 0, natglow_paid: 0, detox_paid: 0 }
       }
       return byCountry[c]
     }
@@ -161,17 +178,21 @@ Deno.serve(async (req) => {
 
     for (const e of payEvents) {
       const sid  = e.session_id as string
+      const uid  = e.user_id as string | undefined
       const pais = sessionCountry[sid]
       if (!sid || !pais) continue
       if (!paidByCountry[pais]) paidByCountry[pais] = new Set()
       const sizeBefore = paidByCountry[pais].size
       paidByCountry[pais].add(sid)
       if (paidByCountry[pais].size > sizeBefore) {
-        // first time we see this paid session — attribute to bold/detox
+        // first time we see this paid session — attribute to natglow/detox
+        // and add its real revenue (falls back to the flat price if no
+        // purchase_amount was recorded, e.g. legacy rows).
         const stats = ensure(pais)
         const f = sessionFunnel[sid] ?? 'unknown'
-        if (f === 'bold')  stats.bold_paid++
-        if (f === 'detox') stats.detox_paid++
+        if (f === 'natglow') stats.natglow_paid++
+        if (f === 'detox')   stats.detox_paid++
+        stats.revenue += (uid && revenueByUser[uid] != null) ? revenueByUser[uid] : PRODUCT_PRICE_USD
       }
     }
 
@@ -180,7 +201,7 @@ Deno.serve(async (req) => {
       stats.started   = startedByCountry[pais]?.size   ?? 0
       stats.completed = completedByCountry[pais]?.size ?? 0
       stats.paid      = paidByCountry[pais]?.size      ?? 0
-      stats.revenue   = stats.paid * PRODUCT_PRICE_USD
+      stats.revenue   = parseFloat(stats.revenue.toFixed(2))
     }
 
     const countries = Object.entries(byCountry)
@@ -191,7 +212,7 @@ Deno.serve(async (req) => {
         completed:      s.completed,
         paid:           s.paid,
         revenue:        s.revenue,
-        bold_paid:      s.bold_paid,
+        natglow_paid:   s.natglow_paid,
         detox_paid:     s.detox_paid,
         conv_rate:      s.started > 0   ? parseFloat(((s.paid / s.started) * 100).toFixed(2))   : 0,
         completion_rate: s.started > 0  ? parseFloat(((s.completed / s.started) * 100).toFixed(1)) : 0,
@@ -199,11 +220,19 @@ Deno.serve(async (req) => {
       }))
       .sort((a, b) => b.started - a.started)
 
+    // Real per-sale amount, falling back to the flat price for legacy rows
+    // without a recorded purchase_amount (correct as-is for detox, which is
+    // always $17).
+    const saleAmount = (e: Record<string, unknown>): number => {
+      const uid = e.user_id as string | undefined
+      return (uid && revenueByUser[uid] != null) ? revenueByUser[uid] : PRODUCT_PRICE_USD
+    }
+
     // ── Totals across all countries ───────────────────────────────────────
     const totalStarted   = countries.reduce((a, c) => a + c.started, 0)
     const totalCompleted = countries.reduce((a, c) => a + c.completed, 0)
     const totalPaid      = countries.reduce((a, c) => a + c.paid, 0)
-    const totalRevenue   = totalPaid * PRODUCT_PRICE_USD
+    const totalRevenue   = parseFloat(countries.reduce((a, c) => a + c.revenue, 0).toFixed(2))
     const overallConv    = totalStarted > 0
       ? parseFloat(((totalPaid / totalStarted) * 100).toFixed(2))
       : 0
@@ -213,23 +242,24 @@ Deno.serve(async (req) => {
       .filter(c => c.started >= 10)
       .sort((a, b) => b.conv_rate - a.conv_rate)[0] ?? null
 
-    // ── Monthly trend — split by funnel (bold vs detox) ───────────────────
+    // ── Monthly trend — split by funnel (natglow vs detox) ─────────────────
     const months = getMonths(6)
     const monthlyTrend = months.map(m => {
-      let bold = 0, detox = 0
+      let natglow = 0, detox = 0, revenue = 0
       for (const e of payEvents) {
         const d   = new Date(e.created_at as string)
         if (d < m.start || d > m.end) continue
         const sid = e.session_id as string
         const f   = sessionFunnel[sid] ?? 'unknown'
-        if (f === 'bold')  bold++
-        if (f === 'detox') detox++
+        if (f === 'natglow') natglow++
+        if (f === 'detox')   detox++
+        revenue += saleAmount(e)
       }
       return {
         label: m.label,
-        bold,
+        natglow,
         detox,
-        revenue: (bold + detox) * PRODUCT_PRICE_USD,
+        revenue: parseFloat(revenue.toFixed(2)),
       }
     })
 
@@ -238,18 +268,19 @@ Deno.serve(async (req) => {
     const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay()); weekStart.setHours(0, 0, 0, 0)
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    let weekBold = 0, weekDetox = 0, monthBold = 0, monthDetox = 0
+    let weekNatglow = 0, weekDetox = 0, monthNatglow = 0, monthDetox = 0
+    let weekNatglowRevenue = 0, monthNatglowRevenue = 0
     for (const e of payEvents) {
       const d   = new Date(e.created_at as string)
       const sid = e.session_id as string
       const f   = sessionFunnel[sid] ?? 'unknown'
       if (d >= weekStart) {
-        if (f === 'bold')  weekBold++
-        if (f === 'detox') weekDetox++
+        if (f === 'natglow') { weekNatglow++; weekNatglowRevenue += saleAmount(e) }
+        if (f === 'detox')   weekDetox++
       }
       if (d >= monthStart) {
-        if (f === 'bold')  monthBold++
-        if (f === 'detox') monthDetox++
+        if (f === 'natglow') { monthNatglow++; monthNatglowRevenue += saleAmount(e) }
+        if (f === 'detox')   monthDetox++
       }
     }
 
@@ -260,6 +291,7 @@ Deno.serve(async (req) => {
     const AGE_BUCKETS = ['18_29', '30_39', '40_49', '50_plus'] as const
     type AgeBucket = typeof AGE_BUCKETS[number]
     const byCountryAge: Record<string, Record<string, { started: Set<string>; paid: Set<string> }>> = {}
+    const countryRevenue: Record<string, number> = {}
     const ensureCA = (c: string, age: string) => {
       if (!byCountryAge[c]) byCountryAge[c] = {}
       if (!byCountryAge[c][age]) byCountryAge[c][age] = { started: new Set(), paid: new Set() }
@@ -277,7 +309,9 @@ Deno.serve(async (req) => {
       const sid  = e.session_id as string
       const pais = sessionCountry[sid]
       const age  = sessionAge[sid]
-      if (!sid || !pais || !age) continue
+      if (!sid || !pais) continue
+      countryRevenue[pais] = (countryRevenue[pais] ?? 0) + saleAmount(e)
+      if (!age) continue
       ensureCA(pais, age).paid.add(sid)
     }
 
@@ -304,7 +338,7 @@ Deno.serve(async (req) => {
         total_started: countryStarted,
         total_paid:    countryPaid,
         conv_rate:     countryStarted > 0 ? parseFloat(((countryPaid / countryStarted) * 100).toFixed(2)) : 0,
-        revenue:       countryPaid * PRODUCT_PRICE_USD,
+        revenue:       parseFloat((countryRevenue[pais] ?? 0).toFixed(2)),
         by_age,
         top_age:       topAgeEntry ?? null,
       }
@@ -325,7 +359,11 @@ Deno.serve(async (req) => {
       },
       bestConverter,
       monthlyTrend,
-      recent: { weekBold, weekDetox, monthBold, monthDetox },
+      recent: {
+        weekNatglow, weekDetox, monthNatglow, monthDetox,
+        weekNatglowRevenue: parseFloat(weekNatglowRevenue.toFixed(2)),
+        monthNatglowRevenue: parseFloat(monthNatglowRevenue.toFixed(2)),
+      },
       countryAgeBreakdown,
       product_price_usd: PRODUCT_PRICE_USD,
     }), { headers: { ...cors, 'Content-Type': 'application/json' } })

@@ -32,8 +32,13 @@ type DiagColor = 'red' | 'amber' | 'green'
 
 function computeDiagnosis(a: Record<string, string>): DiagColor {
   let score = 0
-  if (a.chemProducts === 'yes_heavy') score += 3
-  else if (a.chemProducts === 'yes_mild') score += 2
+  // 'frecuente'/'aveces' are natglow's chemProducts vocabulary (yes_heavy/
+  // yes_mild are bold/detox's). natglow has no hydration question at all —
+  // that scoring component (max +3) simply never contributes for it, which
+  // structurally skews its distribution slightly greener than bold/detox.
+  // This is accepted (there's no real signal to substitute), not a bug to fix.
+  if (a.chemProducts === 'yes_heavy' || a.chemProducts === 'frecuente') score += 3
+  else if (a.chemProducts === 'yes_mild' || a.chemProducts === 'aveces') score += 2
   if (a.waterTemp === 'hot') score += 2
   else if (a.waterTemp === 'warm') score += 1
   if (a.heatTools === 'daily') score += 3
@@ -47,14 +52,15 @@ function computeDiagnosis(a: Record<string, string>): DiagColor {
   return 'green'
 }
 
-// Includes both legacy quiz fields AND persuasive-funnel fields
-// (symptomsIntensity = step 1 'há quanto tempo'; finalChoice = step 14
-// 'sí lo quiero / dudas'). Admin UI renders cards for both, so the
-// distribution counter must populate both keys.
+// Includes legacy quiz fields, persuasive-funnel fields (symptomsIntensity /
+// finalChoice), and natglow-only fields (hairGoal, timeAvailable). Admin UI
+// renders cards for all of these, so the distribution counter must populate
+// every key.
 const QUESTION_FIELDS = [
   'washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts',
   'hairType', 'age',
   'symptomsIntensity', 'finalChoice',
+  'hairGoal', 'timeAvailable',
 ] as const
 
 Deno.serve(async (req) => {
@@ -71,21 +77,21 @@ Deno.serve(async (req) => {
 
     const url    = new URL(req.url)
     const plan   = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
-    const funnel = url.searchParams.get('funnel') ?? 'all'  // 'all' | 'bold' | 'detox'
+    const funnel = url.searchParams.get('funnel') ?? 'all'  // 'all' | 'natglow' | 'detox'
     const pf     = planFilter(plan)
 
-    // Map funnel to event types. The new persuasive funnels fire
-    // quiz_bold_started/quiz_detox_started instead of the legacy quiz_started.
+    // Map funnel to event types. Persuasive funnels fire
+    // quiz_natglow_started/quiz_detox_started instead of the legacy quiz_started.
     // Legacy 'quiz_started'/'quiz_completed' are kept for historical data.
     const startedEventTypes =
-      funnel === 'bold'  ? ['quiz_bold_started'] :
-      funnel === 'detox' ? ['quiz_detox_started'] :
-      ['quiz_started', 'quiz_bold_started', 'quiz_detox_started']
+      funnel === 'natglow' ? ['quiz_natglow_started'] :
+      funnel === 'detox'   ? ['quiz_detox_started'] :
+      ['quiz_started', 'quiz_natglow_started', 'quiz_detox_started']
 
     const completedEventTypes =
-      funnel === 'bold'  ? ['quiz_bold_completed'] :
-      funnel === 'detox' ? ['quiz_detox_completed'] :
-      ['quiz_completed', 'quiz_bold_completed', 'quiz_detox_completed']
+      funnel === 'natglow' ? ['quiz_natglow_completed'] :
+      funnel === 'detox'   ? ['quiz_detox_completed'] :
+      ['quiz_completed', 'quiz_natglow_completed', 'quiz_detox_completed']
 
     const inOp = (types: string[]) => `in.(${types.map(encodeURIComponent).join(',')})`
 

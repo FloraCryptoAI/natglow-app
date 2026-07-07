@@ -17,11 +17,13 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 
 // ── constants ────────────────────────────────────────────────────────────────
 
-// Funnels (Bold vs Detox) — both currently use the same Hotmart product ($17),
-// distinguished server-side by funnel_events event_type prefix and cta_clicked.metadata.source.
+// Funnels (/quiz natglow vs Detox), distinguished server-side by
+// funnel_events event_type prefix and cta_clicked.metadata.source. natglow is
+// a separate Hotmart product with variable per-country pricing (no flat $17
+// like detox), so its short label can't print a fixed price.
 const PLANS = [
-  { key: 'bold',  label: 'Quiz Bold',  short: 'Bold $17',  color: '#0891b2' },
-  { key: 'detox', label: 'Quiz Detox', short: 'Detox $17', color: '#7c3aed' },
+  { key: 'natglow', label: '/quiz',      short: '/quiz',      color: '#0891b2' },
+  { key: 'detox',   label: 'Quiz Detox', short: 'Detox $17',  color: '#7c3aed' },
 ]
 
 const PERIODS = [
@@ -43,10 +45,16 @@ const QUESTION_LABELS = {
   waterTemp:    { title: 'Temperatura da água',     options: { hot: 'Quente', warm: 'Morna', cold: 'Fria' } },
   heatTools:    { title: 'Uso de calor',            options: { daily: 'Todo dia', few: 'Algumas vezes', rarely: 'Raramente' } },
   hydration:    { title: 'Hidratação',              options: { regularly: 'Regularmente', sometimes: 'Às vezes', never: 'Nunca' } },
-  chemProducts: { title: 'Produtos químicos',       options: { yes_heavy: 'Sim (forte)', yes_mild: 'Sim (suave)', no: 'Não' } },
+  // yes_heavy/yes_mild are bold/detox's vocabulary; frecuente/aveces are
+  // natglow's for the same question — both must be listed so natglow's
+  // answers aren't invisible in this chart.
+  chemProducts: { title: 'Produtos químicos',       options: { yes_heavy: 'Sim (forte)', yes_mild: 'Sim (suave)', no: 'Não', frecuente: 'Frequente', aveces: 'Às vezes' } },
   // New fields from persuasive funnels
   symptomsIntensity: { title: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
   finalChoice:       { title: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
+  // natglow-only fields (no equivalent in bold/detox's quiz)
+  hairGoal:      { title: 'Objetivo capilar', options: { hidratacion: 'Hidratação', brillo: 'Brilho', frizz: 'Controle de frizz', varias: 'Vários objetivos' } },
+  timeAvailable: { title: 'Tempo disponível na rotina', options: { '10': '10 min', '20': '20 min', '30': '30 min' } },
 }
 
 const AGE_LABELS = QUESTION_LABELS.age.options
@@ -300,11 +308,17 @@ const INDIVIDUAL_STEPS = [
 
 function IndividualFunnel({ planData }) {
   if (!planData) return null
+  // /quiz (natglow) has no separate results/diagnosis page, so it never has
+  // a real results_viewed event — omit that step instead of showing a
+  // permanently-zero bar that would look like a bug.
+  const steps = planData.plan_key === 'natglow'
+    ? INDIVIDUAL_STEPS.filter(s => s.key !== 'results_viewed')
+    : INDIVIDUAL_STEPS
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <p className="font-bold text-gray-800 mb-4">Funil: {PLANS.find(p => p.key === planData.plan_key)?.label}</p>
       <FunnelBars
-        steps={INDIVIDUAL_STEPS.map(s => ({ label: s.label, color: s.color, count: planData[s.key] ?? 0 }))}
+        steps={steps.map(s => ({ label: s.label, color: s.color, count: planData[s.key] ?? 0 }))}
       />
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="bg-gray-50 rounded-xl p-3 text-center">
@@ -470,7 +484,10 @@ const TRAIT_DIMENSIONS = [
   { key: 'hydration',         label: 'Hidratação' },
 ]
 
-function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
+// productPrice is only a flat number for detox ($17) — natglow's price varies
+// by country, so there's no single constant to multiply by; pass `null` for
+// it and the revenue tile shows '—' instead of a wrong number.
+function AgeBreakdownSection({ ageBreakdown, loading, productPrice = null }) {
   if (loading) return null
   const buckets = AGE_ORDER
     .map(age => ({ age, ...(ageBreakdown[age] ?? null) }))
@@ -487,7 +504,7 @@ function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {buckets.map(b => {
           const convPct = b.conv_rate ?? 0
-          const revenue = (b.converted ?? 0) * productPrice
+          const revenue = productPrice != null ? (b.converted ?? 0) * productPrice : null
 
           return (
             <div key={b.age} className="bg-white rounded-2xl border border-gray-100 p-5">
@@ -505,7 +522,7 @@ function AgeBreakdownSection({ ageBreakdown, loading, productPrice = 17 }) {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
                   <p className="text-xs text-gray-500 mb-0.5">Receita</p>
-                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">${revenue}</p>
+                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">{revenue != null ? `$${revenue}` : '—'}</p>
                 </div>
               </div>
 
@@ -575,8 +592,8 @@ export default function AdminQuizAnswers() {
   const loadIndividualQuiz = useCallback(async (funnel) => {
     setQuizLoading(true)
     try {
-      // funnel = 'bold' | 'detox' — selects event_type prefix on the server
-      // (quiz_bold_* vs quiz_detox_*). The legacy `plan` query param is for
+      // funnel = 'natglow' | 'detox' — selects event_type prefix on the server
+      // (quiz_natglow_* vs quiz_detox_*). The legacy `plan` query param is for
       // pricing_plan filtering, which is not what we want here.
       const result = await apiFetch(`/admin-quiz?funnel=${funnel}`)
       if (!result) return
@@ -821,8 +838,10 @@ export default function AdminQuizAnswers() {
             </div>
           </section>
 
-          {/* Per-age cohort analysis (informs ad targeting + creative copy) */}
-          <AgeBreakdownSection ageBreakdown={ageBreakdown} loading={quizLoading} />
+          {/* Per-age cohort analysis (informs ad targeting + creative copy).
+              productPrice is only meaningful for detox's flat $17 — natglow's
+              price varies by country, so its revenue tile shows '—' instead. */}
+          <AgeBreakdownSection ageBreakdown={ageBreakdown} loading={quizLoading} productPrice={mode === 'detox' ? 17 : null} />
 
           {/* Converted vs abandoned */}
           <section>

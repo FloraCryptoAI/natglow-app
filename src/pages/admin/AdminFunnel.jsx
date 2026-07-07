@@ -5,14 +5,18 @@ import FunnelBars from './components/FunnelBars'
 import ErrorBanner from './components/ErrorBanner'
 import { useAdminFetch } from './hooks/useAdminFetch'
 
-const FUNNEL_STEPS = [
-  { key: 'quiz_started',      label: 'Iniciaram o quiz',         color: '#7c3aed' },
-  { key: 'quiz_completed',    label: 'Completaram o quiz',       color: '#2563eb' },
-  { key: 'results_viewed',    label: 'Viram a página diagnóstico', color: '#8b5cf6' },
-  { key: 'offer_viewed',      label: 'Viram a oferta',           color: '#ec4899' },
-  { key: 'cta_clicked',       label: 'Clicaram em comprar',      color: '#d97706' },
-  { key: 'payment_completed', label: 'Pagamento confirmado',     color: '#059669' },
-]
+// Step label/color lookup, keyed by event_type — NOT a fixed positional
+// array, since funnels can have different step counts (e.g. /quiz/natglow
+// has no results_viewed step, since it has no separate diagnosis page).
+// Always render directly from whatever `data.steps` the backend returns.
+const STEP_META = {
+  quiz_started:      { label: 'Iniciaram o quiz',           color: '#7c3aed' },
+  quiz_completed:    { label: 'Completaram o quiz',         color: '#2563eb' },
+  results_viewed:    { label: 'Viram a página diagnóstico', color: '#8b5cf6' },
+  offer_viewed:      { label: 'Viram a oferta',              color: '#ec4899' },
+  cta_clicked:       { label: 'Clicaram em comprar',         color: '#d97706' },
+  payment_completed: { label: 'Pagamento confirmado',        color: '#059669' },
+}
 
 const PERIODS = [
   { key: 'today', label: 'Hoje' },
@@ -21,12 +25,12 @@ const PERIODS = [
   { key: 'custom', label: 'Personalizado' },
 ]
 
-// Funnels (Bold and Detox) — query string param is `funnel` on backend,
-// also accepted as legacy `plan`.
+// Funnels (/quiz natglow and Detox) — query string param is `funnel` on
+// backend, also accepted as legacy `plan`.
 const PLAN_FILTERS = [
-  { key: 'all',   label: 'Todos os funis' },
-  { key: 'bold',  label: 'Quiz Bold' },
-  { key: 'detox', label: 'Quiz Detox' },
+  { key: 'all',     label: 'Todos os funis' },
+  { key: 'natglow', label: '/quiz' },
+  { key: 'detox',   label: 'Quiz Detox' },
 ]
 
 export default function AdminFunnel() {
@@ -84,8 +88,9 @@ export default function AdminFunnel() {
     if (dropPct > maxDropPct) { maxDropPct = dropPct; maxDropIdx = i }
   }
 
-  const totalConversion = first > 0 && steps[4]?.count > 0
-    ? ((steps[4].count / first) * 100).toFixed(1)
+  const paymentStep = steps.find(s => s.event_type === 'payment_completed')
+  const totalConversion = first > 0 && paymentStep?.count > 0
+    ? ((paymentStep.count / first) * 100).toFixed(1)
     : '0.0'
 
   return (
@@ -181,7 +186,7 @@ export default function AdminFunnel() {
             <p className="text-sm text-gray-500 font-medium mb-2">Conversão início → fim</p>
             <p className="text-3xl font-extrabold text-gray-900">{totalConversion}%</p>
             <p className="text-xs text-gray-400 mt-1">
-              {steps[4]?.count ?? 0} pagamentos de {first} inícios
+              {paymentStep?.count ?? 0} pagamentos de {first} inícios
             </p>
           </div>
           {maxDropIdx > 0 && (
@@ -191,7 +196,7 @@ export default function AdminFunnel() {
                 <p className="text-sm text-gray-500 font-medium">Maior abandono</p>
               </div>
               <p className="text-base font-bold text-gray-900">
-                {FUNNEL_STEPS[maxDropIdx]?.label}
+                {STEP_META[steps[maxDropIdx]?.event_type]?.label ?? steps[maxDropIdx]?.event_type}
               </p>
               <p className="text-xs text-red-500 font-semibold mt-1">
                 -{maxDropPct.toFixed(1)}% das usuárias da etapa anterior
@@ -217,10 +222,10 @@ export default function AdminFunnel() {
           </div>
         ) : (
           <FunnelBars
-            steps={FUNNEL_STEPS.map(step => ({
-              label: step.label,
-              color: step.color,
-              count: steps.find(s => s.event_type === step.key)?.count ?? 0,
+            steps={steps.map(s => ({
+              label: STEP_META[s.event_type]?.label ?? s.event_type,
+              color: STEP_META[s.event_type]?.color ?? '#9ca3af',
+              count: s.count,
             }))}
             maxDropIdx={maxDropIdx}
             showTotal

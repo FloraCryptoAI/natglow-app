@@ -22,13 +22,13 @@ const CATEGORIES = [
 ]
 
 // Overloaded use of admin_costs.pricing_plan to encode the funnel (not a true
-// plan_key). New ad costs should be tagged 'bold' or 'detox' so ROI splits per
-// funnel. Legacy one_time_* values still exist in the DB for historical costs
-// but are no longer offered in the dropdown — they roll up to 'global' in ROI.
+// plan_key). New ad costs should be tagged 'natglow' or 'detox' so ROI splits
+// per funnel. Legacy one_time_* values still exist in the DB for historical
+// costs but are no longer offered in the dropdown — they roll up to 'global' in ROI.
 const FUNNEL_OPTIONS = [
-  { value: null,    label: 'Global / não vinculado' },
-  { value: 'bold',  label: 'Quiz Bold' },
-  { value: 'detox', label: 'Quiz Detox' },
+  { value: null,      label: 'Global / não vinculado' },
+  { value: 'natglow', label: '/quiz' },
+  { value: 'detox',   label: 'Quiz Detox' },
 ]
 
 const CONFIDENCE_CONFIG = {
@@ -697,9 +697,9 @@ export default function AdminCosts() {
                     {costs.map(cost => {
                       const cat = CATEGORIES.find(c => c.key === cost.categoria)
                       const funnelLabel =
-                        cost.pricing_plan === 'bold'  ? { txt: 'Bold',  cls: 'bg-cyan-100 text-cyan-700' } :
-                        cost.pricing_plan === 'detox' ? { txt: 'Detox', cls: 'bg-violet-100 text-violet-700' } :
-                        cost.pricing_plan          ? { txt: 'Legado', cls: 'bg-gray-100 text-gray-500' } :
+                        cost.pricing_plan === 'natglow' ? { txt: '/quiz', cls: 'bg-cyan-100 text-cyan-700' } :
+                        cost.pricing_plan === 'detox'   ? { txt: 'Detox', cls: 'bg-violet-100 text-violet-700' } :
+                        cost.pricing_plan            ? { txt: 'Legado', cls: 'bg-gray-100 text-gray-500' } :
                         null
                       return (
                         <tr key={cost.id} className="hover:bg-gray-50 transition-colors">
@@ -847,7 +847,7 @@ export default function AdminCosts() {
           {!loadingRoi && (roiData?.funnelRoi?.length ?? 0) > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
               <div className="px-5 pt-5 pb-3">
-                <p className="font-bold text-gray-800 mb-0.5">ROI por funil (Bold vs Detox)</p>
+                <p className="font-bold text-gray-800 mb-0.5">ROI por funil (/quiz vs Detox)</p>
                 <p className="text-xs text-gray-400">
                   Vendas atribuídas via funnel_events.metadata.source × custo de ads vinculado no período
                 </p>
@@ -904,7 +904,7 @@ export default function AdminCosts() {
                 </table>
               </div>
               <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">
-                Vincule cada custo de Tráfego Pago a "Quiz Bold" ou "Quiz Detox" no formulário para que o ROI separe por funil. Custos não vinculados aparecem em "Global".
+                Vincule cada custo de Tráfego Pago a "/quiz" ou "Quiz Detox" no formulário para que o ROI separe por funil. Custos não vinculados aparecem em "Global".
               </p>
             </div>
           )}

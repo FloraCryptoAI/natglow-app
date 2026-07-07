@@ -253,7 +253,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
       // ViewContent on the first screen. PageView is fired once, globally, by
       // initFacebookPixel — not duplicated here. Hotmart handles Checkout/Purchase.
-      trackFbEvent('ViewContent', { funnel: 'quiz_natglow', page: 'quiz_start' })
+      trackFbEvent('ViewContent', { content_name: 'quiz_natglow', content_category: plan_key })
       trackTtEvent('ViewContent', { content_name: 'quiz_natglow', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     })
     try {

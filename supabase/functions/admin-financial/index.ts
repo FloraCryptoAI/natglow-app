@@ -5,10 +5,13 @@ const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 // Plan labels keyed by plan_key as stored in `subscriptions.pricing_plan`.
-// Currently both /quiz-bold and /quiz-detox use one_time_basic ($17).
-// Standard/Premium kept as legacy so historical orders still render with proper label.
+// one_time_basic ($17) is used by /quiz-detox; /quiz (natglow) is a separate
+// Hotmart product with variable per-country pricing (see hotmart-webhook's
+// PRODUCT_TO_PLAN/PLAN_VALUE for 'natglow'). Standard/Premium kept as legacy
+// so historical orders still render with proper label.
 const PLAN_LABELS: Record<string, string> = {
-  one_time_basic:    'NatGlow · $17 (Bold/Detox)',
+  one_time_basic:    'NatGlow · $17 (Detox)',
+  natglow:           'NatGlow · /quiz (preço variável por país)',
   one_time_standard: 'NatGlow Completo · $27 (legado)',
   one_time_premium:  'NatGlow VIP · $47 (legado)',
   monthly_499:       'Monthly $4.99 (legado)',
@@ -18,6 +21,7 @@ const PLAN_LABELS: Record<string, string> = {
 
 const PLAN_PRICE: Record<string, number> = {
   one_time_basic:    17,
+  natglow:           7.9, // reference only — subAmount() prefers real purchase_amount
   one_time_standard: 27,
   one_time_premium:  47,
   monthly_499:       4.99,

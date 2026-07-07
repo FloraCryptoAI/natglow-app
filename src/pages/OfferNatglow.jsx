@@ -120,10 +120,10 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   useEffect(() => {
     trackFunnelEvent('offer_natglow_viewed', null, plan_key)
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
-      trackFbEvent('ViewContent', { funnel: 'quiz_natglow', page: 'quiz_offer' })
+      trackFbEvent('ViewContent', { content_name: 'offer_natglow', content_category: plan_key })
       if (!leadFiredRef.current) {
         leadFiredRef.current = true
-        trackFbEvent('Lead', { funnel: 'quiz_natglow', page: 'quiz_offer' })
+        trackFbEvent('Lead', { content_name: 'offer_natglow', content_category: plan_key })
       }
       trackTtEvent('ViewContent', { content_name: 'offer_natglow', content_id: plan_key, content_type: 'product' })
     })

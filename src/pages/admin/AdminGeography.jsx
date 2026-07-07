@@ -8,8 +8,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts'
 
-const BOLD_COLOR  = '#0891b2'
-const DETOX_COLOR = '#7c3aed'
+const NATGLOW_COLOR = '#0891b2'
+const DETOX_COLOR   = '#7c3aed'
 
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
@@ -124,7 +124,7 @@ export default function AdminGeography() {
   const countryAgeBreakdown = data?.countryAgeBreakdown ?? []
   const bestConverter = data?.bestConverter ?? null
   const monthlyTrend  = data?.monthlyTrend  ?? []
-  const recent        = data?.recent        ?? { weekBold: 0, weekDetox: 0, monthBold: 0, monthDetox: 0 }
+  const recent        = data?.recent        ?? { weekNatglow: 0, weekDetox: 0, monthNatglow: 0, monthDetox: 0, weekNatglowRevenue: 0, monthNatglowRevenue: 0 }
   const productPrice  = data?.product_price_usd ?? 17
 
   const filteredSortedCountries = useMemo(() => {
@@ -189,7 +189,7 @@ export default function AdminGeography() {
             icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
             label="Receita total" loading={loading}
             value={fmt$(totals.revenue)}
-            sub={`Bold + Detox · $${productPrice}/venda`}
+            sub="/quiz + Detox"
           />
           <MetricCard
             icon={TrendingUp} iconBg="bg-amber-50" iconColor="text-amber-500"
@@ -208,8 +208,8 @@ export default function AdminGeography() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="Bold (esta semana)" value={recent.weekBold} loading={loading}
-            sub={`${fmt$(recent.weekBold * productPrice)} arrecadado`}
+            label="/quiz (esta semana)" value={recent.weekNatglow} loading={loading}
+            sub={`${fmt$(recent.weekNatglowRevenue)} arrecadado`}
           />
           <MetricCard
             icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
@@ -218,8 +218,8 @@ export default function AdminGeography() {
           />
           <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="Bold (este mês)" value={recent.monthBold} loading={loading}
-            sub={`${fmt$(recent.monthBold * productPrice)} arrecadado`}
+            label="/quiz (este mês)" value={recent.monthNatglow} loading={loading}
+            sub={`${fmt$(recent.monthNatglowRevenue)} arrecadado`}
           />
           <MetricCard
             icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
@@ -232,7 +232,7 @@ export default function AdminGeography() {
       {/* Monthly trend chart by funnel */}
       <section className="bg-white rounded-2xl border border-gray-100 p-5">
         <SectionHeader
-          title="Tendência mensal (Bold vs Detox)"
+          title="Tendência mensal (/quiz vs Detox)"
           hint="Vendas por funil nos últimos 6 meses"
         />
         {loading ? <ChartSkeleton h={220} /> : (
@@ -243,8 +243,8 @@ export default function AdminGeography() {
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
               <Tooltip content={<ChartTooltip />} />
               <Legend wrapperStyle={{ paddingTop: 8, fontSize: 12 }} iconType="circle" />
-              <Bar dataKey="bold"  name="Quiz Bold"  fill={BOLD_COLOR}  radius={[4,4,0,0]} maxBarSize={42} />
-              <Bar dataKey="detox" name="Quiz Detox" fill={DETOX_COLOR} radius={[4,4,0,0]} maxBarSize={42} />
+              <Bar dataKey="natglow" name="/quiz"       fill={NATGLOW_COLOR} radius={[4,4,0,0]} maxBarSize={42} />
+              <Bar dataKey="detox"   name="Quiz Detox"  fill={DETOX_COLOR}   radius={[4,4,0,0]} maxBarSize={42} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -300,7 +300,7 @@ export default function AdminGeography() {
                   <th className="text-right font-bold py-2.5 px-2">Vendas</th>
                   <th className="text-right font-bold py-2.5 px-2">Conv. %</th>
                   <th className="text-right font-bold py-2.5 px-2">Receita</th>
-                  <th className="text-right font-bold py-2.5 pl-2">Bold/Detox</th>
+                  <th className="text-right font-bold py-2.5 pl-2">/quiz/Detox</th>
                 </tr>
               </thead>
               <tbody>
@@ -332,9 +332,9 @@ export default function AdminGeography() {
                           <span className="text-gray-300 text-xs">—</span>
                         ) : (
                           <div className="flex items-center justify-end gap-1.5 text-[11px]">
-                            <span style={{ color: BOLD_COLOR }}  className="font-semibold tabular-nums">B {c.bold_paid}</span>
+                            <span style={{ color: NATGLOW_COLOR }} className="font-semibold tabular-nums">Q {c.natglow_paid}</span>
                             <span className="text-gray-300">·</span>
-                            <span style={{ color: DETOX_COLOR }} className="font-semibold tabular-nums">D {c.detox_paid}</span>
+                            <span style={{ color: DETOX_COLOR }}   className="font-semibold tabular-nums">D {c.detox_paid}</span>
                           </div>
                         )}
                       </td>

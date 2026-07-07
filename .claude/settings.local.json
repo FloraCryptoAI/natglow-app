@@ -4,7 +4,27 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(supabase functions *)"
+      "Bash(supabase functions *)",
+      "Bash(rm -f package-lock.json)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(rm -v \"c:/Users/Jogos/Desktop/Projetos/natglow-br/src/locales/hairDataText.es.js\")",
+      "Read(//c/Users/Jogos/Desktop/Projetos/natglow-br/**)",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(JSON.stringify\\(es.layout, null, 2\\)\\)\")",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(JSON.stringify\\(es.hairDashboard, null, 2\\)\\)\")",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(JSON.stringify\\(es.quizClean.intro, null, 2\\)\\)\")",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(JSON.stringify\\(es.quizClean.reframing, null, 2\\)\\)\")",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(JSON.stringify\\(es.quizClean.finalQuestion, null, 2\\)\\)\")",
+      "Bash(node -e \"const es = require\\('./src/locales/es.json'\\); console.log\\(Object.keys\\(es\\).join\\('\\\\n'\\)\\)\")",
+      "Read(//c/Users/Jogos/Desktop/Projetos/natglow-br/src/lib/**)",
+      "Read(//c/Users/Jogos/Desktop/Projetos/natglow-br/src/config/**)",
+      "Read(//c/Users/Jogos/Desktop/Projetos/natglow-br/src/components/results/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Jogos\\Desktop\\Projetos\\natglow-br\\src\\locales",
+      "c:\\Users\\Jogos\\Desktop\\Projetos\\natglow-br\\src\\pages",
+      "c:\\Users\\Jogos\\Desktop\\Projetos\\natglow-br\\supabase\\functions\\_shared\\email-templates",
+      "c:\\Users\\Jogos\\Desktop\\Projetos\\natglow-br\\src\\lib"
     ]
   }
 }

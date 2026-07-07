@@ -4,28 +4,31 @@ import { corsHeaders } from '../_shared/cors.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-// Both funnels currently use the same plan_key in `subscriptions.pricing_plan`
-// (one_time_basic, $17). We differentiate Bold vs Detox by funnel_events
-// event_type prefix and cta_clicked.metadata.source.
+// Detox uses the same plan_key in `subscriptions.pricing_plan` as the old
+// bold funnel (one_time_basic, $17). natglow is a separate Hotmart product
+// with its own plan_key and variable per-country price — `price` below is
+// only a documentation/fallback value, never used for the main revenue calc
+// (see roiScore, which uses the real avgTicket instead). natglow also has no
+// results/diagnosis page, so `events.results` is optional — omit it entirely
+// rather than pointing it at a non-existent event.
 const FUNNEL_CONFIG: Record<string, {
   label:       string
   price:       number
   product_id:  string
   plan_key:    string  // what's written to subscriptions.pricing_plan
   cta_source:  string  // metadata.source for cta_clicked
-  events: { started: string; completed: string; results: string; offer: string }
+  events: { started: string; completed: string; results?: string; offer: string }
 }> = {
-  bold: {
-    label:      'Quiz Bold · $17',
-    price:      17,
-    product_id: '7789064',
-    plan_key:   'one_time_basic',
-    cta_source: 'offer_bold',
+  natglow: {
+    label:      '/quiz',
+    price:      7.9,
+    product_id: 'F105945011B',
+    plan_key:   'natglow',
+    cta_source: 'offer_natglow',
     events: {
-      started:   'quiz_bold_started',
-      completed: 'quiz_bold_completed',
-      results:   'results_bold_viewed',
-      offer:     'offer_bold_viewed',
+      started:   'quiz_natglow_started',
+      completed: 'quiz_natglow_completed',
+      offer:     'offer_natglow_viewed',
     },
   },
   detox: {
@@ -43,7 +46,7 @@ const FUNNEL_CONFIG: Record<string, {
   },
 }
 
-const FUNNEL_KEYS = ['bold', 'detox'] as const
+const FUNNEL_KEYS = ['natglow', 'detox'] as const
 
 // Two-proportion z-test (returns absolute z value)
 function zScore(p1: number, n1: number, p2: number, n2: number): number {
@@ -174,16 +177,20 @@ Deno.serve(async (req) => {
         ? parseFloat((refundedSubs / (activeSubs + refundedSubs) * 100).toFixed(1))
         : 0
 
-      const roiScore = parseFloat(((conversionRate / 100) * cfg.price).toFixed(4))
+      // Use the real average ticket, not the fixed `cfg.price` — natglow's
+      // price varies by country, so a flat number would misrank it against
+      // detox. For detox this is numerically identical to before (flat $17
+      // price === real avgTicket).
+      const roiScore = parseFloat(((conversionRate / 100) * avgTicket).toFixed(4))
 
       return {
-        plan_key:        fk,                  // 'bold' | 'detox'
+        plan_key:        fk,                  // 'natglow' | 'detox'
         label:           cfg.label,
         price:           cfg.price,
         product_id:      cfg.product_id,
         quiz_started:    started,
         quiz_completed:  completed,
-        results_viewed:  resultsView,
+        results_viewed:  cfg.events.results ? resultsView : null,
         offer_viewed:    offerView,
         cta_clicked:     ctaClicked,
         conversions,

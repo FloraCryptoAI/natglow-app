@@ -12,6 +12,7 @@ const PRODUCT_TO_PLAN: Record<string, string> = {}
   ['HOTMART_PRODUCT_ID_BASIC',    'one_time_basic'],
   ['HOTMART_PRODUCT_ID_STANDARD', 'one_time_standard'],
   ['HOTMART_PRODUCT_ID_PREMIUM',  'one_time_premium'],
+  ['HOTMART_PRODUCT_ID_NATGLOW',  'natglow'],
 ] as [string, string][]).forEach(([envKey, planKey]) => {
   const id = Deno.env.get(envKey)
   if (id) PRODUCT_TO_PLAN[id] = planKey
@@ -21,6 +22,10 @@ const PLAN_VALUE: Record<string, number> = {
   one_time_basic:    17,
   one_time_standard: 27,
   one_time_premium:  47,
+  // Reference value only — natglow's price varies by country, and
+  // purchaseAmount below always prefers the real value from Hotmart's
+  // payload (priceData.value) over this fallback.
+  natglow:           7.9,
 }
 
 // ---------- Supabase helpers ----------
@@ -221,9 +226,9 @@ Deno.serve(async (req) => {
         })
 
         // Log payment_completed into funnel_events for the admin funnel chart.
-        // Attribute to the originating funnel (bold/detox) by looking up the
+        // Attribute to the originating funnel (natglow/detox) by looking up the
         // user's most recent cta_clicked event — its metadata.source is either
-        // 'offer_bold' or 'offer_detox'. This way a single Hotmart product can
+        // 'offer_natglow' or 'offer_detox'. This way a single Hotmart product can
         // serve both funnels without losing attribution.
         try {
           let funnelSource: string | null = null
@@ -242,7 +247,7 @@ Deno.serve(async (req) => {
               session_id:   `hp_${txId || Date.now()}`,
               user_id:      userId,
               metadata:     {
-                source:     funnelSource,        // 'offer_bold' | 'offer_detox' | null
+                source:     funnelSource,        // 'offer_natglow' | 'offer_detox' | null
                 origin:     'hotmart_webhook',
                 tx_id:      txId,
                 product_id: productId,
