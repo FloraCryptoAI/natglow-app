@@ -153,20 +153,21 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
   const topRef = useRef(null)
   useEffect(() => {
-    const toTop = () => {
-      // scrollIntoView finds the real scroll container (scroller-agnostic).
-      topRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
+    // A single reset can be undone as the next question mounts (AnimatePresence
+    // mode="wait" + browser scroll anchoring). So pin the viewport to the top on
+    // every frame for the whole transition (~0.7s), covering both the window
+    // scroller and any container (via scrollIntoView on a top sentinel).
+    let raf
+    const start = performance.now()
+    const pin = (now) => {
       window.scrollTo(0, 0)
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
+      topRef.current?.scrollIntoView({ block: 'start' })
+      if (now - start < 700) raf = requestAnimationFrame(pin)
     }
-    toTop()
-    // With AnimatePresence mode="wait" the next step only mounts ~300ms later
-    // (after the exit animation), so also reset once it is actually on screen —
-    // otherwise the new question can open scrolled to the bottom.
-    const t1 = setTimeout(toTop, 340)
-    const t2 = setTimeout(toTop, 520)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    raf = requestAnimationFrame(pin)
+    return () => cancelAnimationFrame(raf)
   }, [step])
 
   useEffect(() => {
