@@ -33,6 +33,8 @@ export const PRICING_PLANS = {
     label_es: '$7.90 USD',
     cta_es: 'ACTIVAR MI RUTINA PERSONALIZADA',
     plan_key: 'one_time_basic',
-    route_path: '/quiz-natglow',
+    // Canonical entry is /quiz (migrated here — the live Facebook ad already
+    // points to it). /quiz-natglow still works as an alias of the same route.
+    route_path: '/quiz',
   },
 }

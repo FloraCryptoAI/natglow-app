@@ -116,18 +116,21 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/Login" replace />} />
 
       {/* ── Quiz routes ──
-          /quiz       → QuizClean (compliant version for TikTok ads)
-          /quiz-bold  → QuizClean (same component, kept on the legacy URL so
-                        TikTok appeal reviewers see compliant content)
-          /quiz-meta  → QuizMeta  (legacy persuasive version, reserved for Meta/FB ads)
-          /quiz-detox → QuizDetox (heavier copy, reserved for direct paid traffic)
+          /quiz         → QuizNatglow (canonical funnel — migrated here because
+                          the live Facebook ad already points to /quiz; the old
+                          QuizClean/bold funnel that used to live here is retired)
+          /quiz-natglow → same QuizNatglow component, kept as an alias so the
+                          URL doesn't 404 for anyone still using it
+          /quiz-bold    → QuizClean (kept on its own legacy URL so TikTok
+                          appeal reviewers still see compliant content)
+          /quiz-meta    → QuizMeta  (legacy persuasive version, reserved for Meta/FB ads)
+          /quiz-detox   → QuizDetox (heavier copy, reserved for direct paid traffic)
       */}
-      <Route path="/quiz"         element={<QuizClean pricingPlan="bold" />} />
+      <Route path="/quiz"         element={<QuizNatglow pricingPlan="natglow" />} />
+      <Route path="/quiz-natglow" element={<QuizNatglow pricingPlan="natglow" />} />
       <Route path="/quiz-bold"    element={<QuizClean pricingPlan="bold" />} />
       <Route path="/quiz-meta"    element={<QuizMeta  pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
-      {/* /quiz-natglow → Meta/FB-safe funnel (Spanish LatAm, neutral copy) */}
-      <Route path="/quiz-natglow" element={<QuizNatglow pricingPlan="natglow" />} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
       <Route path="/results-bold"    element={<ResultsBold pricingPlan="bold" />} />
