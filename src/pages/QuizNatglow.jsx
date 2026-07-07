@@ -151,8 +151,11 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     if (user && isSubscribed) navigate('/HairDashboard')
   }, [user, isSubscribed, navigate])
 
+  const topRef = useRef(null)
   useEffect(() => {
     const toTop = () => {
+      // scrollIntoView finds the real scroll container (scroller-agnostic).
+      topRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
       window.scrollTo(0, 0)
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
@@ -215,8 +218,11 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif', overflowAnchor: 'none' }}>
+      {/* top sentinel — scroll target when advancing between questions */}
+      <span ref={topRef} aria-hidden="true" className="block" style={{ height: 0 }} />
       <style>{`
+        body { overflow-anchor: none; }
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
         .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
