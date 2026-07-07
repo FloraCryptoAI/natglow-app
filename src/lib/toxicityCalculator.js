@@ -155,9 +155,10 @@ const SAFE_HYDRATION_LABELS = {
   never: 'Sin hábito de hidratación aún',
 }
 const SAFE_GOAL_LABELS = {
-  hidratacion: 'Más hidratación y suavidad',
-  brillo: 'Más brillo y movimiento',
-  frizz: 'Menos frizz visual',
+  hidratacion: 'Hidratación y suavidad',
+  brillo: 'Brillo y movimiento',
+  frizz: 'Control del frizz',
+  varias: 'Hidratación, brillo y cuidado general',
   puntas: 'Puntas con mejor apariencia',
   rutina: 'Rutina más natural y organizada',
   procesos: 'Cuidado después de calor o procesos',
@@ -167,18 +168,15 @@ const SAFE_GOAL_LABELS = {
   volumen: 'Más volumen',
   cuero: 'Cuidado del cuero cabelludo',
 }
-const SAFE_ROUTINE_LABELS = {
-  basicos: 'Productos básicos, sin rutina fija',
-  internet: 'Recetas de internet de vez en cuando',
-  aveces: 'Hidratación de vez en cuando',
-  organizar: 'Con cuidados, buscando organizar',
-  sinrutina: 'Casi sin rutina definida',
+const SAFE_WATER_LABELS = {
+  hot: 'Agua caliente',
+  warm: 'Agua tibia',
+  cold: 'Agua fría',
 }
-const SAFE_TIME_LABELS = {
-  '10': '10 minutos',
-  '20': '20 minutos',
-  '30': '30 minutos o más',
-  flexible: 'Algo flexible',
+const SAFE_CHEM_LABELS = {
+  yes_heavy: 'Sí, procesos químicos fuertes',
+  yes_mild: 'Sí, cremas y mascarillas',
+  no: 'Sin químicos',
 }
 
 export function getSafeDiagnosticFactors(answers = {}) {
@@ -208,19 +206,19 @@ export function getSafeDiagnosticFactors(answers = {}) {
     })
   }
 
-  if (answers.currentRoutine) {
-    factors.push({
-      icon: '🧴',
-      label: 'Rutina actual',
-      detail: SAFE_ROUTINE_LABELS[answers.currentRoutine] ?? '—',
-    })
-  }
-
   if (answers.washFreq) {
     factors.push({
       icon: '🚿',
       label: 'Frecuencia de lavado',
       detail: SAFE_WASH_LABELS[answers.washFreq] ?? '—',
+    })
+  }
+
+  if (answers.waterTemp) {
+    factors.push({
+      icon: '💧',
+      label: 'Temperatura del agua',
+      detail: SAFE_WATER_LABELS[answers.waterTemp] ?? '—',
     })
   }
 
@@ -232,15 +230,15 @@ export function getSafeDiagnosticFactors(answers = {}) {
     })
   }
 
-  if (answers.timeAvailable) {
+  if (answers.chemProducts) {
     factors.push({
-      icon: '⏰',
-      label: 'Tiempo disponible para la rutina',
-      detail: SAFE_TIME_LABELS[answers.timeAvailable] ?? '—',
+      icon: '🧪',
+      label: 'Procesos químicos',
+      detail: SAFE_CHEM_LABELS[answers.chemProducts] ?? '—',
     })
   }
 
-  // Legacy key kept for backward-compat (older sessions / other funnels).
+  // Legacy keys kept for backward-compat (older sessions / other funnels).
   if (answers.hydration) {
     factors.push({
       icon: '💧',

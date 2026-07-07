@@ -10,7 +10,6 @@ import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
-import PersuasiveStepHeader from '@/components/quiz/PersuasiveStepHeader'
 
 // Dedicated sessionStorage namespace so this funnel never shares quiz state
 // with /quiz-meta or /quiz (they all resolve to plan_key 'one_time_basic').
@@ -26,21 +25,20 @@ const STEPS = {
   AGE: 2,
   HAIR_TYPE: 3,
   GOAL: 4,
-  CURRENT_ROUTINE: 5,
-  WASH_FREQ: 6,
-  HEAT: 7,
+  WASH_FREQ: 5,
+  WATER_TEMP: 6,
+  HEAT_TOOLS: 7,
   EDU_ROUTINE: 8,
-  PROCESSES: 9,
+  CHEM: 9,
   RECIPES: 10,
   TIME: 11,
   EDU_RECIPES: 12,
-  FOLLOW: 13,
-  APP_PREVIEW: 14,
-  NAME: 15,
-  LOADING: 16,
+  APP_PREVIEW: 13,
+  NAME: 14,
+  LOADING: 15,
 }
-// Progress bar denominator: the 11 real questions + the name step.
-const TOTAL_QUIZ_STEPS = 12
+// Progress bar denominator: the 10 real questions + the name step.
+const TOTAL_QUIZ_STEPS = 11
 
 const P = '#FB45A9'
 const P_DARK = '#E03594'
@@ -74,22 +72,6 @@ function ProgressBar({ current, total }) {
   )
 }
 
-function QuizOption({ label, desc, emoji, selected, onClick }) {
-  return (
-    <div
-      className={`card-option px-4 py-4 flex items-center gap-4 ${selected ? 'selected' : ''}`}
-      onClick={onClick}
-    >
-      <span className="text-3xl leading-none flex-shrink-0">{emoji}</span>
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-stone-700 text-base">{label}</p>
-        {desc && <p className="text-sm text-stone-400 mt-0.5">{desc}</p>}
-      </div>
-      {selected && <Check className="w-5 h-5 flex-shrink-0" style={{ color: P }} />}
-    </div>
-  )
-}
-
 // Pink marker highlight for keywords in question titles (same pink as the CTA
 // button, white text) — a light persuasion cue. boxDecorationBreak keeps the
 // pink box intact if the highlight wraps to a second line.
@@ -118,6 +100,40 @@ function hlTitle(title, highlight) {
       <HL>{highlight}</HL>
       {title.slice(idx + highlight.length)}
     </>
+  )
+}
+
+// Local question header (brand-pink badge + progress bar + roomy title/subtitle
+// spacing). Kept in-file so the natglow spacing/colors don't touch the shared
+// PersuasiveStepHeader used by the other funnels.
+function StepHead({ current, total, badge, title, highlight, subtitle }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <span className="self-center inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-[10px] font-extrabold tracking-wider" style={{ background: P }}>
+        {badge}
+      </span>
+      <ProgressBar current={current} total={total} />
+      <div className="text-center flex flex-col gap-3 pt-1.5">
+        <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">{hlTitle(title, highlight)}</h2>
+        {subtitle && <p className="text-sm text-stone-400 leading-relaxed">{subtitle}</p>}
+      </div>
+    </div>
+  )
+}
+
+function QuizOption({ label, desc, emoji, selected, onClick }) {
+  return (
+    <div
+      className={`card-option px-4 py-4 flex items-center gap-4 ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      <span className="text-3xl leading-none flex-shrink-0">{emoji}</span>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-stone-700 text-base leading-snug">{label}</p>
+        {desc && <p className="text-sm text-stone-400 mt-0.5 leading-snug">{desc}</p>}
+      </div>
+      {selected && <Check className="w-5 h-5 flex-shrink-0" style={{ color: P }} />}
+    </div>
   )
 }
 
@@ -156,10 +172,10 @@ function FeatureRow({ icon, iconColor, chip, text }) {
 }
 
 // Pink gradient card holding the app mockup, flush at the bottom (mirrors the
-// offer card header). Optional floating badges for the "app preview" screen.
-function MockupCard({ badges = [], width = '118%' }) {
+// offer card header).
+function MockupCard({ width = '118%' }) {
   return (
-    <div className="relative rounded-3xl overflow-hidden" style={{ background: BRAND_GRAD }}>
+    <div className="rounded-3xl overflow-hidden" style={{ background: BRAND_GRAD }}>
       <div className="flex justify-center pt-5">
         <img
           src={APP_MOCKUP}
@@ -171,15 +187,6 @@ function MockupCard({ badges = [], width = '118%' }) {
           onError={e => { e.currentTarget.style.display = 'none' }}
         />
       </div>
-      {badges.map((b, i) => (
-        <span
-          key={i}
-          className="absolute bg-white text-stone-800 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap"
-          style={b.pos}
-        >
-          {b.label}
-        </span>
-      ))}
     </div>
   )
 }
@@ -187,18 +194,18 @@ function MockupCard({ badges = [], width = '118%' }) {
 export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.natglow
   const { plan_key, results_path } = planConfig
-  // _v2: the quiz was restructured (age re-added, steps renumbered), so an
-  // in-progress session saved under the old key must not restore to a shifted step.
-  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v2`
+  // _v3: quiz restructured (new questions from detox, steps renumbered), so an
+  // in-progress session under an old key must not restore to a shifted step.
+  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v3`
 
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, isSubscribed } = useAuth()
   const [step, setStep] = useState(STEPS.WELCOME)
   const [answers, setAnswers] = useState({
-    reason: '', age: '', hairType: '', hairGoal: '', currentRoutine: '',
-    washFreq: '', heatTools: '', processes: '', recipes: '',
-    timeAvailable: '', followPref: '', name: '',
+    reason: '', age: '', hairType: '', hairGoal: '', washFreq: '',
+    waterTemp: '', heatTools: '', chemProducts: '', recipes: '',
+    timeAvailable: '', name: '',
   })
   const [loadingProgress, setLoadingProgress] = useState(0)
 
@@ -207,6 +214,15 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     { value: 'ondulado', label: t('quiz.hairTypes.ondulado'), img: `${IMG}/ondulado.webp` },
     { value: 'cacheado', label: t('quiz.hairTypes.cacheado'), img: `${IMG}/cacheado.webp` },
     { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: `${IMG}/crespo.webp` },
+  ]
+
+  // GOAL uses image tiles (like hair type). Placeholder images = the hair
+  // images for now; swap the `img` paths once the real goal images are added.
+  const GOAL_TILES = [
+    { value: 'hidratacion', img: `${IMG}/liso.webp`,     label: t('quizNatglow.goal.opt1'), desc: t('quizNatglow.goal.opt1desc') },
+    { value: 'brillo',      img: `${IMG}/ondulado.webp`, label: t('quizNatglow.goal.opt2'), desc: t('quizNatglow.goal.opt2desc') },
+    { value: 'frizz',       img: `${IMG}/cacheado.webp`, label: t('quizNatglow.goal.opt3'), desc: t('quizNatglow.goal.opt3desc') },
+    { value: 'varias',      img: `${IMG}/crespo.webp`,   label: t('quizNatglow.goal.opt4'), desc: t('quizNatglow.goal.opt4desc') },
   ]
 
   useEffect(() => {
@@ -303,16 +319,20 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     setStep(STEPS.LOADING)
   }
 
+  // Shared container for the option questions — a touch wider (px-3) with roomy
+  // vertical rhythm (gap-6) so the header/subtitle/options aren't cramped.
+  const qClass = 'max-w-lg mx-auto w-full px-3 pt-5 pb-6 flex flex-col gap-6'
+
   return (
     <div className="min-h-screen bg-stone-50" style={{ fontFamily: 'system-ui, sans-serif' }}>
       <style>{`
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
         .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
-        .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
+        .card-option { border:1px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
         .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
         .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
-        .img-card { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
+        .img-card { border:1px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
         .img-card:hover { border-color:#FB45A9; }
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
@@ -332,7 +352,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               <h1 className="text-2xl font-extrabold text-stone-900 leading-tight">
                 {t('quizNatglow.welcome.title')}
               </h1>
-              <p className="text-sm text-stone-500 leading-snug">{t('quizNatglow.welcome.subtitle')}</p>
+              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.welcome.subtitle')}</p>
             </div>
 
             <MockupCard />
@@ -345,35 +365,30 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
             <div className="rounded-2xl p-4 border border-stone-100" style={{ background: '#FFF5FA' }}>
               <p className="font-extrabold text-sm mb-1" style={{ color: P_DARK }}>{t('quizNatglow.welcome.didYouKnowBadge')}</p>
-              <p className="text-sm text-stone-700 leading-snug">{t('quizNatglow.welcome.didYouKnowBody')}</p>
+              <p className="text-sm text-stone-700 leading-relaxed">{t('quizNatglow.welcome.didYouKnowBody')}</p>
             </div>
 
             <PinkButton onClick={handleStartWelcome}>
               {t('quizNatglow.welcome.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
-
-            <div className="text-center flex flex-col gap-1">
-              <p className="text-xs text-stone-400">{t('quizNatglow.welcome.footer')}</p>
-              <p className="text-xs text-stone-400 italic">{t('quizNatglow.welcome.disclaimer')}</p>
-            </div>
           </motion.div>
         )}
 
         {/* ═══ STEP 1 · REASON ═══ */}
         {step === STEPS.REASON && (
-          <motion.div key="reason" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={1} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 1, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.reason.title'), t('quizNatglow.reason.highlight'))}
+          <motion.div key="reason" {...slide} className={qClass}>
+            <StepHead
+              current={1} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 1, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.reason.title')} highlight={t('quizNatglow.reason.highlight')}
               subtitle={t('quizNatglow.reason.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: 'cuidar',        label: t('quizNatglow.reason.opt1'), emoji: '🏡' },
-                { value: 'desorganizada', label: t('quizNatglow.reason.opt2'), emoji: '🗂️' },
-                { value: 'naturales',     label: t('quizNatglow.reason.opt3'), emoji: '🌿' },
-                { value: 'recetas',       label: t('quizNatglow.reason.opt4'), emoji: '🔍' },
+                { value: 'cuidar',        emoji: '🌿', label: t('quizNatglow.reason.opt1'), desc: t('quizNatglow.reason.opt1desc') },
+                { value: 'desorganizada', emoji: '🗓️', label: t('quizNatglow.reason.opt2'), desc: t('quizNatglow.reason.opt2desc') },
+                { value: 'naturales',     emoji: '🍃', label: t('quizNatglow.reason.opt3'), desc: t('quizNatglow.reason.opt3desc') },
+                { value: 'recetas',       emoji: '🔎', label: t('quizNatglow.reason.opt4'), desc: t('quizNatglow.reason.opt4desc') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.reason === opt.value}
                   onClick={() => pick('reason', opt.value, STEPS.AGE)} />
@@ -384,11 +399,11 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 2 · AGE ═══ */}
         {step === STEPS.AGE && (
-          <motion.div key="age" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={2} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 2, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.age.title'), t('quizNatglow.age.highlight'))}
+          <motion.div key="age" {...slide} className={qClass}>
+            <StepHead
+              current={2} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 2, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.age.title')} highlight={t('quizNatglow.age.highlight')}
             />
             <div className="flex flex-col gap-3">
               {[
@@ -406,11 +421,11 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 3 · HAIR TYPE ═══ */}
         {step === STEPS.HAIR_TYPE && (
-          <motion.div key="hair-type" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={3} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 3, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.hairType.title'), t('quizNatglow.hairType.highlight'))}
+          <motion.div key="hair-type" {...slide} className={qClass}>
+            <StepHead
+              current={3} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 3, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.hairType.title')} highlight={t('quizNatglow.hairType.highlight')}
               subtitle={t('quizNatglow.hairType.subtitle')}
             />
             <div className="grid grid-cols-2 gap-3 items-start">
@@ -440,93 +455,103 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 4 · GOAL ═══ */}
+        {/* ═══ STEP 4 · GOAL (image tiles) ═══ */}
         {step === STEPS.GOAL && (
-          <motion.div key="goal" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={4} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 4, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.goal.title'), t('quizNatglow.goal.highlight'))}
+          <motion.div key="goal" {...slide} className={qClass}>
+            <StepHead
+              current={4} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 4, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.goal.title')} highlight={t('quizNatglow.goal.highlight')}
               subtitle={t('quizNatglow.goal.subtitle')}
             />
-            <div className="flex flex-col gap-3">
-              {[
-                { value: 'hidratacion', label: t('quizNatglow.goal.opt1'), emoji: '💧' },
-                { value: 'brillo',      label: t('quizNatglow.goal.opt2'), emoji: '✨' },
-                { value: 'frizz',       label: t('quizNatglow.goal.opt3'), emoji: '🌀' },
-                { value: 'puntas',      label: t('quizNatglow.goal.opt4'), emoji: '💇' },
-                { value: 'rutina',      label: t('quizNatglow.goal.opt5'), emoji: '🌿' },
-                { value: 'procesos',    label: t('quizNatglow.goal.opt6'), emoji: '🔥' },
-              ].map(opt => (
-                <QuizOption key={opt.value} {...opt} selected={answers.hairGoal === opt.value}
-                  onClick={() => pick('hairGoal', opt.value, STEPS.CURRENT_ROUTINE)} />
+            <div className="grid grid-cols-2 gap-3 items-start">
+              {GOAL_TILES.map(opt => (
+                <div
+                  key={opt.value}
+                  className={`img-card ${answers.hairGoal === opt.value ? 'selected' : ''}`}
+                  onClick={() => pick('hairGoal', opt.value, STEPS.WASH_FREQ)}
+                >
+                  <div className="w-full h-28 overflow-hidden" style={{ background: PL2 }}>
+                    <img
+                      src={opt.img}
+                      alt={opt.label}
+                      loading="lazy"
+                      decoding="async"
+                      className="block w-full h-full object-cover"
+                      onError={e => { e.currentTarget.style.display = 'none' }}
+                    />
+                  </div>
+                  <div className="px-3 py-3">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-sm font-semibold text-stone-700 leading-snug">{opt.label}</span>
+                      {answers.hairGoal === opt.value && <Check className="w-4 h-4 flex-shrink-0" style={{ color: P }} />}
+                    </div>
+                    <p className="text-xs text-stone-400 mt-1 leading-snug">{opt.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* ═══ STEP 5 · CURRENT ROUTINE ═══ */}
-        {step === STEPS.CURRENT_ROUTINE && (
-          <motion.div key="current-routine" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={5} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 5, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.currentRoutine.title'), t('quizNatglow.currentRoutine.highlight'))}
-              subtitle={t('quizNatglow.currentRoutine.subtitle')}
-            />
-            <div className="flex flex-col gap-3">
-              {[
-                { value: 'basicos',   label: t('quizNatglow.currentRoutine.opt1'), emoji: '🧴' },
-                { value: 'internet',  label: t('quizNatglow.currentRoutine.opt2'), emoji: '🌐' },
-                { value: 'aveces',    label: t('quizNatglow.currentRoutine.opt3'), emoji: '💭' },
-                { value: 'organizar', label: t('quizNatglow.currentRoutine.opt4'), emoji: '🎯' },
-                { value: 'sinrutina', label: t('quizNatglow.currentRoutine.opt5'), emoji: '🤷' },
-              ].map(opt => (
-                <QuizOption key={opt.value} {...opt} selected={answers.currentRoutine === opt.value}
-                  onClick={() => pick('currentRoutine', opt.value, STEPS.WASH_FREQ)} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ═══ STEP 6 · WASH FREQ ═══ */}
+        {/* ═══ STEP 5 · WASH FREQ (detox) ═══ */}
         {step === STEPS.WASH_FREQ && (
-          <motion.div key="wash-freq" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={6} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 6, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.washFreq.title'), t('quizNatglow.washFreq.highlight'))}
+          <motion.div key="wash-freq" {...slide} className={qClass}>
+            <StepHead
+              current={5} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 5, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.washFreq.title')} highlight={t('quizNatglow.washFreq.highlight')}
               subtitle={t('quizNatglow.washFreq.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: '1_2',      label: t('quizNatglow.washFreq.opt1'), emoji: '🗓️' },
-                { value: '3_4',      label: t('quizNatglow.washFreq.opt2'), emoji: '📅' },
-                { value: 'daily',    label: t('quizNatglow.washFreq.opt3'), emoji: '🚿' },
-                { value: 'variable', label: t('quizNatglow.washFreq.opt4'), emoji: '🔄' },
+                { value: 'daily', emoji: '🚿', label: t('quiz.options.washDaily'), desc: t('quiz.options.washDailyDesc') },
+                { value: '3_4',   emoji: '📅', label: t('quiz.options.wash3_4'),   desc: t('quiz.options.wash3_4Desc') },
+                { value: '1_2',   emoji: '🌿', label: t('quiz.options.wash1_2'),   desc: t('quiz.options.wash1_2Desc') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.washFreq === opt.value}
-                  onClick={() => pick('washFreq', opt.value, STEPS.HEAT)} />
+                  onClick={() => pick('washFreq', opt.value, STEPS.WATER_TEMP)} />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* ═══ STEP 7 · HEAT ═══ */}
-        {step === STEPS.HEAT && (
-          <motion.div key="heat" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={7} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.heat.title'), t('quizNatglow.heat.highlight'))}
-              subtitle={t('quizNatglow.heat.subtitle')}
+        {/* ═══ STEP 6 · WATER TEMP (detox) ═══ */}
+        {step === STEPS.WATER_TEMP && (
+          <motion.div key="water-temp" {...slide} className={qClass}>
+            <StepHead
+              current={6} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 6, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.waterTemp.title')} highlight={t('quizNatglow.waterTemp.highlight')}
+              subtitle={t('quizNatglow.waterTemp.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: 'daily',  label: t('quizNatglow.heat.opt1'), emoji: '🔥' },
-                { value: 'few',    label: t('quizNatglow.heat.opt2'), emoji: '🌡️' },
-                { value: 'rarely', label: t('quizNatglow.heat.opt3'), emoji: '🍃' },
-                { value: 'none',   label: t('quizNatglow.heat.opt4'), emoji: '🚫' },
+                { value: 'hot',  emoji: '🔥', label: t('quiz.options.waterHot'),  desc: t('quiz.options.waterHotDesc') },
+                { value: 'warm', emoji: '💧', label: t('quiz.options.waterWarm'), desc: t('quiz.options.waterWarmDesc') },
+                { value: 'cold', emoji: '❄️', label: t('quiz.options.waterCold'), desc: t('quiz.options.waterColdDesc') },
+              ].map(opt => (
+                <QuizOption key={opt.value} {...opt} selected={answers.waterTemp === opt.value}
+                  onClick={() => pick('waterTemp', opt.value, STEPS.HEAT_TOOLS)} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ═══ STEP 7 · HEAT TOOLS (detox) ═══ */}
+        {step === STEPS.HEAT_TOOLS && (
+          <motion.div key="heat-tools" {...slide} className={qClass}>
+            <StepHead
+              current={7} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.heatTools.title')} highlight={t('quizNatglow.heatTools.highlight')}
+              subtitle={t('quizNatglow.heatTools.subtitle')}
+            />
+            <div className="flex flex-col gap-3">
+              {[
+                { value: 'daily',  emoji: '🔌', label: t('quiz.options.heatDaily'),  desc: t('quiz.options.heatDailyDesc') },
+                { value: 'few',    emoji: '📆', label: t('quiz.options.heatFew'),    desc: t('quiz.options.heatFewDesc') },
+                { value: 'rarely', emoji: '🌬️', label: t('quiz.options.heatRarely'), desc: t('quiz.options.heatRarelyDesc') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.heatTools === opt.value}
                   onClick={() => pick('heatTools', opt.value, STEPS.EDU_ROUTINE)} />
@@ -537,15 +562,16 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 8 · EDUCATIONAL: each hair needs a routine ═══ */}
         {step === STEPS.EDU_ROUTINE && (
-          <motion.div key="edu-routine" {...slide} className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-5">
+          <motion.div key="edu-routine" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <ProgressBar current={7} total={TOTAL_QUIZ_STEPS} />
             <div className="text-center flex flex-col gap-3">
               <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style={{ background: PL2 }}>
                 <Sparkles className="w-7 h-7" style={{ color: P_DARK }} />
               </div>
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-tight">
-                {t('quizNatglow.eduRoutine.title')}
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                {hlTitle(t('quizNatglow.eduRoutine.title'), t('quizNatglow.eduRoutine.highlight'))}
               </h2>
-              <p className="text-sm text-stone-500 leading-snug">{t('quizNatglow.eduRoutine.body')}</p>
+              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduRoutine.body')}</p>
             </div>
 
             <div className="bg-white rounded-2xl border border-stone-100 p-4 flex flex-col gap-3">
@@ -564,30 +590,29 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               ))}
             </div>
 
-            <PinkButton onClick={() => setStep(STEPS.PROCESSES)}>
+            <PinkButton onClick={() => setStep(STEPS.CHEM)}>
               {t('quizNatglow.eduRoutine.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
           </motion.div>
         )}
 
-        {/* ═══ STEP 9 · PROCESSES ═══ */}
-        {step === STEPS.PROCESSES && (
-          <motion.div key="processes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={8} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.processes.title'), t('quizNatglow.processes.highlight'))}
-              subtitle={t('quizNatglow.processes.subtitle')}
+        {/* ═══ STEP 9 · CHEM PRODUCTS (detox) ═══ */}
+        {step === STEPS.CHEM && (
+          <motion.div key="chem" {...slide} className={qClass}>
+            <StepHead
+              current={8} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.chemProducts.title')} highlight={t('quizNatglow.chemProducts.highlight')}
+              subtitle={t('quizNatglow.chemProducts.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: 'frecuente', label: t('quizNatglow.processes.opt1'), emoji: '🎨' },
-                { value: 'aveces',    label: t('quizNatglow.processes.opt2'), emoji: '🔁' },
-                { value: 'no',        label: t('quizNatglow.processes.opt3'), emoji: '🌿' },
-                { value: 'noresp',    label: t('quizNatglow.processes.opt4'), emoji: '🤐' },
+                { value: 'yes_heavy', emoji: '⚗️', label: t('quiz.options.chemHeavy'), desc: t('quiz.options.chemHeavyDesc') },
+                { value: 'yes_mild',  emoji: '🧴', label: t('quiz.options.chemMild'),  desc: t('quiz.options.chemMildDesc') },
+                { value: 'no',        emoji: '🌿', label: t('quiz.options.chemNo'),    desc: t('quiz.options.chemNoDesc') },
               ].map(opt => (
-                <QuizOption key={opt.value} {...opt} selected={answers.processes === opt.value}
-                  onClick={() => pick('processes', opt.value, STEPS.RECIPES)} />
+                <QuizOption key={opt.value} {...opt} selected={answers.chemProducts === opt.value}
+                  onClick={() => pick('chemProducts', opt.value, STEPS.RECIPES)} />
               ))}
             </div>
           </motion.div>
@@ -595,19 +620,19 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 10 · RECIPES INTEREST ═══ */}
         {step === STEPS.RECIPES && (
-          <motion.div key="recipes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={9} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.recipes.title'), t('quizNatglow.recipes.highlight'))}
+          <motion.div key="recipes" {...slide} className={qClass}>
+            <StepHead
+              current={9} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.recipes.title')} highlight={t('quizNatglow.recipes.highlight')}
               subtitle={t('quizNatglow.recipes.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: 'si',      label: t('quizNatglow.recipes.opt1'), emoji: '😍' },
-                { value: 'faciles', label: t('quizNatglow.recipes.opt2'), emoji: '👍' },
-                { value: 'talvez',  label: t('quizNatglow.recipes.opt3'), emoji: '🤔' },
-                { value: 'basica',  label: t('quizNatglow.recipes.opt4'), emoji: '🧼' },
+                { value: 'si',      emoji: '💚', label: t('quizNatglow.recipes.opt1'), desc: t('quizNatglow.recipes.opt1desc') },
+                { value: 'faciles', emoji: '⏱️', label: t('quizNatglow.recipes.opt2'), desc: t('quizNatglow.recipes.opt2desc') },
+                { value: 'talvez',  emoji: '🤔', label: t('quizNatglow.recipes.opt3'), desc: t('quizNatglow.recipes.opt3desc') },
+                { value: 'basica',  emoji: '🧴', label: t('quizNatglow.recipes.opt4'), desc: t('quizNatglow.recipes.opt4desc') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.recipes === opt.value}
                   onClick={() => pick('recipes', opt.value, STEPS.TIME)} />
@@ -618,19 +643,18 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 11 · TIME AVAILABLE ═══ */}
         {step === STEPS.TIME && (
-          <motion.div key="time" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={10} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 10, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.time.title'), t('quizNatglow.time.highlight'))}
+          <motion.div key="time" {...slide} className={qClass}>
+            <StepHead
+              current={10} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 10, total: TOTAL_QUIZ_STEPS })}
+              title={t('quizNatglow.time.title')} highlight={t('quizNatglow.time.highlight')}
               subtitle={t('quizNatglow.time.subtitle')}
             />
             <div className="flex flex-col gap-3">
               {[
-                { value: '10',       label: t('quizNatglow.time.opt1'), emoji: '⏱️' },
-                { value: '20',       label: t('quizNatglow.time.opt2'), emoji: '⏰' },
-                { value: '30',       label: t('quizNatglow.time.opt3'), emoji: '🕒' },
-                { value: 'flexible', label: t('quizNatglow.time.opt4'), emoji: '🌈' },
+                { value: '10', emoji: '⏱️', label: t('quizNatglow.time.opt1'), desc: t('quizNatglow.time.opt1desc') },
+                { value: '20', emoji: '⏰', label: t('quizNatglow.time.opt2'), desc: t('quizNatglow.time.opt2desc') },
+                { value: '30', emoji: '⏳', label: t('quizNatglow.time.opt3'), desc: t('quizNatglow.time.opt3desc') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.timeAvailable === opt.value}
                   onClick={() => pick('timeAvailable', opt.value, STEPS.EDU_RECIPES)} />
@@ -641,12 +665,16 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
         {/* ═══ STEP 12 · EDUCATIONAL: random recipes vs guided routine ═══ */}
         {step === STEPS.EDU_RECIPES && (
-          <motion.div key="edu-recipes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-8 pb-8 flex flex-col gap-5">
+          <motion.div key="edu-recipes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <ProgressBar current={10} total={TOTAL_QUIZ_STEPS} />
             <div className="text-center flex flex-col gap-3">
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-tight">
-                {t('quizNatglow.eduRecipes.title')}
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                {hlTitle(
+                  `${t('quizNatglow.eduRecipes.titlePre')} ${t('quizNatglow.eduRecipes.titleVs')} ${t('quizNatglow.eduRecipes.titlePost')}`,
+                  t('quizNatglow.eduRecipes.highlight'),
+                )}
               </h2>
-              <p className="text-sm text-stone-500 leading-snug">{t('quizNatglow.eduRecipes.body')}</p>
+              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduRecipes.subtitle')}</p>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -656,7 +684,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   <h3 className="font-bold text-stone-800">{t('quizNatglow.eduRecipes.sinTitle')}</h3>
                 </div>
                 <ul className="space-y-3">
-                  {[t('quizNatglow.eduRecipes.sin1'), t('quizNatglow.eduRecipes.sin2'), t('quizNatglow.eduRecipes.sin3')].map((item, i) => (
+                  {[t('quizNatglow.eduRecipes.sin1'), t('quizNatglow.eduRecipes.sin2'), t('quizNatglow.eduRecipes.sin3'), t('quizNatglow.eduRecipes.sin4')].map((item, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm text-stone-600 leading-snug">
                       <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
                       {item}
@@ -671,7 +699,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   <h3 className="font-bold text-stone-800">{t('quizNatglow.eduRecipes.conTitle')}</h3>
                 </div>
                 <ul className="space-y-3">
-                  {[t('quizNatglow.eduRecipes.con1'), t('quizNatglow.eduRecipes.con2'), t('quizNatglow.eduRecipes.con3')].map((item, i) => (
+                  {[t('quizNatglow.eduRecipes.con1'), t('quizNatglow.eduRecipes.con2'), t('quizNatglow.eduRecipes.con3'), t('quizNatglow.eduRecipes.con4')].map((item, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm text-stone-700 font-medium leading-snug">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
                       {item}
@@ -681,54 +709,26 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               </div>
             </div>
 
-            <PinkButton onClick={() => setStep(STEPS.FOLLOW)}>
+            <PinkButton onClick={() => setStep(STEPS.APP_PREVIEW)}>
               {t('quizNatglow.eduRecipes.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
           </motion.div>
         )}
 
-        {/* ═══ STEP 13 · FOLLOW PREFERENCE ═══ */}
-        {step === STEPS.FOLLOW && (
-          <motion.div key="follow" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <PersuasiveStepHeader
-              current={11} total={TOTAL_QUIZ_STEPS} t={t} accentColor={P_DARK} progressGradient={PINK_BAR}
-              badgeText={t('quizNatglow.stepBadge', { current: 11, total: TOTAL_QUIZ_STEPS })}
-              title={hlTitle(t('quizNatglow.follow.title'), t('quizNatglow.follow.highlight'))}
-              subtitle={t('quizNatglow.follow.subtitle')}
-            />
-            <div className="flex flex-col gap-3">
-              {[
-                { value: 'semanal', label: t('quizNatglow.follow.opt1'), emoji: '📅' },
-                { value: 'recetas', label: t('quizNatglow.follow.opt2'), emoji: '📝' },
-                { value: 'fases',   label: t('quizNatglow.follow.opt3'), emoji: '🧩' },
-                { value: 'mezcla',  label: t('quizNatglow.follow.opt4'), emoji: '🔀' },
-              ].map(opt => (
-                <QuizOption key={opt.value} {...opt} selected={answers.followPref === opt.value}
-                  onClick={() => pick('followPref', opt.value, STEPS.APP_PREVIEW)} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ═══ STEP 14 · APP PREVIEW ═══ */}
+        {/* ═══ STEP 13 · APP PREVIEW ═══ */}
         {step === STEPS.APP_PREVIEW && (
-          <motion.div key="app-preview" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-8 flex flex-col gap-5">
-            <div className="text-center flex flex-col gap-2.5">
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-tight">
-                {t('quizNatglow.appPreview.title')}
+          <motion.div key="app-preview" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <ProgressBar current={10} total={TOTAL_QUIZ_STEPS} />
+            <div className="text-center flex flex-col gap-3">
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                {hlTitle(t('quizNatglow.appPreview.title'), t('quizNatglow.appPreview.highlight'))}
               </h2>
-              <p className="text-sm text-stone-500 leading-snug">{t('quizNatglow.appPreview.subtitle')}</p>
+              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.appPreview.subtitle')}</p>
             </div>
 
-            <MockupCard
-              badges={[
-                { label: t('quizNatglow.appPreview.badge1'), pos: { top: '14px', left: '10px' } },
-                { label: t('quizNatglow.appPreview.badge2'), pos: { top: '40%', right: '10px' } },
-                { label: t('quizNatglow.appPreview.badge3'), pos: { bottom: '18px', left: '14px' } },
-              ]}
-            />
+            <MockupCard />
 
-            <p className="text-sm text-stone-500 text-center leading-snug">{t('quizNatglow.appPreview.caption')}</p>
+            <p className="text-sm text-stone-500 text-center leading-relaxed">{t('quizNatglow.appPreview.caption')}</p>
 
             <PinkButton onClick={() => setStep(STEPS.NAME)}>
               {t('quizNatglow.appPreview.cta')} <ArrowRight className="w-4 h-4" />
@@ -736,10 +736,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 15 · NAME ═══ */}
+        {/* ═══ STEP 14 · NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={12} total={TOTAL_QUIZ_STEPS} />
+            <ProgressBar current={11} total={TOTAL_QUIZ_STEPS} />
             <div className="text-center pt-6">
               <div className="text-5xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quizNatglow.name.title')}</h2>
@@ -766,7 +766,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 16 · LOADING ═══ */}
+        {/* ═══ STEP 15 · LOADING ═══ */}
         {step === STEPS.LOADING && (
           <motion.div
             key="loading"

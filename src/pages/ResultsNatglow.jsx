@@ -108,7 +108,7 @@ export default function ResultsNatglow({ pricingPlan = 'natglow' }) {
                 ? t('natglowFlow.diagnosis.titleWithName', { name })
                 : t('natglowFlow.diagnosis.titleNoName')}
               {' '}
-              <span style={{ color: PINK_DARK, background: PINK_BG, padding: '0 6px' }}>
+              <span style={{ background: '#FB45A9', color: '#fff', padding: '1px 8px', borderRadius: '6px', WebkitBoxDecorationBreak: 'clone', boxDecorationBreak: 'clone' }}>
                 {t('natglowFlow.diagnosis.titleHighlight')}
               </span>
               {' '}

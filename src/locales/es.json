@@ -454,23 +454,25 @@
       "feature3": "Pasos fáciles para incorporar a tu rutina",
       "didYouKnowBadge": "¿Sabías que?",
       "didYouKnowBody": "No todas las recetas funcionan igual para todos. Una rutina organizada puede ayudarte a saber qué cuidados priorizar según tu perfil capilar.",
-      "cta": "Comenzar evaluación",
-      "footer": "Al continuar, aceptas nuestros Términos y Privacidad.",
-      "disclaimer": "Los resultados pueden variar de persona a persona."
+      "cta": "Comenzar evaluación"
     },
     "stepBadge": "PASO {{current}} DE {{total}}",
-    "age": {
-      "title": "¿Cuántos años tienes?",
-      "highlight": "años"
-    },
     "reason": {
       "title": "¿Qué te hizo buscar una rutina capilar hoy?",
       "highlight": "rutina capilar",
       "subtitle": "Esto nos ayuda a entender qué tipo de guía puede ser más útil para ti.",
       "opt1": "Quiero cuidar mejor mi cabello en casa",
+      "opt1desc": "Una rutina simple para el día a día",
       "opt2": "Siento que mi rutina está desorganizada",
+      "opt2desc": "Tengo productos, pero sin un orden claro",
       "opt3": "Quiero probar cuidados más naturales",
-      "opt4": "Quiero saber qué recetas combinan conmigo"
+      "opt3desc": "Prefiero ingredientes simples y caseros",
+      "opt4": "Quiero saber qué recetas combinan conmigo",
+      "opt4desc": "Busco algo pensado para mi perfil"
+    },
+    "age": {
+      "title": "¿Cuántos años tienes?",
+      "highlight": "años"
     },
     "hairType": {
       "title": "¿Cuál es tu tipo de cabello?",
@@ -478,46 +480,36 @@
       "subtitle": "Cada tipo de cabello puede necesitar una forma diferente de cuidado."
     },
     "goal": {
-      "title": "¿Qué te gustaría mejorar en tu rutina capilar?",
-      "highlight": "mejorar",
-      "subtitle": "Selecciona el objetivo que más se acerca a lo que buscas ahora.",
-      "opt1": "Más hidratación y suavidad",
-      "opt2": "Más brillo y movimiento",
-      "opt3": "Menos sensación de frizz",
-      "opt4": "Puntas con apariencia más cuidada",
-      "opt5": "Una rutina más natural y organizada",
-      "opt6": "Cuidar mejor el cabello después de calor o procesos de salón"
-    },
-    "currentRoutine": {
-      "title": "¿Cómo describirías tu rutina actual?",
-      "highlight": "rutina actual",
-      "subtitle": "No hay respuesta correcta. Esto solo nos ayuda a personalizar mejor tu sugerencia.",
-      "opt1": "Uso productos básicos, pero sin una rutina fija",
-      "opt2": "Pruebo recetas de internet de vez en cuando",
-      "opt3": "Hago hidratación cuando me acuerdo",
-      "opt4": "Cuido mi cabello, pero quiero organizar mejor",
-      "opt5": "Casi no tengo una rutina"
+      "title": "¿Qué te gustaría mejorar primero en tu rutina capilar?",
+      "highlight": "mejorar primero",
+      "subtitle": "Elige la opción que más se acerca a lo que buscas ahora.",
+      "opt1": "Hidratación y suavidad",
+      "opt1desc": "Para una apariencia más cuidada al tacto",
+      "opt2": "Brillo y movimiento",
+      "opt2desc": "Para que el cabello se vea más ligero",
+      "opt3": "Control del frizz",
+      "opt3desc": "Para una rutina más ordenada en el día a día",
+      "opt4": "Varias de estas opciones",
+      "opt4desc": "Hidratación, brillo y cuidado general"
     },
     "washFreq": {
-      "title": "¿Cuántas veces por semana lavas tu cabello?",
-      "highlight": "por semana",
-      "subtitle": "La frecuencia de lavado ayuda a organizar mejor los cuidados semanales.",
-      "opt1": "1 a 2 veces por semana",
-      "opt2": "3 a 4 veces por semana",
-      "opt3": "5 o más veces por semana",
-      "opt4": "Depende de la semana"
+      "title": "¿Con qué frecuencia lavas tu cabello?",
+      "highlight": "frecuencia",
+      "subtitle": "La frecuencia de lavado ayuda a organizar mejor los cuidados semanales."
     },
-    "heat": {
-      "title": "¿Usas calor en tu cabello?",
-      "highlight": "calor",
-      "subtitle": "Esto incluye secador, plancha, rizador u otras herramientas de calor.",
-      "opt1": "Sí, varias veces por semana",
-      "opt2": "Sí, algunas veces",
-      "opt3": "Casi nunca",
-      "opt4": "No uso calor"
+    "waterTemp": {
+      "title": "¿A qué temperatura usas el agua?",
+      "highlight": "temperatura",
+      "subtitle": "La temperatura del agua puede influir en cómo se siente el cabello."
+    },
+    "heatTools": {
+      "title": "¿Usas plancha, secador o rizador?",
+      "highlight": "secador",
+      "subtitle": "Esto nos ayuda a ajustar mejor los cuidados sugeridos."
     },
     "eduRoutine": {
       "title": "Cada cabello necesita una rutina diferente",
+      "highlight": "rutina diferente",
       "body": "Por eso estamos considerando tu tipo de cabello, tus hábitos y tu objetivo principal para organizar una sugerencia más compatible con tu perfil.",
       "bullet1": "Tipo de cabello",
       "bullet2": "Frecuencia de lavado",
@@ -525,61 +517,57 @@
       "bullet4": "Tiempo disponible",
       "cta": "Continuar"
     },
-    "processes": {
-      "title": "¿Tu cabello pasa por procesos como tinte, alisado o tratamientos de salón?",
-      "highlight": "procesos",
-      "subtitle": "Esto nos ayuda a adaptar mejor el tipo de cuidado sugerido.",
-      "opt1": "Sí, con frecuencia",
-      "opt2": "A veces",
-      "opt3": "No actualmente",
-      "opt4": "Prefiero no responder"
+    "chemProducts": {
+      "title": "¿Usas alisado, decoloración o tintes?",
+      "highlight": "alisado",
+      "subtitle": "Estos procedimientos pueden afectar la apariencia del cabello con el tiempo."
     },
     "recipes": {
       "title": "¿Te gustaría incluir recetas caseras con ingredientes simples?",
       "highlight": "recetas caseras",
       "subtitle": "NatGlow puede organizar recetas naturales según tu perfil y tu rutina.",
       "opt1": "Sí, me encanta esa idea",
+      "opt1desc": "Me gustan los cuidados naturales",
       "opt2": "Sí, si son fáciles de hacer",
+      "opt2desc": "Siempre que sean rápidas de preparar",
       "opt3": "Tal vez, quiero ver opciones",
-      "opt4": "Prefiero una rutina más básica"
+      "opt3desc": "Quiero conocer las opciones primero",
+      "opt4": "Prefiero una rutina más básica",
+      "opt4desc": "Algo sencillo, sin complicaciones"
     },
     "time": {
       "title": "¿Cuánto tiempo quieres dedicar a tu rutina?",
       "highlight": "tiempo",
       "subtitle": "La idea es que tu plan sea simple de seguir en tu día a día.",
       "opt1": "10 minutos",
+      "opt1desc": "Algo rápido y práctico",
       "opt2": "20 minutos",
+      "opt2desc": "Un tiempo equilibrado",
       "opt3": "30 minutos o más",
-      "opt4": "Quiero algo flexible"
+      "opt3desc": "Puedo dedicar más tiempo a mi cabello"
     },
     "eduRecipes": {
-      "title": "No todas las recetas funcionan igual para todos",
-      "body": "Una receta puede sentirse bien para una persona y no ser ideal para otra. Por eso, NatGlow organiza cuidados según tus respuestas y tu rutina actual.",
-      "sinTitle": "Sin guía",
-      "sin1": "Recetas sueltas",
-      "sin2": "Rutina confusa",
-      "sin3": "Difícil saber qué priorizar",
-      "conTitle": "Con una rutina organizada",
-      "con1": "Recetas compatibles",
-      "con2": "Pasos simples",
-      "con3": "Cuidados según tu perfil",
+      "titlePre": "Probar al azar",
+      "titleVs": "vs",
+      "titlePost": "seguir una rutina guiada",
+      "highlight": "rutina guiada",
+      "subtitle": "Cuando tienes una guía clara, es más fácil saber qué hacer, qué evitar y cómo organizar tus cuidados semana a semana.",
+      "sinTitle": "Sin una rutina guiada",
+      "sin1": "Recetas al azar de internet",
+      "sin2": "No saber qué hacer cada semana",
+      "sin3": "Productos que quizá no combinan",
+      "sin4": "Gastar en cada intento suelto",
+      "conTitle": "Con NatGlow",
+      "con1": "Recetas según tu perfil",
+      "con2": "Rutina semanal paso a paso",
+      "con3": "Ingredientes simples y accesibles",
+      "con4": "Todo organizado en un app",
       "cta": "Continuar"
     },
-    "follow": {
-      "title": "¿Cómo prefieres seguir tu rutina?",
-      "highlight": "seguir tu rutina",
-      "subtitle": "Esto nos ayuda a organizar tu recomendación de una forma más práctica.",
-      "opt1": "Paso a paso cada semana",
-      "opt2": "Recetas simples para elegir",
-      "opt3": "Un plan organizado por fases",
-      "opt4": "Una mezcla de todo"
-    },
     "appPreview": {
-      "title": "Tu rutina será organizada dentro de NatGlow",
+      "title": "Tu rutina será organizada dentro de NatGlow 😍",
+      "highlight": "organizada",
       "subtitle": "Podrás consultar tus recetas, pasos semanales y recomendaciones desde el celular.",
-      "badge1": "Recetas naturales",
-      "badge2": "Plan semanal",
-      "badge3": "Acceso desde el celular",
       "caption": "Estamos preparando una sugerencia con base en tus respuestas.",
       "cta": "Ver mi resultado"
     },
