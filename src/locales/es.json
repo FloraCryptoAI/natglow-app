@@ -478,6 +478,16 @@
       "opt4": "Varias de estas opciones",
       "opt4desc": "Hidratación, brillo y cuidado general"
     },
+    "eduScientific": {
+      "title": "La rutina diaria puede influir en la apariencia del cabello",
+      "highlight": "rutina diaria",
+      "body": "Factores como el uso frecuente de productos, calor y rutinas poco constantes pueden influir en cómo el cabello se ve y se siente.",
+      "darkBox": "Una rutina adecuada de limpieza, hidratación y cuidado puede ayudar a mantener una apariencia más saludable y cuidada.",
+      "labelGood": "Rutina equilibrada",
+      "labelBad": "Acumulación de productos",
+      "caption": "Ilustración visual sobre cómo algunos hábitos pueden influir en la apariencia del cabello.",
+      "cta": "Continuar"
+    },
     "washFreq": {
       "title": "¿Con qué frecuencia lavas tu cabello?",
       "highlight": "frecuencia",
@@ -493,14 +503,15 @@
       "highlight": "secador",
       "subtitle": "Esto nos ayuda a ajustar mejor los cuidados sugeridos."
     },
-    "eduRoutine": {
-      "title": "Cada cabello necesita una rutina diferente",
-      "highlight": "rutina diferente",
-      "body": "Por eso estamos considerando tu tipo de cabello, tus hábitos y tu objetivo principal para organizar una sugerencia más compatible con tu perfil.",
-      "bullet1": "Tipo de cabello",
-      "bullet2": "Frecuencia de lavado",
-      "bullet3": "Objetivo principal",
-      "bullet4": "Tiempo disponible",
+    "socialProof": {
+      "title": "Experiencias compartidas por usuarias",
+      "subtitle": "Cada cabello responde de una forma. Estos son ejemplos de personas que incluyeron cuidados naturales en su rutina.",
+      "testimonialName": "Camila Vargas",
+      "testimonialLocation": "Ciudad de México, MX",
+      "testimonialText": "Durante un tiempo sentí mi cabello con menos brillo y movimiento. Después de incluir una rutina natural en mi día a día, noté una apariencia más cuidada y el cabello con mejor toque. Me gustó la experiencia y la recomendé a algunas amigas.",
+      "beforeLabel": "Antes de la rutina",
+      "afterLabel": "Después de incluir la rutina",
+      "caption": "Experiencia individual. Los resultados pueden variar.",
       "cta": "Continuar"
     },
     "chemProducts": {
@@ -556,22 +567,6 @@
     }
   },
   "natglowFlow": {
-    "diagnosis": {
-      "titleWithName": "{{name}}, preparamos una",
-      "titleNoName": "Preparamos una",
-      "titleHighlight": "rutina personalizada",
-      "titleEnd": "para tu cabello",
-      "subtitle": "Analizamos tus respuestas y separamos recetas caseras, ingredientes simples y pasos de cuidado pensados para tu perfil capilar.",
-      "factorsHeading": "Aspectos considerados en tu rutina",
-      "cta": "Quiero ver mi rutina personalizada",
-      "reassurance": "Sin productos caros · Sin visitas al salón · Con ingredientes simples",
-      "transitionTitle": "Estamos organizando tu acceso...",
-      "transitionSteps": [
-        "Preparando tus recetas compatibles",
-        "Separando tu plan semanal",
-        "Cargando tu protocolo NatGlow"
-      ]
-    },
     "offer": {
       "hero": {
         "tag": "🤩 ¡Protocolo generado con éxito!",

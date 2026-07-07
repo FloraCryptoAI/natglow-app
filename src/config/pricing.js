@@ -34,6 +34,5 @@ export const PRICING_PLANS = {
     cta_es: 'ACTIVAR MI RUTINA PERSONALIZADA',
     plan_key: 'one_time_basic',
     route_path: '/quiz-natglow',
-    results_path: '/results-natglow',
   },
 }

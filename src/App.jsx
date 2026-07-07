@@ -14,7 +14,6 @@ import QuizDetox from './pages/QuizDetox';
 import QuizNatglow from './pages/QuizNatglow';
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
-import ResultsNatglow from './pages/ResultsNatglow';
 import OfferNatglow from './pages/OfferNatglow';
 import ResultsDetox from './pages/ResultsDetox';
 import OfferDetox from './pages/OfferDetox';
@@ -135,7 +134,8 @@ const AppRoutes = () => {
       <Route path="/offer-bold"      element={<OfferBold pricingPlan="bold" />} />
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
-      <Route path="/results-natglow" element={<ResultsNatglow pricingPlan="natglow" />} />
+      {/* /quiz-natglow has no separate results page — the quiz's own loading
+          screen goes straight to the offer. */}
       <Route path="/offer-natglow"   element={<OfferNatglow pricingPlan="natglow" />} />
 
       {/* Legacy redirects — old ad URLs now point to /quiz-meta (Meta/FB funnel). */}

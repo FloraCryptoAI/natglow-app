@@ -10,6 +10,7 @@ import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import { PRICING_PLANS } from '@/config/pricing'
 import LegalLine from '@/components/LegalLine'
+import TestimonialCard from '@/components/quiz/TestimonialCard'
 
 // Dedicated sessionStorage namespace so this funnel never shares quiz state
 // with /quiz-meta or /quiz (they all resolve to plan_key 'one_time_basic').
@@ -24,16 +25,17 @@ const STEPS = {
   HAIR_TYPE: 1,
   AGE: 2,
   GOAL: 3,
-  WASH_FREQ: 4,
-  WATER_TEMP: 5,
-  HEAT_TOOLS: 6,
-  EDU_ROUTINE: 7,
-  CHEM: 8,
-  TIME: 9,
-  EDU_RECIPES: 10,
-  NAME: 11,
-  APP_PREVIEW: 12,
-  LOADING: 13,
+  EDU_SCIENTIFIC: 4,
+  WASH_FREQ: 5,
+  WATER_TEMP: 6,
+  HEAT_TOOLS: 7,
+  SOCIAL_PROOF: 8,
+  CHEM: 9,
+  TIME: 10,
+  EDU_RECIPES: 11,
+  NAME: 12,
+  APP_PREVIEW: 13,
+  LOADING: 14,
 }
 // Progress bar denominator: hairType, age, goal, washFreq, waterTemp,
 // heatTools, chem, time, name = 9 real questions.
@@ -45,6 +47,8 @@ const PINK_GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 // Softer hero gradient — mirrors the app's "Mi Rutina" header + the offer hero.
 const BRAND_GRAD = 'linear-gradient(135deg, #FB45A9, #FFB3DD)'
 const PL2 = '#FFE4F2'
+// Kept only for the "rutina equilibrada" vs "acumulación" comparison labels.
+const GREEN = '#27AE60'
 
 // Enter-only fade: no exit and no transform. The old step unmounts instantly
 // (like the app's route swaps that DO scroll to top on iOS), and there is no
@@ -68,6 +72,19 @@ function ProgressBar({ current, total }) {
         transition={{ duration: 0.4 }}
       />
     </div>
+  )
+}
+
+// Badge + bar for non-question screens (educational/testimonial/name) that
+// still count toward the step sequence — same visual as StepHead, no title.
+function StepProgress({ current, total, t }) {
+  return (
+    <>
+      <span className="self-center inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-[10px] font-extrabold tracking-wider" style={{ background: P }}>
+        {t('quizNatglow.stepBadge', { current, total })}
+      </span>
+      <ProgressBar current={current} total={total} />
+    </>
   )
 }
 
@@ -123,7 +140,7 @@ function StepHead({ current, total, badge, title, highlight, subtitle }) {
 function QuizOption({ label, desc, emoji, selected, onClick }) {
   return (
     <div
-      className={`card-option px-4 py-4 flex items-center gap-4 ${selected ? 'selected' : ''}`}
+      className={`card-option px-5 py-5 flex items-center gap-4 ${selected ? 'selected' : ''}`}
       onClick={onClick}
     >
       <span className="text-3xl leading-none flex-shrink-0">{emoji}</span>
@@ -192,11 +209,12 @@ function MockupCard({ width = '118%' }) {
 
 export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.natglow
-  const { plan_key, results_path } = planConfig
-  // _v4: quiz restructured again (reason/recipes questions removed, hairType
-  // before age, name before app preview), so an in-progress session under an
-  // old key must not restore to a shifted step.
-  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v4`
+  const { plan_key } = planConfig
+  // _v5: quiz restructured again (results page removed — loading now goes
+  // straight to the offer; testimonial + follicle-comparison screens restored;
+  // step badges added to previously badge-less screens), so an in-progress
+  // session under an old key must not restore to a shifted step.
+  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v5`
 
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -292,7 +310,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     const done = setTimeout(() => {
       sessionStorage.removeItem(QUIZ_STATE_KEY)
       sessionStorage.setItem(`glow_results_answers_${STORE}`, JSON.stringify(answers))
-      navigate(results_path, { state: { answers } })
+      // No separate results page in this funnel — go straight to the offer.
+      navigate('/offer-natglow', { state: { answers } })
     }, 2800)
     return () => { timers.forEach(clearTimeout); clearTimeout(done) }
   }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -307,8 +326,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   }
 
   // TikTok SubmitForm on name submit (stable page). Facebook Lead is intentionally
-  // NOT fired here — it fires on the results page (page: quiz_result) per the
-  // Meta funnel spec. leadFiredRef guards double submits.
+  // NOT fired here — it fires on the offer page view (page: quiz_offer), since
+  // this funnel has no separate results page. leadFiredRef guards double submits.
   const leadFiredRef = useRef(false)
   const handleNameSubmit = () => {
     if (!answers.name.trim()) return
@@ -342,17 +361,19 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ STEP 0 · WELCOME (no image) ═══ */}
         {step === STEPS.WELCOME && (
           <motion.div key="welcome" {...slide} className="max-w-lg mx-auto w-full px-4 pt-6 pb-8 flex flex-col gap-5">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full" style={{ background: PL2, color: P_DARK }}>
-                {t('quizNatglow.welcome.badge')}
-              </span>
-            </div>
+            <div className="flex flex-col gap-3">
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full" style={{ background: PL2, color: P_DARK }}>
+                  {t('quizNatglow.welcome.badge')}
+                </span>
+              </div>
 
-            <div className="text-center flex flex-col gap-2.5">
-              <h1 className="text-3xl font-extrabold text-stone-900 leading-tight">
-                {hlTitle(t('quizNatglow.welcome.title'), t('quizNatglow.welcome.highlight'))}
-              </h1>
-              <p className="text-base text-stone-500 leading-snug">{t('quizNatglow.welcome.subtitle')}</p>
+              <div className="text-center flex flex-col gap-3">
+                <h1 className="text-3xl font-extrabold text-stone-900 leading-tight">
+                  {hlTitle(t('quizNatglow.welcome.title'), t('quizNatglow.welcome.highlight'))}
+                </h1>
+                <p className="text-base text-stone-500 leading-snug">{t('quizNatglow.welcome.subtitle')}</p>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -439,7 +460,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                 <div
                   key={opt.value}
                   className={`img-card h-full flex flex-col ${answers.hairGoal === opt.value ? 'selected' : ''}`}
-                  onClick={() => pick('hairGoal', opt.value, STEPS.WASH_FREQ)}
+                  onClick={() => pick('hairGoal', opt.value, STEPS.EDU_SCIENTIFIC)}
                 >
                   <div className="w-full h-36 overflow-hidden" style={{ background: PL2 }}>
                     <img
@@ -464,7 +485,45 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 4 · WASH FREQ (detox, title only) ═══ */}
+        {/* ═══ EDUCATIONAL: routine vs residue buildup (follicle comparison) ═══ */}
+        {step === STEPS.EDU_SCIENTIFIC && (
+          <motion.div key="edu-scientific" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <StepProgress current={3} total={TOTAL_QUIZ_STEPS} t={t} />
+            <div className="text-center flex flex-col gap-3">
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                {hlTitle(t('quizNatglow.eduScientific.title'), t('quizNatglow.eduScientific.highlight'))}
+              </h2>
+              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduScientific.body')}</p>
+            </div>
+
+            <div className="rounded-2xl p-4 text-center font-bold text-sm text-stone-700 border border-stone-100" style={{ background: '#FFF5FA' }}>
+              {t('quizNatglow.eduScientific.darkBox')}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: GREEN }}>{t('quizNatglow.eduScientific.labelGood')}</span>
+                <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
+                  <img src={`${IMG}/follicle-healthy.webp`} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="self-start px-2 py-0.5 rounded text-white text-xs font-extrabold" style={{ background: '#6b7280' }}>{t('quizNatglow.eduScientific.labelBad')}</span>
+                <div className="rounded-2xl overflow-hidden bg-stone-200" style={{ aspectRatio: '1/1' }}>
+                  <img src={`${IMG}/follicle-damaged.webp`} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.eduScientific.caption')}</p>
+
+            <PinkButton onClick={() => setStep(STEPS.WASH_FREQ)}>
+              {t('quizNatglow.eduScientific.cta')} <ArrowRight className="w-4 h-4" />
+            </PinkButton>
+          </motion.div>
+        )}
+
+        {/* ═══ STEP 5 · WASH FREQ (detox, title only) ═══ */}
         {step === STEPS.WASH_FREQ && (
           <motion.div key="wash-freq" {...slide} className={qClass}>
             <StepHead
@@ -486,7 +545,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 5 · WATER TEMP (detox, title only) ═══ */}
+        {/* ═══ STEP 6 · WATER TEMP (detox, title only) ═══ */}
         {step === STEPS.WATER_TEMP && (
           <motion.div key="water-temp" {...slide} className={qClass}>
             <StepHead
@@ -508,7 +567,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 6 · HEAT TOOLS (detox, title only) ═══ */}
+        {/* ═══ STEP 7 · HEAT TOOLS (detox, title only) ═══ */}
         {step === STEPS.HEAT_TOOLS && (
           <motion.div key="heat-tools" {...slide} className={qClass}>
             <StepHead
@@ -524,49 +583,42 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                 { value: 'rarely', emoji: '🌬️', label: t('quiz.options.heatRarely') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.heatTools === opt.value}
-                  onClick={() => pick('heatTools', opt.value, STEPS.EDU_ROUTINE)} />
+                  onClick={() => pick('heatTools', opt.value, STEPS.SOCIAL_PROOF)} />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* ═══ STEP 7 · EDUCATIONAL: each hair needs a routine ═══ */}
-        {step === STEPS.EDU_ROUTINE && (
-          <motion.div key="edu-routine" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <ProgressBar current={6} total={TOTAL_QUIZ_STEPS} />
-            <div className="text-center flex flex-col gap-3">
-              <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style={{ background: PL2 }}>
-                <Sparkles className="w-7 h-7" style={{ color: P_DARK }} />
-              </div>
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                {hlTitle(t('quizNatglow.eduRoutine.title'), t('quizNatglow.eduRoutine.highlight'))}
-              </h2>
-              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduRoutine.body')}</p>
+        {/* ═══ SOCIAL PROOF (testimonial) ═══ */}
+        {step === STEPS.SOCIAL_PROOF && (
+          <motion.div key="social-proof" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <StepProgress current={6} total={TOTAL_QUIZ_STEPS} t={t} />
+
+            <div className="rounded-2xl p-4 text-center border border-stone-100" style={{ background: '#FFF5FA' }}>
+              <p className="font-extrabold text-stone-900 text-sm">{t('quizNatglow.socialProof.title')}</p>
+              <p className="text-xs text-stone-600 mt-1">{t('quizNatglow.socialProof.subtitle')}</p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-stone-100 p-4 flex flex-col gap-3">
-              {[
-                { emoji: '🌿', text: t('quizNatglow.eduRoutine.bullet1') },
-                { emoji: '💧', text: t('quizNatglow.eduRoutine.bullet2') },
-                { emoji: '✨', text: t('quizNatglow.eduRoutine.bullet3') },
-                { emoji: '📅', text: t('quizNatglow.eduRoutine.bullet4') },
-              ].map((b, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg" style={{ background: '#FFF5FA' }}>
-                    {b.emoji}
-                  </div>
-                  <p className="text-sm text-stone-700 font-medium">{b.text}</p>
-                </div>
-              ))}
-            </div>
+            <TestimonialCard
+              avatarUrl={`${IMG}/testimonial-camila.webp`}
+              name={t('quizNatglow.socialProof.testimonialName')}
+              location={t('quizNatglow.socialProof.testimonialLocation')}
+              text={t('quizNatglow.socialProof.testimonialText')}
+              beforeUrl={`${IMG}/antes-1.webp`}
+              afterUrl={`${IMG}/depois-1.webp`}
+              beforeLabel={t('quizNatglow.socialProof.beforeLabel')}
+              afterLabel={t('quizNatglow.socialProof.afterLabel')}
+            />
+
+            <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.socialProof.caption')}</p>
 
             <PinkButton onClick={() => setStep(STEPS.CHEM)}>
-              {t('quizNatglow.eduRoutine.cta')} <ArrowRight className="w-4 h-4" />
+              {t('quizNatglow.socialProof.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
           </motion.div>
         )}
 
-        {/* ═══ STEP 8 · CHEM PRODUCTS (detox, title only) ═══ */}
+        {/* ═══ STEP 9 · CHEM PRODUCTS (detox, title only) ═══ */}
         {step === STEPS.CHEM && (
           <motion.div key="chem" {...slide} className={qClass}>
             <StepHead
@@ -588,7 +640,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 9 · TIME AVAILABLE (title only) ═══ */}
+        {/* ═══ STEP 10 · TIME AVAILABLE (title only) ═══ */}
         {step === STEPS.TIME && (
           <motion.div key="time" {...slide} className={qClass}>
             <StepHead
@@ -610,10 +662,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 10 · EDUCATIONAL: random recipes vs guided routine ═══ */}
+        {/* ═══ STEP 11 · EDUCATIONAL: random recipes vs guided routine ═══ */}
         {step === STEPS.EDU_RECIPES && (
           <motion.div key="edu-recipes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <ProgressBar current={8} total={TOTAL_QUIZ_STEPS} />
+            <StepProgress current={8} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center flex flex-col gap-3">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                 {hlTitle(
@@ -662,10 +714,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 11 · NAME ═══ */}
+        {/* ═══ STEP 12 · NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <ProgressBar current={9} total={TOTAL_QUIZ_STEPS} />
+            <StepProgress current={9} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center pt-6">
               <div className="text-5xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quizNatglow.name.title')}</h2>
@@ -692,10 +744,9 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 12 · APP PREVIEW ═══ */}
+        {/* ═══ STEP 13 · APP PREVIEW (no progress indicator — final reveal) ═══ */}
         {step === STEPS.APP_PREVIEW && (
           <motion.div key="app-preview" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <ProgressBar current={9} total={TOTAL_QUIZ_STEPS} />
             <div className="text-center flex flex-col gap-3">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                 {hlTitle(
@@ -716,7 +767,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ STEP 13 · LOADING ═══ */}
+        {/* ═══ STEP 14 · LOADING ═══ */}
         {step === STEPS.LOADING && (
           <motion.div
             key="loading"

@@ -97,10 +97,18 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   const [showSticky, setShowSticky] = useState(false)
   const testimonialsRef = useRef(null)
 
+  // Fires the Meta Lead here (page: quiz_offer) — this funnel has no separate
+  // results page, so the offer view is the conversion signal for the funnel.
+  // leadFiredRef guards a re-render/StrictMode double fire.
+  const leadFiredRef = useRef(false)
   useEffect(() => {
     trackFunnelEvent('offer_natglow_viewed', null, plan_key)
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
       trackFbEvent('ViewContent', { funnel: 'quiz_natglow', page: 'quiz_offer' })
+      if (!leadFiredRef.current) {
+        leadFiredRef.current = true
+        trackFbEvent('Lead', { funnel: 'quiz_natglow', page: 'quiz_offer' })
+      }
       trackTtEvent('ViewContent', { content_name: 'offer_natglow', content_id: plan_key, content_type: 'product' })
     })
   }, [plan_key])
