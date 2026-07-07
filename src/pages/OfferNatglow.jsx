@@ -362,9 +362,10 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               <BeforeAfterTestimonialCarousel
                 testimonials={testimonials}
                 verifiedBadgeTemplate={verifiedBadge}
-                beforeLabel={t('natglowFlow.offer.testimonials.beforeLabel')}
-                afterLabel={t('natglowFlow.offer.testimonials.afterLabel')}
+                showBeforeAfterLabels={false}
                 cardBorder="border-stone-100"
+                accentColor={PINK}
+                accentDark={PINK_DARK}
               />
             )}
             <p className="text-[11px] text-stone-400 text-center italic mt-4">

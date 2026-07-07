@@ -639,8 +639,6 @@
       "testimonials": {
         "title": "Experiencias compartidas por usuarias",
         "subtitle": "Personas que incluyeron una rutina guiada en su cuidado capilar. Cada cabello responde de forma diferente.",
-        "beforeLabel": "Antes de la rutina",
-        "afterLabel": "Con la rutina",
         "disclaimer": "Experiencia individual. Los resultados pueden variar.",
         "cta": "Quiero activar mi rutina personalizada"
       },
@@ -670,7 +668,8 @@
         "name": "Camila Vargas",
         "location": "Ciudad de México, MX",
         "duration": "Algunas semanas",
-        "text": "Mi cabello, antes opaco, recuperó el brillo y la suavidad. La rutina casera me sorprendió mucho.",
+        "text": "Durante un tiempo sentí mi cabello con menos brillo y movimiento. Después de incluir una rutina natural en mi día a día, noté una apariencia más cuidada y el cabello con mejor toque. Me gustó la experiencia y la recomendé a algunas amigas.",
+        "avatar": "/images/quiz-natglow/testimonial-camila.webp",
         "antes": "/images/quiz-natglow/foto-a-1.webp",
         "depois": "/images/quiz-natglow/foto-b-1.webp"
       },

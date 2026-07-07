@@ -496,7 +496,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
               <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduScientific.body')}</p>
             </div>
 
-            <div className="rounded-2xl p-4 text-center text-sm text-stone-500 leading-relaxed border" style={{ borderColor: P, background: '#FFF5FA' }}>
+            <div className="rounded-2xl p-4 text-center text-sm text-stone-700 leading-relaxed border" style={{ borderColor: '#FFB3DD', background: '#FFF5FA' }}>
               {t('quizNatglow.eduScientific.darkBox')}
             </div>
 
@@ -594,7 +594,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           <motion.div key="social-proof" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
             <StepProgress current={6} total={TOTAL_QUIZ_STEPS} t={t} />
 
-            <div className="rounded-2xl p-4 text-center border" style={{ borderColor: P, background: '#FFF5FA' }}>
+            <div className="rounded-2xl p-4 text-center border" style={{ borderColor: '#FFB3DD', background: '#FFF5FA' }}>
               <p className="font-extrabold text-sm mb-1" style={{ color: P_DARK }}>{t('quizNatglow.socialProof.title')}</p>
               <p className="text-sm text-stone-700 leading-relaxed">{t('quizNatglow.socialProof.subtitle')}</p>
             </div>

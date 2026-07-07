@@ -5,7 +5,16 @@ import { Star } from 'lucide-react'
 const GREEN = '#27AE60'
 const RED = '#C0392B'
 
-export default function BeforeAfterTestimonialCarousel({ testimonials = [], verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO', beforeLabel = 'ANTES', afterLabel = 'DESPUÉS', cardBorder = 'border-stone-200' }) {
+export default function BeforeAfterTestimonialCarousel({
+  testimonials = [],
+  verifiedBadgeTemplate = '🌿 RESULTADO EN {{duration}} · VERIFICADO',
+  beforeLabel = 'ANTES',
+  afterLabel = 'DESPUÉS',
+  showBeforeAfterLabels = true,
+  cardBorder = 'border-stone-200',
+  accentColor = GREEN,
+  accentDark = '#1E8449',
+}) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -32,8 +41,16 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
           className={`w-full rounded-2xl overflow-hidden bg-white border ${cardBorder} shadow-sm flex flex-col`}
         >
           <div className="px-5 py-4 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-extrabold text-white text-lg" style={{ background: `linear-gradient(135deg, ${GREEN}, #1E8449)` }}>
-              {t.name?.charAt(0) || 'M'}
+            <div className="relative w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-extrabold text-white text-lg overflow-hidden" style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentDark})` }}>
+              <span>{t.name?.charAt(0) || 'M'}</span>
+              {t.avatar && (
+                <img
+                  src={t.avatar}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={e => { e.currentTarget.style.display = 'none' }}
+                />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-stone-900 text-sm leading-tight">{t.name}</p>
@@ -47,29 +64,29 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
           </div>
 
           <div className="px-5 pb-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider text-white" style={{ background: GREEN }}>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider text-white" style={{ background: accentColor }}>
               {badge}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-0.5 bg-stone-100 mt-2">
             <div className="relative">
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: RED }}>{beforeLabel}</span>
+              {showBeforeAfterLabels && <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: RED }}>{beforeLabel}</span>}
               <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
                 <img
                   src={t.antes}
-                  alt="antes"
+                  alt=""
                   className="w-full h-full object-cover"
                   onError={e => { e.currentTarget.style.display = 'none' }}
                 />
               </div>
             </div>
             <div className="relative">
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: GREEN }}>{afterLabel}</span>
+              {showBeforeAfterLabels && <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-white text-[10px] font-extrabold z-10 max-w-[85%] leading-tight" style={{ background: accentColor }}>{afterLabel}</span>}
               <div className="bg-stone-200" style={{ aspectRatio: '3/4' }}>
                 <img
                   src={t.depois}
-                  alt="después"
+                  alt=""
                   className="w-full h-full object-cover"
                   onError={e => { e.currentTarget.style.display = 'none' }}
                 />
@@ -89,7 +106,7 @@ export default function BeforeAfterTestimonialCarousel({ testimonials = [], veri
             key={i}
             onClick={() => setIndex(i)}
             className="w-2 h-2 rounded-full transition-all duration-300"
-            style={{ background: i === index ? GREEN : '#e7e5e4' }}
+            style={{ background: i === index ? accentColor : '#e7e5e4' }}
             aria-label={`Testimonial ${i + 1}`}
           />
         ))}
