@@ -152,9 +152,18 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   }, [user, isSubscribed, navigate])
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-    document.documentElement.scrollTop = 0
-    document.body.scrollTop = 0
+    const toTop = () => {
+      window.scrollTo(0, 0)
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+    toTop()
+    // With AnimatePresence mode="wait" the next step only mounts ~300ms later
+    // (after the exit animation), so also reset once it is actually on screen —
+    // otherwise the new question can open scrolled to the bottom.
+    const t1 = setTimeout(toTop, 340)
+    const t2 = setTimeout(toTop, 520)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [step])
 
   useEffect(() => {
