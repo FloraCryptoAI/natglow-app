@@ -309,10 +309,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         .btn-primary { background: linear-gradient(135deg,#FB45A9,#E03594); color:#fff; border-radius:9999px; font-weight:700; transition:all .2s; }
         .btn-primary:hover { opacity:.9; box-shadow:0 8px 24px rgba(251,69,169,.35); transform:scale(1.02); }
         .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
-        .card-option { border:1px solid #f5f5f4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
+        .card-option { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; }
         .card-option:active { border-color:#FB45A9; background:#FFF5FA; }
         .card-option.selected { border-color:#FB45A9; background:#FFF5FA; }
-        .img-card { border:1px solid #f5f5f4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
+        .img-card { border:2px solid #e7e5e4; border-radius:16px; cursor:pointer; transition:all .2s; background:#fff; overflow:hidden; }
         .img-card:hover { border-color:#FB45A9; }
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
