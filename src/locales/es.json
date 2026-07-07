@@ -447,8 +447,8 @@
   "quizNatglow": {
     "welcome": {
       "badge": "🌿 Evaluación capilar personalizada",
-      "title": "Descubre tu rutina capilar ideal",
-      "highlight": "capilar ideal",
+      "title": "Descubre tu rutina capilar personalizada",
+      "highlight": "capilar personalizada",
       "subtitle": "Responde unas preguntas rápidas y recibe una sugerencia personalizada con recetas caseras, cuidados simples y pasos fáciles de seguir.",
       "feature1": "Ingredientes simples que puedes tener en casa",
       "feature2": "Recetas adaptadas a tu perfil capilar",
@@ -481,8 +481,8 @@
     "eduScientific": {
       "title": "La rutina diaria puede influir en la apariencia del cabello",
       "highlight": "rutina diaria",
-      "body": "Factores como el uso frecuente de productos, calor y rutinas poco constantes pueden influir en cómo el cabello se ve y se siente.",
-      "darkBox": "Una rutina adecuada de limpieza, hidratación y cuidado puede ayudar a mantener una apariencia más saludable y cuidada.",
+      "body": "Factores como productos acumulados, calor y falta de constancia pueden influir en cómo el cabello se ve y se siente.",
+      "darkBox": "Una rutina de limpieza, hidratación y cuidado puede ayudar a mantener una apariencia más cuidada en el día a día.",
       "labelGood": "Rutina equilibrada",
       "labelBad": "Productos acumulados",
       "caption": "Ilustración visual sobre cómo algunos hábitos pueden influir en la apariencia del cabello.",
@@ -513,9 +513,12 @@
       "cta": "Continuar"
     },
     "chemProducts": {
-      "title": "¿Usas alisado, decoloración o tintes?",
-      "highlight": "alisado",
-      "subtitle": "Estos procedimientos pueden afectar la apariencia del cabello con el tiempo."
+      "title": "¿Tu cabello pasa por procesos como tinte, decoloración o alisado?",
+      "highlight": "tinte, decoloración o alisado",
+      "subtitle": "Esto nos ayuda a adaptar mejor los cuidados sugeridos.",
+      "opt1": "Sí, con frecuencia",
+      "opt2": "A veces",
+      "opt3": "No actualmente"
     },
     "time": {
       "title": "¿Cuánto tiempo quieres dedicar a tu rutina?",
@@ -544,9 +547,9 @@
       "cta": "Continuar"
     },
     "appPreview": {
-      "titleWithName": "{{name}}, tu rutina será organizada dentro de NatGlow 😍",
-      "titleNoName": "Tu rutina será organizada dentro de NatGlow 😍",
-      "highlight": "organizada",
+      "titleWithName": "{{name}}, estamos organizando tu rutina dentro de NatGlow 😍",
+      "titleNoName": "Estamos organizando tu rutina dentro de NatGlow 😍",
+      "highlight": "organizando",
       "subtitle": "Podrás consultar tus recetas, pasos semanales y recomendaciones en nuestra app exclusiva.",
       "cta": "Generar mi plan personalizado"
     },
@@ -649,14 +652,16 @@
         "subtitle": "Todo lo que necesitas saber antes de activar tu acceso.",
         "items": [
           { "q": "¿Qué recibiré al activar mi acceso?", "a": "Recibirás acceso a tu rutina personalizada dentro de NatGlow, con recetas naturales, recomendaciones prácticas y pasos organizados según tus respuestas." },
-          { "q": "¿Es un pago único?", "a": "Sí. El acceso se activa con un solo pago de US$7,90. No hay mensualidades ni suscripciones." },
+          { "q": "¿Es un pago único?", "a": "Sí. El acceso se activa con un solo pago de {{price}}. No hay mensualidades ni suscripciones." },
           { "q": "¿Cuándo recibo acceso?", "a": "El acceso se libera después de completar tu compra en Hotmart." },
           { "q": "¿Sirve para cualquier tipo de cabello?", "a": "NatGlow fue pensado para diferentes perfiles capilares. La rutina se organiza según la información que diste en la evaluación." },
           { "q": "¿Necesito comprar productos caros?", "a": "No. La propuesta de NatGlow es ayudarte con cuidados simples, recetas caseras e ingredientes accesibles." },
           { "q": "¿Y si no me gusta?", "a": "Tienes una garantía de 7 días. Si dentro de ese plazo sientes que NatGlow no es para ti, puedes solicitar el reembolso según las condiciones de Hotmart." },
-          { "q": "¿Puedo usarlo desde el celular?", "a": "Sí. Puedes acceder desde tu celular y consultar tu rutina cuando quieras." },
-          { "q": "¿El valor aparece en mi moneda local?", "a": "El precio de la oferta es US$7,90. En el checkout, Hotmart puede mostrar el valor equivalente en tu moneda local." }
-        ]
+          { "q": "¿Puedo usarlo desde el celular?", "a": "Sí. Puedes acceder desde tu celular y consultar tu rutina cuando quieras." }
+        ],
+        "localCurrencyQuestion": "¿El valor aparece en mi moneda local?",
+        "localCurrencyAnswerLocal": "Sí. Para tu país, estamos mostrando el valor en moneda local. El valor final se confirma en el checkout.",
+        "localCurrencyAnswerUsd": "El precio se muestra en dólares. El checkout puede mostrar el valor equivalente en tu moneda local."
       },
       "stickyLabelPrefix": "Activar mi rutina"
     },

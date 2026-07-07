@@ -189,7 +189,20 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   const includes = t('natglowFlow.offer.card.includes', { returnObjects: true })
   const compareSin = t('natglowFlow.offer.compare.sin', { returnObjects: true })
   const compareCon = t('natglowFlow.offer.compare.con', { returnObjects: true })
-  const faqItems = t('natglowFlow.offer.faq.items', { returnObjects: true })
+  // Interpolates the resolved country's price into "{{price}}" and appends the
+  // currency FAQ answer, which varies between a local offer and the USD fallback.
+  const rawFaqItems = t('natglowFlow.offer.faq.items', { returnObjects: true })
+  const faqItems = Array.isArray(rawFaqItems)
+    ? [
+        ...rawFaqItems.map(item => ({ ...item, a: item.a.replace('{{price}}', countryOffer.displayPrice) })),
+        {
+          q: t('natglowFlow.offer.faq.localCurrencyQuestion'),
+          a: countryOffer.code === 'default'
+            ? t('natglowFlow.offer.faq.localCurrencyAnswerUsd')
+            : t('natglowFlow.offer.faq.localCurrencyAnswerLocal'),
+        },
+      ]
+    : rawFaqItems
   const testimonials = t('natglowFlow.testimonials', { returnObjects: true })
   const verifiedBadge = t('natglowFlow.verifiedBadge')
 

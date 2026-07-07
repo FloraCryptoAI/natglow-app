@@ -54,10 +54,15 @@ export const COUNTRY_OFFERS = {
 
 function resolveCountryCode() {
   try {
-    const fromUrl = new URLSearchParams(window.location.search).get('country')?.toLowerCase()
-    if (fromUrl && VALID_CODES.includes(fromUrl)) {
-      localStorage.setItem(STORAGE_KEY, fromUrl)
-      return fromUrl
+    const params = new URLSearchParams(window.location.search)
+    // ?country= present always wins, valid or not — an unrecognized code
+    // (e.g. ?country=ar) must NOT fall back to a previously stored country,
+    // it must resolve straight to the USD default (and overwrite the store).
+    if (params.has('country')) {
+      const fromUrl = params.get('country')?.toLowerCase()
+      const code = fromUrl && VALID_CODES.includes(fromUrl) ? fromUrl : 'default'
+      localStorage.setItem(STORAGE_KEY, code)
+      return code
     }
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored && VALID_CODES.includes(stored)) return stored
