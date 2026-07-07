@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Check, Info } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -153,28 +153,26 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     if (user && isSubscribed) navigate('/HairDashboard')
   }, [user, isSubscribed, navigate])
 
-  useEffect(() => {
-    // iOS/WebKit ignores window.scrollTo while there is scroll momentum — every
-    // reset was dropped (it only "worked" when the next step was shorter than the
-    // viewport, forcing a natural clamp to the top). Locking the page (overflow
-    // hidden) for a beat forces that same clamp even when both steps are tall,
-    // then we restore scrolling. This is what finally sticks on iPhone.
-    const html = document.documentElement
-    const body = document.body
-    const prevH = html.style.overflow
-    const prevB = body.style.overflow
-    html.style.overflow = 'hidden'
-    body.style.overflow = 'hidden'
+  const [stepVisible, setStepVisible] = useState(true)
+  const firstStepRef = useRef(true)
+  // iOS/WebKit ignores window.scrollTo mid-momentum; the ONLY reset it honors is
+  // the natural clamp when the document becomes shorter than the viewport (that
+  // is why only the short AGE step ever worked). So on each step change we hide
+  // the step content for one frame — the document collapses, iOS clamps the
+  // scroll to the top — then we show the new step, already at the top.
+  useLayoutEffect(() => {
+    if (firstStepRef.current) { firstStepRef.current = false; return }
+    setStepVisible(false)
     window.scrollTo(0, 0)
-    html.scrollTop = 0
-    body.scrollTop = 0
-    const restore = () => {
-      html.style.overflow = prevH
-      body.style.overflow = prevB
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    const raf = requestAnimationFrame(() => {
       window.scrollTo(0, 0)
-    }
-    const t = setTimeout(restore, 160)
-    return () => { clearTimeout(t); restore() }
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+      setStepVisible(true)
+    })
+    return () => cancelAnimationFrame(raf)
   }, [step])
 
   useEffect(() => {
@@ -252,6 +250,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         .img-card.selected { border-color:#FB45A9; }
       `}</style>
 
+      {stepVisible && (
       <AnimatePresence>
 
         {/* ═══ INTRO (safe) ═══ */}
@@ -714,6 +713,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         )}
 
       </AnimatePresence>
+      )}
       <LegalLine />
     </div>
   )
