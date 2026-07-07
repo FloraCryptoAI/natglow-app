@@ -236,13 +236,13 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     { value: 'crespo',   label: t('quiz.hairTypes.crespo'),   img: `${IMG}/crespo.webp` },
   ]
 
-  // GOAL uses image tiles (like hair type). Placeholder images = the hair
-  // images for now; swap the `img` paths once the real goal images are added.
+  // GOAL uses emoji tiles (same card format as hair type, image swapped for
+  // an emoji since no dedicated photo exists for each goal).
   const GOAL_TILES = [
-    { value: 'hidratacion', img: `${IMG}/liso.webp`,     label: t('quizNatglow.goal.opt1'), desc: t('quizNatglow.goal.opt1desc') },
-    { value: 'brillo',      img: `${IMG}/ondulado.webp`, label: t('quizNatglow.goal.opt2'), desc: t('quizNatglow.goal.opt2desc') },
-    { value: 'frizz',       img: `${IMG}/cacheado.webp`, label: t('quizNatglow.goal.opt3'), desc: t('quizNatglow.goal.opt3desc') },
-    { value: 'varias',      img: `${IMG}/crespo.webp`,   label: t('quizNatglow.goal.opt4'), desc: t('quizNatglow.goal.opt4desc') },
+    { value: 'hidratacion', emoji: '💧', label: t('quizNatglow.goal.opt1'), desc: t('quizNatglow.goal.opt1desc') },
+    { value: 'brillo',      emoji: '✨', label: t('quizNatglow.goal.opt2'), desc: t('quizNatglow.goal.opt2desc') },
+    { value: 'frizz',       emoji: '🌀', label: t('quizNatglow.goal.opt3'), desc: t('quizNatglow.goal.opt3desc') },
+    { value: 'varias',      emoji: '🎯', label: t('quizNatglow.goal.opt4'), desc: t('quizNatglow.goal.opt4desc') },
   ]
 
   useEffect(() => {
@@ -467,15 +467,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                   className={`img-card h-full flex flex-col ${answers.hairGoal === opt.value ? 'selected' : ''}`}
                   onClick={() => pick('hairGoal', opt.value, STEPS.EDU_SCIENTIFIC)}
                 >
-                  <div className="w-full h-36 overflow-hidden" style={{ background: PL2 }}>
-                    <img
-                      src={opt.img}
-                      alt={opt.label}
-                      loading="lazy"
-                      decoding="async"
-                      className="block w-full h-full object-cover"
-                      onError={e => { e.currentTarget.style.display = 'none' }}
-                    />
+                  <div className="w-full h-36 flex items-center justify-center" style={{ background: PL2 }}>
+                    <span className="text-5xl leading-none">{opt.emoji}</span>
                   </div>
                   <div className="px-3 py-3.5 flex-1 flex flex-col items-center justify-center gap-1 text-center">
                     <div className="flex items-center justify-center gap-2">
