@@ -588,10 +588,7 @@
         "appLabel": "Acceso exclusivo a nuestra APP",
         "title": "Activa ahora tu rutina personalizada",
         "subtitle": "Desbloquea el plan que preparamos según tus respuestas y empieza desde tu celular.",
-        "priceCurrency": "US$",
-        "priceValue": "7,90",
         "offerTag": "OFERTA",
-        "priceAnchor": "US$29,90",
         "priceMicro": "Pago único • Sin suscripción • Acceso inmediato",
         "includesTitle": "Tu acceso incluye:",
         "includes": [
@@ -604,7 +601,8 @@
         ],
         "cta": "Activar mi rutina personalizada",
         "ctaSub1": "Acceso inmediato después del pago.",
-        "ctaSub2": "El checkout puede mostrar el valor equivalente en tu moneda local."
+        "ctaSub2": "El checkout puede mostrar el valor equivalente en tu moneda local.",
+        "ctaSub2Local": "El valor final se confirma en el checkout."
       },
       "compare": {
         "titlePre": "Probar al azar",
@@ -660,7 +658,7 @@
           { "q": "¿El valor aparece en mi moneda local?", "a": "El precio de la oferta es US$7,90. En el checkout, Hotmart puede mostrar el valor equivalente en tu moneda local." }
         ]
       },
-      "stickyLabel": "Activar mi rutina · US$7,90"
+      "stickyLabelPrefix": "Activar mi rutina"
     },
     "verifiedBadge": "🌿 EXPERIENCIA COMPARTIDA · {{duration}}",
     "testimonials": [

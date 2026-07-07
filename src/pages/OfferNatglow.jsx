@@ -9,6 +9,7 @@ import { getAttribution } from '@/lib/tracking/attribution'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import { PRICING_PLANS } from '@/config/pricing'
+import { getCountryOffer } from '@/config/countryOffers'
 import LegalLine from '@/components/LegalLine'
 import BeforeAfterTestimonialCarousel from '@/components/BeforeAfterTestimonialCarousel'
 import StickyMobileCTA from '@/components/results/StickyMobileCTA'
@@ -24,6 +25,16 @@ const BRAND_GRAD = 'linear-gradient(135deg, #FB45A9, #FFB3DD)'
 // Pink brand gradient for CTAs / accents (matches the app's buttons).
 const PINK_GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 const PINK_SHADOW = 'rgba(251,69,169,0.4)'
+
+// Splits a formatted price like "$149 MXN" or "US$7,90" into a leading
+// currency symbol, the numeric chunk, and an optional trailing currency code —
+// so the price tile's existing small/big/small layout works for every
+// country's format without a per-country branch in the JSX.
+function splitPrice(display) {
+  const match = display.match(/^([^\d]+)([\d.,]+)\s*(.*)$/)
+  if (!match) return { prefix: '', value: display, suffix: '' }
+  return { prefix: match[1], value: match[2], suffix: match[3] }
+}
 
 const FadeIn = ({ children, delay = 0, className = '' }) => (
   <motion.div
@@ -91,7 +102,12 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
   const navigate = useNavigate()
   const { user, isSubscribed } = useAuth()
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.natglow
-  const { plan_key, route_path, display_price, hotmart_checkout_url } = planConfig
+  const { plan_key, route_path } = planConfig
+  // Resolves ?country=mx|co|pe|cl (or the value persisted by the quiz) to the
+  // matching local price + checkout link; anything else falls back to the
+  // existing USD offer — never mx.
+  const countryOffer = getCountryOffer()
+  const { prefix: pricePrefix, value: priceDigits, suffix: priceSuffix } = splitPrice(countryOffer.displayPrice)
 
   const [loading, setLoading] = useState(false)
   const [showSticky, setShowSticky] = useState(false)
@@ -151,12 +167,12 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
       const ttCompleteId = crypto.randomUUID()
       sessionStorage.setItem('tt_complete_payment_id', ttCompleteId)
       sessionStorage.setItem('tt_complete_plan_key', plan_key)
-      sessionStorage.setItem('tt_complete_value', String(display_price))
-      trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source }, plan_key)
-      trackTtEvent('InitiateCheckout', { value: display_price, currency: 'USD', content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
+      sessionStorage.setItem('tt_complete_value', String(countryOffer.priceValue))
+      trackFunnelEvent('cta_clicked', { fb_event_id: fbEventId, source, country: countryOffer.code }, plan_key)
+      trackTtEvent('InitiateCheckout', { value: countryOffer.priceValue, currency: countryOffer.currency, content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
     }
 
-    let checkoutUrl = hotmart_checkout_url || '/'
+    let checkoutUrl = countryOffer.checkoutUrl || '/'
     const params = new URLSearchParams()
     const funnelSessionId = getFunnelSessionId()
     if (funnelSessionId) params.set('src', funnelSessionId)
@@ -282,17 +298,18 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
                 <div className="rounded-2xl mt-5 px-5 py-9 text-center" style={{ background: '#FFF5FA', border: '1px solid #FFE4F2' }}>
                   <div className="flex items-end justify-center gap-3">
                     <div className="flex items-end gap-1">
-                      <span className="text-base font-bold text-stone-400 mb-2">{t('natglowFlow.offer.card.priceCurrency')}</span>
+                      <span className="text-base font-bold text-stone-400 mb-2">{pricePrefix}</span>
                       <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: PINK_DARK }}>
-                        {t('natglowFlow.offer.card.priceValue')}
+                        {priceDigits}
                       </span>
+                      {priceSuffix && <span className="text-base font-bold text-stone-400 mb-2">{priceSuffix}</span>}
                     </div>
                     <div className="flex flex-col items-start gap-1 mb-1">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-full text-white" style={{ background: PINK }}>
                         {t('natglowFlow.offer.card.offerTag')}
                       </span>
                       <span className="text-sm text-stone-400 line-through decoration-stone-300">
-                        {t('natglowFlow.offer.card.priceAnchor')}
+                        {countryOffer.oldPrice}
                       </span>
                     </div>
                   </div>
@@ -322,7 +339,9 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
                     <Lock className="w-3.5 h-3.5" /> {t('natglowFlow.offer.card.ctaSub1')}
                   </div>
                   <p className="text-[11px] text-stone-400 text-center leading-snug mt-1.5">
-                    {t('natglowFlow.offer.card.ctaSub2')}
+                    {countryOffer.code === 'default'
+                      ? t('natglowFlow.offer.card.ctaSub2')
+                      : t('natglowFlow.offer.card.ctaSub2Local')}
                   </p>
                 </div>
               </div>
@@ -454,7 +473,7 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
 
       {showSticky && (
         <StickyMobileCTA
-          label={t('natglowFlow.offer.stickyLabel')}
+          label={`${t('natglowFlow.offer.stickyLabelPrefix')} · ${countryOffer.displayPrice}`}
           onClick={() => handleCheckout('offer_sticky')}
           loading={loading}
           gradient={PINK_GRAD}
