@@ -77,21 +77,13 @@ Deno.serve(async (req) => {
 
     const url    = new URL(req.url)
     const plan   = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
-    const funnel = url.searchParams.get('funnel') ?? 'all'  // 'all' | 'natglow' | 'detox'
     const pf     = planFilter(plan)
 
-    // Map funnel to event types. Persuasive funnels fire
-    // quiz_natglow_started/quiz_detox_started instead of the legacy quiz_started.
-    // Legacy 'quiz_started'/'quiz_completed' are kept for historical data.
-    const startedEventTypes =
-      funnel === 'natglow' ? ['quiz_natglow_started'] :
-      funnel === 'detox'   ? ['quiz_detox_started'] :
-      ['quiz_started', 'quiz_natglow_started', 'quiz_detox_started']
-
-    const completedEventTypes =
-      funnel === 'natglow' ? ['quiz_natglow_completed'] :
-      funnel === 'detox'   ? ['quiz_detox_completed'] :
-      ['quiz_completed', 'quiz_natglow_completed', 'quiz_detox_completed']
+    // Detox is hidden from the admin now — only /quiz (natglow) answers are
+    // shown. Legacy 'quiz_started'/'quiz_completed' (old /quiz-bold era) are
+    // kept for historical continuity.
+    const startedEventTypes   = ['quiz_started', 'quiz_natglow_started']
+    const completedEventTypes = ['quiz_completed', 'quiz_natglow_completed']
 
     const inOp = (types: string[]) => `in.(${types.map(encodeURIComponent).join(',')})`
 

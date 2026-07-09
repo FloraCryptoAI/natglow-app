@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
 import { trackFunnelEvent } from '@/lib/trackFunnelEvent'
 import { captureAttribution } from '@/lib/tracking/attribution'
-import { captureCountry } from '@/config/countryOffers'
+import { captureCountry, getCountryOffer } from '@/config/countryOffers'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import { PRICING_PLANS } from '@/config/pricing'
@@ -326,7 +326,9 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   const pick = (field, value, next) => { ans(field, value); setStep(next) }
 
   const handleStartWelcome = () => {
-    trackFunnelEvent('quiz_natglow_started', null, plan_key)
+    // Include the offer country (?country= bucket) so the admin can group the
+    // funnel/geography by offer country from the very top of the funnel.
+    trackFunnelEvent('quiz_natglow_started', { country: getCountryOffer().code }, plan_key)
     setStep(STEPS.HAIR_TYPE)
   }
 

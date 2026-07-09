@@ -9,7 +9,6 @@ import {
 } from 'recharts'
 
 const NATGLOW_COLOR = '#0891b2'
-const DETOX_COLOR   = '#7c3aed'
 
 function MetricCard({ icon: Icon, iconBg, iconColor, label, value, sub, loading }) {
   if (loading) {
@@ -124,8 +123,7 @@ export default function AdminGeography() {
   const countryAgeBreakdown = data?.countryAgeBreakdown ?? []
   const bestConverter = data?.bestConverter ?? null
   const monthlyTrend  = data?.monthlyTrend  ?? []
-  const recent        = data?.recent        ?? { weekNatglow: 0, weekDetox: 0, monthNatglow: 0, monthDetox: 0, weekNatglowRevenue: 0, monthNatglowRevenue: 0 }
-  const productPrice  = data?.product_price_usd ?? 17
+  const recent        = data?.recent        ?? { weekNatglow: 0, monthNatglow: 0, weekNatglowRevenue: 0, monthNatglowRevenue: 0 }
 
   const filteredSortedCountries = useMemo(() => {
     const filtered = countries.filter(c => c.started >= minStarts)
@@ -138,16 +136,16 @@ export default function AdminGeography() {
     })
   }, [countries, sortKey, minStarts])
 
-  const fmt$ = (n) => `$${Math.round(n).toLocaleString('pt-BR')}`
+  const fmt$ = (n) => `US$${Math.round(n).toLocaleString('pt-BR')}`
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900">Geografia & Conversão por País</h1>
+          <h1 className="text-xl font-extrabold text-gray-900">Geografia & Conversão</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            Onde investir mais em ads: taxa de conversão e receita por país
+            Por país da oferta (parâmetro ?country=). Receita consolidada em USD
           </p>
         </div>
         <button
@@ -189,7 +187,7 @@ export default function AdminGeography() {
             icon={DollarSign} iconBg="bg-emerald-50" iconColor="text-emerald-500"
             label="Receita total" loading={loading}
             value={fmt$(totals.revenue)}
-            sub="/quiz + Detox"
+            sub="Consolidada em USD"
           />
           <MetricCard
             icon={TrendingUp} iconBg="bg-amber-50" iconColor="text-amber-500"
@@ -204,36 +202,26 @@ export default function AdminGeography() {
 
       {/* Recent window */}
       <section>
-        <SectionHeader title="Vendas recentes (por funil)" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <SectionHeader title="Vendas recentes (/quiz)" />
+        <div className="grid grid-cols-2 gap-4">
           <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="/quiz (esta semana)" value={recent.weekNatglow} loading={loading}
+            label="Vendas esta semana" value={recent.weekNatglow} loading={loading}
             sub={`${fmt$(recent.weekNatglowRevenue)} arrecadado`}
           />
           <MetricCard
-            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Detox (esta semana)" value={recent.weekDetox} loading={loading}
-            sub={`${fmt$(recent.weekDetox * productPrice)} arrecadado`}
-          />
-          <MetricCard
             icon={Users} iconBg="bg-cyan-50" iconColor="text-cyan-500"
-            label="/quiz (este mês)" value={recent.monthNatglow} loading={loading}
+            label="Vendas este mês" value={recent.monthNatglow} loading={loading}
             sub={`${fmt$(recent.monthNatglowRevenue)} arrecadado`}
-          />
-          <MetricCard
-            icon={Users} iconBg="bg-violet-50" iconColor="text-violet-500"
-            label="Detox (este mês)" value={recent.monthDetox} loading={loading}
-            sub={`${fmt$(recent.monthDetox * productPrice)} arrecadado`}
           />
         </div>
       </section>
 
-      {/* Monthly trend chart by funnel */}
+      {/* Monthly trend chart */}
       <section className="bg-white rounded-2xl border border-gray-100 p-5">
         <SectionHeader
-          title="Tendência mensal (/quiz vs Detox)"
-          hint="Vendas por funil nos últimos 6 meses"
+          title="Tendência mensal de vendas"
+          hint="Vendas confirmadas do /quiz nos últimos 6 meses"
         />
         {loading ? <ChartSkeleton h={220} /> : (
           <ResponsiveContainer width="100%" height={220}>
@@ -243,8 +231,7 @@ export default function AdminGeography() {
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
               <Tooltip content={<ChartTooltip />} />
               <Legend wrapperStyle={{ paddingTop: 8, fontSize: 12 }} iconType="circle" />
-              <Bar dataKey="natglow" name="/quiz"       fill={NATGLOW_COLOR} radius={[4,4,0,0]} maxBarSize={42} />
-              <Bar dataKey="detox"   name="Quiz Detox"  fill={DETOX_COLOR}   radius={[4,4,0,0]} maxBarSize={42} />
+              <Bar dataKey="natglow" name="/quiz" fill={NATGLOW_COLOR} radius={[4,4,0,0]} maxBarSize={42} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -293,14 +280,13 @@ export default function AdminGeography() {
             <table className="w-full text-sm min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[11px] uppercase tracking-wider text-gray-400">
-                  <th className="text-left  font-bold py-2.5 pr-3">País</th>
+                  <th className="text-left  font-bold py-2.5 pr-3">País da oferta</th>
                   <th className="text-right font-bold py-2.5 px-2">Quiz iniciado</th>
                   <th className="text-right font-bold py-2.5 px-2">Concluído</th>
                   <th className="text-right font-bold py-2.5 px-2">% concluiu</th>
                   <th className="text-right font-bold py-2.5 px-2">Vendas</th>
                   <th className="text-right font-bold py-2.5 px-2">Conv. %</th>
-                  <th className="text-right font-bold py-2.5 px-2">Receita</th>
-                  <th className="text-right font-bold py-2.5 pl-2">/quiz/Detox</th>
+                  <th className="text-right font-bold py-2.5 pl-2">Receita</th>
                 </tr>
               </thead>
               <tbody>
@@ -324,19 +310,8 @@ export default function AdminGeography() {
                           {c.conv_rate}%
                         </span>
                       </td>
-                      <td className="py-3 px-2 text-right tabular-nums font-bold text-emerald-600">
+                      <td className="py-3 pl-2 text-right tabular-nums font-bold text-emerald-600">
                         {c.revenue > 0 ? fmt$(c.revenue) : '—'}
-                      </td>
-                      <td className="py-3 pl-2 text-right">
-                        {c.paid === 0 ? (
-                          <span className="text-gray-300 text-xs">—</span>
-                        ) : (
-                          <div className="flex items-center justify-end gap-1.5 text-[11px]">
-                            <span style={{ color: NATGLOW_COLOR }} className="font-semibold tabular-nums">Q {c.natglow_paid}</span>
-                            <span className="text-gray-300">·</span>
-                            <span style={{ color: DETOX_COLOR }}   className="font-semibold tabular-nums">D {c.detox_paid}</span>
-                          </div>
-                        )}
                       </td>
                     </tr>
                   )
@@ -372,8 +347,8 @@ export default function AdminGeography() {
       {!loading && countryAgeBreakdown.length > 0 && (
         <section className="bg-white rounded-2xl border border-gray-100 p-5">
           <SectionHeader
-            title="Conversão por idade em cada país"
-            hint="Qual faixa etária converte melhor em cada país. Use para segmentar audiência por idade no Facebook Ads"
+            title="Conversão por idade · localização física (IP)"
+            hint="Agrupado pela localização física real do visitante (IP), não pelo país da oferta — é o que serve para segmentar audiência por idade no Facebook Ads"
           />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {countryAgeBreakdown.map(c => {

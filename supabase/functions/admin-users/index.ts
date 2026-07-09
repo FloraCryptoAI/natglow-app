@@ -1,5 +1,6 @@
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { usdAmount } from '../_shared/plan-pricing.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -90,11 +91,13 @@ async function fetchAuthUser(userId: string) {
 function buildPaymentHistory(sub: Record<string, unknown> | null) {
   if (!sub) return []
   return [{
-    id:       (sub.hotmart_transaction_id as string) ?? (sub.id as string) ?? '—',
-    amount:   typeof sub.purchase_amount === 'number' ? sub.purchase_amount : 0,
-    currency: (sub.purchase_currency as string) ?? 'USD',
-    status:   (sub.status as string) ?? 'active',
-    date:     (sub.created_at as string) ?? null,
+    id:                (sub.hotmart_transaction_id as string) ?? (sub.id as string) ?? '—',
+    amount_usd:        typeof sub.amount_usd === 'number' ? sub.amount_usd : usdAmount(sub as { amount_usd?: number | null; pricing_plan?: string | null }),
+    amount_original:   typeof sub.purchase_amount === 'number' ? sub.purchase_amount : null,
+    currency_original: (sub.purchase_currency as string) ?? 'USD',
+    access_type:       (sub.access_type as string) ?? 'paid',
+    status:            (sub.status as string) ?? 'active',
+    date:              (sub.created_at as string) ?? null,
   }]
 }
 

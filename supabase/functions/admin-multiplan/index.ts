@@ -1,16 +1,14 @@
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { usdAmount } from '../_shared/plan-pricing.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-// Detox uses the same plan_key in `subscriptions.pricing_plan` as the old
-// bold funnel (one_time_basic, $17). natglow is a separate Hotmart product
-// with its own plan_key and variable per-country price — `price` below is
-// only a documentation/fallback value, never used for the main revenue calc
-// (see roiScore, which uses the real avgTicket instead). natglow also has no
-// results/diagnosis page, so `events.results` is optional — omit it entirely
-// rather than pointing it at a non-existent event.
+// Only /quiz (natglow) is shown in the admin now — detox is hidden. `price` is
+// a documentation/fallback value; the revenue calc uses the real consolidated
+// USD amount instead (see revenuePeriod). natglow has no results/diagnosis
+// page, so `events.results` is optional and omitted.
 const FUNNEL_CONFIG: Record<string, {
   label:       string
   price:       number
@@ -31,22 +29,9 @@ const FUNNEL_CONFIG: Record<string, {
       offer:     'offer_natglow_viewed',
     },
   },
-  detox: {
-    label:      'Quiz Detox · $17',
-    price:      17,
-    product_id: '7789064',
-    plan_key:   'one_time_basic',
-    cta_source: 'offer_detox',
-    events: {
-      started:   'quiz_detox_started',
-      completed: 'quiz_detox_completed',
-      results:   'results_detox_viewed',
-      offer:     'offer_detox_viewed',
-    },
-  },
 }
 
-const FUNNEL_KEYS = ['natglow', 'detox'] as const
+const FUNNEL_KEYS = ['natglow'] as const
 
 // Two-proportion z-test (returns absolute z value)
 function zScore(p1: number, n1: number, p2: number, n2: number): number {
@@ -57,7 +42,7 @@ function zScore(p1: number, n1: number, p2: number, n2: number): number {
   return Math.abs((p1 - p2) / se)
 }
 
-type SubRow   = { pricing_plan: string | null; status: string; created_at: string; purchase_amount: number | null; user_id?: string }
+type SubRow   = { pricing_plan: string | null; status: string; created_at: string; amount_usd: number | null; excluded_from_revenue?: boolean; user_id?: string }
 type EventRow = { session_id: string; event_type: string; user_id?: string | null; metadata?: { source?: string } | null }
 
 const dbH = {
@@ -103,7 +88,7 @@ Deno.serve(async (req) => {
         { headers: dbH }
       ),
       fetch(
-        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,purchase_amount,user_id&limit=5000`,
+        `${SUPABASE_URL}/rest/v1/subscriptions?select=pricing_plan,status,created_at,amount_usd,excluded_from_revenue,user_id&limit=5000`,
         { headers: dbH }
       ),
     ])
@@ -156,11 +141,11 @@ Deno.serve(async (req) => {
       const ctaClicked  = stages.cta.size
 
       const conversionSubs = periodSubs.filter(
-        s => s.status === 'active' && s.user_id && userIds.has(s.user_id)
+        s => s.status === 'active' && s.excluded_from_revenue !== true && s.user_id && userIds.has(s.user_id)
       )
       const conversions   = conversionSubs.length
       const revenuePeriod = parseFloat(
-        conversionSubs.reduce((acc, s) => acc + (s.purchase_amount ?? cfg.price), 0).toFixed(2)
+        conversionSubs.reduce((acc, s) => acc + usdAmount(s), 0).toFixed(2)
       )
 
       const completionRate = started > 0 ? parseFloat(((completed   / started) * 100).toFixed(1)) : 0

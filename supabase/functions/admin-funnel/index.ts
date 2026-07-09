@@ -11,6 +11,11 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 // not 6. Any code reading `steps` must key off `event_type`, never a
 // positional index, since funnels can have different step counts.
 const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }>> = {
+  // Only /quiz (natglow) is shown in the admin now. Detox is hidden (its public
+  // funnel still exists, it just doesn't appear here). natglow has NO separate
+  // results/diagnosis page — the quiz goes straight from completion to the offer
+  // — so it's 5 steps, not 6. Any code reading `steps` must key off `event_type`,
+  // never a positional index.
   natglow: [
     { key: 'quiz_started',      events: ['quiz_natglow_started'] },
     { key: 'quiz_completed',    events: ['quiz_natglow_completed'] },
@@ -18,31 +23,13 @@ const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }
     { key: 'cta_clicked',       events: ['cta_clicked'] }, // metadata.source filtered below
     { key: 'payment_completed', events: ['payment_completed'] },
   ],
-  detox: [
-    { key: 'quiz_started',      events: ['quiz_detox_started'] },
-    { key: 'quiz_completed',    events: ['quiz_detox_completed'] },
-    { key: 'results_viewed',    events: ['results_detox_viewed'] },
-    { key: 'offer_viewed',      events: ['offer_detox_viewed'] },
-    { key: 'cta_clicked',       events: ['cta_clicked'] },
-    { key: 'payment_completed', events: ['payment_completed'] },
-  ],
-  // Combined view: counts both natglow + detox
-  all: [
-    { key: 'quiz_started',      events: ['quiz_natglow_started', 'quiz_detox_started'] },
-    { key: 'quiz_completed',    events: ['quiz_natglow_completed', 'quiz_detox_completed'] },
-    { key: 'results_viewed',    events: ['results_detox_viewed'] },
-    { key: 'offer_viewed',      events: ['offer_natglow_viewed', 'offer_detox_viewed'] },
-    { key: 'cta_clicked',       events: ['cta_clicked'] },
-    { key: 'payment_completed', events: ['payment_completed'] },
-  ],
 }
 
 // Events that need source-based filtering when a specific funnel is selected.
-// Both cta_clicked and payment_completed carry metadata.source = 'offer_natglow' or 'offer_detox'
+// cta_clicked and payment_completed carry metadata.source = 'offer_natglow'.
 const SOURCE_FILTERED_STEPS = new Set(['cta_clicked', 'payment_completed'])
 const FUNNEL_SOURCE: Record<string, string> = {
   natglow: 'offer_natglow',
-  detox:   'offer_detox',
 }
 
 async function countSessionsForEvents(
@@ -53,7 +40,7 @@ async function countSessionsForEvents(
   stepKey: string,
 ): Promise<number> {
   const sessions = new Set<string>()
-  const needsSourceFilter = SOURCE_FILTERED_STEPS.has(stepKey) && funnel !== 'all'
+  const needsSourceFilter = SOURCE_FILTERED_STEPS.has(stepKey) && FUNNEL_SOURCE[funnel] != null
 
   for (const eventType of events) {
     const params = new URLSearchParams({
@@ -100,11 +87,11 @@ Deno.serve(async (req) => {
     const period      = url.searchParams.get('period') ?? '30d'
     const customStart = url.searchParams.get('start')
     const customEnd   = url.searchParams.get('end')
-    // Accept legacy `plan` param (defaulted to 'all'), and also new `funnel` param.
-    // 'natglow' | 'detox' | 'all'
-    const funnel      = url.searchParams.get('funnel') ?? url.searchParams.get('plan') ?? 'all'
+    // Only 'natglow' is supported now (detox hidden). Legacy `plan`/`funnel`
+    // params or 'all'/'detox' all fall back to the natglow funnel.
+    const funnel      = 'natglow'
 
-    const definition = FUNNEL_DEFINITIONS[funnel] ?? FUNNEL_DEFINITIONS.all
+    const definition = FUNNEL_DEFINITIONS.natglow
 
     const now = new Date()
     let since: string

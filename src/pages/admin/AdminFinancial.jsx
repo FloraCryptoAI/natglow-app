@@ -28,8 +28,21 @@ const STATUS_BADGE = {
   chargeback: { label: 'Chargeback',  bg: 'bg-red-50',     text: 'text-red-700' },
 }
 
+const ACCESS_BADGE = {
+  free: { label: 'Free',  bg: 'bg-sky-50',  text: 'text-sky-700' },
+  test: { label: 'Teste', bg: 'bg-sky-50',  text: 'text-sky-700' },
+}
+
+// All consolidated figures are USD.
 function fmt(val) {
-  return `$${Number(val ?? 0).toFixed(2)}`
+  return `US$${Number(val ?? 0).toFixed(2)}`
+}
+
+// Local charge in its original currency, e.g. "BRL 44,89". USD rows return null
+// (no point showing "USD 7,90 / US$7,90" twice).
+function fmtOriginal(amount, currency) {
+  if (amount == null || !currency || currency === 'USD') return null
+  return `${currency} ${Number(amount).toFixed(2)}`
 }
 
 function fmtDate(iso) {
@@ -75,7 +88,7 @@ export default function AdminFinancial() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Financeiro</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Dados de compras únicas via Hotmart</p>
+          <p className="text-sm text-gray-400 mt-0.5">Compras únicas via Hotmart · consolidado em USD</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5">
@@ -230,12 +243,12 @@ export default function AdminFinancial() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis
-                tickFormatter={v => `$${v}`}
+                tickFormatter={v => `US$${v}`}
                 tick={{ fontSize: 11, fill: '#9ca3af' }}
                 axisLine={false} tickLine={false} width={52}
               />
               <Tooltip content={({ active, payload, label }) => (
-                <ChartTooltip active={active} payload={payload} label={label} prefix="$" />
+                <ChartTooltip active={active} payload={payload} label={label} prefix="US$" />
               )} />
               <Area
                 type="monotone" dataKey="revenue" name="Receita"
@@ -298,12 +311,24 @@ export default function AdminFinancial() {
                 <tbody className="divide-y divide-gray-50">
                   {recentPurchases.map((p, i) => {
                     const badge = STATUS_BADGE[p.status] ?? STATUS_BADGE.active
+                    const access = p.access_type && p.access_type !== 'paid' ? ACCESS_BADGE[p.access_type] : null
+                    const original = fmtOriginal(p.amount_original, p.currency_original)
                     return (
                       <tr key={p.id ?? i} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3 text-gray-700 font-medium max-w-[200px] truncate">{p.email}</td>
-                        <td className="px-4 py-3 text-gray-600 max-w-[140px] truncate">{p.plan_label ?? p.plan ?? '—'}</td>
+                        <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">
+                          <span>{p.plan_label ?? p.plan ?? '—'}</span>
+                          {access && (
+                            <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${access.bg} ${access.text}`}>
+                              {access.label}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 font-bold text-gray-900 tabular-nums whitespace-nowrap">
-                          {p.currency ?? 'USD'} {fmt(p.amount)}
+                          {fmt(p.amount_usd)}
+                          {original && (
+                            <span className="block text-[11px] font-medium text-gray-400">{original}</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmtDate(p.date)}</td>
                         <td className="px-4 py-3">

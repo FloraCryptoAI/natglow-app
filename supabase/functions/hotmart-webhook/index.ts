@@ -1,5 +1,6 @@
 import { sendTikTokEvent }        from '../_shared/tiktok-events-api.ts'
 import { sendTransactionalEmail } from '../send-transactional-email/index.ts'
+import { PLAN_USD }               from '../_shared/plan-pricing.ts'
 
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -89,6 +90,27 @@ async function getEmailByTxId(txId: string): Promise<string | null> {
   const res  = await sbFetch(`/rest/v1/subscriptions?hotmart_transaction_id=eq.${encodeURIComponent(txId)}&select=email&limit=1`)
   const rows = await res.json()
   return rows[0]?.email ?? null
+}
+
+// Look up the funnel a purchase came from via the user's most recent cta_clicked
+// event. Its metadata carries `source` ('offer_natglow' | 'offer_detox') for
+// funnel attribution and `country` (the ?country= offer bucket: 'mx'|'co'|'pe'|
+// 'cl'|'default') for offer-country reporting. A single Hotmart product serves
+// multiple funnels/countries, so this is how we keep them attributed.
+async function getLastCtaContext(userId: string): Promise<{ source: string | null; country: string | null }> {
+  try {
+    const res = await sbFetch(
+      `/rest/v1/funnel_events?event_type=eq.cta_clicked&user_id=eq.${userId}&order=created_at.desc&limit=1&select=metadata`
+    )
+    const rows = await res.json()
+    const md   = rows?.[0]?.metadata ?? {}
+    return {
+      source:  (md.source  as string | undefined) ?? null,
+      country: (md.country as string | undefined) ?? null,
+    }
+  } catch {
+    return { source: null, country: null }
+  }
 }
 
 // ---------- Main handler ----------
@@ -213,6 +235,14 @@ Deno.serve(async (req) => {
         if (!userId) userId = await adminCreateUser(email)
         if (!userId) { console.error('Could not create/find user for', email); break }
 
+        // Attribution from the user's last cta_clicked: funnel source + offer country.
+        const { source: funnelSource, country: offerCountry } = await getLastCtaContext(userId)
+
+        // Base USD value = plan's fixed list price (fixed-price product sold in
+        // local currency). purchase_amount/currency stay as the LOCAL charge
+        // (amount_original). Never sum the local charge as if it were USD.
+        const amountUsd = PLAN_USD[planKey ?? ''] ?? (typeof purchaseAmount === 'number' ? purchaseAmount : null)
+
         await upsertSubscription({
           user_id:                userId,
           email,
@@ -223,23 +253,16 @@ Deno.serve(async (req) => {
           purchase_amount:        purchaseAmount,
           purchase_currency:      purchaseCurrency,
           purchase_type:          purchaseType,
+          amount_usd:             amountUsd,
+          access_type:            'paid',
+          excluded_from_revenue:  false,
+          offer_country:          offerCountry,
+          payment_provider:       'hotmart',
         })
 
-        // Log payment_completed into funnel_events for the admin funnel chart.
-        // Attribute to the originating funnel (natglow/detox) by looking up the
-        // user's most recent cta_clicked event — its metadata.source is either
-        // 'offer_natglow' or 'offer_detox'. This way a single Hotmart product can
-        // serve both funnels without losing attribution.
+        // Log payment_completed into funnel_events for the admin funnel chart,
+        // attributed to the originating funnel via the cta source looked up above.
         try {
-          let funnelSource: string | null = null
-          try {
-            const ctaRes = await sbFetch(
-              `/rest/v1/funnel_events?event_type=eq.cta_clicked&user_id=eq.${userId}&order=created_at.desc&limit=1&select=metadata`
-            )
-            const ctaEvents = await ctaRes.json()
-            funnelSource = (ctaEvents?.[0]?.metadata?.source as string | undefined) ?? null
-          } catch { /* fall back to null source */ }
-
           await sbFetch(`/rest/v1/funnel_events`, {
             method: 'POST',
             body: JSON.stringify({
@@ -247,10 +270,11 @@ Deno.serve(async (req) => {
               session_id:   `hp_${txId || Date.now()}`,
               user_id:      userId,
               metadata:     {
-                source:     funnelSource,        // 'offer_natglow' | 'offer_detox' | null
-                origin:     'hotmart_webhook',
-                tx_id:      txId,
-                product_id: productId,
+                source:        funnelSource,        // 'offer_natglow' | 'offer_detox' | null
+                offer_country: offerCountry,        // 'mx'|'co'|'pe'|'cl'|'default' | null
+                origin:        'hotmart_webhook',
+                tx_id:         txId,
+                product_id:    productId,
               },
               pricing_plan: planKey,
             }),

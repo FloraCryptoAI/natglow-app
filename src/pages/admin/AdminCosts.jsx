@@ -22,13 +22,12 @@ const CATEGORIES = [
 ]
 
 // Overloaded use of admin_costs.pricing_plan to encode the funnel (not a true
-// plan_key). New ad costs should be tagged 'natglow' or 'detox' so ROI splits
-// per funnel. Legacy one_time_* values still exist in the DB for historical
-// costs but are no longer offered in the dropdown — they roll up to 'global' in ROI.
+// plan_key). New ad costs are tagged 'natglow' so ROI splits per funnel. Detox
+// is hidden from the admin now. Legacy one_time_*/detox values still exist in
+// the DB for historical costs but aren't offered here — they roll up to 'global'.
 const FUNNEL_OPTIONS = [
   { value: null,      label: 'Global / não vinculado' },
   { value: 'natglow', label: '/quiz' },
-  { value: 'detox',   label: 'Quiz Detox' },
 ]
 
 const CONFIDENCE_CONFIG = {
@@ -554,7 +553,7 @@ export default function AdminCosts() {
   const catDist        = roiData?.categoryDistribution ?? []
   const trafficByMonth = roiData?.trafficRoiByMonth ?? []
 
-  const fmt = v => `$${Number(v ?? 0).toFixed(2)}`
+  const fmt = v => `US$${Number(v ?? 0).toFixed(2)}`
 
   return (
     <>
@@ -698,7 +697,7 @@ export default function AdminCosts() {
                       const cat = CATEGORIES.find(c => c.key === cost.categoria)
                       const funnelLabel =
                         cost.pricing_plan === 'natglow' ? { txt: '/quiz', cls: 'bg-cyan-100 text-cyan-700' } :
-                        cost.pricing_plan === 'detox'   ? { txt: 'Detox', cls: 'bg-violet-100 text-violet-700' } :
+                        cost.pricing_plan === 'detox'   ? { txt: 'Detox (legado)', cls: 'bg-gray-100 text-gray-500' } :
                         cost.pricing_plan            ? { txt: 'Legado', cls: 'bg-gray-100 text-gray-500' } :
                         null
                       return (
@@ -838,7 +837,7 @@ export default function AdminCosts() {
               icon={TrendingUp} iconBg="bg-orange-50" iconColor="text-orange-500"
               label="ROI tráfego pago"
               value={loadingRoi ? '—' : (summary.trafficRoi != null ? `${summary.trafficRoi}×` : '—')}
-              sub={loadingRoi || !summary.trafficCosts ? undefined : `$${Number(summary.trafficCosts).toFixed(2)} em anúncios`}
+              sub={loadingRoi || !summary.trafficCosts ? undefined : `US$${Number(summary.trafficCosts).toFixed(2)} em anúncios`}
               loading={loadingRoi}
             />
           </div>
@@ -847,7 +846,7 @@ export default function AdminCosts() {
           {!loadingRoi && (roiData?.funnelRoi?.length ?? 0) > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
               <div className="px-5 pt-5 pb-3">
-                <p className="font-bold text-gray-800 mb-0.5">ROI por funil (/quiz vs Detox)</p>
+                <p className="font-bold text-gray-800 mb-0.5">ROI do funil /quiz</p>
                 <p className="text-xs text-gray-400">
                   Vendas atribuídas via funnel_events.metadata.source × custo de ads vinculado no período
                 </p>
@@ -904,7 +903,7 @@ export default function AdminCosts() {
                 </table>
               </div>
               <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">
-                Vincule cada custo de Tráfego Pago a "/quiz" ou "Quiz Detox" no formulário para que o ROI separe por funil. Custos não vinculados aparecem em "Global".
+                Vincule cada custo de Tráfego Pago a "/quiz" no formulário para que o ROI separe por funil. Custos não vinculados aparecem em "Global".
               </p>
             </div>
           )}
@@ -922,8 +921,8 @@ export default function AdminCosts() {
                 <BarChart data={sixMonthData} barGap={2} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={v => `$${v}`} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={52} />
-                  <Tooltip content={({ active, payload, label }) => <ChartTooltip active={active} payload={payload} label={label} prefix="$" />} />
+                  <YAxis tickFormatter={v => `US$${v}`} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={52} />
+                  <Tooltip content={({ active, payload, label }) => <ChartTooltip active={active} payload={payload} label={label} prefix="US$" />} />
                   <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={v => <span className="text-gray-500">{v}</span>} />
                   <Bar dataKey="receita" name="Receita"  fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={28} />
                   <Bar dataKey="custos"  name="Custos"   fill="#f87171" radius={[4, 4, 0, 0]} maxBarSize={28} />

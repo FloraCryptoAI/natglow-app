@@ -19,13 +19,15 @@ const STATUS_BADGE = {
 
 const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸' }
 
-// Currently /quiz, /quiz-bold, /quiz-meta and /quiz-detox all write 'one_time_basic' as pricing_plan.
-// The funnel is differentiated by event_type prefix in funnel_events, not by plan_key.
-// Legacy plans kept so historical orders still display correctly.
+// /quiz (natglow) writes pricing_plan='natglow'. The Hotmart product-review
+// access uses 'natglow_free_hotmart_review' (free/test). Legacy plans are kept
+// so historical orders still display correctly.
 const PLAN_BADGE = {
-  one_time_basic:    { label: 'NatGlow $17',     bg: 'bg-cyan-50',    text: 'text-cyan-700' },
-  one_time_standard: { label: 'Completo $27 (legado)', bg: 'bg-violet-50',  text: 'text-violet-700' },
-  one_time_premium:  { label: 'VIP $47 (legado)',      bg: 'bg-amber-50',   text: 'text-amber-700' },
+  natglow:                     { label: 'NatGlow',        bg: 'bg-cyan-50',    text: 'text-cyan-700' },
+  natglow_free_hotmart_review: { label: 'Free',           bg: 'bg-sky-50',     text: 'text-sky-700' },
+  one_time_basic:              { label: 'NatGlow $17 (legado)', bg: 'bg-cyan-50', text: 'text-cyan-700' },
+  one_time_standard:           { label: 'Completo $27 (legado)', bg: 'bg-violet-50', text: 'text-violet-700' },
+  one_time_premium:            { label: 'VIP $47 (legado)',      bg: 'bg-amber-50',  text: 'text-amber-700' },
 }
 
 const DIAGNOSIS_BADGE = {
@@ -190,16 +192,26 @@ function UserDrawer({ user, data, loading, onClose, onSetStatus }) {
                           {p.date ? new Date(p.date).toLocaleDateString('pt-BR') : '—'}
                         </p>
                         <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ${
+                          p.access_type && p.access_type !== 'paid' ? 'bg-sky-50 text-sky-600' :
                           p.status === 'active' ? 'bg-emerald-50 text-emerald-600' :
                           p.status === 'refunded' ? 'bg-red-50 text-red-600' :
                           'bg-amber-50 text-amber-600'
                         }`}>
-                          {p.status === 'active' ? 'Pago' : p.status === 'refunded' ? 'Reembolsado' : p.status}
+                          {p.access_type && p.access_type !== 'paid'
+                            ? (p.access_type === 'test' ? 'Teste' : 'Free')
+                            : p.status === 'active' ? 'Pago' : p.status === 'refunded' ? 'Reembolsado' : p.status}
                         </span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900">
-                        ${Number(p.amount ?? 0).toFixed(2)}
-                      </span>
+                      <div className="text-right">
+                        <span className="block text-sm font-bold text-gray-900">
+                          US${Number(p.amount_usd ?? 0).toFixed(2)}
+                        </span>
+                        {p.amount_original != null && p.currency_original && p.currency_original !== 'USD' && (
+                          <span className="block text-[11px] font-medium text-gray-400">
+                            {p.currency_original} {Number(p.amount_original).toFixed(2)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -267,7 +279,7 @@ export default function AdminUsers() {
       if (result?.error) throw new Error(result.error)
       // Client-side plan filter (server doesn't filter by plan yet — keeps edge fn simple)
       const filtered = pf
-        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'one_time_basic') === pf)
+        ? (result.users ?? []).filter(u => (u.pricing_plan ?? 'natglow') === pf)
         : (result.users ?? [])
       setUsers(filtered)
       setTotal(pf ? filtered.length : (result.total ?? 0))
@@ -405,7 +417,9 @@ export default function AdminUsers() {
           className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white outline-none focus:border-violet-400"
         >
           <option value="">Todos os planos</option>
-          <option value="one_time_basic">NatGlow $17 (Bold/Detox)</option>
+          <option value="natglow">NatGlow</option>
+          <option value="natglow_free_hotmart_review">Free / Acesso Hotmart</option>
+          <option value="one_time_basic">NatGlow $17 (legado)</option>
           <option value="one_time_standard">Completo $27 (legado)</option>
           <option value="one_time_premium">VIP $47 (legado)</option>
         </select>
@@ -458,7 +472,7 @@ export default function AdminUsers() {
                     <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
                     <td className="px-4 py-3">
                       {(() => {
-                        const p = PLAN_BADGE[u.pricing_plan ?? 'one_time_basic'] ?? PLAN_BADGE.one_time_basic
+                        const p = PLAN_BADGE[u.pricing_plan ?? 'natglow'] ?? PLAN_BADGE.natglow
                         return (
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.bg} ${p.text}`}>
                             {p.label}

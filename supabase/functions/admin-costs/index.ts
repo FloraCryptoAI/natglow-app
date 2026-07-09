@@ -1,40 +1,30 @@
 import { verifyAdminJWT } from '../_shared/admin-jwt.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { usdAmount } from '../_shared/plan-pricing.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-// Flat price — correct for /quiz-detox (always $17). /quiz (natglow) is a
-// separate Hotmart product with variable per-country pricing; its revenue is
-// computed from real purchase_amount instead (see revenueByUser below), this
-// constant is only used as a fallback for legacy rows without one. Funnel
-// attribution comes from funnel_events.payment_completed.metadata.source
-// ('offer_natglow' | 'offer_detox').
-const PRODUCT_PRICE = 17
-
-// Legacy plan keys are still mapped so historical subs (Stripe era) still
-// contribute revenue to global totals; they no longer appear as separate
-// rows in the ROI breakdown.
-const LEGACY_PLAN_REVENUE: Record<string, number> = {
-  one_time_basic:    17,
-  one_time_standard: 27,
-  one_time_premium:  47,
-}
-
+// All revenue/ROI math is consolidated in USD (Facebook Ads costs are logged in
+// USD). Detox is hidden from the admin now — only /quiz (natglow) and 'global'
+// (legacy/unattributed) appear. Funnel attribution comes from
+// funnel_events.payment_completed.metadata.source ('offer_natglow').
 const FUNNEL_LABELS: Record<string, string> = {
   natglow: '/quiz',
-  detox:   'Quiz Detox',
   global:  'Global / não vinculado',
 }
 
+// Base USD value of a sub for consolidated reporting (never the local charge).
 function subRevenue(s: Record<string, unknown>): number {
-  if (typeof s.purchase_amount === 'number') return s.purchase_amount
-  return LEGACY_PLAN_REVENUE[(s.pricing_plan as string) ?? ''] ?? PRODUCT_PRICE
+  if (s.excluded_from_revenue === true) return 0
+  return usdAmount({
+    amount_usd:   s.amount_usd as number | null | undefined,
+    pricing_plan: s.pricing_plan as string | null | undefined,
+  })
 }
 
-function sourceToFunnel(src: string | null | undefined): 'natglow' | 'detox' | 'unknown' {
+function sourceToFunnel(src: string | null | undefined): 'natglow' | 'unknown' {
   if (src === 'offer_natglow') return 'natglow'
-  if (src === 'offer_detox')   return 'detox'
   return 'unknown'
 }
 
@@ -98,7 +88,7 @@ async function fetchHotmartRevenueInPeriod(
   startISO: string, endISO: string
 ): Promise<number> {
   const res = await fetch(
-    `${supabase_url}/rest/v1/subscriptions?select=purchase_amount,pricing_plan&status=eq.active&created_at=gte.${startISO}&created_at=lte.${endISO}&limit=2000`,
+    `${supabase_url}/rest/v1/subscriptions?select=amount_usd,pricing_plan,excluded_from_revenue&status=eq.active&created_at=gte.${startISO}&created_at=lte.${endISO}&limit=2000`,
     { headers: { Authorization: `Bearer ${service_key}`, apikey: service_key } }
   )
   const subs = await res.json()
@@ -245,7 +235,7 @@ Deno.serve(async (req) => {
       const [periodCostsArr, sixMonthCosts, subs, periodPayEvents] = await Promise.all([
         supabaseGet(`admin_costs?select=categoria,valor,pricing_plan&data=gte.${startISO}&data=lte.${endISO}`),
         supabaseGet(`admin_costs?select=data,categoria,valor&data=gte.${sixStartDate}&order=data.asc`),
-        supabaseGet(`subscriptions?select=created_at,status,pricing_plan,purchase_amount,user_id&order=created_at.asc&limit=2000`),
+        supabaseGet(`subscriptions?select=created_at,status,pricing_plan,amount_usd,excluded_from_revenue,user_id&order=created_at.asc&limit=2000`),
         // Funnel attribution data: payment_completed events in the period with source metadata
         supabaseGet(`funnel_events?select=metadata,user_id&event_type=eq.payment_completed&created_at=gte.${startDate.toISOString()}&created_at=lte.${endDate.toISOString()}&limit=5000`),
       ])
@@ -321,24 +311,20 @@ Deno.serve(async (req) => {
         }
       })
 
-      // ── ROI per FUNNEL (Natglow / Detox / Global) ─────────────────────
-      // Revenue comes from funnel_events.payment_completed.metadata.source
-      // (set by hotmart-webhook based on user's last cta_clicked source).
-      // Real purchase_amount per sale is used (not a flat price) since
-      // natglow's price varies by country — detox still nets the same
-      // result as before since its price really is flat $17.
-      const funnelSales: Record<'natglow' | 'detox' | 'unknown', number> = {
-        natglow: 0, detox: 0, unknown: 0,
-      }
-      const funnelRevenue: Record<'natglow' | 'detox' | 'unknown', number> = {
-        natglow: 0, detox: 0, unknown: 0,
-      }
+      // ── ROI per FUNNEL (/quiz + Global) ───────────────────────────────
+      // Revenue (USD) comes from funnel_events.payment_completed.metadata.source
+      // (set by hotmart-webhook from the user's last cta_clicked source). Detox
+      // is hidden from the admin now, so only natglow + global remain. When
+      // there's no ad cost for a funnel, roi/cpa stay null (the UI shows
+      // "aguardando custo", never a fake ROI).
+      const funnelSales: Record<'natglow' | 'unknown', number> = { natglow: 0, unknown: 0 }
+      const funnelRevenue: Record<'natglow' | 'unknown', number> = { natglow: 0, unknown: 0 }
       for (const ev of periodPayEvents) {
         const src = (ev.metadata as { source?: string } | null)?.source
         const uid = ev.user_id as string | undefined
         const f   = sourceToFunnel(src)
         funnelSales[f]++
-        funnelRevenue[f] += (uid && revenueByUser[uid] != null) ? revenueByUser[uid] : PRODUCT_PRICE
+        funnelRevenue[f] += (uid && revenueByUser[uid] != null) ? revenueByUser[uid] : 0
       }
       // Legacy/non-funnel revenue (Stripe era, manual orders, etc.) still
       // counts in totals but goes to 'global' for the breakdown.
@@ -348,29 +334,33 @@ Deno.serve(async (req) => {
           return c >= startDate.toISOString() && c <= endDate.toISOString() && s.status === 'active'
         })
         .reduce((acc, s) => acc + subRevenue(s), 0)
-      const funnelEventsRevenue = funnelRevenue.natglow + funnelRevenue.detox + funnelRevenue.unknown
+      const funnelEventsRevenue = funnelRevenue.natglow + funnelRevenue.unknown
       const unattributedRevenue = Math.max(0, periodSubsRevenue - funnelEventsRevenue)
 
-      // Ad costs per funnel — admin_costs.pricing_plan now accepts 'natglow' / 'detox'
-      // as overloaded funnel identifiers. Legacy plan_keys (one_time_*) roll up to global.
-      const costsByFunnel = (key: 'natglow' | 'detox' | 'global') =>
+      // Ad costs per funnel — admin_costs.pricing_plan accepts 'natglow' as an
+      // overloaded funnel identifier. Everything else (legacy/detox) rolls up to global.
+      const costsByFunnel = (key: 'natglow' | 'global') =>
         periodCostsArr
           .filter(c => {
             if (c.categoria !== 'trafego_pago') return false
             const pp = c.pricing_plan as string | null
-            if (key === 'global') {
-              return !pp || (pp !== 'natglow' && pp !== 'detox')
-            }
+            if (key === 'global') return pp !== 'natglow'
             return pp === key
           })
           .reduce((s, c) => s + Number(c.valor ?? 0), 0)
 
-      const funnelRoi = (['natglow', 'detox'] as const).map(funnel => {
-        const sales        = funnelSales[funnel]
-        const revenue       = funnelRevenue[funnel]
-        const trafficCost  = parseFloat(costsByFunnel(funnel).toFixed(2))
-        const roi          = trafficCost > 0 ? parseFloat((revenue / trafficCost).toFixed(2)) : null
-        const cpa          = sales > 0 ? parseFloat((trafficCost / sales).toFixed(2)) : null
+      type FunnelRoiRow = {
+        funnel: string; label: string; sales: number
+        revenue_contribution: number; traffic_costs: number
+        roi: number | null; cpa: number | null
+        confidence_level: 'high' | 'medium' | 'low'
+      }
+      const funnelRoi: FunnelRoiRow[] = (['natglow'] as const).map(funnel => {
+        const sales       = funnelSales[funnel]
+        const revenue     = funnelRevenue[funnel]
+        const trafficCost = parseFloat(costsByFunnel(funnel).toFixed(2))
+        const roi         = trafficCost > 0 ? parseFloat((revenue / trafficCost).toFixed(2)) : null
+        const cpa         = trafficCost > 0 && sales > 0 ? parseFloat((trafficCost / sales).toFixed(2)) : null
 
         const confidenceLevel: 'high' | 'medium' | 'low' =
           sales >= 50 ? 'high' : sales >= 15 ? 'medium' : 'low'
@@ -378,7 +368,6 @@ Deno.serve(async (req) => {
         return {
           funnel,
           label:                FUNNEL_LABELS[funnel],
-          price:                PRODUCT_PRICE,
           sales,
           revenue_contribution: parseFloat(revenue.toFixed(2)),
           traffic_costs:        trafficCost,
@@ -393,14 +382,13 @@ Deno.serve(async (req) => {
       const globalRevenue = funnelRevenue.unknown + unattributedRevenue
       if (globalTrafficCosts > 0 || globalSalesAttributed > 0 || unattributedRevenue > 0) {
         funnelRoi.push({
-          funnel:               'global' as 'natglow' | 'detox',
+          funnel:               'global',
           label:                FUNNEL_LABELS.global,
-          price:                PRODUCT_PRICE,
           sales:                globalSalesAttributed,
           revenue_contribution: parseFloat(globalRevenue.toFixed(2)),
           traffic_costs:        globalTrafficCosts,
           roi:                  globalTrafficCosts > 0 ? parseFloat((globalRevenue / globalTrafficCosts).toFixed(2)) : null,
-          cpa:                  globalSalesAttributed > 0 ? parseFloat((globalTrafficCosts / globalSalesAttributed).toFixed(2)) : null,
+          cpa:                  globalTrafficCosts > 0 && globalSalesAttributed > 0 ? parseFloat((globalTrafficCosts / globalSalesAttributed).toFixed(2)) : null,
           confidence_level:     'low',
         })
       }

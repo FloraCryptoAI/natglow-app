@@ -17,13 +17,11 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 
 // ── constants ────────────────────────────────────────────────────────────────
 
-// Funnels (/quiz natglow vs Detox), distinguished server-side by
-// funnel_events event_type prefix and cta_clicked.metadata.source. natglow is
-// a separate Hotmart product with variable per-country pricing (no flat $17
-// like detox), so its short label can't print a fixed price.
+// Only /quiz (natglow) is shown in the admin now — detox is hidden. natglow is
+// a Hotmart product with per-country local pricing (all mapping to US$7.90), so
+// its short label can't print a single fixed price.
 const PLANS = [
-  { key: 'natglow', label: '/quiz',      short: '/quiz',      color: '#0891b2' },
-  { key: 'detox',   label: 'Quiz Detox', short: 'Detox $17',  color: '#7c3aed' },
+  { key: 'natglow', label: '/quiz', short: '/quiz', color: '#0891b2' },
 ]
 
 const PERIODS = [
@@ -653,7 +651,7 @@ export default function AdminQuizAnswers() {
         <div>
           <h1 className="text-xl font-extrabold text-gray-900">Respostas do Quiz</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {mode === 'comparison' ? 'Comparação dos 3 produtos' : `Análise individual (${PLANS.find(p => p.key === mode)?.label})`}
+            {mode === 'comparison' ? 'Métricas do funil /quiz' : `Análise individual (${PLANS.find(p => p.key === mode)?.label})`}
           </p>
         </div>
         <button

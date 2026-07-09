@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
-  TrendingUp, TrendingDown,
-  ShoppingBag, Percent, Activity,
+  TrendingUp,
+  ShoppingBag,
   ArrowUpRight,
 } from 'lucide-react'
 import { ArrowClockwise } from '@phosphor-icons/react'
@@ -81,29 +81,6 @@ function ChartSkeleton({ h = 200 }) {
   return <div className="animate-pulse bg-gray-50 rounded-xl" style={{ height: h }} />
 }
 
-// ── Small metric card ─────────────────────────────────
-function MetricCard({ icon: Icon, iconColor, bgColor, label, value, sub, loading }) {
-  if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-        <div className="w-9 h-9 rounded-xl bg-gray-100 mb-3" />
-        <div className="h-3 bg-gray-100 rounded w-24 mb-2" />
-        <div className="h-7 bg-gray-100 rounded w-16" />
-      </div>
-    )
-  }
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <div className={`w-9 h-9 rounded-xl ${bgColor} flex items-center justify-center mb-3`}>
-        <Icon className={`w-[18px] h-[18px] ${iconColor}`} />
-      </div>
-      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-2xl font-extrabold text-gray-900 tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-    </div>
-  )
-}
-
 const STATUS_META = {
   active:     { name: 'Ativas',       color: '#8b5cf6' },
   pending:    { name: 'Pendentes',    color: '#fbbf24' },
@@ -122,7 +99,6 @@ const STATUS_LABEL = {
 export default function AdminOverview() {
   const { apiFetch } = useAdminFetch()
   const [data,    setData]    = useState(null)
-  const [retData, setRetData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(null)
 
@@ -130,12 +106,8 @@ export default function AdminOverview() {
     setLoading(true)
     setError(null)
     try {
-      const [fin, ret] = await Promise.all([
-        apiFetch('/admin-financial'),
-        apiFetch('/admin-retention'),
-      ])
+      const fin = await apiFetch('/admin-financial')
       if (fin) setData(fin)
-      if (ret) setRetData(ret)
     } catch (e) {
       setError(e?.message ?? 'Erro ao carregar dados')
     } finally {
@@ -155,11 +127,6 @@ export default function AdminOverview() {
   const salesHistory    = data?.salesHistory    ?? []
   const planBreakdown   = data?.planBreakdown   ?? []
   const recentPurchases = data?.recentPurchases ?? []
-
-  const usageRate          = retData?.usageRate          ?? 0
-  const engagedCount       = retData?.engagedCount       ?? 0
-  const atRiskCount        = retData?.atRiskCount        ?? 0
-  const neverAccessedCount = retData?.neverAccessedCount ?? 0
 
   const todayStart  = startOfDay()
   const weekStart   = startOfWeek()
@@ -200,8 +167,8 @@ export default function AdminOverview() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Faturamento Total"
-          value={loading ? '—' : `$${totalRevenue.toFixed(2)}`}
-          badge="Total acumulado"
+          value={loading ? '—' : `US$${totalRevenue.toFixed(2)}`}
+          badge="Total acumulado (USD)"
           accentColor="#7c3aed"
           loading={loading}
         />
@@ -214,8 +181,8 @@ export default function AdminOverview() {
         />
         <KpiCard
           label="Ticket Médio"
-          value={loading ? '—' : `$${avgTicket.toFixed(2)}`}
-          badge="Por compra ativa"
+          value={loading ? '—' : `US$${avgTicket.toFixed(2)}`}
+          badge="Por compra ativa (USD)"
           accentColor="#f59e0b"
           loading={loading}
         />
@@ -238,7 +205,7 @@ export default function AdminOverview() {
           {!loading && currentMonthEntry && (
             <div className="text-right">
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Mês atual</p>
-              <p className="text-xl font-extrabold text-violet-600">${currentMonthEntry.revenue.toFixed(2)}</p>
+              <p className="text-xl font-extrabold text-violet-600">US${currentMonthEntry.revenue.toFixed(2)}</p>
             </div>
           )}
         </div>
@@ -335,38 +302,6 @@ export default function AdminOverview() {
             </div>
           )}
         </div>
-      </div>
-
-      {/* ── Row 4: Engajamento ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          icon={Activity} iconColor="text-emerald-500" bgColor="bg-emerald-50"
-          label="Taxa de uso (30d)"
-          value={loading ? '—' : `${usageRate}%`}
-          sub="Compradoras com login recente"
-          loading={loading}
-        />
-        <MetricCard
-          icon={TrendingUp} iconColor="text-blue-500" bgColor="bg-blue-50"
-          label="Engajadas (7 dias)"
-          value={loading ? '—' : engagedCount}
-          sub="Acessaram nos últimos 7 dias"
-          loading={loading}
-        />
-        <MetricCard
-          icon={TrendingDown} iconColor="text-amber-500" bgColor="bg-amber-50"
-          label="Em risco (7+ dias)"
-          value={loading ? '—' : atRiskCount}
-          sub="Ativas sem acesso recente"
-          loading={loading}
-        />
-        <MetricCard
-          icon={Percent} iconColor="text-red-400" bgColor="bg-red-50"
-          label="Nunca acessaram"
-          value={loading ? '—' : neverAccessedCount}
-          sub="Compraram mas não fizeram login"
-          loading={loading}
-        />
       </div>
 
       {/* ── Row 5: Compras recentes ── */}

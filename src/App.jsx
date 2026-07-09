@@ -25,7 +25,6 @@ import AdminOverview from './pages/admin/AdminOverview';
 import AdminFunnel from './pages/admin/AdminFunnel';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminFinancial from './pages/admin/AdminFinancial';
-import AdminRetention from './pages/admin/AdminRetention';
 import AdminGeography from './pages/admin/AdminGeography';
 import AdminQuizAnswers from './pages/admin/AdminQuizAnswers';
 import AdminSettings from './pages/admin/AdminSettings';
@@ -174,7 +173,6 @@ const AppRoutes = () => {
         <Route path="funnel"    element={<AdminFunnel />} />
         <Route path="users"     element={<AdminUsers />} />
         <Route path="financial" element={<AdminFinancial />} />
-        <Route path="retention" element={<AdminRetention />} />
         <Route path="geography" element={<AdminGeography />} />
         <Route path="quiz"          element={<AdminQuizAnswers />} />
         <Route path="costs"         element={<AdminCosts />} />
