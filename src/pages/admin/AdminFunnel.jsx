@@ -25,21 +25,16 @@ const PERIODS = [
   { key: 'custom', label: 'Personalizado' },
 ]
 
-// Funnels (/quiz natglow and Detox) — query string param is `funnel` on
-// backend, also accepted as legacy `plan`.
-const PLAN_FILTERS = [
-  { key: 'all',     label: 'Todos os funis' },
-  { key: 'natglow', label: '/quiz' },
-  { key: 'detox',   label: 'Quiz Detox' },
-]
-
+// Only the /quiz (natglow) funnel is shown in the admin now — Detox is hidden
+// (its public funnel still exists, it just doesn't appear here), so there's no
+// funnel selector anymore. The backend always returns the natglow funnel.
 export default function AdminFunnel() {
   const { apiFetch } = useAdminFetch()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [period, setPeriod] = useState('30d')
-  const [plan, setPlan] = useState('all')
+  const plan = 'natglow'
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
 
@@ -65,11 +60,6 @@ export default function AdminFunnel() {
   const handlePeriod = (p) => {
     setPeriod(p)
     if (p !== 'custom') load(p, '', '', plan)
-  }
-
-  const handlePlan = (pl) => {
-    setPlan(pl)
-    load(period, customStart, customEnd, pl)
   }
 
   const handleCustomApply = () => {
@@ -108,28 +98,6 @@ export default function AdminFunnel() {
         >
           <ArrowClockwise size={16} weight="fill" className={loading ? 'animate-spin' : ''} />
         </button>
-      </div>
-
-      {/* Filters row */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-        {/* Plan filter */}
-        <div className="overflow-x-auto">
-          <div className="flex bg-white border border-gray-200 rounded-xl p-1 gap-0.5 min-w-max">
-            {PLAN_FILTERS.map(pl => (
-              <button
-                key={pl.key}
-                onClick={() => handlePlan(pl.key)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  plan === pl.key
-                    ? 'bg-violet-600 text-white'
-                    : 'text-gray-500 hover:text-gray-800'
-                }`}
-              >
-                {pl.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Period filters */}
