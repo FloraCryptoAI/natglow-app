@@ -32,13 +32,14 @@ const FUNNEL_SOURCE: Record<string, string> = {
   natglow: 'offer_natglow',
 }
 
-async function countSessionsForEvents(
+// Returns the SET of unique session_ids that fired any of `events` in range.
+async function sessionSetForEvents(
   events: string[],
   since: string,
   until: string | undefined,
   funnel: string,
   stepKey: string,
-): Promise<number> {
+): Promise<Set<string>> {
   const sessions = new Set<string>()
   const needsSourceFilter = SOURCE_FILTERED_STEPS.has(stepKey) && FUNNEL_SOURCE[funnel] != null
 
@@ -64,11 +65,23 @@ async function countSessionsForEvents(
         const expectedSource = FUNNEL_SOURCE[funnel]
         if (r.metadata?.source !== expectedSource) continue
       }
-      sessions.add(r.session_id)
+      if (r.session_id) sessions.add(r.session_id)
     }
   }
 
-  return sessions.size
+  return sessions
+}
+
+// payment_completed is logged by the webhook with a synthetic session_id
+// (`hp_<tx>`), NOT the visitor's quiz session — so it can't be intersected with
+// the earlier steps. Every other step shares the quiz session_id and IS
+// intersected cumulatively (see handler) to keep the funnel strictly sequential.
+const NON_SEQUENTIAL_STEPS = new Set(['payment_completed'])
+
+const intersect = (a: Set<string>, b: Set<string>): Set<string> => {
+  const out = new Set<string>()
+  for (const x of a) if (b.has(x)) out.add(x)
+  return out
 }
 
 Deno.serve(async (req) => {
@@ -110,11 +123,23 @@ Deno.serve(async (req) => {
       since = new Date(now.getTime() - 30 * 86400000).toISOString()
     }
 
-    const counts = await Promise.all(
-      definition.map(s => countSessionsForEvents(s.events, since, until, funnel, s.key))
+    const stepSets = await Promise.all(
+      definition.map(s => sessionSetForEvents(s.events, since, until, funnel, s.key))
     )
 
-    const steps = definition.map((s, i) => ({ event_type: s.key, count: counts[i] }))
+    // Make the funnel strictly sequential: a session only counts in a step if it
+    // also reached every earlier session-based step. This prevents a later step
+    // (e.g. "viram a oferta") from exceeding an earlier one ("completaram o
+    // quiz") when a session fired a downstream event without an upstream one.
+    let running: Set<string> | null = null
+    const steps = definition.map((s, i) => {
+      if (NON_SEQUENTIAL_STEPS.has(s.key)) {
+        // Counted on its own (different session identity — see note above).
+        return { event_type: s.key, count: stepSets[i].size }
+      }
+      running = running ? intersect(running, stepSets[i]) : stepSets[i]
+      return { event_type: s.key, count: running.size }
+    })
 
     return new Response(JSON.stringify({ steps, period, funnel, plan: funnel }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
