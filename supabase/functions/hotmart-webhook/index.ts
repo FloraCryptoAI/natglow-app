@@ -192,6 +192,14 @@ Deno.serve(async (req) => {
     const buyer       = (data.buyer    as Record<string, unknown>)   ?? {}
     const priceData   = (purchase.price   as Record<string, unknown>) ?? {}
     const paymentData = (purchase.payment as Record<string, unknown>) ?? {}
+    const tracking    = (purchase.tracking as Record<string, unknown>) ?? {}
+
+    // `src` forwarded from the offer page's checkout URL comes back here. It's
+    // the quiz attempt's funnel session_id (see OfferNatglow handleCheckout →
+    // params.set('src', funnelSessionId)). Using it as the payment event's
+    // session_id ties the payment back to the exact quiz attempt, so the funnel/
+    // geography can join purchase → country/campaign instead of an orphan total.
+    const trackingSrc = (tracking.source as string) ?? (tracking.source_sck as string) ?? null
 
     const txId             = (purchase.transaction as string) ?? ''
     const email            = ((buyer.email as string) ?? '').toLowerCase().trim()
@@ -266,12 +274,17 @@ Deno.serve(async (req) => {
           await sbFetch(`/rest/v1/funnel_events`, {
             method: 'POST',
             body: JSON.stringify({
+              // Prefer the forwarded quiz-attempt id (`src`) so this payment
+              // shares the session_id of the visitor's quiz/offer/cta events.
+              // Falls back to a synthetic id when no src was forwarded (legacy /
+              // manual orders), which then counts as an unjoinable total.
               event_type:   'payment_completed',
-              session_id:   `hp_${txId || Date.now()}`,
+              session_id:   trackingSrc || `hp_${txId || Date.now()}`,
               user_id:      userId,
               metadata:     {
                 source:        funnelSource,        // 'offer_natglow' | 'offer_detox' | null
                 offer_country: offerCountry,        // 'mx'|'co'|'pe'|'cl'|'default' | null
+                src:           trackingSrc,         // quiz attempt id forwarded via Hotmart, or null
                 origin:        'hotmart_webhook',
                 tx_id:         txId,
                 product_id:    productId,

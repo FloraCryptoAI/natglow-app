@@ -174,6 +174,26 @@ export default function AdminFunnel() {
         </div>
       )}
 
+      {/* Orphan-event diagnostic — surfaces sessions that reached the offer
+          without the upstream steps, instead of silently hiding them. */}
+      {!loading && data?.diagnostics && (data.diagnostics.offer_without_complete > 0 || data.diagnostics.offer_without_start > 0) && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <TrendingDown className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-800">
+            <p className="font-bold mb-0.5">Eventos fora de sequência detectados</p>
+            <p className="text-amber-700 leading-snug">
+              {data.diagnostics.offer_without_complete > 0 && (
+                <>{data.diagnostics.offer_without_complete} sessão(ões) viram a oferta sem disparar “completou o quiz”. </>
+              )}
+              {data.diagnostics.offer_without_start > 0 && (
+                <>{data.diagnostics.offer_without_start} viram a oferta sem “iniciou o quiz” (acesso direto ou id de sessão perdido). </>
+              )}
+              Essas sessões ficam fora do funil sequencial. Se o número for alto, investigue o disparo de <code>quiz_completed</code> ou o keepalive.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Funnel bars */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
         {loading ? (

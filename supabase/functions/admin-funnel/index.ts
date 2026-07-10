@@ -141,7 +141,26 @@ Deno.serve(async (req) => {
       return { event_type: s.key, count: running.size }
     })
 
-    return new Response(JSON.stringify({ steps, period, funnel, plan: funnel }), {
+    // Orphan-event diagnostics — surface (don't just hide) sessions that reached
+    // the offer without the upstream steps. A non-zero count points at a root
+    // cause: quiz_completed not firing, direct offer access, or a lost session id.
+    const setByKey: Record<string, Set<string>> = {}
+    definition.forEach((s, i) => { setByKey[s.key] = stepSets[i] })
+    const countDiff = (a?: Set<string>, b?: Set<string>) => {
+      if (!a) return 0
+      let n = 0
+      for (const x of a) if (!b || !b.has(x)) n++
+      return n
+    }
+    const offerSet = setByKey['offer_viewed']
+    const diagnostics = {
+      // saw the offer but never fired quiz_completed (the "9 offer > 8 completed" case)
+      offer_without_complete: countDiff(offerSet, setByKey['quiz_completed']),
+      // saw the offer but never fired quiz_started (likely direct access / lost id)
+      offer_without_start:    countDiff(offerSet, setByKey['quiz_started']),
+    }
+
+    return new Response(JSON.stringify({ steps, period, funnel, plan: funnel, diagnostics }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err) {

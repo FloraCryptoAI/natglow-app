@@ -16,6 +16,19 @@ export function getFunnelSessionId() {
   return getSessionId()
 }
 
+// Mint a fresh funnel session id. Call this at the *real* start of a quiz (the
+// "Comenzar" click), so that redoing the quiz from the beginning counts as a
+// NEW attempt — while multiple clicks within one attempt (e.g. clicking the
+// checkout button twice) keep the same id and are deduped as one. Resuming a
+// quiz mid-way does NOT call this, so the in-progress attempt keeps its id.
+// This id is also forwarded to the Hotmart checkout as `src`, letting the
+// webhook tie the payment back to this exact quiz attempt.
+export function startFunnelSession() {
+  const id = crypto.randomUUID()
+  sessionStorage.setItem(SESSION_KEY, id)
+  return id
+}
+
 export async function trackFunnelEvent(event_type, metadata = null, pricing_plan = null) {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL

@@ -4,7 +4,7 @@ import { ArrowRight, Check, Leaf, Sparkles, Droplets } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
-import { trackFunnelEvent } from '@/lib/trackFunnelEvent'
+import { trackFunnelEvent, startFunnelSession } from '@/lib/trackFunnelEvent'
 import { captureAttribution } from '@/lib/tracking/attribution'
 import { captureCountry, getCountryOffer } from '@/config/countryOffers'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
@@ -325,6 +325,9 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   const pick = (field, value, next) => { ans(field, value); setStep(next) }
 
   const handleStartWelcome = () => {
+    // Fresh attempt id on every real quiz start, so redoing the quiz counts as a
+    // new attempt (and this id is forwarded to Hotmart as `src` for payment tie-back).
+    startFunnelSession()
     // Include the offer country (?country= bucket) so the admin can group the
     // funnel/geography by offer country from the very top of the funnel.
     trackFunnelEvent('quiz_natglow_started', { country: getCountryOffer().code }, plan_key)
