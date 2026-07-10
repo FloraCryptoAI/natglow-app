@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Loader2, Check, ChevronDown, ChevronUp, Lock, Leaf, Sparkles, SlidersHorizontal, CalendarDays } from 'lucide-react'
+import { Loader2, Check, ChevronDown, ChevronUp, Lock, Leaf, Sparkles, SlidersHorizontal, CalendarDays, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent'
@@ -187,6 +187,8 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
 
   const personalCards = t('natglowFlow.offer.personalCards', { returnObjects: true })
   const includes = t('natglowFlow.offer.card.includes', { returnObjects: true })
+  const compareSin = t('natglowFlow.offer.compare.sin', { returnObjects: true })
+  const compareCon = t('natglowFlow.offer.compare.con', { returnObjects: true })
   // Interpolates the resolved country's price into "{{price}}" and appends the
   // currency FAQ answer, which varies between a local offer and the USD fallback.
   const rawFaqItems = t('natglowFlow.offer.faq.items', { returnObjects: true })
@@ -402,6 +404,60 @@ export default function OfferNatglow({ pricingPlan = 'natglow' }) {
               {t('natglowFlow.offer.testimonials.disclaimer')}
             </p>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 6 · COMPARISON (Mi Rutina card style) ═══ */}
+      <section className="bg-stone-50 py-10">
+        <div className="max-w-md mx-auto px-5">
+          <FadeIn>
+            <h2 className="text-2xl font-extrabold text-stone-900 text-center leading-tight">
+              {t('natglowFlow.offer.compare.titlePre')}{' '}
+              <span style={{ color: PINK_DARK }}>{t('natglowFlow.offer.compare.titleVs')}</span>{' '}
+              {t('natglowFlow.offer.compare.titlePost')}
+            </h2>
+            <p className="text-sm text-stone-500 text-center mt-2 mb-6 leading-snug">
+              {t('natglowFlow.offer.compare.subtitle')}
+            </p>
+          </FadeIn>
+
+          <div className="flex flex-col gap-4">
+            {/* Sin una rutina guiada */}
+            <FadeIn>
+              <div className="bg-red-50 rounded-2xl p-5 border border-red-100">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <h3 className="font-bold text-stone-800">{t('natglowFlow.offer.compare.sinTitle')}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {Array.isArray(compareSin) && compareSin.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-stone-600 leading-snug">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
+
+            {/* Con NatGlow */}
+            <FadeIn delay={0.1}>
+              <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <h3 className="font-bold text-stone-800">{t('natglowFlow.offer.compare.conTitle')}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {Array.isArray(compareCon) && compareCon.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-stone-700 font-medium leading-snug">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
+          </div>
         </div>
       </section>
 

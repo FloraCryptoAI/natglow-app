@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Check, Leaf, Sparkles, Droplets, AlertTriangle, CheckCircle } from 'lucide-react'
+import { ArrowRight, Check, Leaf, Sparkles, Droplets } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
@@ -33,15 +33,14 @@ const STEPS = {
   SOCIAL_PROOF: 8,
   CHEM: 9,
   TIME: 10,
-  EDU_RECIPES: 11,
-  NAME: 12,
-  APP_PREVIEW: 13,
-  LOADING: 14,
+  NAME: 11,
+  APP_PREVIEW: 12,
+  LOADING: 13,
 }
 // Progress bar denominator: every screen from HAIR_TYPE through NAME gets its
 // own step number, including the educational/testimonial screens — none of
 // them repeat the previous question's number.
-const TOTAL_QUIZ_STEPS = 12
+const TOTAL_QUIZ_STEPS = 11
 
 const P = '#FB45A9'
 const P_DARK = '#E03594'
@@ -656,68 +655,16 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
                 { value: '30', emoji: '⏳', label: t('quizNatglow.time.opt3') },
               ].map(opt => (
                 <QuizOption key={opt.value} {...opt} selected={answers.timeAvailable === opt.value}
-                  onClick={() => pick('timeAvailable', opt.value, STEPS.EDU_RECIPES)} />
+                  onClick={() => pick('timeAvailable', opt.value, STEPS.NAME)} />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* ═══ STEP 11 · EDUCATIONAL: random recipes vs guided routine ═══ */}
-        {step === STEPS.EDU_RECIPES && (
-          <motion.div key="edu-recipes" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <StepProgress current={11} total={TOTAL_QUIZ_STEPS} t={t} />
-            <div className="text-center flex flex-col gap-3">
-              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                {hlTitle(
-                  `${t('quizNatglow.eduRecipes.titlePre')} ${t('quizNatglow.eduRecipes.titleVs')} ${t('quizNatglow.eduRecipes.titlePost')}`,
-                  t('quizNatglow.eduRecipes.highlight'),
-                )}
-              </h2>
-              <p className="text-sm text-stone-500 leading-relaxed">{t('quizNatglow.eduRecipes.subtitle')}</p>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="bg-red-50 rounded-2xl p-5 border border-red-100">
-                <div className="flex items-center gap-2 mb-3.5">
-                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <h3 className="font-bold text-stone-800">{t('quizNatglow.eduRecipes.sinTitle')}</h3>
-                </div>
-                <ul className="space-y-3">
-                  {[t('quizNatglow.eduRecipes.sin1'), t('quizNatglow.eduRecipes.sin2'), t('quizNatglow.eduRecipes.sin3'), t('quizNatglow.eduRecipes.sin4')].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-stone-600 leading-snug">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
-                <div className="flex items-center gap-2 mb-3.5">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <h3 className="font-bold text-stone-800">{t('quizNatglow.eduRecipes.conTitle')}</h3>
-                </div>
-                <ul className="space-y-3">
-                  {[t('quizNatglow.eduRecipes.con1'), t('quizNatglow.eduRecipes.con2'), t('quizNatglow.eduRecipes.con3'), t('quizNatglow.eduRecipes.con4')].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-stone-700 font-medium leading-snug">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <PinkButton onClick={() => setStep(STEPS.NAME)}>
-              {t('quizNatglow.eduRecipes.cta')} <ArrowRight className="w-4 h-4" />
-            </PinkButton>
-          </motion.div>
-        )}
-
-        {/* ═══ STEP 12 · NAME ═══ */}
+        {/* ═══ STEP 11 · NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <StepProgress current={12} total={TOTAL_QUIZ_STEPS} t={t} />
+            <StepProgress current={11} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center pt-6">
               <div className="text-5xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quizNatglow.name.title')}</h2>
