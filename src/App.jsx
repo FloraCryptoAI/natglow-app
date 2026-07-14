@@ -12,6 +12,8 @@ import QuizMeta from './pages/QuizMeta';
 import QuizClean from './pages/QuizClean';
 import QuizDetox from './pages/QuizDetox';
 import QuizNatglow from './pages/QuizNatglow';
+import QuizNew from './pages/QuizNew';
+import QuizNewResults from './pages/QuizNewResults';
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
 import OfferNatglow from './pages/OfferNatglow';
@@ -130,6 +132,12 @@ const AppRoutes = () => {
       <Route path="/quiz-bold"    element={<QuizClean pricingPlan="bold" />} />
       <Route path="/quiz-meta"    element={<QuizMeta  pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
+
+      {/* New isolated Meta-safe funnel (green editorial). Own analytics namespace
+          (quiz_new_*), own attempt id; does NOT touch the funnels above. Bridges
+          to the current offer via OFFER_ROUTE in src/lib/quiz-new/quizNewRoutes.js. */}
+      <Route path="/quiz-new"         element={<QuizNew />} />
+      <Route path="/quiz-new/results" element={<QuizNewResults />} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
       <Route path="/results-bold"    element={<ResultsBold pricingPlan="bold" />} />
