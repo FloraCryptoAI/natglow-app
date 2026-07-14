@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Check, Leaf, Sparkles, Droplets } from 'lucide-react'
+import { ArrowRight, Check, Leaf, Sparkles, Droplets, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/AuthContext'
@@ -23,26 +23,30 @@ const APP_MOCKUP = `${IMG}/app-mockup.webp`
 
 const STEPS = {
   WELCOME: 0,
-  HAIR_TYPE: 1,
-  LENGTH: 2,
-  AGE: 3,
-  PROFILE: 4,
-  GOAL: 5,
-  EDU_SCIENTIFIC: 6,
-  WASH_FREQ: 7,
-  WATER_TEMP: 8,
-  HEAT_TOOLS: 9,
-  SOCIAL_PROOF: 10,
-  CHEM: 11,
-  TIME: 12,
-  NAME: 13,
-  APP_PREVIEW: 14,
-  LOADING: 15,
+  // Informative intro screens come BEFORE the questions and are NOT numbered.
+  SIGNS: 1,
+  EDU_SCIENTIFIC: 2,
+  REFRAMING: 3,
+  // Numbered questions (PASO 1..11).
+  HAIR_TYPE: 4,
+  LENGTH: 5,
+  AGE: 6,
+  PROFILE: 7,
+  GOAL: 8,
+  WASH_FREQ: 9,
+  WATER_TEMP: 10,
+  HEAT_TOOLS: 11,
+  SOCIAL_PROOF: 12,   // testimonial — informative, no number
+  CHEM: 13,
+  TIME: 14,
+  NAME: 15,
+  APP_PREVIEW: 16,
+  LOADING: 17,
 }
-// Progress bar denominator: every screen from HAIR_TYPE through NAME gets its
-// own step number, including the educational/testimonial screens — none of
-// them repeat the previous question's number.
-const TOTAL_QUIZ_STEPS = 13
+// Progress bar denominator: only the real questions are numbered (PASO X DE 11).
+// The informative screens (SIGNS, EDU_SCIENTIFIC, REFRAMING, SOCIAL_PROOF) have
+// no step number.
+const TOTAL_QUIZ_STEPS = 11
 
 const P = '#FB45A9'
 const P_DARK = '#E03594'
@@ -217,13 +221,14 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   // straight to the offer; testimonial + follicle-comparison screens restored;
   // step badges added to previously badge-less screens), so an in-progress
   // session under an old key must not restore to a shifted step.
-  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v6`
+  const QUIZ_STATE_KEY = `glow_quiz_state_${STORE}_v7`
 
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, isSubscribed } = useAuth()
   const [step, setStep] = useState(STEPS.WELCOME)
   const [answers, setAnswers] = useState({
+    symptomsIntensity: '',
     hairType: '', hairLength: '', age: '', profilePreference: '',
     goals: [], hairGoal: '', washFreq: '',
     waterTemp: '', heatTools: '', chemProducts: '',
@@ -348,7 +353,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
   // (admin quiz distribution / offer), then advance.
   const submitGoals = () => {
     setAnswers(a => ({ ...a, hairGoal: a.goals?.[0] ?? '' }))
-    setStep(STEPS.EDU_SCIENTIFIC)
+    setStep(STEPS.WASH_FREQ)
   }
 
   const handleStartWelcome = () => {
@@ -358,7 +363,13 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
     // Include the offer country (?country= bucket) so the admin can group the
     // funnel/geography by offer country from the very top of the funnel.
     trackFunnelEvent('quiz_natglow_started', { country: getCountryOffer().code }, plan_key)
-    setStep(STEPS.HAIR_TYPE)
+    setStep(STEPS.SIGNS)
+  }
+
+  // Signs intro screen: records how long the person has noticed signs and moves on.
+  const handleSymptoms = (intensity) => {
+    ans('symptomsIntensity', intensity)
+    setStep(STEPS.EDU_SCIENTIFIC)
   }
 
   // TikTok SubmitForm on name submit (stable page). Facebook Lead is intentionally
@@ -419,6 +430,41 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
             <PinkButton onClick={handleStartWelcome}>
               {t('quizNatglow.welcome.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
+          </motion.div>
+        )}
+
+        {/* ═══ INTRO 1 · SIGNS (from meta) — informative, no step number ═══ */}
+        {step === STEPS.SIGNS && (
+          <motion.div key="signs" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
+            <div className="flex flex-col gap-2 text-center">
+              <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
+                ¿Reconoces alguna de estas señales en tu cabello?
+              </h2>
+              <p className="text-sm text-stone-400 leading-snug">
+                Identifica lo que sientes, esto nos ayuda a personalizar tu rutina.
+              </p>
+            </div>
+
+            <motion.img
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              src={`${IMG}/symptoms.webp`}
+              alt="Señales en el cabello"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto block rounded-2xl"
+              onError={e => { e.currentTarget.style.display = 'none' }}
+            />
+
+            <div className="flex flex-col gap-3">
+              <PinkButton pulse={false} onClick={() => handleSymptoms('30days')}>
+                Lo noto hace algunas semanas 😩
+              </PinkButton>
+              <PinkButton pulse={false} onClick={() => handleSymptoms('1year')}>
+                Lo noto hace mucho tiempo 😨
+              </PinkButton>
+            </div>
           </motion.div>
         )}
 
@@ -558,7 +604,6 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ EDUCATIONAL: routine vs residue buildup (follicle comparison) ═══ */}
         {step === STEPS.EDU_SCIENTIFIC && (
           <motion.div key="edu-scientific" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <StepProgress current={6} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center flex flex-col gap-3">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                 {hlTitle(t('quizNatglow.eduScientific.title'), t('quizNatglow.eduScientific.highlight'))}
@@ -587,18 +632,52 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
 
             <p className="text-xs text-stone-500 text-center italic">{t('quizNatglow.eduScientific.caption')}</p>
 
-            <PinkButton onClick={() => setStep(STEPS.WASH_FREQ)}>
+            <PinkButton onClick={() => setStep(STEPS.REFRAMING)}>
               {t('quizNatglow.eduScientific.cta')} <ArrowRight className="w-4 h-4" />
             </PinkButton>
           </motion.div>
         )}
 
-        {/* ═══ STEP 5 · WASH FREQ (detox, title only) ═══ */}
+        {/* ═══ INTRO 3 · REFRAMING (from meta) — informative, no step number ═══ */}
+        {step === STEPS.REFRAMING && (
+          <motion.div key="reframing" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
+            <div className="rounded-2xl overflow-hidden bg-stone-100 w-full" style={{ aspectRatio: '16/10' }}>
+              <img src={`${IMG}/woman-worried.webp`} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
+            </div>
+
+            <h2 className="text-2xl font-extrabold text-stone-900 leading-tight text-center">
+              Lo que muchas personas<br />
+              <span style={{ color: P_DARK }}>no saben sobre el cabello.</span>
+            </h2>
+
+            <div className="rounded-2xl p-5 border flex flex-col gap-3" style={{ borderColor: '#FFB3DD', background: '#FFF5FA' }}>
+              <p className="text-sm text-stone-700 leading-relaxed">
+                Muchas personas creen que solo la genética o la edad influyen en la apariencia del cabello. Pero los especialistas señalan que factores externos, como los residuos de productos y las agresiones diarias, también pueden afectar el ambiente del cuero cabelludo y la vitalidad del cabello.
+              </p>
+              <div className="flex flex-col gap-2 pt-1">
+                {['No es solo genética', 'No es solo estrés', 'No es solo el paso del tiempo'].map((d, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-stone-500">
+                    <X className="w-4 h-4 flex-shrink-0 text-stone-400" /> {d}
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 text-sm font-semibold pt-1" style={{ color: P_DARK }}>
+                  <Check className="w-4 h-4 flex-shrink-0" style={{ color: P }} /> Los cuidados diarios también tienen un papel importante
+                </div>
+              </div>
+            </div>
+
+            <PinkButton onClick={() => setStep(STEPS.HAIR_TYPE)}>
+              Continuar <ArrowRight className="w-4 h-4" />
+            </PinkButton>
+          </motion.div>
+        )}
+
+        {/* ═══ STEP 6 · WASH FREQ (detox, title only) ═══ */}
         {step === STEPS.WASH_FREQ && (
           <motion.div key="wash-freq" {...slide} className={qClass}>
             <StepHead
-              current={7} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
+              current={6} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 6, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.washFreq.title')} highlight={t('quizNatglow.washFreq.highlight')}
               subtitle={t('quizNatglow.washFreq.subtitle')}
             />
@@ -619,8 +698,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.WATER_TEMP && (
           <motion.div key="water-temp" {...slide} className={qClass}>
             <StepHead
-              current={8} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
+              current={7} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.waterTemp.title')} highlight={t('quizNatglow.waterTemp.highlight')}
               subtitle={t('quizNatglow.waterTemp.subtitle')}
             />
@@ -641,8 +720,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.HEAT_TOOLS && (
           <motion.div key="heat-tools" {...slide} className={qClass}>
             <StepHead
-              current={9} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
+              current={8} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.heatTools.title')} highlight={t('quizNatglow.heatTools.highlight')}
               subtitle={t('quizNatglow.heatTools.subtitle')}
             />
@@ -662,8 +741,6 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ SOCIAL PROOF (testimonial) ═══ */}
         {step === STEPS.SOCIAL_PROOF && (
           <motion.div key="social-proof" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
-            <StepProgress current={10} total={TOTAL_QUIZ_STEPS} t={t} />
-
             <div className="rounded-2xl p-4 text-center border" style={{ borderColor: '#FFB3DD', background: '#FFF5FA' }}>
               <p className="font-extrabold text-sm mb-1" style={{ color: P_DARK }}>{t('quizNatglow.socialProof.title')}</p>
               <p className="text-sm text-stone-700 leading-relaxed">{t('quizNatglow.socialProof.subtitle')}</p>
@@ -692,8 +769,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.CHEM && (
           <motion.div key="chem" {...slide} className={qClass}>
             <StepHead
-              current={11} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 11, total: TOTAL_QUIZ_STEPS })}
+              current={9} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.chemProducts.title')} highlight={t('quizNatglow.chemProducts.highlight')}
               subtitle={t('quizNatglow.chemProducts.subtitle')}
             />
@@ -714,8 +791,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.TIME && (
           <motion.div key="time" {...slide} className={qClass}>
             <StepHead
-              current={12} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 12, total: TOTAL_QUIZ_STEPS })}
+              current={10} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 10, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.time.title')} highlight={t('quizNatglow.time.highlight')}
               subtitle={t('quizNatglow.time.subtitle')}
             />
@@ -735,7 +812,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ STEP 11 · NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <StepProgress current={13} total={TOTAL_QUIZ_STEPS} t={t} />
+            <StepProgress current={11} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center pt-6">
               <div className="text-5xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quizNatglow.name.title')}</h2>
