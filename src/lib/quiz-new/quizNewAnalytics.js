@@ -36,36 +36,45 @@ function baseMetadata(session, extra = {}) {
 }
 
 /**
- * Fire an event. keepalive lets it survive a redirect (e.g. results CTA).
+ * Fire an event. keepalive lets the request finish even if the page navigates
+ * away right after (used for the pre-navigation events completed / cta). Returns
+ * true when the request was dispatched, false if it couldn't even be queued —
+ * so the caller can avoid marking a never-sent event as sent.
  * @param {import('./quizNewStorage').QuizNewSession} session
+ * @returns {boolean}
  */
 export function post(eventType, session, extra = {}) {
+  if (!session?.attemptId) return false
   try {
     fetch(ENDPOINT, {
       method: 'POST',
-      keepalive: true,
+      keepalive: true,                           // survives navigation (SPA today, external offer later)
       headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         event_type: eventType,
-        session_id: session?.attemptId,          // attempt id = isolated session namespace
+        session_id: session.attemptId,           // attempt id = isolated session namespace
         idioma: getLang(),
         pais: detectCountry(),
         metadata: baseMetadata(session, extra),
         pricing_plan: null,
       }),
-    })
-  } catch { /* tracking must never break the app */ }
+    }).catch(() => { /* network error after dispatch — non-fatal */ })
+    return true
+  } catch {
+    return false   // couldn't even queue the request → let it be retried
+  }
 }
 
 /**
- * Fire once per attempt for a given key; returns the (possibly) updated session
- * with the dedupe flag set. Use for started/completed/results_viewed/cta and
- * per-step viewed (key includes the step).
+ * Fire once per attempt for a given key; the dedupe flag is only set if the
+ * request was actually dispatched, so a failed send can be retried on the next
+ * mount/click. Returns the (possibly) updated session. Refreshing the page never
+ * re-sends because sentEvents is persisted in sessionStorage.
  * @param {import('./quizNewStorage').QuizNewSession} session
  * @returns {import('./quizNewStorage').QuizNewSession}
  */
 export function postOnce(session, dedupeKey, eventType, extra = {}) {
   if (!session || hasSent(session, dedupeKey)) return session
-  post(eventType, session, extra)
-  return markSent(session, dedupeKey)
+  const dispatched = post(eventType, session, extra)
+  return dispatched ? markSent(session, dedupeKey) : session
 }

@@ -18,15 +18,36 @@ export default function QuizNewMultiChoice({ question, values, onToggle, onConti
         {question.subtitle && <p className="text-sm leading-relaxed" style={{ color: COLORS.textMuted }}>{question.subtitle}</p>}
       </div>
 
-      <div className={grid ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-2.5'}>
+      <div className={grid ? 'grid grid-cols-2 gap-2.5' : 'flex flex-col gap-2.5'}>
         {question.options.map(opt => {
           const isOn = selected.includes(opt.value)
+          // grid2 (e.g. metas): icon on top, centered, compact — fits 320px in 2 cols.
+          if (grid) {
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onToggle(opt.value)}
+                aria-pressed={isOn}
+                className="relative text-center rounded-2xl transition-all active:scale-[0.99] focus:outline-none focus-visible:ring-2 p-3 flex flex-col items-center gap-1.5 min-h-[92px] justify-center"
+                style={{ background: isOn ? COLORS.greenLight : '#fff', border: `2px solid ${isOn ? COLORS.green : COLORS.border}` }}
+              >
+                {isOn && (
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: COLORS.green }}>
+                    <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                  </span>
+                )}
+                {opt.icon && <span className="text-2xl leading-none" aria-hidden>{opt.icon}</span>}
+                <span className="font-semibold text-[13px] leading-tight" style={{ color: COLORS.ink }}>{opt.label}</span>
+              </button>
+            )
+          }
+          // list: icon + label + checkbox in a row.
           return (
             <button
               key={opt.value}
               onClick={() => onToggle(opt.value)}
               aria-pressed={isOn}
-              className={`text-left rounded-2xl transition-all active:scale-[0.99] focus:outline-none focus-visible:ring-2 flex items-center gap-3 ${grid ? 'p-3' : 'p-3.5'}`}
+              className="text-left rounded-2xl transition-all active:scale-[0.99] focus:outline-none focus-visible:ring-2 flex items-center gap-3 p-3.5"
               style={{ background: isOn ? COLORS.greenLight : '#fff', border: `2px solid ${isOn ? COLORS.green : COLORS.border}` }}
             >
               {opt.icon && <span className="text-xl leading-none flex-shrink-0" aria-hidden>{opt.icon}</span>}

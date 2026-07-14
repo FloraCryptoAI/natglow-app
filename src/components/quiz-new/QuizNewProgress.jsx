@@ -12,9 +12,9 @@ export default function QuizNewProgress({ fillIndex, badge, questionIndex, onBac
   const label = badge ?? `PASO ${questionIndex} DE ${TOTAL_QUESTIONS} · ${PROGRESS_LABEL}`
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between min-h-[24px]">
-        <BackButton onClick={onBack} />
-        <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: COLORS.green }}>
+      <div className="flex items-start justify-between gap-2 min-h-[24px]">
+        <div className="flex-shrink-0"><BackButton onClick={onBack} /></div>
+        <span className="text-[11px] font-bold tracking-wider uppercase text-right leading-tight flex-1 min-w-0" style={{ color: COLORS.green }}>
           {label}
         </span>
       </div>
