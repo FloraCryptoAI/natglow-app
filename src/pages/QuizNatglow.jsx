@@ -43,10 +43,9 @@ const STEPS = {
   APP_PREVIEW: 16,
   LOADING: 17,
 }
-// Progress bar denominator: only the real questions are numbered (PASO X DE 11).
-// The informative screens (SIGNS, EDU_SCIENTIFIC, REFRAMING, SOCIAL_PROOF) have
-// no step number.
-const TOTAL_QUIZ_STEPS = 11
+// Progress bar denominator: EVERY screen from SIGNS through NAME counts as a
+// step, including the informative/testimonial screens — each shows "PASO X DE 15".
+const TOTAL_QUIZ_STEPS = 15
 
 const P = '#FB45A9'
 const P_DARK = '#E03594'
@@ -433,9 +432,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ INTRO 1 · SIGNS (from meta) — informative, no step number ═══ */}
+        {/* ═══ STEP 1 · SIGNS (from meta) ═══ */}
         {step === STEPS.SIGNS && (
           <motion.div key="signs" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
+            <StepProgress current={1} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="flex flex-col gap-2 text-center">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                 ¿Reconoces alguna de estas señales en tu cabello?
@@ -472,8 +472,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.HAIR_TYPE && (
           <motion.div key="hair-type" {...slide} className={qClass}>
             <StepHead
-              current={1} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 1, total: TOTAL_QUIZ_STEPS })}
+              current={4} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 4, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.hairType.title')} highlight={t('quizNatglow.hairType.highlight')}
               subtitle={t('quizNatglow.hairType.subtitle')}
             />
@@ -508,8 +508,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.LENGTH && (
           <motion.div key="length" {...slide} className={qClass}>
             <StepHead
-              current={2} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 2, total: TOTAL_QUIZ_STEPS })}
+              current={5} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 5, total: TOTAL_QUIZ_STEPS })}
               title="¿Cuál es el largo actual de tu cabello?"
               subtitle="Esto puede cambiar cantidades y tiempo de aplicación."
             />
@@ -537,8 +537,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.AGE && (
           <motion.div key="age" {...slide} className={qClass}>
             <StepHead
-              current={3} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 3, total: TOTAL_QUIZ_STEPS })}
+              current={6} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 6, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.age.title')} highlight={t('quizNatglow.age.highlight')}
             />
             <div className="flex flex-col gap-3">
@@ -559,8 +559,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.PROFILE && (
           <motion.div key="profile" {...slide} className={qClass}>
             <StepHead
-              current={4} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 4, total: TOTAL_QUIZ_STEPS })}
+              current={7} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
               title="¿Con cuál opción te identificas?"
             />
             <div className="flex flex-col gap-3">
@@ -583,8 +583,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.GOAL && (
           <motion.div key="goal" {...slide} className={qClass}>
             <StepHead
-              current={5} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 5, total: TOTAL_QUIZ_STEPS })}
+              current={8} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
               title="Vamos a organizar tu rutina según tus metas"
               subtitle="Elige todo lo que te gustaría priorizar."
             />
@@ -604,6 +604,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ EDUCATIONAL: routine vs residue buildup (follicle comparison) ═══ */}
         {step === STEPS.EDU_SCIENTIFIC && (
           <motion.div key="edu-scientific" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <StepProgress current={2} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center flex flex-col gap-3">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
                 {hlTitle(t('quizNatglow.eduScientific.title'), t('quizNatglow.eduScientific.highlight'))}
@@ -638,9 +639,10 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
           </motion.div>
         )}
 
-        {/* ═══ INTRO 3 · REFRAMING (from meta) — informative, no step number ═══ */}
+        {/* ═══ STEP 3 · REFRAMING (from meta) ═══ */}
         {step === STEPS.REFRAMING && (
           <motion.div key="reframing" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-5">
+            <StepProgress current={3} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="rounded-2xl overflow-hidden bg-stone-100 w-full" style={{ aspectRatio: '16/10' }}>
               <img src={`${IMG}/woman-worried.webp`} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none' }} />
             </div>
@@ -676,8 +678,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.WASH_FREQ && (
           <motion.div key="wash-freq" {...slide} className={qClass}>
             <StepHead
-              current={6} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 6, total: TOTAL_QUIZ_STEPS })}
+              current={9} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.washFreq.title')} highlight={t('quizNatglow.washFreq.highlight')}
               subtitle={t('quizNatglow.washFreq.subtitle')}
             />
@@ -698,8 +700,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.WATER_TEMP && (
           <motion.div key="water-temp" {...slide} className={qClass}>
             <StepHead
-              current={7} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 7, total: TOTAL_QUIZ_STEPS })}
+              current={10} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 10, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.waterTemp.title')} highlight={t('quizNatglow.waterTemp.highlight')}
               subtitle={t('quizNatglow.waterTemp.subtitle')}
             />
@@ -720,8 +722,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.HEAT_TOOLS && (
           <motion.div key="heat-tools" {...slide} className={qClass}>
             <StepHead
-              current={8} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 8, total: TOTAL_QUIZ_STEPS })}
+              current={11} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 11, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.heatTools.title')} highlight={t('quizNatglow.heatTools.highlight')}
               subtitle={t('quizNatglow.heatTools.subtitle')}
             />
@@ -741,6 +743,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ SOCIAL PROOF (testimonial) ═══ */}
         {step === STEPS.SOCIAL_PROOF && (
           <motion.div key="social-proof" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-8 flex flex-col gap-6">
+            <StepProgress current={12} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="rounded-2xl p-4 text-center border" style={{ borderColor: '#FFB3DD', background: '#FFF5FA' }}>
               <p className="font-extrabold text-sm mb-1" style={{ color: P_DARK }}>{t('quizNatglow.socialProof.title')}</p>
               <p className="text-sm text-stone-700 leading-relaxed">{t('quizNatglow.socialProof.subtitle')}</p>
@@ -769,8 +772,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.CHEM && (
           <motion.div key="chem" {...slide} className={qClass}>
             <StepHead
-              current={9} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 9, total: TOTAL_QUIZ_STEPS })}
+              current={13} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 13, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.chemProducts.title')} highlight={t('quizNatglow.chemProducts.highlight')}
               subtitle={t('quizNatglow.chemProducts.subtitle')}
             />
@@ -791,8 +794,8 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {step === STEPS.TIME && (
           <motion.div key="time" {...slide} className={qClass}>
             <StepHead
-              current={10} total={TOTAL_QUIZ_STEPS}
-              badge={t('quizNatglow.stepBadge', { current: 10, total: TOTAL_QUIZ_STEPS })}
+              current={14} total={TOTAL_QUIZ_STEPS}
+              badge={t('quizNatglow.stepBadge', { current: 14, total: TOTAL_QUIZ_STEPS })}
               title={t('quizNatglow.time.title')} highlight={t('quizNatglow.time.highlight')}
               subtitle={t('quizNatglow.time.subtitle')}
             />
@@ -812,7 +815,7 @@ export default function QuizNatglow({ pricingPlan = 'natglow' }) {
         {/* ═══ STEP 11 · NAME ═══ */}
         {step === STEPS.NAME && (
           <motion.div key="name" {...slide} className="max-w-lg mx-auto w-full px-4 pt-5 pb-6 flex flex-col gap-5">
-            <StepProgress current={11} total={TOTAL_QUIZ_STEPS} t={t} />
+            <StepProgress current={15} total={TOTAL_QUIZ_STEPS} t={t} />
             <div className="text-center pt-6">
               <div className="text-5xl mb-4">🌿</div>
               <h2 className="text-2xl font-extrabold text-stone-900 mb-2">{t('quizNatglow.name.title')}</h2>
