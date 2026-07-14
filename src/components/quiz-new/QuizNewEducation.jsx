@@ -11,9 +11,9 @@ export default function QuizNewEducation({ eduKey, answers, onContinue }) {
   const chips = eduKey === 'edu3' ? getAnswerChips(answers) : []
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-[22px] leading-snug font-extrabold" style={{ color: COLORS.ink }}>{c.title}</h2>
-        {c.text && <p className="text-[15px] leading-relaxed" style={{ color: COLORS.textMuted }}>{c.text}</p>}
+      <div className="text-center flex flex-col gap-2.5 pt-1">
+        <h2 className="text-2xl font-extrabold leading-snug" style={{ color: COLORS.ink }}>{c.title}</h2>
+        {c.text && <p className="text-sm leading-relaxed" style={{ color: COLORS.textMuted }}>{c.text}</p>}
       </div>
 
       {/* edu1 — four small cards */}
@@ -40,9 +40,9 @@ export default function QuizNewEducation({ eduKey, answers, onContinue }) {
         </div>
       )}
 
-      {/* edu3 — dynamic chips from real answers */}
+      {/* edu3 — dynamic chips from real answers, centered */}
       {eduKey === 'edu3' && chips.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
           {chips.map((chip, i) => (
             <span key={i} className="text-sm font-semibold rounded-full px-3 py-1.5" style={{ background: COLORS.greenLight, color: COLORS.greenDark }}>
               {chip}
@@ -52,7 +52,7 @@ export default function QuizNewEducation({ eduKey, answers, onContinue }) {
       )}
 
       <Card tone={c.boxTone}>
-        <p className="text-sm leading-relaxed font-medium" style={{ color: c.boxTone === 'yellow' ? '#7A5A00' : COLORS.greenDark }}>{c.box}</p>
+        <p className="text-sm leading-relaxed font-medium text-center" style={{ color: c.boxTone === 'yellow' ? '#7A5A00' : COLORS.greenDark }}>{c.box}</p>
       </Card>
 
       <PrimaryButton onClick={onContinue}>{c.cta}</PrimaryButton>

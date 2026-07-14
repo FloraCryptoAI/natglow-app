@@ -17,7 +17,7 @@ export const COLORS = {
   danger:     '#C2410C',
 }
 
-export const MAX_W = 560          // desktop max width (centered, not a wide landing)
+export const MAX_W = 512          // desktop max width — matches /quiz (max-w-lg)
 
 export const PROGRESS_LABEL   = 'Cada respuesta importa' // shown as "PASO X DE 12 · ..."
 export const EDUCATION_TAG    = 'INFORMACIÓN ÚTIL'
@@ -70,11 +70,11 @@ export const COPY = {
     // edu3 is dynamic (shows chips from real answers) — see QuizNewEducation + personalization.
     edu3: {
       tag: 'TU GUÍA ESTÁ TOMANDO FORMA',
-      title: 'Ya tenemos la información principal para organizar tu resultado',
-      text: 'Ahora vamos a combinar tus metas, hábitos y preferencias para mostrarte un punto de partida más compatible con tu día a día.',
+      title: '¡Buen trabajo! Ya tenemos lo esencial de tu cabello',
+      text: 'Con tus metas, tus hábitos y el tiempo que tienes disponible, podemos organizar un punto de partida hecho a tu medida.',
       boxTone: 'green',
-      box: 'En el resultado verás qué aspectos de tu rutina conviene priorizar y cómo organizamos tu recomendación.',
-      cta: 'CONTINUAR →',
+      box: 'En el siguiente paso verás qué conviene priorizar primero y cómo se organiza tu recomendación, paso a paso.',
+      cta: 'VER MI RESULTADO →',
     },
   },
 

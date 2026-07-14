@@ -9,8 +9,8 @@ const HAIR_IMG = (f) => `/images/quiz-natglow/${f}.webp`
 // options clear the others when picked (and are cleared by any other pick).
 export const QUESTIONS = {
   goals: {
-    field: 'goals', type: 'multi', layout: 'grid2',
-    title: 'Vamos a organizar tu rutina según tus metas para las próximas semanas',
+    field: 'goals', type: 'multi', layout: 'list',
+    title: 'Vamos a organizar tu rutina según tus metas',
     subtitle: 'Elige todo lo que te gustaría priorizar.',
     cta: 'CONTINUAR CON MIS METAS →',
     options: [
@@ -26,13 +26,16 @@ export const QUESTIONS = {
   },
 
   profilePreference: {
-    field: 'profilePreference', type: 'single', layout: 'list',
+    // 'profile' layout = two image tiles (mujer/hombre) + a full-width neutral
+    // option below. Drop /images/quiz-new/{mujer,hombre}.webp to replace the
+    // emoji placeholders (ImgCard falls back to the emoji until then).
+    field: 'profilePreference', type: 'single', layout: 'profile',
     title: '¿Con cuál opción te identificas?',
     note: 'Esta respuesta se usa para adaptar ejemplos y hábitos de cuidado. Las recomendaciones principales se basan en tu tipo de cabello y en tu rutina.',
     options: [
-      { value: 'mujer',   icon: '👩', label: 'Mujer' },
-      { value: 'hombre',  icon: '👨', label: 'Hombre' },
-      { value: 'neutro',  icon: '🌿', label: 'Prefiero una guía neutra' },
+      { value: 'mujer',   emoji: '👩', label: 'Mujer',  image: '/images/quiz-new/mujer.webp' },
+      { value: 'hombre',  emoji: '👨', label: 'Hombre', image: '/images/quiz-new/hombre.webp' },
+      { value: 'neutro',  icon: '🌿', label: 'Prefiero una guía neutra', full: true },
     ],
   },
 
@@ -50,18 +53,18 @@ export const QUESTIONS = {
 
   currentCondition: {
     field: 'currentCondition', type: 'multi', layout: 'list',
-    title: '¿Cómo suele sentirse o verse tu cabello durante la semana?',
+    title: '¿Cómo suele sentirse o verse tu cabello?',
     subtitle: 'Puedes elegir más de una opción.',
     cta: 'CONTINUAR →',
     options: [
-      { value: 'frizz',       label: 'Con frizz' },
-      { value: 'poco_brillo', label: 'Con poco brillo' },
-      { value: 'seco',        label: 'Seco al tacto' },
-      { value: 'dificil',     label: 'Difícil de manejar' },
-      { value: 'puntas',      label: 'Con puntas ásperas' },
-      { value: 'pesado',      label: 'Pesado por productos' },
-      { value: 'cambia',      label: 'Cambia mucho de un día a otro' },
-      { value: 'bien',        label: 'En general se siente bien', exclusive: true },
+      { value: 'frizz',       icon: '🌀', label: 'Con frizz' },
+      { value: 'poco_brillo', icon: '🌥️', label: 'Con poco brillo' },
+      { value: 'seco',        icon: '🏜️', label: 'Seco al tacto' },
+      { value: 'dificil',     icon: '😵‍💫', label: 'Difícil de manejar' },
+      { value: 'puntas',      icon: '✂️', label: 'Con puntas ásperas' },
+      { value: 'pesado',      icon: '🫠', label: 'Pesado por productos' },
+      { value: 'cambia',      icon: '🔀', label: 'Cambia mucho de un día a otro' },
+      { value: 'bien',        icon: '😊', label: 'En general se siente bien', exclusive: true },
     ],
   },
 
@@ -139,14 +142,16 @@ export const QUESTIONS = {
   },
 
   hairLength: {
+    // Image tiles like hair type. Drop /images/quiz-new/largo-*.webp to replace
+    // the emoji placeholders (ImgCard falls back to the emoji until then).
     field: 'hairLength', type: 'single', layout: 'grid2',
     title: '¿Cuál es el largo actual de tu cabello?',
-    subtitle: 'Esto puede cambiar cantidades, tiempo de aplicación y forma de distribuir los cuidados.',
+    subtitle: 'Esto puede cambiar cantidades y tiempo de aplicación.',
     options: [
-      { value: 'corto',   icon: '💇‍♀️', label: 'Corto' },
-      { value: 'hombros', icon: '💁‍♀️', label: 'Por los hombros' },
-      { value: 'medio',   icon: '👩', label: 'Medio' },
-      { value: 'largo',   icon: '👩‍🦰', label: 'Largo' },
+      { value: 'corto',   emoji: '💇‍♀️', label: 'Corto',           image: '/images/quiz-new/largo-corto.webp' },
+      { value: 'hombros', emoji: '💁‍♀️', label: 'Por los hombros', image: '/images/quiz-new/largo-hombros.webp' },
+      { value: 'medio',   emoji: '👩',   label: 'Medio',           image: '/images/quiz-new/largo-medio.webp' },
+      { value: 'largo',   emoji: '👩‍🦰', label: 'Largo',           image: '/images/quiz-new/largo-largo.webp' },
     ],
   },
 

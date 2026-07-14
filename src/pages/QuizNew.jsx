@@ -12,8 +12,7 @@ import {
 } from '@/lib/quiz-new/quizNewStorage'
 import { post, postOnce } from '@/lib/quiz-new/quizNewAnalytics'
 
-import { Shell, slide } from '@/components/quiz-new/ui'
-import QuizNewProgress from '@/components/quiz-new/QuizNewProgress'
+import { Shell, slide, StepHead, StepProgress } from '@/components/quiz-new/ui'
 import QuizNewLanding from '@/components/quiz-new/QuizNewLanding'
 import QuizNewSingleChoice from '@/components/quiz-new/QuizNewSingleChoice'
 import QuizNewMultiChoice from '@/components/quiz-new/QuizNewMultiChoice'
@@ -144,35 +143,44 @@ export default function QuizNew() {
   const isQuestion = entry?.kind === 'question'
   const isEducation = entry?.kind === 'education'
   const canGoBack = typeof phase === 'number' && phase > 0 && entry?.kind !== 'loading'
+  const q = isQuestion ? QUESTIONS[entry.key] : null
 
   return (
     <Shell>
-      {/* Progress: questions show "PASO X DE 12"; education shows the tag; name/loading hidden */}
-      {(isQuestion || isEducation) && (
-        <QuizNewProgress
+      {/* Question header (centered title) / education header (tag only) */}
+      {isQuestion && (
+        <StepHead
+          questionIndex={entry.questionIndex}
           fillIndex={fillIndexFor(phase)}
-          questionIndex={isQuestion ? entry.questionIndex : undefined}
-          badge={isEducation ? (entry.eduKey === 'edu3' ? 'TU GUÍA ESTÁ TOMANDO FORMA' : 'INFORMACIÓN ÚTIL') : undefined}
+          title={q.title}
+          subtitle={q.subtitle}
+          onBack={canGoBack ? goBack : null}
+        />
+      )}
+      {isEducation && (
+        <StepProgress
+          badge={entry.eduKey === 'edu3' ? 'TU GUÍA ESTÁ TOMANDO FORMA' : 'INFORMACIÓN ÚTIL'}
+          fillIndex={fillIndexFor(phase)}
           onBack={canGoBack ? goBack : null}
         />
       )}
 
       <AnimatePresence mode="wait">
         <motion.div key={String(phase)} {...slide}>
-          {isQuestion && QUESTIONS[entry.key].type === 'single' && (
+          {isQuestion && q.type === 'single' && (
             <QuizNewSingleChoice
-              question={QUESTIONS[entry.key]}
-              value={session.answers[QUESTIONS[entry.key].field]}
-              onPick={(v) => handleSinglePick(QUESTIONS[entry.key], v)}
+              question={q}
+              value={session.answers[q.field]}
+              onPick={(v) => handleSinglePick(q, v)}
             />
           )}
 
-          {isQuestion && QUESTIONS[entry.key].type === 'multi' && (
+          {isQuestion && q.type === 'multi' && (
             <QuizNewMultiChoice
-              question={QUESTIONS[entry.key]}
-              values={session.answers[QUESTIONS[entry.key].field]}
-              onToggle={(v) => handleMultiToggle(QUESTIONS[entry.key], v)}
-              onContinue={() => handleMultiContinue(QUESTIONS[entry.key])}
+              question={q}
+              values={session.answers[q.field]}
+              onToggle={(v) => handleMultiToggle(q, v)}
+              onContinue={() => handleMultiContinue(q)}
             />
           )}
 

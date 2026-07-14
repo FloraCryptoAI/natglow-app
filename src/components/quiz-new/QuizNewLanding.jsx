@@ -7,16 +7,19 @@ export default function QuizNewLanding({ onStart }) {
   return (
     <Shell>
       <div className="flex flex-col gap-5 pt-2">
-        <span className="text-xs font-bold tracking-wider uppercase self-start rounded-full px-3 py-1.5"
-              style={{ background: COLORS.greenLight, color: COLORS.greenDark }}>
-          {c.tag}
-        </span>
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full"
+                style={{ background: COLORS.greenLight, color: COLORS.greenDark }}>
+            {c.tag}
+          </span>
+        </div>
 
-        <h1 className="text-[26px] leading-tight font-extrabold" style={{ color: COLORS.ink }}>
-          <Highlighted text={c.title} phrases={c.highlights} />
-        </h1>
-
-        <p className="text-[15px] leading-relaxed" style={{ color: COLORS.textMuted }}>{c.text}</p>
+        <div className="text-center flex flex-col gap-3">
+          <h1 className="text-3xl leading-tight font-extrabold" style={{ color: COLORS.ink }}>
+            <Highlighted text={c.title} phrases={c.highlights} />
+          </h1>
+          <p className="text-base leading-snug" style={{ color: COLORS.textMuted }}>{c.text}</p>
+        </div>
 
         <div className="flex flex-col gap-3">
           {c.cards.map((card, i) => (
