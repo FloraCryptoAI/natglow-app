@@ -42,17 +42,15 @@ export function LockedRecipeCards({ answers }) { // eslint-disable-line no-unuse
           <div className="flex items-start gap-3">
             <span className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: PL2 }} aria-hidden>{c.emoji}</span>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-[15px] text-stone-800 leading-snug">
-                {c.nameVisible}
-                {c.nameHidden && (
-                  <>
-                    {' '}
-                    <span className="select-none align-baseline" style={{ filter: 'blur(5px)' }} aria-hidden="true">
-                      {c.nameHidden}
-                    </span>
-                    <span className="sr-only">(ingrediente bloqueado)</span>
-                  </>
-                )}
+              <p className="font-bold text-[15px] text-stone-800 leading-snug" aria-label="Receta disponible en tu acceso">
+                {c.nameParts.map((part, i) => (
+                  <span key={i}>
+                    {i > 0 && ' '}
+                    {part.b
+                      ? <span className="select-none align-baseline" style={{ filter: 'blur(5px)' }} aria-hidden="true">{part.b}</span>
+                      : part.t}
+                  </span>
+                ))}
               </p>
               <div className="flex items-center gap-2 flex-wrap mt-1">
                 <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: PL2, color: P_DARK }}>

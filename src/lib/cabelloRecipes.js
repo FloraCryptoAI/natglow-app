@@ -32,30 +32,31 @@ export function maskText(input) {
 export const ALIGNMENT_RECIPE_ID = 'maizena-acucar'
 
 // The 3 starting recipes as shown (locked) on the results page AND the offer's
-// "El comienzo ideal" section. `nameHidden` is already an X-mask (never the real
-// word) so it can't be un-blurred from the DOM. Every card carries the same
-// "SELECCIONADA PARA TI" tag — the person can pick any of the three.
+// "El comienzo ideal" section. The name is split into parts: `{ t }` renders as
+// plain text (the connectors), `{ b }` renders blurred. Every `b` value is
+// already an X-mask (never the real ingredient) so it can't be un-blurred from
+// the DOM. Every card carries the same "SELECCIONADA PARA TI" tag.
+//   babosa-mel:              Mascarilla de [Aloe Vera] y [Miel]
+//   tratamento-noturno-oleo: [Aceite de Coco] + [Ricino]
+//   mel-de-babosa:           [Miel] de [Aloe Vera]
 export const RECIPE_TAG = 'SELECCIONADA PARA TI'
 export const ESSENTIAL_CARDS = [
   {
     id: 'babosa-mel',
     emoji: '🌿',
-    nameVisible: 'Mascarilla de Aloe Vera y',
-    nameHidden: 'Xxxx',        // Miel
+    nameParts: [{ t: 'Mascarilla de' }, { b: 'Xxxx Xxxx' }, { t: 'y' }, { b: 'Xxxx' }],
     desc: 'Hidratación profunda, brillo y cierre de cutículas.',
   },
   {
     id: 'tratamento-noturno-oleo',
     emoji: '🌙',
-    nameVisible: 'Aceite de Coco +',
-    nameHidden: 'Xxxxxx',      // Ricino
+    nameParts: [{ b: 'Xxxxxx xx Xxxx' }, { t: '+' }, { b: 'Xxxxxx' }],
     desc: 'Nutrición profunda nocturna y fortalecimiento del cabello.',
   },
   {
     id: 'mel-de-babosa',
     emoji: '🍯',
-    nameVisible: 'Miel de',
-    nameHidden: 'Xxxx Xxxx',   // Aloe Vera
+    nameParts: [{ b: 'Xxxx' }, { t: 'de' }, { b: 'Xxxx Xxxx' }],
     desc: 'Tónico fermentado natural: fortalece, ayuda a evitar la caída y estimula el crecimiento.',
   },
 ]
