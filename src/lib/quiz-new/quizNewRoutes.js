@@ -6,8 +6,9 @@ export const NEW_QUIZ_ROUTE         = '/quiz-new'
 export const NEW_QUIZ_RESULTS_ROUTE = '/quiz-new/results'
 
 // The result page bridges to the CURRENT offer. Centralized so a future rebuild
-// only needs to swap this constant.
-export const OFFER_ROUTE = '/offer-natglow'
+// only needs to swap this constant. (/offer-natglow was retired; points to the
+// live offer now.)
+export const OFFER_ROUTE = '/offer-cabello'
 
 // Query params we always try to carry across the whole funnel and forward to the
 // offer, so country pricing + ad attribution survive the navigation.

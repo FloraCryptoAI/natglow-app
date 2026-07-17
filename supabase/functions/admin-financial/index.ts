@@ -10,7 +10,7 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 // maps to the same US$7.90 list price. Standard/Premium/one_time_basic kept as
 // legacy so historical orders still render with a proper label.
 const PLAN_LABELS: Record<string, string> = {
-  natglow:                     'NatGlow · /quiz (US$7,90)',
+  natglow:                     '/quiz (US$7,90)',
   natglow_free_hotmart_review: 'NatGlow Free / Acesso Hotmart',
   one_time_basic:              'NatGlow · $17 (legado)',
   one_time_standard:           'NatGlow Completo · $27 (legado)',

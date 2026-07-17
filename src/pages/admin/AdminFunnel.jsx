@@ -12,7 +12,7 @@ import { useAdminFetch } from './hooks/useAdminFetch'
 const STEP_META = {
   quiz_started:      { label: 'Iniciaram o quiz',           color: '#7c3aed' },
   quiz_completed:    { label: 'Completaram o quiz',         color: '#2563eb' },
-  results_viewed:    { label: 'Viram a página diagnóstico', color: '#8b5cf6' },
+  results_viewed:    { label: 'Viram a página de resultado', color: '#8b5cf6' },
   offer_viewed:      { label: 'Viram a oferta',              color: '#ec4899' },
   cta_clicked:       { label: 'Clicaram em comprar',         color: '#d97706' },
   payment_completed: { label: 'Pagamento confirmado',        color: '#059669' },

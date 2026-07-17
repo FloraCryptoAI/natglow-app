@@ -23,8 +23,10 @@ function subRevenue(s: Record<string, unknown>): number {
   })
 }
 
+// The /quiz funnel now fires cta_clicked with source 'offer_cabello'. The
+// internal funnel bucket stays 'natglow' (= the /quiz slot).
 function sourceToFunnel(src: string | null | undefined): 'natglow' | 'unknown' {
-  if (src === 'offer_natglow') return 'natglow'
+  if (src === 'offer_cabello') return 'natglow'
   return 'unknown'
 }
 

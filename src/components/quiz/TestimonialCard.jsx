@@ -10,6 +10,7 @@ export default function TestimonialCard({
   beforeLabel = 'ANTES',
   afterLabel = 'DESPUÉS',
   showLabels = true,
+  showStars = true,
   cardBorder = 'border-stone-200',
 }) {
   return (
@@ -28,11 +29,13 @@ export default function TestimonialCard({
         <div className="flex-1 min-w-0">
           <p className="font-extrabold text-stone-900">{name}</p>
           <p className="text-xs text-stone-500">{location}</p>
-          <div className="flex items-center gap-0.5 mt-0.5">
-            {[0,1,2,3,4].map(i => (
-              <Star key={i} className="w-3.5 h-3.5" style={{ color: '#F1C40F', fill: '#F1C40F' }} />
-            ))}
-          </div>
+          {showStars && (
+            <div className="flex items-center gap-0.5 mt-0.5">
+              {[0,1,2,3,4].map(i => (
+                <Star key={i} className="w-3.5 h-3.5" style={{ color: '#F1C40F', fill: '#F1C40F' }} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

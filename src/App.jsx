@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -11,12 +11,16 @@ import Layout from './components/Layout';
 import QuizMeta from './pages/QuizMeta';
 import QuizClean from './pages/QuizClean';
 import QuizDetox from './pages/QuizDetox';
-import QuizNatglow from './pages/QuizNatglow';
 import QuizNew from './pages/QuizNew';
 import QuizNewResults from './pages/QuizNewResults';
+// The /quiz-cabello funnel is now the canonical /quiz funnel (the old QuizNatglow
+// funnel was retired). All three pages are lazy so the main bundle stays under
+// the PWA precache ceiling (2 MiB per file) as the funnel keeps growing.
+const QuizCabello    = lazy(() => import('./pages/QuizCabello'));
+const ResultsCabello = lazy(() => import('./pages/ResultsCabello'));
+const OfferCabello   = lazy(() => import('./pages/OfferCabello'));
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
-import OfferNatglow from './pages/OfferNatglow';
 import ResultsDetox from './pages/ResultsDetox';
 import OfferDetox from './pages/OfferDetox';
 import Login from './pages/Login';
@@ -117,36 +121,42 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/Login" replace />} />
 
       {/* ── Quiz routes ──
-          /quiz         → QuizNatglow (canonical funnel — migrated here because
-                          the live Facebook ad already points to /quiz; the old
-                          QuizClean/bold funnel that used to live here is retired)
-          /quiz-natglow → same QuizNatglow component, kept as an alias so the
-                          URL doesn't 404 for anyone still using it
+          /quiz         → QuizCabello (canonical funnel — the live Facebook ad
+                          points to /quiz; the old QuizNatglow funnel was retired
+                          and replaced by this "recetas caseras" funnel)
+          /quiz-cabello → same QuizCabello component (internal funnel navigation
+                          goes to /quiz-cabello/results → /offer-cabello)
+          /quiz-natglow → redirect to /quiz (old alias kept from 404ing)
           /quiz-bold    → QuizClean (kept on its own legacy URL so TikTok
                           appeal reviewers still see compliant content)
           /quiz-meta    → QuizMeta  (legacy persuasive version, reserved for Meta/FB ads)
           /quiz-detox   → QuizDetox (heavier copy, reserved for direct paid traffic)
       */}
-      <Route path="/quiz"         element={<QuizNatglow pricingPlan="natglow" />} />
-      <Route path="/quiz-natglow" element={<QuizNatglow pricingPlan="natglow" />} />
+      <Route path="/quiz"         element={<Suspense fallback={<Spinner />}><QuizCabello pricingPlan="natglow" /></Suspense>} />
+      <Route path="/quiz-cabello" element={<Suspense fallback={<Spinner />}><QuizCabello pricingPlan="natglow" /></Suspense>} />
+      <Route path="/quiz-natglow" element={<Navigate to="/quiz" replace />} />
       <Route path="/quiz-bold"    element={<QuizClean pricingPlan="bold" />} />
       <Route path="/quiz-meta"    element={<QuizMeta  pricingPlan="bold" />} />
       <Route path="/quiz-detox"   element={<QuizDetox pricingPlan="detox" />} />
 
       {/* New isolated Meta-safe funnel (green editorial). Own analytics namespace
-          (quiz_new_*), own attempt id; does NOT touch the funnels above. Bridges
-          to the current offer via OFFER_ROUTE in src/lib/quiz-new/quizNewRoutes.js. */}
+          (quiz_new_*), own attempt id; does NOT touch the funnels above. */}
       <Route path="/quiz-new"         element={<QuizNew />} />
       <Route path="/quiz-new/results" element={<QuizNewResults />} />
+
+      {/* Results/offer of the /quiz (cabello) funnel. */}
+      <Route path="/quiz-cabello/results" element={<Suspense fallback={<Spinner />}><ResultsCabello pricingPlan="natglow" /></Suspense>} />
+      <Route path="/offer-cabello"        element={<Suspense fallback={<Spinner />}><OfferCabello pricingPlan="natglow" /></Suspense>} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
       <Route path="/results-bold"    element={<ResultsBold pricingPlan="bold" />} />
       <Route path="/offer-bold"      element={<OfferBold pricingPlan="bold" />} />
       <Route path="/results-detox"   element={<ResultsDetox pricingPlan="detox" />} />
       <Route path="/offer-detox"     element={<OfferDetox pricingPlan="detox" />} />
-      {/* /quiz-natglow has no separate results page — the quiz's own loading
-          screen goes straight to the offer. */}
-      <Route path="/offer-natglow"   element={<OfferNatglow pricingPlan="natglow" />} />
+
+      {/* Old /quiz (natglow) funnel URLs — retired, redirect to the new funnel. */}
+      <Route path="/results-natglow" element={<Navigate to="/quiz" replace />} />
+      <Route path="/offer-natglow"   element={<Navigate to="/quiz" replace />} />
 
       {/* Legacy redirects — old ad URLs now point to /quiz-meta (Meta/FB funnel). */}
       <Route path="/quiz-cheap"     element={<Navigate to="/quiz-meta" replace />} />

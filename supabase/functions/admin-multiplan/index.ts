@@ -5,10 +5,13 @@ import { usdAmount } from '../_shared/plan-pricing.ts'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-// Only /quiz (natglow) is shown in the admin now — detox is hidden. `price` is
-// a documentation/fallback value; the revenue calc uses the real consolidated
-// USD amount instead (see revenuePeriod). natglow has no results/diagnosis
-// page, so `events.results` is optional and omitted.
+// Only /quiz is shown in the admin now — detox is hidden. `price` is a
+// documentation/fallback value; the revenue calc uses the real consolidated USD
+// amount instead (see revenuePeriod). The internal key `natglow` = the "/quiz"
+// funnel, which now runs the cabello funnel (with a real results page, so
+// `events.results` is set). `plan_key`/`product_id` stay natglow because the
+// webhook still writes subscriptions.pricing_plan='natglow' for the same Hotmart
+// product.
 const FUNNEL_CONFIG: Record<string, {
   label:       string
   price:       number
@@ -22,11 +25,12 @@ const FUNNEL_CONFIG: Record<string, {
     price:      7.9,
     product_id: 'F105945011B',
     plan_key:   'natglow',
-    cta_source: 'offer_natglow',
+    cta_source: 'offer_cabello',
     events: {
-      started:   'quiz_natglow_started',
-      completed: 'quiz_natglow_completed',
-      offer:     'offer_natglow_viewed',
+      started:   'quiz_cabello_started',
+      completed: 'quiz_cabello_completed',
+      results:   'quiz_cabello_results_viewed',
+      offer:     'offer_cabello_viewed',
     },
   },
 }

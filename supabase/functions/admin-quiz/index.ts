@@ -52,15 +52,16 @@ function computeDiagnosis(a: Record<string, string>): DiagColor {
   return 'green'
 }
 
-// Includes legacy quiz fields, persuasive-funnel fields (symptomsIntensity /
-// finalChoice), and natglow-only fields (hairGoal, timeAvailable). Admin UI
-// renders cards for all of these, so the distribution counter must populate
-// every key.
+// Single-select fields collected by the cabello /quiz. The admin UI renders a
+// card per key, so the distribution counter must populate every one. Multi-select
+// fields (concerns/goals/future) are intentionally excluded. `hairGoal` is the
+// first selected goal (derived in the quiz). Fields the old funnel had but cabello
+// does not collect (hydration, timeAvailable, finalChoice) are removed.
 const QUESTION_FIELDS = [
-  'washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts',
-  'hairType', 'age',
-  'symptomsIntensity', 'finalChoice',
-  'hairGoal', 'timeAvailable',
+  'age', 'hairType', 'hairTone', 'hairLength',
+  'washFreq', 'waterTemp', 'heatTools', 'chemProducts',
+  'scalpSensitivity', 'recipeExperience', 'investment', 'recipePref',
+  'hairGoal', 'symptomsIntensity',
 ] as const
 
 Deno.serve(async (req) => {
@@ -79,11 +80,10 @@ Deno.serve(async (req) => {
     const plan   = url.searchParams.get('plan') ?? 'all'  // 'all' | plan_key
     const pf     = planFilter(plan)
 
-    // Detox is hidden from the admin now — only /quiz (natglow) answers are
-    // shown. Legacy 'quiz_started'/'quiz_completed' (old /quiz-bold era) are
-    // kept for historical continuity.
-    const startedEventTypes   = ['quiz_started', 'quiz_natglow_started']
-    const completedEventTypes = ['quiz_completed', 'quiz_natglow_completed']
+    // Only /quiz answers are shown. /quiz now runs the cabello funnel, so the
+    // events are quiz_cabello_started/completed.
+    const startedEventTypes   = ['quiz_cabello_started']
+    const completedEventTypes = ['quiz_cabello_completed']
 
     const inOp = (types: string[]) => `in.(${types.map(encodeURIComponent).join(',')})`
 
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
     // mainFields are the dimensions we cut Converted vs Abandoned by.
     // Adding age + hairType lets the admin see which demographics convert
     // best, not just which habits correlate with conversion.
-    const mainFields = ['age', 'hairType', 'washFreq', 'waterTemp', 'heatTools', 'hydration', 'chemProducts'] as const
+    const mainFields = ['age', 'hairType', 'washFreq', 'waterTemp', 'heatTools', 'chemProducts'] as const
     const convertedAnswers: Record<string, Record<string, number>> = {}
     const abandonedAnswers: Record<string, Record<string, number>> = {}
     for (const f of mainFields) { convertedAnswers[f] = {}; abandonedAnswers[f] = {} }
@@ -127,20 +127,19 @@ Deno.serve(async (req) => {
       symptomsIntensity: Record<string, number>
       heatTools: Record<string, number>
       chemProducts: Record<string, number>
-      hydration: Record<string, number>
-      finalChoice: Record<string, number>
+      hairTone: Record<string, number>
     }> = {}
     const ensureAgeBucket = (k: string) => {
       if (!ageBreakdown[k]) {
         ageBreakdown[k] = {
           started: 0, converted: 0,
           hairType: {}, symptomsIntensity: {}, heatTools: {},
-          chemProducts: {}, hydration: {}, finalChoice: {},
+          chemProducts: {}, hairTone: {},
         }
       }
       return ageBreakdown[k]
     }
-    const crossFields = ['hairType', 'symptomsIntensity', 'heatTools', 'chemProducts', 'hydration', 'finalChoice'] as const
+    const crossFields = ['hairType', 'symptomsIntensity', 'heatTools', 'chemProducts', 'hairTone'] as const
 
     for (const e of quizEvents) {
       const raw = e.metadata as Record<string, unknown> | null

@@ -72,8 +72,8 @@ Deno.serve(async (req) => {
     // (quiz_started/completed, the old /quiz-bold era) and natglow events are.
     // natglow's types MUST be included — omitting them would exclude its visitors
     // from started/completed while still counting its purchases, inflating conv.
-    const STARTED_TYPES   = 'in.(quiz_started,quiz_natglow_started)'
-    const COMPLETED_TYPES = 'in.(quiz_completed,quiz_natglow_completed)'
+    const STARTED_TYPES   = 'in.(quiz_cabello_started)'
+    const COMPLETED_TYPES = 'in.(quiz_cabello_completed)'
 
     const [startedEvents, completedEvents, payEvents, ctaEvents, subsRes] = await Promise.all([
       // metadata included so we can read the offer country (?country=) at the top of funnel

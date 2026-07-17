@@ -11,6 +11,8 @@ export default function BeforeAfterTestimonialCarousel({
   beforeLabel = 'ANTES',
   afterLabel = 'DESPUÉS',
   showBeforeAfterLabels = true,
+  showStars = true,
+  intervalMs = 5000,
   cardBorder = 'border-stone-200',
   accentColor = GREEN,
   accentDark = '#1E8449',
@@ -21,9 +23,9 @@ export default function BeforeAfterTestimonialCarousel({
     if (!testimonials.length) return
     const timer = setInterval(() => {
       setIndex(i => (i + 1) % testimonials.length)
-    }, 5000)
+    }, intervalMs)
     return () => clearInterval(timer)
-  }, [testimonials.length])
+  }, [testimonials.length, intervalMs])
 
   if (!testimonials.length) return null
   const t = testimonials[index]
@@ -55,11 +57,13 @@ export default function BeforeAfterTestimonialCarousel({
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-stone-900 text-sm leading-tight">{t.name}</p>
               <p className="text-xs text-stone-500 leading-tight">{t.location}</p>
-              <div className="flex items-center gap-0.5 mt-1">
-                {[0,1,2,3,4].map(i => (
-                  <Star key={i} className="w-3.5 h-3.5" style={{ color: '#F1C40F', fill: '#F1C40F' }} />
-                ))}
-              </div>
+              {showStars && (
+                <div className="flex items-center gap-0.5 mt-1">
+                  {[0,1,2,3,4].map(i => (
+                    <Star key={i} className="w-3.5 h-3.5" style={{ color: '#F1C40F', fill: '#F1C40F' }} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

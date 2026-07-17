@@ -36,23 +36,24 @@ const DIAG_CONFIG = {
   green: { label: 'Verde (cabelo em bom estado)',       bg: 'bg-emerald-50',text: 'text-emerald-600',bar: '#34d399' },
 }
 
+// Single-select questions of the /quiz (cabello) funnel. Must stay aligned with
+// QUESTION_FIELDS in supabase/functions/admin-quiz/index.ts. Multi-select
+// questions (concerns/goals/future) are intentionally not shown here.
 const QUESTION_LABELS = {
   age:          { title: 'Faixa etária',            options: { '18_29': '18–29 anos', '30_39': '30–39 anos', '40_49': '40–49 anos', '50_plus': '50+ anos' } },
   hairType:     { title: 'Tipo de cabelo',          options: { liso: 'Liso', ondulado: 'Ondulado', cacheado: 'Cacheado', crespo: 'Crespo' } },
+  hairTone:     { title: 'Tom do cabelo',           options: { oscuro: 'Escuro', castano: 'Castanho', claro: 'Claro', rojizo: 'Ruivo', canas: 'Grisalho' } },
+  hairLength:   { title: 'Comprimento',             options: { corto: 'Curto', hombros: 'Nos ombros', medio: 'Médio', largo: 'Longo' } },
   washFreq:     { title: 'Frequência de lavagem',   options: { daily: 'Todo dia', '3_4': '3-4x/semana', '1_2': '1-2x/semana' } },
   waterTemp:    { title: 'Temperatura da água',     options: { hot: 'Quente', warm: 'Morna', cold: 'Fria' } },
   heatTools:    { title: 'Uso de calor',            options: { daily: 'Todo dia', few: 'Algumas vezes', rarely: 'Raramente' } },
-  hydration:    { title: 'Hidratação',              options: { regularly: 'Regularmente', sometimes: 'Às vezes', never: 'Nunca' } },
-  // yes_heavy/yes_mild are bold/detox's vocabulary; frecuente/aveces are
-  // natglow's for the same question — both must be listed so natglow's
-  // answers aren't invisible in this chart.
-  chemProducts: { title: 'Produtos químicos',       options: { yes_heavy: 'Sim (forte)', yes_mild: 'Sim (suave)', no: 'Não', frecuente: 'Frequente', aveces: 'Às vezes' } },
-  // New fields from persuasive funnels
-  symptomsIntensity: { title: 'Intensidade dos sintomas', options: { '30days': 'Mais de 30 dias', '1year': 'Mais de 1 ano', months: 'Há meses', years: 'Há anos' } },
-  finalChoice:       { title: 'Escolha final',            options: { yes: 'Sim, quero', doubts: 'Tenho dúvidas' } },
-  // natglow-only fields (no equivalent in bold/detox's quiz)
-  hairGoal:      { title: 'Objetivo capilar', options: { hidratacion: 'Hidratação', brillo: 'Brilho', frizz: 'Controle de frizz', varias: 'Vários objetivos' } },
-  timeAvailable: { title: 'Tempo disponível na rotina', options: { '10': '10 min', '20': '20 min', '30': '30 min' } },
+  chemProducts: { title: 'Produtos químicos',       options: { frecuente: 'Frequente', aveces: 'Às vezes', no: 'Não' } },
+  scalpSensitivity: { title: 'Couro cabeludo sensível', options: { si: 'Sim', no: 'Não', quizas: 'Não sei' } },
+  recipeExperience: { title: 'Experiência com receitas', options: { ninguna: 'Nunca fez', poca: 'Uma ou duas', media: 'Algumas vezes', bastante: 'Bastante experiência' } },
+  investment:       { title: 'Investimento no cabelo',   options: { casi_nada: 'Quase nada', basico: 'Só o básico', algunos: 'Alguns produtos', bastante: 'Investe bastante' } },
+  recipePref:       { title: 'Preferência de receita',   options: { pocos: 'Poucos ingredientes', rapida: 'Preparo rápido', en_casa: 'Ingredientes de casa', comprar: 'Pode comprar 1-2', completa: 'Receita mais completa' } },
+  hairGoal:      { title: 'Objetivo principal', options: { frizz: 'Menos frizz', brillo: 'Mais brilho', quiebre: 'Menos quebra', crecimiento: 'Crescimento', suavidad: 'Mais suavidade', ondas: 'Ondas definidas', puntas: 'Pontas cuidadas' } },
+  symptomsIntensity: { title: 'Há quanto tempo nota', options: { '30days': 'Semanas ou meses', '1year': 'Desde há anos' } },
 }
 
 const AGE_LABELS = QUESTION_LABELS.age.options
@@ -479,7 +480,7 @@ const TRAIT_DIMENSIONS = [
   { key: 'symptomsIntensity', label: 'Sintomas' },
   { key: 'heatTools',         label: 'Calor' },
   { key: 'chemProducts',      label: 'Químicos' },
-  { key: 'hydration',         label: 'Hidratação' },
+  { key: 'hairTone',          label: 'Tom' },
 ]
 
 // productPrice is only a flat number for detox ($17) — natglow's price varies

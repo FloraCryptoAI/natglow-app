@@ -6,30 +6,30 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 // Funnel-specific event maps. Each step accepts an array of event_types
 // to count (Set-union of session_ids across them).
-// natglow (/quiz) has NO separate results/diagnosis page — the quiz goes
-// straight from completion to the offer — so its definition has 5 steps,
-// not 6. Any code reading `steps` must key off `event_type`, never a
-// positional index, since funnels can have different step counts.
+// The internal key `natglow` is the id for the "/quiz" funnel. /quiz now runs
+// the "cabello" funnel (QuizCabello → ResultsCabello → OfferCabello), which
+// DOES have a separate results page — so the definition is 6 steps, with a new
+// `results_viewed` between quiz_completed and offer_viewed. Any code reading
+// `steps` must key off `event_type`, never a positional index.
 const FUNNEL_DEFINITIONS: Record<string, Array<{ key: string; events: string[] }>> = {
-  // Only /quiz (natglow) is shown in the admin now. Detox is hidden (its public
-  // funnel still exists, it just doesn't appear here). natglow has NO separate
-  // results/diagnosis page — the quiz goes straight from completion to the offer
-  // — so it's 5 steps, not 6. Any code reading `steps` must key off `event_type`,
-  // never a positional index.
+  // Only /quiz is shown in the admin now (Detox hidden). The events are the
+  // cabello funnel's (quiz_cabello_*, offer_cabello_viewed); the old natglow
+  // funnel was retired.
   natglow: [
-    { key: 'quiz_started',      events: ['quiz_natglow_started'] },
-    { key: 'quiz_completed',    events: ['quiz_natglow_completed'] },
-    { key: 'offer_viewed',      events: ['offer_natglow_viewed'] },
+    { key: 'quiz_started',      events: ['quiz_cabello_started'] },
+    { key: 'quiz_completed',    events: ['quiz_cabello_completed'] },
+    { key: 'results_viewed',    events: ['quiz_cabello_results_viewed'] },
+    { key: 'offer_viewed',      events: ['offer_cabello_viewed'] },
     { key: 'cta_clicked',       events: ['cta_clicked'] }, // metadata.source filtered below
     { key: 'payment_completed', events: ['payment_completed'] },
   ],
 }
 
 // Events that need source-based filtering when a specific funnel is selected.
-// cta_clicked and payment_completed carry metadata.source = 'offer_natglow'.
+// cta_clicked and payment_completed carry metadata.source = 'offer_cabello'.
 const SOURCE_FILTERED_STEPS = new Set(['cta_clicked', 'payment_completed'])
 const FUNNEL_SOURCE: Record<string, string> = {
-  natglow: 'offer_natglow',
+  natglow: 'offer_cabello',
 }
 
 // Returns the SET of unique session_ids that fired any of `events` in range.
