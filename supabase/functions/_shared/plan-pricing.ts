@@ -7,7 +7,10 @@
 // per plan — not something to derive via live FX. Legacy one_time_* plans keep
 // their historical USD prices so old orders still consolidate correctly.
 export const PLAN_USD: Record<string, number> = {
-  natglow:           7.9,
+  // TESTE: o /quiz está com preço promocional de US$3,90 (era 7,90). Este é o
+  // valor USD consolidado para vendas natglow em moeda local. Ao encerrar o
+  // teste, voltar para o preço real.
+  natglow:           3.9,
   one_time_basic:    17,
   one_time_standard: 27,
   one_time_premium:  47,
