@@ -9,6 +9,7 @@ import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent'
 import { getAttribution } from '@/lib/tracking/attribution'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
+import LegalLine from '@/components/LegalLine'
 import AnswerTable from '@/components/quiz-cabello/AnswerTable'
 import { LockedRecipeCards, LockedHabitsCard } from '@/components/quiz-cabello/LockedCards'
 import {
@@ -485,6 +486,8 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
           </div>
         </section>
       </div>
+
+      <LegalLine />
     </div>
   )
 }
