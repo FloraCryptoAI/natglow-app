@@ -45,19 +45,19 @@ export const ESSENTIAL_CARDS = [
     id: 'babosa-mel',
     emoji: '🌿',
     nameParts: [{ t: 'Mascarilla de' }, { b: 'Xxxx Xxxx' }, { t: 'y' }, { b: 'Xxxx' }],
-    desc: 'Hidratación profunda, brillo y cierre de cutículas.',
+    desc: 'Hidratación intensa que ayuda a devolver suavidad y brillo, controlar el frizz y sellar las cutículas. Ideal para empezar: desde las primeras aplicaciones el cabello se ve más alineado y se siente mucho más manejable.',
   },
   {
     id: 'tratamento-noturno-oleo',
     emoji: '🌙',
     nameParts: [{ b: 'Xxxxxx xx Xxxx' }, { t: '+' }, { b: 'Xxxxxx' }],
-    desc: 'Nutrición profunda nocturna y fortalecimiento del cabello.',
+    desc: 'Tratamiento nocturno de nutrición profunda: mientras duermes, los aceites actúan sobre las hebras para aportar suavidad, reducir la sensación de resequedad en las puntas y dejar el cabello más fácil de peinar y con mejor apariencia al día siguiente.',
   },
   {
     id: 'mel-de-babosa',
     emoji: '🍯',
     nameParts: [{ b: 'Xxxx' }, { t: 'de' }, { b: 'Xxxx Xxxx' }],
-    desc: 'Tónico fermentado natural: fortalece, ayuda a evitar la caída y estimula el crecimiento.',
+    desc: 'Tónico natural para el cuidado del día a día, pensado para refrescar el cuero cabelludo y acompañar tu rutina de forma constante. Con el uso continuo ayuda a que el cabello se vea y se sienta más cuidado, fuerte y con vida.',
   },
 ]
 

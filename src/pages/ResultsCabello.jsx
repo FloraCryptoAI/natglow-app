@@ -232,24 +232,39 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   })()
   const answers = state?.answers ?? storedAnswers
 
-  // Funnel view events, once per attempt (survive a refresh).
-  //  - quiz_cabello_results_viewed → the results step.
-  //  - offer_cabello_viewed        → the results page IS a sales page now (shows
-  //    the price + buy button), so it also counts as the offer step. Without it,
-  //    the admin funnel would intersect cta_clicked with an offer_viewed the
-  //    direct-from-results buyer never fired, undercounting clicks/payments.
+  // quiz_cabello_results_viewed — on mount, once per attempt (survives a refresh).
   useEffect(() => {
     if (!answers) return
     const attemptId = getFunnelSessionId()
-    const mark = (key) => {
-      try {
-        if (sessionStorage.getItem(key)) return false
-        sessionStorage.setItem(key, '1')
-      } catch { /* storage blocked — fall through and fire once per mount */ }
-      return true
-    }
-    if (mark(`cabello_results_viewed_${attemptId}`)) trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
-    if (mark(`cabello_offer_viewed_${attemptId}`))   trackFunnelEvent('offer_cabello_viewed', null, plan_key)
+    const key = `cabello_results_viewed_${attemptId}`
+    try {
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch { /* storage blocked — fall through and fire once per mount */ }
+    trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
+  }, [answers, plan_key])
+
+  // offer_cabello_viewed — the results page IS the sales page now. Fire it only
+  // when the offer/price card actually scrolls into view (not on mount), so the
+  // admin's "Viram a oferta" reflects who really reached the offer. Once per
+  // attempt. The direct-buy cta_clicked is always fired from inside this card,
+  // so offer_viewed always precedes it (keeps the sequential funnel correct).
+  const offerCardRef = useRef(null)
+  useEffect(() => {
+    if (!answers) return
+    const el = offerCardRef.current
+    if (!el) return
+    const attemptId = getFunnelSessionId()
+    const key = `cabello_offer_viewed_${attemptId}`
+    try { if (sessionStorage.getItem(key)) return } catch { /* ignore */ }
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return
+      try { sessionStorage.setItem(key, '1') } catch { /* ignore */ }
+      trackFunnelEvent('offer_cabello_viewed', null, plan_key)
+      io.disconnect()
+    }, { threshold: 0.3 })
+    io.observe(el)
+    return () => io.disconnect()
   }, [answers, plan_key])
 
   // ViewContent only. No Lead here (this funnel fires none) and no
@@ -331,7 +346,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
             ✅ EVALUACIÓN COMPLETADA
           </span>
 
-          <h1 className="text-[26px] font-extrabold text-stone-900 leading-snug text-center">
+          <h1 className="text-[26px] font-extrabold text-stone-900 leading-relaxed text-center">
             {name ? `${name}, encontramos ` : 'Encontramos '}
             <HL>3 recetas caseras</HL>
             {' que pueden encajar con tus principales objetivos 😲'}
@@ -356,7 +371,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         {/* ═══ 2 · THE 3 LOCKED RECIPES ═══ */}
         <section className="flex flex-col gap-3">
             <div className="text-center flex flex-col gap-2">
-              <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
+              <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
                 {name ? `${name}, estas 3 recetas caseras ` : 'Estas 3 recetas caseras '}
                 las seleccionamos <HL>especialmente para ti</HL>
               </h2>
@@ -374,7 +389,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         {/* ═══ 3 · HABITS FOUND IN THE ANSWERS ═══ */}
         <section className="flex flex-col gap-3">
           <div className="text-center flex flex-col gap-1.5">
-            <h2 className="text-xl font-extrabold text-stone-900">
+            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
               Encontramos algunos <HL>hábitos</HL> en tus respuestas que pueden estar afectando tu cabello
             </h2>
             <p className="text-sm text-stone-500 leading-relaxed">
@@ -387,7 +402,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         {/* ═══ 4 · BEFORE / AFTER COMPARISON ═══ */}
         <section className="flex flex-col gap-3">
           <div className="text-center flex flex-col gap-1.5">
-            <h2 className="text-xl font-extrabold text-stone-900">
+            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
               Lo que una <HL>rutina constante</HL> puede cambiar
             </h2>
             <p className="text-sm text-stone-500 leading-relaxed">
@@ -401,7 +416,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         </section>
 
         {/* ═══ 5 · OFFER PRICE CARD (direct Hotmart checkout) ═══ */}
-        <section className="flex flex-col gap-3">
+        <section ref={offerCardRef} className="flex flex-col gap-3">
           <div className="rounded-3xl overflow-hidden bg-white border border-stone-100" style={{ boxShadow: '0 14px 44px rgba(0,0,0,0.07)' }}>
             {/* Countdown bar — full width, red, white text, above the title. */}
             <div className="py-2.5 px-6 text-center text-white text-sm font-bold flex items-center justify-center gap-2" style={{ background: '#C0392B' }}>
