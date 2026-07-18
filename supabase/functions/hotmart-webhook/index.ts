@@ -92,25 +92,37 @@ async function getEmailByTxId(txId: string): Promise<string | null> {
   return rows[0]?.email ?? null
 }
 
-// Look up the funnel a purchase came from via the user's most recent cta_clicked
-// event. Its metadata carries `source` ('offer_natglow' | 'offer_detox') for
-// funnel attribution and `country` (the ?country= offer bucket: 'mx'|'co'|'pe'|
-// 'cl'|'default') for offer-country reporting. A single Hotmart product serves
-// multiple funnels/countries, so this is how we keep them attributed.
-async function getLastCtaContext(userId: string): Promise<{ source: string | null; country: string | null }> {
-  try {
-    const res = await sbFetch(
-      `/rest/v1/funnel_events?event_type=eq.cta_clicked&user_id=eq.${userId}&order=created_at.desc&limit=1&select=metadata`
-    )
-    const rows = await res.json()
-    const md   = rows?.[0]?.metadata ?? {}
-    return {
-      source:  (md.source  as string | undefined) ?? null,
-      country: (md.country as string | undefined) ?? null,
+// Look up the funnel a purchase came from via the cta_clicked event. Its metadata
+// carries `source` ('offer_cabello' | 'offer_natglow' | 'offer_detox') for funnel
+// attribution and `country` (the ?country= offer bucket) for offer-country
+// reporting. A single Hotmart product serves multiple funnels/countries.
+//
+// The buyer clicks "comprar" as an ANONYMOUS visitor (no user_id yet — the user
+// is only created here, after the purchase, from the email). So we MUST join on
+// the forwarded quiz-attempt id (`src` == cta_clicked.session_id), not on
+// user_id. Joining on user_id finds nothing for anonymous clicks, which left
+// every purchase with source=null and dropped it from the admin funnel/geography.
+// Falls back to user_id only when no src was forwarded (legacy/manual orders).
+async function getCtaContext(src: string | null, userId: string): Promise<{ source: string | null; country: string | null }> {
+  const read = async (filter: string): Promise<{ source: string | null; country: string | null } | null> => {
+    try {
+      const res  = await sbFetch(
+        `/rest/v1/funnel_events?event_type=eq.cta_clicked&${filter}&order=created_at.desc&limit=1&select=metadata`
+      )
+      const rows = await res.json()
+      if (!rows?.[0]) return null
+      const md = rows[0].metadata ?? {}
+      return { source: (md.source as string | undefined) ?? null, country: (md.country as string | undefined) ?? null }
+    } catch {
+      return null
     }
-  } catch {
-    return { source: null, country: null }
   }
+
+  if (src) {
+    const bySrc = await read(`session_id=eq.${encodeURIComponent(src)}`)
+    if (bySrc?.source) return bySrc
+  }
+  return (await read(`user_id=eq.${userId}`)) ?? { source: null, country: null }
 }
 
 // ---------- Main handler ----------
@@ -243,8 +255,9 @@ Deno.serve(async (req) => {
         if (!userId) userId = await adminCreateUser(email)
         if (!userId) { console.error('Could not create/find user for', email); break }
 
-        // Attribution from the user's last cta_clicked: funnel source + offer country.
-        const { source: funnelSource, country: offerCountry } = await getLastCtaContext(userId)
+        // Attribution: join the buyer's (anonymous) cta_clicked by the forwarded
+        // `src` (quiz attempt id) → funnel source + offer country.
+        const { source: funnelSource, country: offerCountry } = await getCtaContext(trackingSrc, userId)
 
         // Base USD value = plan's fixed list price (fixed-price product sold in
         // local currency). purchase_amount/currency stay as the LOCAL charge
