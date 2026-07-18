@@ -259,10 +259,16 @@ Deno.serve(async (req) => {
         // `src` (quiz attempt id) → funnel source + offer country.
         const { source: funnelSource, country: offerCountry } = await getCtaContext(trackingSrc, userId)
 
-        // Base USD value = plan's fixed list price (fixed-price product sold in
-        // local currency). purchase_amount/currency stay as the LOCAL charge
-        // (amount_original). Never sum the local charge as if it were USD.
-        const amountUsd = PLAN_USD[planKey ?? ''] ?? (typeof purchaseAmount === 'number' ? purchaseAmount : null)
+        // USD value of the sale. When the buyer is charged directly in USD (the
+        // plain /quiz checkout), the charged amount IS the USD value — use it, so
+        // the admin reflects the real price even when it changes (e.g. a $3.90
+        // test). Only for LOCAL-currency charges (per-country offers) do we fall
+        // back to the plan's fixed USD list price, since the local amount must
+        // never be summed as if it were USD.
+        const amountUsd =
+          purchaseCurrency === 'USD' && typeof purchaseAmount === 'number'
+            ? purchaseAmount
+            : (PLAN_USD[planKey ?? ''] ?? (typeof purchaseAmount === 'number' ? purchaseAmount : null))
 
         await upsertSubscription({
           user_id:                userId,
