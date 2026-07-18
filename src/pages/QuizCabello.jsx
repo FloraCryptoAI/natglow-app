@@ -535,10 +535,10 @@ export default function QuizCabello({ pricingPlan = 'natglow' }) {
             <StepProgress current={1} total={TOTAL_QUIZ_STEPS} />
             <div className="flex flex-col gap-2 text-center">
               <h2 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                {hlTitle('¿Cuál de estas situaciones se parece más a lo que notas en tu cabello?', 'se parece más')}
+                {hlTitle('¿Reconoces algunas de estas señales en tu cabello?', 'estas señales')}
               </h2>
               <p className="text-sm text-stone-400 leading-snug">
-                Observa la imagen y elige desde cuándo notas algo parecido. Esto nos ayudará a adaptar mejor tu rutina.
+                Son algunas de las más comunes. ¿Hace cuánto tiempo empezaste a notarlas? Esto nos ayudará a adaptar mejor tu rutina.
               </p>
             </div>
 

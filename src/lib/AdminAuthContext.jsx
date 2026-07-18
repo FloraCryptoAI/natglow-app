@@ -3,6 +3,9 @@ import React, { createContext, useContext, useState, useCallback } from 'react'
 const AdminAuthContext = createContext(null)
 
 const SESSION_KEY = 'admin_session_v1'
+// localStorage (not sessionStorage) so the admin session survives closing the
+// tab/browser — it stays valid until the JWT's own 72h expiry (checked below).
+const store = window.localStorage
 
 function decodeJWTPayload(token) {
   try {
@@ -23,17 +26,17 @@ function isTokenValid(token) {
 
 export function AdminAuthProvider({ children }) {
   const [adminToken, setAdminTokenState] = useState(() => {
-    const stored = sessionStorage.getItem(SESSION_KEY)
+    const stored = store.getItem(SESSION_KEY)
     return stored && isTokenValid(stored) ? stored : null
   })
 
   const setAdminToken = useCallback((token) => {
-    sessionStorage.setItem(SESSION_KEY, token)
+    store.setItem(SESSION_KEY, token)
     setAdminTokenState(token)
   }, [])
 
   const clearAdminToken = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY)
+    store.removeItem(SESSION_KEY)
     setAdminTokenState(null)
   }, [])
 
