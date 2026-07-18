@@ -530,7 +530,8 @@ export default function ResultsCabelloV2({ pricingPlan = 'natglow' }) {
         <section className="flex flex-col gap-3">
           <div className="text-center flex flex-col gap-2">
             <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
-              Y un <HL>plan personalizado de 21 días</HL> para saber exactamente qué hacer
+              {name ? `${name}, creamos para ti un ` : 'Creamos para ti un '}
+              <HL>plan personalizado de 21 días</HL>
             </h2>
             <p className="text-sm text-stone-500 leading-relaxed">
               Nada de probar todo al mismo tiempo. Tu plan combina tus 3 recetas con pequeños cambios en tu rutina, día a día, para corregir justo los hábitos que encontramos arriba.
