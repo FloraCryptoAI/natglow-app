@@ -3,7 +3,6 @@
 // by a `?country=` URL param captured on the quiz and persisted so it still
 // applies if the user reaches the offer page without the param in the URL.
 const VALID_CODES = ['mx', 'co', 'pe', 'cl']
-const STORAGE_KEY = 'natglow_country'
 
 export const COUNTRY_OFFERS = {
   cl: {
@@ -38,41 +37,34 @@ export const COUNTRY_OFFERS = {
     priceValue: 149,
     checkoutUrl: 'https://pay.hotmart.com/F105945011B?off=ahwhbzk6&checkoutMode=10',
   },
-  // Fallback: no ?country= param, an unrecognized country, or no dedicated
-  // local offer yet. Never mx.
+  // Fallback: no (or unrecognized) ?country= param. Shows the USD price with a
+  // bare '$' (no "US" prefix) and the plain Hotmart checkout, which converts to
+  // the buyer's local currency at checkout. Never mx.
   default: {
     country: 'Internacional',
     currency: 'USD',
-    displayPrice: 'US$7,90',
-    oldPrice: 'US$29,90',
-    priceValue: 7.9,
-    checkoutUrl: 'https://pay.hotmart.com/F105945011B?off=0j5dr116&checkoutMode=10',
+    displayPrice: '$3,90',
+    oldPrice: '$29,90',
+    priceValue: 3.9,
+    checkoutUrl: 'https://pay.hotmart.com/F105945011B?checkoutMode=10',
   },
 }
 
+// Country now applies ONLY when ?country= is present in the current URL — there
+// is no longer any localStorage persistence. So the plain /quiz link (no param)
+// always resolves to the USD default, and a ?country=mx|co|pe|cl link carries
+// that country through the funnel via the forwarded querystring.
 function resolveCountryCode() {
   try {
-    const params = new URLSearchParams(window.location.search)
-    // ?country= present always wins, valid or not — an unrecognized code
-    // (e.g. ?country=ar) must NOT fall back to a previously stored country,
-    // it must resolve straight to the USD default (and overwrite the store).
-    if (params.has('country')) {
-      const fromUrl = params.get('country')?.toLowerCase()
-      const code = fromUrl && VALID_CODES.includes(fromUrl) ? fromUrl : 'default'
-      localStorage.setItem(STORAGE_KEY, code)
-      return code
-    }
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored && VALID_CODES.includes(stored)) return stored
-  } catch { /* storage blocked */ }
+    const fromUrl = new URLSearchParams(window.location.search).get('country')?.toLowerCase()
+    if (fromUrl && VALID_CODES.includes(fromUrl)) return fromUrl
+  } catch { /* URL unavailable */ }
   return 'default'
 }
 
-// Call on the quiz's first mount so the country sticks even if the user
-// reaches the offer page later without the query param in the URL.
-export function captureCountry() {
-  resolveCountryCode()
-}
+// Kept as a no-op so existing callers (the quiz mount) don't break. Country is
+// resolved from the URL on demand now, nothing is persisted.
+export function captureCountry() { /* no-op — see resolveCountryCode */ }
 
 // Call on the offer page to get the price/checkout for the resolved country.
 export function getCountryOffer() {

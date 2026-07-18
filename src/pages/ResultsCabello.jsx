@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useLocation, useNavigate, Navigate } from 'react-router-dom'
+import { useLocation, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Check, Lock, Clock } from 'lucide-react'
 
 import { PRICING_PLANS } from '@/config/pricing'
+import { getCountryOffer } from '@/config/countryOffers'
 import { trackFunnelEvent, getFunnelSessionId } from '@/lib/trackFunnelEvent'
+import { getAttribution } from '@/lib/tracking/attribution'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import AnswerTable from '@/components/quiz-cabello/AnswerTable'
@@ -163,11 +165,64 @@ function Card({ children, className = '', tinted = false }) {
   )
 }
 
+const PINK_BG = '#FFE4F2'
+
+// Splits "$3,90" / "$149 MXN" into prefix / digits / suffix so the price row's
+// small/big/small layout works for any country format.
+function splitPrice(display) {
+  const m = String(display ?? '').match(/^([^\d]*)([\d.,]+)\s*(.*)$/)
+  if (!m) return { prefix: '', value: display, suffix: '' }
+  return { prefix: m[1], value: m[2], suffix: m[3] }
+}
+
+// Down-counting MM:SS timer. Starts at `seconds`, stops at 0. Per-mount (resets
+// on refresh) — enough for a test scarcity cue.
+function Countdown({ seconds = 17 * 60 + 32 }) {
+  const [left, setLeft] = useState(seconds)
+  useEffect(() => {
+    const id = setInterval(() => setLeft(l => (l <= 1 ? 0 : l - 1)), 1000)
+    return () => clearInterval(id)
+  }, [])
+  const mm = String(Math.floor(left / 60)).padStart(2, '0')
+  const ss = String(left % 60).padStart(2, '0')
+  return <span>{mm}:{ss}</span>
+}
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-2xl overflow-hidden border border-stone-100 bg-white">
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-5 py-4 text-left">
+        <span className="font-bold text-stone-800 text-sm pr-4 leading-snug">{q}</span>
+        {open
+          ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: P_DARK }} />
+          : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: P_DARK }} />}
+      </button>
+      {open && <p className="px-5 pb-4 text-sm text-stone-500 leading-relaxed">{a}</p>}
+    </div>
+  )
+}
+
+// Product lines shown on the results price card — trimmed vs the offer page
+// (no "Ingredientes, cantidades y preparación" and no "Garantía de 30 días",
+// which has its own card) so the card stays compact.
+const RESULTS_INCLUDES = [
+  'Tus 3 recetas completas',
+  'Plan semanal de 4 fases personalizado',
+  'Biblioteca con 26 recetas',
+  'Todo organizado en una aplicación',
+  'Acceso permanente, sin mensualidades',
+]
+
 export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.natglow
   const { plan_key } = planConfig
   const { state } = useLocation()
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  // Country only applies when ?country= is in the URL (no auto/persisted). The
+  // plain /quiz link resolves to the USD default ($3,90, plain Hotmart checkout).
+  const countryOffer = getCountryOffer()
+  const { prefix: pricePrefix, value: priceDigits, suffix: priceSuffix } = splitPrice(countryOffer.displayPrice)
 
   // Answers: navigation state first, then the key the quiz writes on completion
   // (so a refresh keeps the result).
@@ -176,16 +231,24 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   })()
   const answers = state?.answers ?? storedAnswers
 
-  // quiz_cabello_results_viewed — once per attempt (survives a refresh).
+  // Funnel view events, once per attempt (survive a refresh).
+  //  - quiz_cabello_results_viewed → the results step.
+  //  - offer_cabello_viewed        → the results page IS a sales page now (shows
+  //    the price + buy button), so it also counts as the offer step. Without it,
+  //    the admin funnel would intersect cta_clicked with an offer_viewed the
+  //    direct-from-results buyer never fired, undercounting clicks/payments.
   useEffect(() => {
     if (!answers) return
     const attemptId = getFunnelSessionId()
-    const key = `cabello_results_viewed_${attemptId}`
-    try {
-      if (sessionStorage.getItem(key)) return
-      sessionStorage.setItem(key, '1')
-    } catch { /* storage blocked — fall through and fire once per mount */ }
-    trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
+    const mark = (key) => {
+      try {
+        if (sessionStorage.getItem(key)) return false
+        sessionStorage.setItem(key, '1')
+      } catch { /* storage blocked — fall through and fire once per mount */ }
+      return true
+    }
+    if (mark(`cabello_results_viewed_${attemptId}`)) trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
+    if (mark(`cabello_offer_viewed_${attemptId}`))   trackFunnelEvent('offer_cabello_viewed', null, plan_key)
   }, [answers, plan_key])
 
   // ViewContent only. No Lead here (this funnel fires none) and no
@@ -202,23 +265,60 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   // No answers (direct access) → back to the quiz.
   if (!answers) return <Navigate to="/quiz-cabello" replace />
 
-  // CTA → this funnel's own offer, preserving the URL params the project uses
-  // (country / UTMs / fbclid all travel in window.location.search; the attempt
-  // id lives in sessionStorage and is read again on the offer).
-  const goToOffer = () => {
+  // Direct checkout — the results page is now also a sales page. Fires cta_clicked
+  // with source 'offer_cabello' (once per attempt) so the Hotmart webhook attributes
+  // the purchase to this funnel, then redirects to the country's Hotmart checkout
+  // with the attempt id (src) + UTMs appended. Hotmart owns InitiateCheckout/Purchase;
+  // only TikTok InitiateCheckout fires here.
+  const ctaFiredRef = { current: false }
+  const handleBuy = (placement = 'results_direct') => {
+    setLoading(true)
+    const attribution = getAttribution()
     const attemptId = getFunnelSessionId()
     const key = `cabello_results_cta_${attemptId}`
     let alreadySent = false
     try { alreadySent = !!sessionStorage.getItem(key) } catch { /* ignore */ }
-    if (!alreadySent) {
+    if (!alreadySent && !ctaFiredRef.current) {
+      ctaFiredRef.current = true
       try { sessionStorage.setItem(key, '1') } catch { /* ignore */ }
-      trackFunnelEvent('quiz_cabello_results_cta_clicked', { source: 'results_cabello' }, plan_key)
+      const fbEventId = crypto.randomUUID()
+      trackFunnelEvent('cta_clicked', {
+        fb_event_id: fbEventId,
+        source: 'offer_cabello',
+        country: countryOffer.code,
+        funnel: 'quiz_cabello',
+        placement,
+      }, plan_key)
+      trackTtEvent('InitiateCheckout', { value: countryOffer.priceValue, currency: countryOffer.currency, content_name: plan_key, content_id: plan_key, content_type: 'product' }, fbEventId)
     }
-    navigate(`/offer-cabello${window.location.search}`, { state: { answers } })
+
+    let checkoutUrl = countryOffer.checkoutUrl || '/'
+    const params = new URLSearchParams()
+    if (attemptId) params.set('src', attemptId)
+    if (attribution?.utm_source) params.set('utm_source', attribution.utm_source)
+    if (attribution?.utm_medium) params.set('utm_medium', attribution.utm_medium)
+    if (attribution?.utm_campaign) params.set('utm_campaign', attribution.utm_campaign)
+    const qs = params.toString()
+    if (qs) checkoutUrl += (checkoutUrl.includes('?') ? '&' : '?') + qs
+    setTimeout(() => { window.location.href = checkoutUrl }, 600)
   }
 
   const name = displayName(answers)
   const rows = getAnswerRows(answers)
+
+  const FAQ = [
+    { q: '¿Qué recibiré al activar mi acceso?', a: 'Recibirás tus 3 recetas completas, tu plan de 4 fases (cada una con 3 semanas), la biblioteca con 26 recetas, la aplicación con seguimiento del progreso, la comunidad y la receta adicional de alineación casera.' },
+    { q: '¿Las tres recetas aparecerán completas?', a: 'Sí. Después de activar tu acceso podrás consultar los ingredientes, cantidades, preparación e instrucciones de las tres recetas.' },
+    { q: '¿Qué es el plan de 4 fases?', a: 'Es la forma en que NatGlow organiza tu rutina dentro de la aplicación: 4 fases, cada una con 3 semanas y recetas diferentes según cada objetivo, para que sepas qué cuidado realizar en cada momento sin hacer todo al mismo tiempo.' },
+    { q: '¿Es un pago único?', a: `Sí. El acceso se activa con un solo pago de ${countryOffer.displayPrice}. No hay mensualidades.` },
+    { q: '¿En qué moneda se cobra?', a: 'El precio se muestra en dólares y el checkout lo convierte automáticamente al valor equivalente en la moneda de tu país al momento de pagar.' },
+    { q: '¿Cuándo recibiré el acceso?', a: 'El acceso se libera después de la confirmación del pago. Recibirás las instrucciones utilizando los datos informados en el checkout.' },
+    { q: '¿Puedo usar NatGlow desde el celular?', a: 'Sí. NatGlow funciona directamente desde el navegador y también puede instalarse en la pantalla de inicio del celular.' },
+    { q: '¿Necesito comprar productos caros?', a: 'No. Las recetas utilizan ingredientes simples y la aplicación también muestra opciones para diferentes tipos de rutina.' },
+    { q: '¿Cómo funciona la garantía de 30 días?', a: 'Después de la compra tendrás 30 días para explorar NatGlow. Si decides que el acceso no es para ti, podrás solicitar el reembolso dentro del plazo de garantía, según las condiciones de compra.' },
+    { q: '¿Las recetas garantizan un resultado específico?', a: 'No. Cada cabello responde de una manera diferente. NatGlow ofrece recetas, instrucciones y una forma organizada de acompañar los cuidados, pero los resultados pueden variar.' },
+    { q: '¿Tendré acceso para siempre?', a: 'Sí. Tu acceso es permanente: no tendrás que pagar mensualidades para continuar consultando el contenido disponible en tu cuenta.' },
+  ]
 
   return (
     <div className="min-h-screen" style={{ background: BG, fontFamily: 'system-ui, sans-serif' }}>
@@ -283,32 +383,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
           <LockedHabitsCard answers={answers} />
         </section>
 
-        {/* ═══ 4 · WHY START WITH THREE ═══ */}
-        <section className="flex flex-col gap-3">
-          <h2 className="text-xl font-extrabold text-stone-900 text-center">¿Por qué comenzar por las recetas que elegimos para ti?</h2>
-          <Card className="p-5">
-            <div className="flex flex-col gap-3">
-              {[
-                'Pueden ser las recetas más compatibles con tu cabello en su situación actual.',
-                'Evita probar demasiadas cosas al mismo tiempo.',
-                'Facilita entender qué cuidado estás utilizando.',
-                'Hace que la rutina sea más sencilla de mantener.',
-                'Después podrás consultar la biblioteca completa con 26 recetas.',
-              ].map((text, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: P }} aria-hidden>
-                    <svg viewBox="0 0 20 20" fill="none" className="w-3 h-3">
-                      <path d="M4 10.5l4 4 8-9" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  <p className="text-sm text-stone-600 leading-snug">{text}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </section>
-
-        {/* ═══ 5 · BEFORE / AFTER COMPARISON ═══ */}
+        {/* ═══ 4 · BEFORE / AFTER COMPARISON ═══ */}
         <section className="flex flex-col gap-3">
           <div className="text-center flex flex-col gap-1.5">
             <h2 className="text-xl font-extrabold text-stone-900">
@@ -324,26 +399,91 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
           />
         </section>
 
-        {/* ═══ 6 · CTA TO THE OFFER ═══ */}
-        <Card tinted className="p-5 flex flex-col items-center gap-3 text-center">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-white text-[10px] font-extrabold tracking-wider" style={{ background: P }}>
-            ✨ TUS 3 RECETAS ESTÁN LISTAS
-          </span>
-          <h2 className="text-xl font-extrabold text-stone-900 leading-snug">
-            {name ? `${name}, ya puedes ver las ` : 'Ya puedes ver las '}
-            <HL>recetas completas</HL>
-            {' y todo lo que incluye NatGlow'}
-          </h2>
-          <p className="text-sm text-stone-700 leading-relaxed">
-            En la siguiente página podrás conocer el contenido de tu acceso, las herramientas disponibles y cómo desbloquear las recetas.
-          </p>
-          <PinkButton onClick={goToOffer}>
-            QUIERO MI RUTINA COMPLETA <ArrowRight className="w-4 h-4" />
-          </PinkButton>
-          <p className="text-xs text-stone-400 font-medium">
-            Pago único · Sin mensualidades · Acceso desde el celular
-          </p>
-        </Card>
+        {/* ═══ 5 · OFFER PRICE CARD (direct Hotmart checkout) ═══ */}
+        <section className="flex flex-col gap-3">
+          <div className="rounded-3xl overflow-hidden bg-white border border-stone-100" style={{ boxShadow: '0 14px 44px rgba(0,0,0,0.07)' }}>
+            {/* Countdown bar — full width, red, white text, above the title. */}
+            <div className="py-2.5 px-6 text-center text-white text-sm font-bold flex items-center justify-center gap-2" style={{ background: '#C0392B' }}>
+              <Clock className="w-4 h-4" />
+              <span>Esta oferta termina en <Countdown /></span>
+            </div>
+
+            <div className="px-6 pt-6 pb-7">
+              <h2 className="text-xl font-extrabold text-stone-900 text-center leading-tight">
+                Desbloquea tus 3 recetas y todo lo que incluye tu acceso
+              </h2>
+              <p className="text-sm text-stone-500 text-center mt-2.5 leading-snug">
+                Consulta las recetas completas y sigue los pasos desde tu celular, todo organizado dentro de nuestra aplicación.
+              </p>
+
+              {/* Price */}
+              <div className="rounded-2xl mt-5 px-5 py-8 text-center" style={{ background: '#FFF5FA', border: '1px solid #FFE4F2' }}>
+                <div className="flex items-end justify-center gap-3">
+                  <div className="flex items-end gap-1">
+                    <span className="text-base font-bold text-stone-400 mb-2">{pricePrefix}</span>
+                    <span className="text-6xl font-extrabold leading-none tracking-tight" style={{ color: P_DARK }}>
+                      {priceDigits}
+                    </span>
+                    {priceSuffix && <span className="text-base font-bold text-stone-400 mb-2">{priceSuffix}</span>}
+                  </div>
+                  <div className="flex flex-col items-start gap-1 mb-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-full text-white" style={{ background: P }}>
+                      OFERTA
+                    </span>
+                    <span className="text-sm text-stone-400 line-through decoration-stone-300">
+                      {countryOffer.oldPrice}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Includes (trimmed) */}
+              <div className="mt-5">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3.5">TU ACCESO INCLUYE</p>
+                <ul className="flex flex-col gap-3">
+                  {RESULTS_INCLUDES.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: PINK_BG }}>
+                        <Check className="w-3.5 h-3.5" strokeWidth={3} style={{ color: P_DARK }} />
+                      </span>
+                      <span className="text-sm text-stone-700 leading-snug">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-7">
+                <PinkButton onClick={() => handleBuy('results_card')}>
+                  {loading ? 'Espera...' : <>DESBLOQUEAR MIS 3 RECETAS <ArrowRight className="w-4 h-4" /></>}
+                </PinkButton>
+                <div className="flex items-center justify-center gap-1.5 mt-3.5 text-xs text-stone-500">
+                  <Lock className="w-3.5 h-3.5" /> Acceso inmediato después del pago.
+                </div>
+                <p className="text-[11px] text-stone-400 text-center leading-snug mt-1.5">
+                  El precio se muestra en dólares y se convierte al valor equivalente en la moneda de tu país en el checkout.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ 6 · 30-DAY GUARANTEE ═══ */}
+        <div className="bg-white rounded-2xl p-5 border border-stone-100 flex items-center gap-4">
+          <span className="text-3xl flex-shrink-0 leading-none">🛡️</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-extrabold text-stone-900 text-base leading-snug">Garantía de 30 días sin preguntas</p>
+            <p className="text-sm text-stone-500 leading-snug mt-0.5">Riesgo cero, pruébalo y decide.</p>
+          </div>
+        </div>
+
+        {/* ═══ 7 · FAQ ═══ */}
+        <section className="flex flex-col gap-3">
+          <h2 className="text-xl font-extrabold text-stone-900 text-center">Preguntas frecuentes</h2>
+          <div className="flex flex-col gap-3">
+            {FAQ.map((item, i) => <FaqItem key={i} q={item.q} a={item.a} />)}
+          </div>
+        </section>
       </div>
     </div>
   )
