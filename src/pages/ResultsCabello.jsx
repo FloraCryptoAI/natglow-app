@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation, Navigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Check, Lock, Clock, Search, Leaf, Sparkles } from 'lucide-react'
 
 import { PRICING_PLANS } from '@/config/pricing'
@@ -454,6 +454,69 @@ function FaqItem({ q, a }) {
   )
 }
 
+// ── Social-proof toast (bottom-left) ─────────────────────────────────────────
+// Fictitious "activó su plan de 21 días" activity, cycling common LatAm female
+// names + Spanish-speaking cities. Illustrative FOMO cue, not real records.
+const PROOF_NAMES = [
+  'Valentina', 'Camila', 'Sofía', 'Isabella', 'Mariana', 'Daniela', 'Gabriela',
+  'Luciana', 'Antonella', 'Renata', 'Fernanda', 'Carolina', 'Andrea', 'Ximena',
+  'Catalina', 'Paula', 'Micaela', 'Julieta',
+]
+const PROOF_PLACES = [
+  'Bogotá, Colombia', 'Medellín, Colombia', 'Cali, Colombia',
+  'Ciudad de México, México', 'Guadalajara, México', 'Monterrey, México',
+  'Santiago, Chile', 'Lima, Perú', 'Quito, Ecuador', 'Guayaquil, Ecuador',
+  'Buenos Aires, Argentina', 'Córdoba, Argentina', 'Montevideo, Uruguay',
+  'San José, Costa Rica', 'Ciudad de Panamá, Panamá',
+]
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
+
+function SocialProofToast() {
+  const [item, setItem] = useState(null)
+  useEffect(() => {
+    let showT, hideT
+    let cancelled = false
+    const cycle = () => {
+      if (cancelled) return
+      setItem({ name: pick(PROOF_NAMES), place: pick(PROOF_PLACES), mins: 2 + Math.floor(Math.random() * 27) })
+      hideT = setTimeout(() => {
+        if (cancelled) return
+        setItem(null)
+        showT = setTimeout(cycle, 12000 + Math.random() * 8000)
+      }, 5000)
+    }
+    showT = setTimeout(cycle, 4000)
+    return () => { cancelled = true; clearTimeout(showT); clearTimeout(hideT) }
+  }, [])
+
+  return (
+    <AnimatePresence>
+      {item && (
+        <motion.div
+          initial={{ opacity: 0, x: -24, y: 8 }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          exit={{ opacity: 0, x: -24 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="fixed bottom-4 left-4 z-50 max-w-[80vw]"
+          style={{ width: 288 }}
+        >
+          <div className="flex items-center gap-3 bg-white rounded-2xl border border-stone-100 pl-3 pr-4 py-2.5" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.14)' }}>
+            <span className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#DCF3E4' }}>
+              <Check className="w-4 h-4" strokeWidth={3} style={{ color: GREEN }} />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] text-stone-700 leading-snug">
+                <span className="font-bold text-stone-900">{item.name}</span> activó su <span className="font-semibold">plan de 21 días</span>
+              </p>
+              <p className="text-[11px] text-stone-400 leading-snug mt-0.5 truncate">{item.place} · hace {item.mins} min</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 const RESULTS_INCLUDES = [
   'Tus 3 recetas ideales',
   'Tu plan personalizado de 21 días',
@@ -777,6 +840,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         </section>
       </div>
 
+      <SocialProofToast />
       <LegalLine />
     </div>
   )
