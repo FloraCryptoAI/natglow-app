@@ -596,10 +596,10 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
             <span className="self-center inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider" style={{ background: PINK_BG, color: P_DARK }}>
               <Check className="w-3 h-3" /> EVALUACIÓN COMPLETADA
             </span>
-            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
+            <h2 className="text-[26px] font-extrabold text-stone-900 leading-relaxed">
               {name ? `${name}, notamos ` : 'Notamos '}<HLReview>{habits.length} hábitos</HLReview> en tu rutina que podrían dificultarte {objetivo}
             </h2>
-            <p className="text-sm text-stone-500 leading-relaxed">
+            <p className="text-[15px] text-stone-500 leading-relaxed">
               Son cosas que casi todas hacemos sin saber. Míralas con calma y más abajo verás cómo empezar a ajustarlas.
             </p>
           </div>
@@ -660,11 +660,11 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         {/* ═══ 3 · SOLUTION + BEFORE / AFTER ═══ */}
         <section className="flex flex-col gap-3">
           <div className="text-center flex flex-col gap-2">
-            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
+            <h2 className="text-[26px] font-extrabold text-stone-900 leading-relaxed">
               Puedes recuperar la <HL>belleza natural de tu cabello</HL>
               {'. Mira lo que una rutina constante puede cambiar'}
             </h2>
-            <p className="text-sm text-stone-500 leading-relaxed">
+            <p className="text-[15px] text-stone-500 leading-relaxed">
               Arrastra la barra para comparar. Experiencia individual: los resultados pueden variar.
             </p>
           </div>
@@ -677,12 +677,12 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
         {/* ═══ 4 · THE 21-DAY PLAN (app PLAN-tab style, recipes locked) ═══ */}
         <section className="flex flex-col gap-4">
           <div className="text-center flex flex-col gap-2">
-            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
+            <h2 className="text-[26px] font-extrabold text-stone-900 leading-relaxed">
               {name ? `${name}, creamos un ` : 'Creamos un '}
               <HL>plan personalizado de 21 días</HL>
               {' para ti'}
             </h2>
-            <p className="text-sm text-stone-500 leading-relaxed">
+            <p className="text-[15px] text-stone-500 leading-relaxed">
               Reúne tus 3 recetas ideales, elegidas según tu tipo de cabello, tu tono y los hábitos por ajustar, y las organiza semana a semana para que cada cuidado tenga su momento.
             </p>
           </div>
