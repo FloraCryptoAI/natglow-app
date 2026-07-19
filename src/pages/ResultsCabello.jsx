@@ -10,7 +10,8 @@ import { getAttribution } from '@/lib/tracking/attribution'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import LegalLine from '@/components/LegalLine'
-import { ESSENTIAL_CARDS, maskText } from '@/lib/cabelloRecipes'
+import BeforeAfterTestimonialCarousel from '@/components/BeforeAfterTestimonialCarousel'
+import { ESSENTIAL_CARDS, maskText, getCabelloTestimonials } from '@/lib/cabelloRecipes'
 import { useTranslatedHairData } from '@/hooks/useTranslatedHairData'
 import {
   displayName, primaryGoal,
@@ -473,6 +474,13 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
 function SocialProofToast() {
   const [item, setItem] = useState(null)
+  const [raised, setRaised] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setRaised(window.scrollY > 520)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   useEffect(() => {
     let showT, hideT
     let cancelled = false
@@ -497,8 +505,8 @@ function SocialProofToast() {
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="fixed bottom-4 left-4 z-50 max-w-[80vw]"
-          style={{ width: 288 }}
+          className="fixed left-4 z-50 max-w-[80vw]"
+          style={{ width: 288, bottom: raised ? 84 : 16 }}
         >
           <div className="flex items-center gap-3 bg-white rounded-2xl border border-stone-100 pl-3 pr-4 py-2.5" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.14)' }}>
             <span className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#DCF3E4' }}>
@@ -510,6 +518,49 @@ function SocialProofToast() {
               </p>
               <p className="text-[11px] text-stone-400 leading-snug mt-0.5 truncate">{item.place} · hace {item.mins} min</p>
             </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+// Sticky bottom CTA bar — appears after the visitor scrolls past the first
+// screen, so the price + button stays reachable through the long sales page.
+function StickyBar({ priceDisplay, oldPrice, onBuy }) {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 520)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ y: 80 }}
+          animate={{ y: 0 }}
+          exit={{ y: 80 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="fixed bottom-0 inset-x-0 z-40 border-t border-stone-200"
+          style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(6px)', boxShadow: '0 -6px 24px rgba(0,0,0,0.08)' }}
+        >
+          <div className="mx-auto px-4 py-3 flex items-center gap-3" style={{ maxWidth: 560 }}>
+            <div className="flex-shrink-0 leading-none">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-extrabold" style={{ color: P_DARK }}>{priceDisplay}</span>
+                <span className="text-[11px] text-stone-400 line-through">{oldPrice}</span>
+              </div>
+              <p className="text-[10px] text-stone-400 mt-0.5">Pago único</p>
+            </div>
+            <button
+              onClick={onBuy}
+              className="flex-1 py-3 rounded-full font-extrabold text-white text-sm flex items-center justify-center gap-2"
+              style={{ background: PINK_GRAD, boxShadow: '0 4px 16px rgba(251,69,169,0.3)' }}
+            >
+              DESBLOQUEAR <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </motion.div>
       )}
@@ -630,6 +681,8 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
     setTimeout(() => { window.location.href = checkoutUrl }, 600)
   }
 
+  const scrollToOffer = () => offerCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
   const name = displayName(answers)
   const habits = deriveHabits(answers)
   const objetivo = goalPhrase(answers)
@@ -735,6 +788,14 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
             beforeUrl={`${IMG_NATGLOW}/foto-a-1.webp`}
             afterUrl={`${IMG_NATGLOW}/foto-b-1.webp`}
           />
+
+          {/* Mid-page CTA — for visitors who already decided; scrolls to the offer. */}
+          <div className="flex flex-col items-center gap-2 pt-1">
+            <PinkButton onClick={scrollToOffer}>
+              QUIERO MI PLAN DE 21 DÍAS <ArrowRight className="w-4 h-4" />
+            </PinkButton>
+            <p className="text-xs text-stone-400">Pago único · Garantía de 30 días</p>
+          </div>
         </section>
 
         {/* ═══ 4 · THE 21-DAY PLAN (app PLAN-tab style, recipes locked) ═══ */}
@@ -822,6 +883,31 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
           </div>
         </section>
 
+        {/* ═══ 5b · TESTIMONIALS (same as the offer page) ═══ */}
+        <section className="flex flex-col gap-4">
+          <div className="text-center flex flex-col gap-2">
+            <h2 className="text-[26px] font-extrabold text-stone-900 leading-relaxed">
+              Experiencias compartidas por mujeres de la comunidad
+            </h2>
+            <p className="text-[15px] text-stone-500 leading-relaxed">
+              Cada cabello responde de una forma diferente, pero tener las recetas y los pasos organizados puede hacer que la rutina sea mucho más fácil de acompañar.
+            </p>
+          </div>
+          <BeforeAfterTestimonialCarousel
+            testimonials={getCabelloTestimonials(countryOffer.code)}
+            verifiedBadgeTemplate="🌿 Experiencia compartida en nuestra app · Comunidad"
+            showBeforeAfterLabels={false}
+            showStars={false}
+            intervalMs={9000}
+            cardBorder="border-stone-100"
+            accentColor={P}
+            accentDark={P_DARK}
+          />
+          <p className="text-[11px] text-stone-400 text-center italic">
+            Experiencia individual. Los resultados pueden variar.
+          </p>
+        </section>
+
         {/* ═══ 6 · 30-DAY GUARANTEE ═══ */}
         <div className="bg-white rounded-2xl p-5 border border-stone-100 flex items-center gap-4">
           <span className="text-3xl flex-shrink-0 leading-none">🛡️</span>
@@ -841,7 +927,13 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
       </div>
 
       <SocialProofToast />
+      <StickyBar
+        priceDisplay={countryOffer.displayPrice}
+        oldPrice={countryOffer.oldPrice}
+        onBuy={() => handleBuy('sticky_bar')}
+      />
       <LegalLine />
+      <div aria-hidden style={{ height: 72 }} />
     </div>
   )
 }

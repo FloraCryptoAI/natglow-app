@@ -498,10 +498,10 @@ export default function QuizCabello({ pricingPlan = 'natglow' }) {
 
             <div className="text-center flex flex-col gap-3">
               <h1 className="text-2xl font-extrabold text-stone-900 leading-snug">
-                {hlTitle('Descubre al menos 1 receta casera ideal para tu cabello', 'receta casera ideal')}
+                {hlTitle('Descubre las recetas caseras ideales para tu cabello y los hábitos que puedes ajustar', 'recetas caseras ideales')}
               </h1>
               <p className="text-sm text-stone-400 leading-relaxed">
-                Haz este test y descubre una selección de recetas para cuidar tu cabello en casa, según tus respuestas.
+                Responde algunas preguntas rápidas y recibe tu evaluación personalizada: qué puede estar frenando tu cabello y un punto de partida natural, según tus respuestas.
               </p>
             </div>
 
@@ -509,7 +509,7 @@ export default function QuizCabello({ pricingPlan = 'natglow' }) {
             <div className="flex flex-col gap-3">
               <FeatureRow icon={Leaf}     iconColor="#1E8449" chip="#E8F8F0" text="Opciones según tu tipo de cabello" />
               <FeatureRow icon={Sparkles} iconColor={P}       chip="#FFF5FA" text="Ingredientes simples y fáciles de encontrar" />
-              <FeatureRow icon={Droplets} iconColor="#2563EB" chip="#E8F2FF" text="Rutina completa y recetas paso a paso organizadas en nuestra App." />
+              <FeatureRow icon={Droplets} iconColor="#2563EB" chip="#E8F2FF" text="Un plan de 21 días para seguir paso a paso" />
             </div>
 
             <div className="flex flex-col gap-3">
