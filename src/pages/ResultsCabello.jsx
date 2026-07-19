@@ -481,15 +481,8 @@ const PROOF_PLACES = [
 ]
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
-function SocialProofToast() {
+function SocialProofToast({ raised = false }) {
   const [item, setItem] = useState(null)
-  const [raised, setRaised] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setRaised(window.scrollY > 520)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
   useEffect(() => {
     let showT, hideT
     let cancelled = false
@@ -536,17 +529,10 @@ function SocialProofToast() {
 
 // Sticky bottom CTA bar — appears after the visitor scrolls past the first
 // screen, so the price + button stays reachable through the long sales page.
-function StickyBar({ priceDisplay, oldPrice, onBuy }) {
-  const [show, setShow] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 520)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+function StickyBar({ priceDisplay, oldPrice, onBuy, visible }) {
   return (
     <AnimatePresence>
-      {show && (
+      {visible && (
         <motion.div
           initial={{ y: 80 }}
           animate={{ y: 0 }}
@@ -606,6 +592,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow', preview = fals
   // Hooks must run before the no-answers early return, so declare them here.
   const { getRecipeById } = useTranslatedHairData()
   const offerCardRef = useRef(null)
+  const [offerSeen, setOfferSeen] = useState(false)
 
   // quiz_cabello_results_viewed — on mount, once per attempt (survives a refresh).
   useEffect(() => {
@@ -650,6 +637,19 @@ export default function ResultsCabello({ pricingPlan = 'natglow', preview = fals
     })
   }, [answers, plan_key, preview])
 
+  // Reveal the sticky CTA bar (and raise the toast) once the offer card has been
+  // seen, then keep it visible. Runs in preview too (no tracking involved).
+  useEffect(() => {
+    if (!answers) return
+    const el = offerCardRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setOfferSeen(true); io.disconnect() }
+    }, { threshold: 0.2 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [answers])
+
   // No answers (direct access) → back to the quiz.
   if (!answers) return <Navigate to="/quiz-cabello" replace />
 
@@ -689,8 +689,6 @@ export default function ResultsCabello({ pricingPlan = 'natglow', preview = fals
     if (qs) checkoutUrl += (checkoutUrl.includes('?') ? '&' : '?') + qs
     setTimeout(() => { window.location.href = checkoutUrl }, 600)
   }
-
-  const scrollToOffer = () => offerCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   const name = displayName(answers)
   const habits = deriveHabits(answers)
@@ -797,14 +795,6 @@ export default function ResultsCabello({ pricingPlan = 'natglow', preview = fals
             beforeUrl={`${IMG_NATGLOW}/foto-a-1.webp`}
             afterUrl={`${IMG_NATGLOW}/foto-b-1.webp`}
           />
-
-          {/* Mid-page CTA — for visitors who already decided; scrolls to the offer. */}
-          <div className="flex flex-col items-center gap-2 pt-1">
-            <PinkButton onClick={scrollToOffer}>
-              QUIERO MI PLAN DE 21 DÍAS <ArrowRight className="w-4 h-4" />
-            </PinkButton>
-            <p className="text-xs text-stone-400">Pago único · Garantía de 30 días</p>
-          </div>
         </section>
 
         {/* ═══ 4 · THE 21-DAY PLAN (app PLAN-tab style, recipes locked) ═══ */}
@@ -935,8 +925,9 @@ export default function ResultsCabello({ pricingPlan = 'natglow', preview = fals
         </section>
       </div>
 
-      <SocialProofToast />
+      <SocialProofToast raised={offerSeen} />
       <StickyBar
+        visible={offerSeen}
         priceDisplay={countryOffer.displayPrice}
         oldPrice={countryOffer.oldPrice}
         onBuy={() => handleBuy('sticky_bar')}
