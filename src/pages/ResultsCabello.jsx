@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Check, Lock, Clock } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Check, Lock, Clock, Search, Leaf, Sparkles } from 'lucide-react'
 
 import { PRICING_PLANS } from '@/config/pricing'
 import { getCountryOffer } from '@/config/countryOffers'
@@ -10,23 +10,240 @@ import { getAttribution } from '@/lib/tracking/attribution'
 import { initFacebookPixel, trackFbEvent } from '@/lib/tracking/facebook-pixel'
 import { initTikTokPixel, trackTtEvent } from '@/lib/tracking/tiktok-pixel'
 import LegalLine from '@/components/LegalLine'
-import AnswerTable from '@/components/quiz-cabello/AnswerTable'
-import { LockedRecipeCards, LockedHabitsCard } from '@/components/quiz-cabello/LockedCards'
+import { ESSENTIAL_CARDS, maskText } from '@/lib/cabelloRecipes'
+import { useTranslatedHairData } from '@/hooks/useTranslatedHairData'
 import {
-  getAnswerRows, getStartingPointText, displayName,
+  displayName, primaryGoal,
 } from '@/lib/resultsCabello'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// /quiz-cabello results page — it IS the sales page (PAIN → SOLUTION flow):
+//   1. The person's risky habits, shown UNBLURRED in amber ("para revisar").
+//   2. The accumulation angle (follicle image + age-based framing) → hope card.
+//   3. Before/after (illustrative) → 4. the 21-day plan in the app's PLAN-tab
+//      style, with recipe names + ingredients BLURRED (the paid solution) →
+//      5. offer card (direct Hotmart checkout) → guarantee → FAQ.
+//
+// Funnel events fired here (needed by the admin): quiz_cabello_results_viewed on
+// mount, offer_cabello_viewed when the offer card scrolls into view, cta_clicked
+// (source 'offer_cabello') on buy. No answers → back to the quiz.
+//
+// Copy policy: possibility-based, Meta-safe. No diagnosis, no "daño/dañado", no
+// guarantees. Habits read as "something to review", never an alarm.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const STORE = 'cabello'
-// Real before/after photos from the existing testimonials (temporary — to be
-// swapped for an illustration).
 const IMG_NATGLOW = '/images/quiz-natglow'
 
-// Same pink identity as /quiz and the offer.
 const P         = '#FB45A9'
 const P_DARK    = '#E03594'
 const PINK_GRAD = 'linear-gradient(135deg, #FB45A9, #E03594)'
 const BG        = '#fafaf9'
+const PINK_BG   = '#FFE4F2'
 
+// Amber/neutral palette — used ONLY on the "habits to review" section. Amber (not
+// red) keeps it as "something to look at", not an alarm/diagnosis (Meta-safer).
+const AMBER      = '#F59E0B'
+const AMBER_DARK = '#F59E0B'
+const AMBER_BG   = '#FEF3E2'
+const GREEN      = '#1E8449'
+
+// The person's main objective, in a phrase that fits "...dificultarte ___".
+const GOAL_PHRASE = {
+  frizz: 'controlar el frizz', brillo: 'recuperar el brillo',
+  quiebre: 'reducir el quiebre', crecimiento: 'un crecimiento saludable',
+  suavidad: 'sentir el cabello más suave', ondas: 'definir tus ondas',
+  puntas: 'cuidar tus puntas',
+}
+const goalPhrase = (a) => GOAL_PHRASE[primaryGoal(a)] ?? 'tus objetivos'
+
+// Accumulation framing by the age range chosen in the quiz — the older the range,
+// the more years of lavados, calor y productos on the hair. Possibility-based.
+const AGE_ACCUM = {
+  '18_29':   'A tu edad, el cabello ya ha pasado por muchos lavados, secados y productos.',
+  '30_39':   'Entre los 30 y los 39, es natural que el cabello ya haya pasado por años de lavados, calor y productos.',
+  '40_49':   'Entre los 40 y los 49, es natural que el cabello ya haya pasado por muchos años de lavados, calor y productos.',
+  '50_plus': 'Después de los 50, el cabello ya ha pasado por muchos años de lavados, calor y productos.',
+}
+const ageAccum = (a) => AGE_ACCUM[a?.age] ?? 'Con el día a día, el cabello va pasando por muchos lavados, calor y productos.'
+
+// ── Habits to review, derived from the REAL answers ──────────────────────────
+// Shown free (the reveal). Each rule carries a short, possibility-based note and
+// an "impact" weight that drives the amber bar. Never a diagnosis.
+const HABIT_RULES = [
+  { when: a => a?.chemProducts === 'frecuente', label: 'Procesos químicos frecuentes',        why: 'Tinturas, decoloraciones o alisados dejan residuos que se acumulan en la fibra.', impact: 95 },
+  { when: a => a?.heatTools === 'daily',        label: 'Usas plancha o secador todos los días', why: 'El calor diario, sin protección, suele marcar las puntas con el tiempo.',        impact: 90 },
+  { when: a => a?.waterTemp === 'hot',          label: 'Lavas con agua muy caliente',          why: 'El agua caliente abre las cutículas y suele resecar, dejando más frizz.',        impact: 82 },
+  { when: a => a?.heatTools === 'few',          label: 'Usas herramientas de calor con frecuencia', why: 'El calor repetido va desgastando las hebras poco a poco.',                    impact: 70 },
+  { when: a => a?.chemProducts === 'aveces',    label: 'Procesos químicos de vez en cuando',   why: 'Aunque ocasionales, dejan residuos que se acumulan sin cuidados de apoyo.',       impact: 64 },
+  { when: a => a?.washFreq === 'daily',         label: 'Lavas el cabello todos los días',      why: 'El lavado diario suele retirar los aceites naturales que protegen el cabello.',   impact: 60 },
+]
+const HABIT_FALLBACK = [
+  { label: 'Cuidados sin una frecuencia definida',      why: 'Sin constancia, el cabello no llega a responder a ningún cuidado.', impact: 55 },
+  { label: 'Productos que no consideran tu tipo de cabello', why: 'Lo que le funciona a otro cabello puede no encajar con el tuyo.', impact: 50 },
+  { label: 'Usar más producto del necesario',           why: 'El exceso se acumula y termina pesando sobre las hebras.',          impact: 45 },
+]
+function deriveHabits(a) {
+  const found = HABIT_RULES.filter(h => h.when(a)).map(({ label, why, impact }) => ({ label, why, impact }))
+  for (const f of HABIT_FALLBACK) {
+    if (found.length >= 3) break
+    if (!found.some(h => h.label === f.label)) found.push(f)
+  }
+  return found.slice(0, 5)
+}
+
+// ── 21-day plan, in the app's PLAN-tab style (week accordions) ───────────────
+// Each week is an accordion, like the /HairPlan tab inside the app, but the
+// recipe names + ingredients are blurred. Weeks reference the 3 ESSENTIAL_CARDS
+// by id so the blur reads the real recipe.
+const PLAN_WEEKS = [
+  {
+    week: 1,
+    desc: 'El primer paso es eliminar los residuos acumulados y recuperar la hidratación perdida. Empiezas suave, con una sola receta.',
+    recipes: [{ id: 'babosa-mel', freq: '2 veces por semana' }],
+    bonus: null,
+    habits: [
+      'Evita productos comerciales con sulfatos y parabenos',
+      'Usa agua tibia o fría para lavar el cabello',
+      'Evita la plancha y el secador esta semana',
+      'Mantente bien hidratada, el cabello refleja la salud interna',
+    ],
+  },
+  {
+    week: 2,
+    desc: 'Sigues con la hidratación y empiezas a construir nuevos hábitos con constancia. Incluye la receta opcional de progresiva casera.',
+    recipes: [{ id: 'tratamento-noturno-oleo', freq: '1 vez por semana' }],
+    bonus: {
+      emoji: '✨',
+      title: 'Progresiva casera de alineación',
+      note: '¿Sientes que necesitas una progresiva? Esta versión casera ayuda a alinear los hilos 1 vez por semana, sin los químicos que se acumulan en la fibra.',
+    },
+    habits: [
+      'Evita alisados químicos y progresivas con formol',
+      'Termina la ducha con 30 segundos de agua fría',
+      'Evita el secador, deja secar naturalmente cuando sea posible',
+      'Duerme con el cabello suelto',
+    ],
+  },
+  {
+    week: 3,
+    desc: 'Sellas los resultados logrados y creas una rutina que puedes sostener en el día a día.',
+    recipes: [{ id: 'mel-de-babosa', freq: '2 veces por semana' }],
+    bonus: null,
+    habits: [
+      'Mantén los hábitos de las semanas anteriores',
+      'Evita herramientas de calor y químicos comerciales',
+      'Observa la diferencia en brillo y suavidad',
+      'Tómate una foto para comparar con el inicio',
+    ],
+  },
+]
+
+// One locked recipe row inside a week — blurred name + blurred ingredients
+// (the real words never reach the DOM).
+function LockedRecipeRow({ card, recipe, freq }) {
+  return (
+    <div className="rounded-xl border border-stone-200 bg-stone-50 p-3.5 flex flex-col gap-2.5">
+      <div className="flex items-center gap-3">
+        <span className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: PINK_BG }} aria-hidden>{card.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-stone-700 leading-snug" aria-label="Receta disponible en tu acceso">
+            {card.nameParts.map((part, i) => (
+              <span key={i}>
+                {i > 0 && ' '}
+                {part.b
+                  ? <span className="select-none align-baseline" style={{ filter: 'blur(5px)' }} aria-hidden="true">{part.b}</span>
+                  : part.t}
+              </span>
+            ))}
+          </p>
+          <p className="text-[11px] font-semibold mt-0.5" style={{ color: P_DARK }}>
+            📅 {freq}{recipe?.duration_minutes ? ` · ⏱️ ${recipe.duration_minutes} min` : ''}
+          </p>
+        </div>
+        <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: P_DARK }} />
+      </div>
+      <div className="relative overflow-hidden rounded-lg" style={{ background: '#faf7f8' }}>
+        <p className="text-sm text-stone-600 p-3 select-none" style={{ filter: 'blur(5px)' }} aria-hidden="true">
+          {maskText((recipe?.ingredients ?? []).join(' · ')) || 'xxxxxxxxxxx xxxxxxxxx xxxxx'}
+        </p>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-white" style={{ color: P_DARK, border: '1px solid #FFB3DD' }}>
+            <Lock className="w-3 h-3" /> Ingredientes en tu acceso
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// A single week accordion, styled like the app's PLAN tab (numbered circle,
+// expand). Expands to the week's locked recipes + the habits to adjust.
+function PlanWeek({ data, getRecipeById, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen)
+  const cards = data.recipes
+    .map(r => ({ card: ESSENTIAL_CARDS.find(c => c.id === r.id), recipe: getRecipeById?.(r.id), freq: r.freq }))
+    .filter(x => x.card)
+
+  return (
+    <div className="rounded-2xl border-2 overflow-hidden bg-white" style={{ borderColor: '#F0E4EC' }}>
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 px-5 py-4 text-left">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold text-white flex-shrink-0" style={{ background: PINK_GRAD }}>
+          {data.week}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-stone-800 text-sm">Semana {data.week}</p>
+        </div>
+        {open
+          ? <ChevronUp className="w-5 h-5 text-stone-400 flex-shrink-0" />
+          : <ChevronDown className="w-5 h-5 text-stone-400 flex-shrink-0" />}
+      </button>
+
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="px-5 pb-5 border-t border-stone-100 flex flex-col gap-4 pt-4"
+        >
+          <p className="text-sm text-stone-500 leading-relaxed">{data.desc}</p>
+
+          <div className="flex flex-col gap-2.5">
+            <p className="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider">Recetas de esta semana</p>
+            {cards.map(({ card, recipe, freq }) => <LockedRecipeRow key={card.id} card={card} recipe={recipe} freq={freq} />)}
+
+            {data.bonus && (
+              <div className="rounded-xl border p-3.5 flex items-start gap-3" style={{ borderColor: '#FFE0B2', background: '#FFFBF3' }}>
+                <span className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: '#FEF3E2' }} aria-hidden>{data.bonus.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                    <p className="text-sm font-bold text-stone-800 leading-snug">{data.bonus.title}</p>
+                    <span className="text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: '#FDE3B8', color: '#9A6B12' }}>USO OPCIONAL</span>
+                  </div>
+                  <p className="text-[12px] text-stone-500 leading-snug">{data.bonus.note}</p>
+                </div>
+                <Lock className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#B7791F' }} />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2.5">Hábitos de esta semana</p>
+            <ul className="flex flex-col gap-2.5">
+              {data.habits.map((h, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#E8F8F0' }}>
+                    <Leaf className="w-2.5 h-2.5" style={{ color: GREEN }} />
+                  </span>
+                  <p className="text-[13px] text-stone-600 leading-snug">{h}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  )
+}
 
 function PinkButton({ children, onClick, pulse = true }) {
   return (
@@ -42,7 +259,6 @@ function PinkButton({ children, onClick, pulse = true }) {
   )
 }
 
-// Pink marker highlight for keywords — same cue as the quiz titles.
 const HL = ({ children }) => (
   <span
     style={{
@@ -58,15 +274,58 @@ const HL = ({ children }) => (
   </span>
 )
 
-/**
- * Drag-to-compare slider. The "después" image is the base layer (so it shows on
- * the RIGHT) and the "antes" image is clipped from the left edge to the handle
- * (so it shows on the LEFT).
- *
- * Uses pointer events + setPointerCapture so a drag that leaves the element
- * keeps tracking, and `touch-action: none` so dragging never scrolls the page
- * on mobile. Arrow keys move the handle for keyboard users.
- */
+// Amber highlight — only for the "habits to review" section.
+const HLReview = ({ children }) => (
+  <span
+    style={{
+      background: AMBER,
+      color: '#fff',
+      padding: '1px 8px',
+      borderRadius: '6px',
+      WebkitBoxDecorationBreak: 'clone',
+      boxDecorationBreak: 'clone',
+    }}
+  >
+    {children}
+  </span>
+)
+
+function HabitBar({ label, why, impact }) {
+  const [w, setW] = useState(0)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setW(impact))
+    return () => cancelAnimationFrame(id)
+  }, [impact])
+  return (
+    <div className="p-4 rounded-2xl border" style={{ borderColor: '#F3E3C6', background: '#FFFDF8' }}>
+      <div className="flex items-start gap-3">
+        <span className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: AMBER_BG }}>
+          <Search className="w-4 h-4" strokeWidth={2.4} style={{ color: AMBER_DARK }} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-[15px] text-stone-800 leading-snug">{label}</p>
+          <p className="text-[13px] text-stone-500 leading-snug mt-0.5">{why}</p>
+
+          <div className="mt-2.5 flex items-center gap-2.5">
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: AMBER_BG }}>
+              <motion.div
+                className="h-2 rounded-full"
+                style={{ background: 'linear-gradient(90deg, #FCD34D, #F59E0B)' }}
+                initial={{ width: 0 }}
+                animate={{ width: `${w}%` }}
+                transition={{ duration: 0.9, ease: 'easeOut' }}
+              />
+            </div>
+            <span className="text-[11px] font-extrabold uppercase tracking-wide flex-shrink-0" style={{ color: AMBER_DARK }}>
+              Para revisar
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function BeforeAfterSlider({ beforeUrl, afterUrl }) {
   const [pos, setPos] = useState(50)
   const ref = useRef(null)
@@ -107,7 +366,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }) {
       onPointerCancel={endDrag}
       onKeyDown={onKeyDown}
       role="slider"
-      aria-label="Comparar antes y después"
+      aria-label="Comparar"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(pos)}
@@ -115,19 +374,17 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }) {
       className="relative w-full overflow-hidden rounded-2xl select-none cursor-ew-resize outline-none"
       style={{ aspectRatio: '3/4', background: '#f5f5f4', touchAction: 'none' }}
     >
-      {/* Base layer — DESPUÉS (right side) */}
       <img
         src={afterUrl}
-        alt="Después"
+        alt=""
         draggable={false}
         loading="lazy"
         decoding="async"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
-      {/* Clipped layer — ANTES (left side) */}
       <img
         src={beforeUrl}
-        alt="Antes"
+        alt=""
         draggable={false}
         loading="lazy"
         decoding="async"
@@ -135,7 +392,6 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }) {
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
       />
 
-      {/* Divider + handle */}
       <div
         className="absolute top-0 bottom-0 pointer-events-none"
         style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
@@ -166,18 +422,12 @@ function Card({ children, className = '', tinted = false }) {
   )
 }
 
-const PINK_BG = '#FFE4F2'
-
-// Splits "$3,90" / "$149 MXN" into prefix / digits / suffix so the price row's
-// small/big/small layout works for any country format.
 function splitPrice(display) {
   const m = String(display ?? '').match(/^([^\d]*)([\d.,]+)\s*(.*)$/)
   if (!m) return { prefix: '', value: display, suffix: '' }
   return { prefix: m[1], value: m[2], suffix: m[3] }
 }
 
-// Down-counting MM:SS timer. Starts at `seconds`, stops at 0. Per-mount (resets
-// on refresh) — enough for a test scarcity cue.
 function Countdown({ seconds = 17 * 60 + 32 }) {
   const [left, setLeft] = useState(seconds)
   useEffect(() => {
@@ -204,14 +454,12 @@ function FaqItem({ q, a }) {
   )
 }
 
-// Product lines shown on the results price card — trimmed vs the offer page
-// (no "Ingredientes, cantidades y preparación" and no "Garantía de 30 días",
-// which has its own card) so the card stays compact.
 const RESULTS_INCLUDES = [
-  'Tus 3 recetas completas',
-  'Plan semanal de 4 fases personalizado',
-  'Biblioteca con 26 recetas',
-  'Todo organizado en una aplicación',
+  'Tus 3 recetas ideales',
+  'Tu plan personalizado de 21 días',
+  '1 Receta de progresiva casera (bono)',
+  '+ 26 recetas con objetivos diferentes',
+  'Acceso a una app personalizada',
   'Acceso permanente, sin mensualidades',
 ]
 
@@ -232,6 +480,10 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   })()
   const answers = state?.answers ?? storedAnswers
 
+  // Hooks must run before the no-answers early return, so declare them here.
+  const { getRecipeById } = useTranslatedHairData()
+  const offerCardRef = useRef(null)
+
   // quiz_cabello_results_viewed — on mount, once per attempt (survives a refresh).
   useEffect(() => {
     if (!answers) return
@@ -244,12 +496,10 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
     trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
   }, [answers, plan_key])
 
-  // offer_cabello_viewed — the results page IS the sales page now. Fire it only
-  // when the offer/price card actually scrolls into view (not on mount), so the
-  // admin's "Viram a oferta" reflects who really reached the offer. Once per
-  // attempt. The direct-buy cta_clicked is always fired from inside this card,
-  // so offer_viewed always precedes it (keeps the sequential funnel correct).
-  const offerCardRef = useRef(null)
+  // offer_cabello_viewed — fire only when the offer/price card scrolls into view
+  // (not on mount), once per attempt, so the admin's "Viram a oferta" reflects who
+  // really reached the offer. cta_clicked always fires from inside this card, so
+  // offer_viewed always precedes it (keeps the sequential funnel correct).
   useEffect(() => {
     if (!answers) return
     const el = offerCardRef.current
@@ -268,8 +518,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   }, [answers, plan_key])
 
   // ViewContent only. No Lead here (this funnel fires none) and no
-  // InitiateCheckout on the CTA — Hotmart's pixel raises that on its own
-  // checkout page, so firing it here would double-count.
+  // InitiateCheckout on the CTA — Hotmart's pixel raises that on its own checkout.
   useEffect(() => {
     if (!answers) return
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
@@ -281,13 +530,12 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   // No answers (direct access) → back to the quiz.
   if (!answers) return <Navigate to="/quiz-cabello" replace />
 
-  // Direct checkout — the results page is now also a sales page. Fires cta_clicked
-  // with source 'offer_cabello' (once per attempt) so the Hotmart webhook attributes
-  // the purchase to this funnel, then redirects to the country's Hotmart checkout
-  // with the attempt id (src) + UTMs appended. Hotmart owns InitiateCheckout/Purchase;
-  // only TikTok InitiateCheckout fires here.
+  // Direct checkout. Fires cta_clicked with source 'offer_cabello' (once per
+  // attempt) so the Hotmart webhook attributes the purchase to this funnel, then
+  // redirects to the country's Hotmart checkout with the attempt id (src) + UTMs.
+  // Hotmart owns InitiateCheckout/Purchase; only TikTok InitiateCheckout fires here.
   const ctaFiredRef = { current: false }
-  const handleBuy = (placement = 'results_direct') => {
+  const handleBuy = (placement = 'results_card') => {
     setLoading(true)
     const attribution = getAttribution()
     const attemptId = getFunnelSessionId()
@@ -320,12 +568,14 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   }
 
   const name = displayName(answers)
-  const rows = getAnswerRows(answers)
+  const habits = deriveHabits(answers)
+  const objetivo = goalPhrase(answers)
+  const accumAge = ageAccum(answers)
 
   const FAQ = [
-    { q: '¿Qué recibiré al activar mi acceso?', a: 'Recibirás tus 3 recetas completas, tu plan de 4 fases (cada una con 3 semanas), la biblioteca con 26 recetas, la aplicación con seguimiento del progreso, la comunidad y la receta adicional de alineación casera.' },
+    { q: '¿Qué recibiré al activar mi acceso?', a: 'Recibirás tus 3 recetas completas, tu plan personalizado de 21 días, la biblioteca con 26 recetas, la aplicación con seguimiento del progreso y la comunidad.' },
     { q: '¿Las tres recetas aparecerán completas?', a: 'Sí. Después de activar tu acceso podrás consultar los ingredientes, cantidades, preparación e instrucciones de las tres recetas.' },
-    { q: '¿Qué es el plan de 4 fases?', a: 'Es la forma en que NatGlow organiza tu rutina dentro de la aplicación: 4 fases, cada una con 3 semanas y recetas diferentes según cada objetivo, para que sepas qué cuidado realizar en cada momento sin hacer todo al mismo tiempo.' },
+    { q: '¿Qué es el plan de 21 días?', a: 'Es la forma en que NatGlow organiza tu rutina dentro de la aplicación: día a día combina tus 3 recetas con pequeños cambios de hábitos, para que sepas exactamente qué cuidado realizar en cada momento sin hacer todo al mismo tiempo.' },
     { q: '¿Es un pago único?', a: `Sí. El acceso se activa con un solo pago de ${countryOffer.displayPrice}. No hay mensualidades.` },
     { q: '¿En qué moneda se cobra?', a: 'El precio se muestra en dólares y el checkout lo convierte automáticamente al valor equivalente en la moneda de tu país al momento de pagar.' },
     { q: '¿Cuándo recibiré el acceso?', a: 'El acceso se libera después de la confirmación del pago. Recibirás las instrucciones utilizando los datos informados en el checkout.' },
@@ -340,70 +590,79 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
     <div className="min-h-screen" style={{ background: BG, fontFamily: 'system-ui, sans-serif' }}>
       <div className="mx-auto w-full px-4 pt-6 pb-12 flex flex-col gap-10" style={{ maxWidth: 560 }}>
 
-        {/* ═══ 1 · HEADER ═══ */}
+        {/* ═══ 1 · HABITS TO REVIEW (shown free, amber) ═══ */}
         <section className="flex flex-col gap-4">
-          <span className="self-center inline-flex items-center px-3 py-1 rounded-full text-white text-[10px] font-extrabold tracking-wider" style={{ background: P }}>
-            ✅ EVALUACIÓN COMPLETADA
-          </span>
-
-          <h1 className="text-[26px] font-extrabold text-stone-900 leading-relaxed text-center">
-            {name ? `${name}, encontramos ` : 'Encontramos '}
-            <HL>3 recetas caseras</HL>
-            {' que pueden encajar con tus principales objetivos 😲'}
-          </h1>
-          <p className="text-[15px] text-stone-500 leading-relaxed text-center">
-            Tomamos en cuenta lo que nos contaste sobre tu tipo de cabello, tono, hábitos y objetivos para mostrarte un punto de partida sencillo.
-          </p>
-
-          {/* Answer table — what the person actually told us, labelled, so the
-              result reads as built from real answers. Shared with the quiz's
-              analysis screen so both stay identical. */}
-          <div className="mt-1">
-            <AnswerTable rows={rows} />
-          </div>
-
-          <Card tinted className="p-5 flex flex-col gap-2 mt-1">
-            <h2 className="text-base font-extrabold" style={{ color: P_DARK }}>🌿 Tu punto de partida</h2>
-            <p className="text-sm text-stone-700 leading-relaxed">{getStartingPointText(answers)}</p>
-          </Card>
-        </section>
-
-        {/* ═══ 2 · THE 3 LOCKED RECIPES ═══ */}
-        <section className="flex flex-col gap-3">
-            <div className="text-center flex flex-col gap-2">
-              <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
-                {name ? `${name}, estas 3 recetas caseras ` : 'Estas 3 recetas caseras '}
-                las seleccionamos <HL>especialmente para ti</HL>
-              </h2>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Normalmente encontramos solo una receta compatible por persona. Según tus respuestas, en tu caso hay <span className="font-bold" style={{ color: P_DARK }}>3 recetas compatibles</span>. Puedes empezar por la que prefieras o probar cuál se adapta mejor a tu cabello.
-              </p>
-              <p className="text-xs text-stone-400 leading-relaxed">
-                Los ingredientes, cantidades, preparación y frecuencia se desbloquean dentro de NatGlow.
-              </p>
-            </div>
-
-            <LockedRecipeCards answers={answers} />
-        </section>
-
-        {/* ═══ 3 · HABITS FOUND IN THE ANSWERS ═══ */}
-        <section className="flex flex-col gap-3">
-          <div className="text-center flex flex-col gap-1.5">
+          <div className="text-center flex flex-col gap-2">
+            <span className="self-center inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider" style={{ background: PINK_BG, color: P_DARK }}>
+              <Check className="w-3 h-3" /> EVALUACIÓN COMPLETADA
+            </span>
             <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
-              Encontramos algunos <HL>hábitos</HL> en tus respuestas que pueden estar afectando tu cabello
+              {name ? `${name}, notamos ` : 'Notamos '}<HLReview>{habits.length} hábitos</HLReview> en tu rutina que podrían dificultarte {objetivo}
             </h2>
             <p className="text-sm text-stone-500 leading-relaxed">
-              Son pequeños ajustes en tu rutina que, según tus respuestas, podrían ayudarte a acercarte a tus objetivos. Los verás detallados dentro de NatGlow.
+              Son cosas que casi todas hacemos sin saber. Míralas con calma y más abajo verás cómo empezar a ajustarlas.
             </p>
           </div>
-          <LockedHabitsCard answers={answers} />
+
+          <div className="flex flex-col gap-3">
+            {habits.map((h, i) => <HabitBar key={i} {...h} />)}
+          </div>
         </section>
 
-        {/* ═══ 4 · BEFORE / AFTER COMPARISON ═══ */}
+        {/* ═══ 2 · THE ACCUMULATION + hope card ═══ */}
         <section className="flex flex-col gap-3">
-          <div className="text-center flex flex-col gap-1.5">
+          <Card className="p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-stone-100">
+                <img
+                  src={`${IMG_NATGLOW}/follicle-damaged.webp`}
+                  alt="Folículo con acumulación"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                  onError={e => { e.currentTarget.style.display = 'none' }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-extrabold text-stone-900 leading-snug">
+                  Con el tiempo, el cabello acumula residuos
+                </h2>
+                <p className="text-[13px] text-stone-500 leading-snug mt-1">
+                  Con la rutina del día a día (lavados, calor y productos), poco a poco pueden sumarse pequeños residuos.
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-stone-700 leading-relaxed">
+              <span className="font-semibold text-stone-800">{accumAge}</span> Con el tiempo, esos residuos pueden hacer que los cuidados rindan un poco menos y que el brillo no dure tanto. La buena noticia es que, casi siempre, es cuestión de ajustar la rutina y no de hacer más.
+            </p>
+          </Card>
+
+          {/* Pain → hope bridge: the 3 recipes reveal, in green tones. */}
+          <div className="rounded-2xl border p-5 flex items-start gap-4" style={{ borderColor: '#BFE6CC', background: '#F1FAF4' }}>
+            <span className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#DCF3E4' }}>
+              <Sparkles className="w-5 h-5" style={{ color: GREEN }} />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider mb-1" style={{ color: GREEN }}>¡Excelente noticia!</p>
+              <h3 className="text-base font-extrabold text-stone-900 leading-snug">
+                {name ? `${name}, encontramos ` : 'Encontramos '}3 recetas caseras ideales para tu cabello
+              </h3>
+              <p className="text-sm text-stone-600 leading-relaxed mt-1.5">
+                Las seleccionamos según tu tipo de cabello, tu tono y tus objetivos. Son tu punto de partida para revertir la acumulación de forma natural, y las verás organizadas dentro de tu plan de 21 días.
+              </p>
+              <p className="text-sm font-bold mt-2.5 flex items-center gap-1.5" style={{ color: GREEN }}>
+                👇 Sigue leyendo para entender cómo usarlas paso a paso
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ 3 · SOLUTION + BEFORE / AFTER ═══ */}
+        <section className="flex flex-col gap-3">
+          <div className="text-center flex flex-col gap-2">
             <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
-              Lo que una <HL>rutina constante</HL> puede cambiar
+              Puedes recuperar la <HL>belleza natural de tu cabello</HL>
+              {'. Mira lo que una rutina constante puede cambiar'}
             </h2>
             <p className="text-sm text-stone-500 leading-relaxed">
               Arrastra la barra para comparar. Experiencia individual: los resultados pueden variar.
@@ -415,10 +674,29 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
           />
         </section>
 
+        {/* ═══ 4 · THE 21-DAY PLAN (app PLAN-tab style, recipes locked) ═══ */}
+        <section className="flex flex-col gap-4">
+          <div className="text-center flex flex-col gap-2">
+            <h2 className="text-xl font-extrabold text-stone-900 leading-relaxed">
+              {name ? `${name}, creamos un ` : 'Creamos un '}
+              <HL>plan personalizado de 21 días</HL>
+              {' para ti'}
+            </h2>
+            <p className="text-sm text-stone-500 leading-relaxed">
+              Reúne tus 3 recetas ideales, elegidas según tu tipo de cabello, tu tono y los hábitos por ajustar, y las organiza semana a semana para que cada cuidado tenga su momento.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {PLAN_WEEKS.map((wk, i) => (
+              <PlanWeek key={wk.week} data={wk} getRecipeById={getRecipeById} defaultOpen={i === 0} />
+            ))}
+          </div>
+        </section>
+
         {/* ═══ 5 · OFFER PRICE CARD (direct Hotmart checkout) ═══ */}
         <section ref={offerCardRef} className="flex flex-col gap-3">
           <div className="rounded-3xl overflow-hidden bg-white border border-stone-100" style={{ boxShadow: '0 14px 44px rgba(0,0,0,0.07)' }}>
-            {/* Countdown bar — full width, red, white text, above the title. */}
             <div className="py-2.5 px-6 text-center text-white text-sm font-bold flex items-center justify-center gap-2" style={{ background: '#C0392B' }}>
               <Clock className="w-4 h-4" />
               <span>Esta oferta termina en <Countdown /></span>
@@ -426,13 +704,12 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
 
             <div className="px-6 pt-6 pb-7">
               <h2 className="text-xl font-extrabold text-stone-900 text-center leading-tight">
-                Desbloquea tus 3 recetas y todo lo que incluye tu acceso
+                Desbloquea tus 3 recetas y tu plan personalizado
               </h2>
               <p className="text-sm text-stone-500 text-center mt-2.5 leading-snug">
-                Consulta las recetas completas y sigue los pasos desde tu celular, todo organizado dentro de nuestra aplicación.
+                Consulta las recetas completas y sigue tu plan de 21 días, todo organizado y listo para empezar.
               </p>
 
-              {/* Price */}
               <div className="rounded-2xl mt-5 px-5 py-8 text-center" style={{ background: '#FFF5FA', border: '1px solid #FFE4F2' }}>
                 <div className="flex items-end justify-center gap-3">
                   <div className="flex items-end gap-1">
@@ -453,7 +730,6 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
                 </div>
               </div>
 
-              {/* Includes (trimmed) */}
               <div className="mt-5">
                 <p className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3.5">TU ACCESO INCLUYE</p>
                 <ul className="flex flex-col gap-3">
@@ -468,10 +744,9 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
                 </ul>
               </div>
 
-              {/* CTA */}
               <div className="mt-7">
                 <PinkButton onClick={() => handleBuy('results_card')}>
-                  {loading ? 'Espera...' : <>DESBLOQUEAR MIS 3 RECETAS <ArrowRight className="w-4 h-4" /></>}
+                  {loading ? 'Espera...' : <>DESBLOQUEAR RECETAS Y PLAN <ArrowRight className="w-4 h-4" /></>}
                 </PinkButton>
                 <div className="flex items-center justify-center gap-1.5 mt-3.5 text-xs text-stone-500">
                   <Lock className="w-3.5 h-3.5" /> Acceso inmediato después del pago.

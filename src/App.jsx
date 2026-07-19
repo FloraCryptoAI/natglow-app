@@ -18,7 +18,6 @@ import QuizNewResults from './pages/QuizNewResults';
 // the PWA precache ceiling (2 MiB per file) as the funnel keeps growing.
 const QuizCabello    = lazy(() => import('./pages/QuizCabello'));
 const ResultsCabello = lazy(() => import('./pages/ResultsCabello'));
-const ResultsCabelloV2 = lazy(() => import('./pages/ResultsCabelloV2'));
 const OfferCabello   = lazy(() => import('./pages/OfferCabello'));
 import ResultsBold from './pages/ResultsBold';
 import OfferBold from './pages/OfferBold';
@@ -147,9 +146,6 @@ const AppRoutes = () => {
 
       {/* Results/offer of the /quiz (cabello) funnel. */}
       <Route path="/quiz-cabello/results" element={<Suspense fallback={<Spinner />}><ResultsCabello pricingPlan="natglow" /></Suspense>} />
-      {/* Sandbox/draft of the results page — renders with sample answers, fires no
-          funnel/pixel events. For design iteration only; not linked from the funnel. */}
-      <Route path="/quiz-cabello/results-v2" element={<Suspense fallback={<Spinner />}><ResultsCabelloV2 pricingPlan="natglow" /></Suspense>} />
       <Route path="/offer-cabello"        element={<Suspense fallback={<Spinner />}><OfferCabello pricingPlan="natglow" /></Suspense>} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
