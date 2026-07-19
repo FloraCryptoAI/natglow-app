@@ -49,6 +49,15 @@ const AMBER_DARK = '#F59E0B'
 const AMBER_BG   = '#FEF3E2'
 const GREEN      = '#1E8449'
 
+// Sample answers for the ?preview route (direct access, no quiz, no tracking).
+const SAMPLE_ANSWERS = {
+  name: 'Ana', age: '30_39', hairType: 'ondulado', hairTone: 'castano',
+  hairLength: 'medio', washFreq: '3_4', waterTemp: 'hot', heatTools: 'few',
+  chemProducts: 'aveces', scalpSensitivity: 'no', concerns: ['frizz', 'seco', 'puntas'],
+  goals: ['frizz', 'brillo'], hairGoal: 'frizz', recipeExperience: 'poca',
+  investment: 'basico', recipePref: 'pocos', symptomsIntensity: '1year',
+}
+
 // The person's main objective, in a phrase that fits "...dificultarte ___".
 const GOAL_PHRASE = {
   frizz: 'controlar el frizz', brillo: 'recuperar el brillo',
@@ -577,7 +586,7 @@ const RESULTS_INCLUDES = [
   'Acceso permanente, sin mensualidades',
 ]
 
-export default function ResultsCabello({ pricingPlan = 'natglow' }) {
+export default function ResultsCabello({ pricingPlan = 'natglow', preview = false }) {
   const planConfig = PRICING_PLANS[pricingPlan] ?? PRICING_PLANS.natglow
   const { plan_key } = planConfig
   const { state } = useLocation()
@@ -592,7 +601,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
   const storedAnswers = (() => {
     try { return JSON.parse(sessionStorage.getItem(`glow_results_answers_${STORE}`) ?? '') } catch { return null }
   })()
-  const answers = state?.answers ?? storedAnswers
+  const answers = state?.answers ?? storedAnswers ?? (preview ? SAMPLE_ANSWERS : null)
 
   // Hooks must run before the no-answers early return, so declare them here.
   const { getRecipeById } = useTranslatedHairData()
@@ -600,7 +609,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
 
   // quiz_cabello_results_viewed — on mount, once per attempt (survives a refresh).
   useEffect(() => {
-    if (!answers) return
+    if (preview || !answers) return
     const attemptId = getFunnelSessionId()
     const key = `cabello_results_viewed_${attemptId}`
     try {
@@ -608,14 +617,14 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
       sessionStorage.setItem(key, '1')
     } catch { /* storage blocked — fall through and fire once per mount */ }
     trackFunnelEvent('quiz_cabello_results_viewed', null, plan_key)
-  }, [answers, plan_key])
+  }, [answers, plan_key, preview])
 
   // offer_cabello_viewed — fire only when the offer/price card scrolls into view
   // (not on mount), once per attempt, so the admin's "Viram a oferta" reflects who
   // really reached the offer. cta_clicked always fires from inside this card, so
   // offer_viewed always precedes it (keeps the sequential funnel correct).
   useEffect(() => {
-    if (!answers) return
+    if (preview || !answers) return
     const el = offerCardRef.current
     if (!el) return
     const attemptId = getFunnelSessionId()
@@ -629,17 +638,17 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
     }, { threshold: 0.3 })
     io.observe(el)
     return () => io.disconnect()
-  }, [answers, plan_key])
+  }, [answers, plan_key, preview])
 
   // ViewContent only. No Lead here (this funnel fires none) and no
   // InitiateCheckout on the CTA — Hotmart's pixel raises that on its own checkout.
   useEffect(() => {
-    if (!answers) return
+    if (preview || !answers) return
     Promise.all([initFacebookPixel(), initTikTokPixel()]).then(() => {
       trackFbEvent('ViewContent', { content_name: 'results_cabello', content_category: plan_key })
       trackTtEvent('ViewContent', { content_name: 'results_cabello', content_category: plan_key, content_id: plan_key, content_type: 'product' })
     })
-  }, [answers, plan_key])
+  }, [answers, plan_key, preview])
 
   // No answers (direct access) → back to the quiz.
   if (!answers) return <Navigate to="/quiz-cabello" replace />
@@ -656,7 +665,7 @@ export default function ResultsCabello({ pricingPlan = 'natglow' }) {
     const key = `cabello_results_cta_${attemptId}`
     let alreadySent = false
     try { alreadySent = !!sessionStorage.getItem(key) } catch { /* ignore */ }
-    if (!alreadySent && !ctaFiredRef.current) {
+    if (!preview && !alreadySent && !ctaFiredRef.current) {
       ctaFiredRef.current = true
       try { sessionStorage.setItem(key, '1') } catch { /* ignore */ }
       const fbEventId = crypto.randomUUID()

@@ -146,6 +146,8 @@ const AppRoutes = () => {
 
       {/* Results/offer of the /quiz (cabello) funnel. */}
       <Route path="/quiz-cabello/results" element={<Suspense fallback={<Spinner />}><ResultsCabello pricingPlan="natglow" /></Suspense>} />
+      {/* Preview — renders with sample answers, fires no funnel/pixel events. */}
+      <Route path="/quiz-cabello/results-preview" element={<Suspense fallback={<Spinner />}><ResultsCabello pricingPlan="natglow" preview /></Suspense>} />
       <Route path="/offer-cabello"        element={<Suspense fallback={<Spinner />}><OfferCabello pricingPlan="natglow" /></Suspense>} />
 
       {/* ── Results routes (2-step funnels: diagnosis page then offer page) ── */}
